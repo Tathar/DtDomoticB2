@@ -5,7 +5,7 @@
 #include <Adafruit_BME280.h>
 
 Adafruit_BME280 bme280[BME280_NUM];
-bool active[BME280_NUM];
+bool bme280_active[BME280_NUM];
 float temperature[BME280_NUM];
 float humidity[BME280_NUM];
 float pressure[BME280_NUM];
@@ -39,12 +39,12 @@ void DT_BME280_init()
             Serial.print("   ID of 0x56-0x58 represents a BMP 280,\n");
             Serial.print("        ID of 0x60 represents a BME 280.\n");
             Serial.print("        ID of 0x61 represents a BME 680.\n");
-            active[num] = false;
+            bme280_active[num] = false;
         }
         else
         {
             bme280[num].setSampling();
-            active[num] = true;
+            bme280_active[num] = true;
         }
     }
 }
@@ -58,7 +58,7 @@ void DT_BME280_loop()
         old = now;
         for (uint8_t num = 0; num < BME280_NUM; ++num)
         {
-            if (active[num])
+            if (bme280_active[num])
             {
                 uint8_t i2c_number = pgm_read_byte(BME280_ADDRESS + num);
 

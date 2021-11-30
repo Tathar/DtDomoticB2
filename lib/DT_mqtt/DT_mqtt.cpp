@@ -2,10 +2,10 @@
 
 #include <avr/wdt.h> //watchdog
 
-//float to str
-// char *dtostrf(double val, signed char width, unsigned char prec, char *s);
-//str to float
-//if (sscanf(value, "%d", &ret) != 1)
+// float to str
+//  char *dtostrf(double val, signed char width, unsigned char prec, char *s);
+// str to float
+// if (sscanf(value, "%d", &ret) != 1)
 
 // Update these with values suitable for your hardware/network.
 IPAddress server(MQTT_IP1, MQTT_IP2, MQTT_IP3, MQTT_IP4);
@@ -88,12 +88,12 @@ void DT_mqtt_init()
 void DT_mqtt_loop()
 {
     static uint32_t last_reconnection_time = 0;
-    static uint32_t reset_time = 0; //for reset network device
-    static bool reset = false;      //for reset network device
+    static uint32_t reset_time = 0; // for reset network device
+    static bool reset = false;      // for reset network device
     uint32_t now = millis();
     if (!mqtt.connected())
     {
-        wdt_enable(WDTO_8S); //watchdog at 8 secdons
+        wdt_enable(WDTO_8S); // watchdog at 8 secdons
         if (reset_time == 0)
             reset_time = now;
         else if (reset_time != 0 && !reset && now - reset_time > NETWORK_RESET_TIME)
@@ -129,7 +129,7 @@ void DT_mqtt_loop()
                 // Once connected, publish an announcement and resubscribe...
                 if (_mqtt_subscribe != nullptr)
                     _mqtt_subscribe(mqtt);
-                reset_time = 0; //desactivation du compteur de reset
+                reset_time = 0; // desactivation du compteur de reset
                 Serial.println("MQTT connected");
             }
             else
@@ -141,7 +141,7 @@ void DT_mqtt_loop()
             }
         }
 
-        delay(50);
+        // delay(50);
         wdt_enable(WATCHDOG_TIME);
     }
     else
@@ -153,6 +153,6 @@ void DT_mqtt_loop()
             if (_mqtt_update != nullptr)
                 _mqtt_update(mqtt);
         }
-        delay(50);
+        // delay(50);
     }
 }

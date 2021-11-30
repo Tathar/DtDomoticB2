@@ -6,10 +6,9 @@
 #include <DT_temp.h>
 #include <DT_mqtt.h>
 #include <DT_BME280.h>
+#include <DT_CCS811.h>
 
 #include <avr/wdt.h> //watchdog
-
-#include <Adafruit_CCS811.h>
 
 #include <ArduinoJson.h>
 
@@ -18,102 +17,20 @@
 
 DynamicJsonDocument doc(256);
 
-// Update these with values suitable for your hardware/network.
-// byte mac[] = {0xDE, 0xED, 0xBA, 0xFE, 0xFE, 0xED};
-// IPAddress ip(192, 168, 1, 201);
-// IPAddress server(90, 78, 191, 235);
-// EthernetClient ethClient;
-// PubSubClient client(ethClient);
-
 // #include "Wire.h"
 // #include "DFRobot_CCS811.h"
 // DFRobot_CCS811 CCS811;
 
-Adafruit_CCS811 ccs811;
-// void callback(char *topic, byte *payload, unsigned int length)
-// {
-//   char *p = (char *)malloc(length + 1);
-//   // Copy the payload to the new buffer
-//   memcpy(p, payload, length);
-//   p[length] = '\0';
-//   // handle message arrived
-//   if (strcmp(topic, "DtBoard/41/FG1/mode_set") == 0)
-//   {
-//     client.publish("DtBoard/41/FG1/mode_state", p);
-//     if (strcmp(p, "off") == 0)
-//     {
-//       client.publish("DtBoard/41/FG1/action_state", "off");
-//     }
-//     else if (strcmp(p, "heat") == 0)
-//     {
-//       client.publish("DtBoard/41/FG1/action_state", "heating");
-//     }
-//     else if (strcmp(p, "dry") == 0)
-//     {
-//       client.publish("DtBoard/41/FG1/action_state", "drying");
-//     }
-//     else if (strcmp(p, "auto") == 0)
-//     {
-//       client.publish("DtBoard/41/FG1/action_state", "idle");
-//     }
-//     Serial.print("DtBoard/41/FG1/mode_set = ");
-//     Serial.println(p);
-//   }
-//   else if (strcmp(topic, "DtBoard/41/FG1/temp_set") == 0)
-//   {
-//     client.publish("DtBoard/41/FG1/temp_state", p);
-//     Serial.print("DtBoard/41/FG1/temp_set = ");
-//     Serial.println(p);
-//   }
-//   else if (strcmp(topic, "DtBoard/41/FG1/away_set") == 0)
-//   {
-//     client.publish("DtBoard/41/FG1/away_state", p);
-//     Serial.print("DtBoard/41/FG1/away_set = ");
-//     Serial.println(p);
-//   }
-
-//   // Free the memory
-//   free(p);
-// }
+// Adafruit_CCS811 ccs811;
 
 long int lastReconnectAttempt = 0;
-
-// boolean reconnect()
-// {
-//   String clientId = "Board01";
-
-//   Serial.println("start MQTT conection");
-//   if (client.connect(clientId.c_str(), "DtBoard", "1MotdePasse"))
-//   {
-//     // Once connected, publish an announcement...
-//     client.publish("DtBoard/41/availability", "online");
-//     client.publish("DtBoard/41/FG1/mode_state", "Off");
-//     client.publish("DtBoard/41/FG1/action_state", "Off");
-//     client.publish("DtBoard/41/FG1/temp_state", "19");
-//     client.publish("DtBoard/41/FG1/away_state", "Off");
-//     // ... and resubscribe
-//     client.subscribe("DtBoard/41/FG1/mode_set");
-//     client.subscribe("DtBoard/41/FG1/temp_set");
-//     client.subscribe("DtBoard/41/FG1/away_set");
-
-//     Serial.println("MQTT connected");
-//   }
-//   else
-//   { // si echec affichage erreur
-//     Serial.print("ECHEC, rc=");
-//     Serial.print(client.state());
-//     Serial.println(" nouvelle tentative dans 5 secondes");
-//     delay(5000);
-//   }
-//   return client.connected();
-// }
 
 void homeassistant(void)
 {
   wdt_reset();
   char buffer[64];
   char buffer_value[512];
-  //relay
+  // relay
   for (uint8_t num = 0; num < RELAY_NUM; ++num)
   {
     wdt_reset();
@@ -121,28 +38,29 @@ void homeassistant(void)
     sprintf(buffer, "homeassistant/switch/41/relay-%d/config", num + 1);
     doc["~"] = "DtBoard/41";
     sprintf(buffer_value, "41-relay-%d", num + 1);
-    doc["unique_id"] = buffer_value;
+    doc["uniq_id"] = buffer_value; // unique_id
     sprintf(buffer_value, "relay-%d", num + 1);
-    doc["name"] = buffer_value;
+    doc["name"] = buffer_value; // name
     sprintf(buffer_value, "~/relay-%d/set", num + 1);
     doc["command_topic"] = buffer_value;
     sprintf(buffer_value, "~/relay-%d/state", num + 1);
-    doc["state_topic"] = buffer_value;
+    doc["stat_t"] = buffer_value; // state topic
 
     sprintf(buffer_value, "%X:%X:%X:%X:%X:%X", MAC1, MAC2, MAC3, MAC4, MAC5, MAC6);
-    doc["device"]["identifiers"] = buffer_value;
+    doc["dev"]["ids"] = buffer_value; // identifiers
     // JsonObject connection = doc["device"].createNestedArray("connection").createNestedObject();
     // sprintf(buffer_value, "%X:%X:%X:%X:%X:%X", MAC1, MAC2, MAC3, MAC4, MAC5, MAC6);
     // connection["mac"] = buffer_value;
-    doc["device"]["manufacturer"] = "DOUET Touch Familly";
-    doc["device"]["model"] = "DTBoard02";
-    doc["device"]["name"] = "Chauffage";
-    serializeJson(doc, buffer_value, sizeof(buffer_value));
+    doc["dev"]["mf"] = "DOUET Touch Familly"; // manufacturer
+    doc["dev"]["mdl"] = "DTBoard02";          // model
+    doc["dev"]["name"] = "Chauffage";         // name
+
     Serial.println(buffer_value);
+    serializeJson(doc, buffer_value, sizeof(buffer_value));
     DT_mqtt_send(buffer, buffer_value);
   }
 
-  //PT100
+  // PT100
   for (uint8_t num = 0; num < TEMP_NUM; ++num)
   {
     wdt_reset();
@@ -150,27 +68,20 @@ void homeassistant(void)
     sprintf(buffer, "homeassistant/sensor/41/pt100-%d/config", num + 1);
     doc["~"] = "DtBoard/41";
     sprintf(buffer_value, "41-pt100-%d", num + 1);
-    doc["unique_id"] = buffer_value;
+    doc["uniq_id"] = buffer_value;
     sprintf(buffer_value, "pt100-%d", num + 1);
     doc["name"] = buffer_value;
     sprintf(buffer_value, "~/pt100-%d/temperature", num + 1);
-    doc["state_topic"] = buffer_value;
-
-    doc["device_class"] = "temperature";
-
+    doc["stat_t"] = buffer_value;
+    doc["dev_cla"] = "temperature";
     sprintf(buffer_value, "%X:%X:%X:%X:%X:%X", MAC1, MAC2, MAC3, MAC4, MAC5, MAC6);
-    doc["device"]["identifiers"] = buffer_value;
-    // JsonObject connection = doc["device"].createNestedArray("connection").createNestedObject();
-    // sprintf(buffer_value, "%X:%X:%X:%X:%X:%X", MAC1, MAC2, MAC3, MAC4, MAC5, MAC6);
-    // connection["mac"] = buffer_value;
-    doc["device"]["manufacturer"] = "DOUET Touch Familly";
-    doc["device"]["model"] = "DTBoard02";
-    doc["device"]["name"] = "Chauffage";
+    doc["dev"]["ids"] = buffer_value;
+
     serializeJson(doc, buffer_value, sizeof(buffer_value));
     Serial.println(buffer_value);
     DT_mqtt_send(buffer, buffer_value);
   }
-  //BME280 temperature
+  // BME280 temperature
   for (uint8_t num = 0; num < BME280_NUM; ++num)
   {
     wdt_reset();
@@ -178,28 +89,22 @@ void homeassistant(void)
     sprintf(buffer, "homeassistant/sensor/41/bme280-temperature-%d/config", num + 1);
     doc["~"] = "DtBoard/41";
     sprintf(buffer_value, "41-bme280-temperature-%d", num + 1);
-    doc["unique_id"] = buffer_value;
+    doc["uniq_id"] = buffer_value;
     sprintf(buffer_value, "BME280-%d", num + 1);
     doc["name"] = buffer_value;
     sprintf(buffer_value, "~/bme280-%d/temperature", num + 1);
-    doc["state_topic"] = buffer_value;
-
-    doc["device_class"] = "temperature";
+    doc["stat_t"] = buffer_value;
+    doc["dev_cla"] = "temperature";
 
     sprintf(buffer_value, "%X:%X:%X:%X:%X:%X", MAC1, MAC2, MAC3, MAC4, MAC5, MAC6);
-    doc["device"]["identifiers"] = buffer_value;
-    // JsonObject connection = doc["device"].createNestedArray("connection").createNestedObject();
-    // sprintf(buffer_value, "%X:%X:%X:%X:%X:%X", MAC1, MAC2, MAC3, MAC4, MAC5, MAC6);
-    // connection["mac"] = buffer_value;
-    // doc["device"]["manufacturer"] = "DOUET Touch Familly";
-    // doc["device"]["model"] = "DTBoard02";
-    // doc["device"]["name"] = "Chauffage";
+    doc["dev"]["ids"] = buffer_value;
+
     serializeJson(doc, buffer_value, sizeof(buffer_value));
     Serial.println(buffer_value);
     DT_mqtt_send(buffer, buffer_value);
   }
-  //BME280 humidity
 
+  // BME280 humidity
   for (uint8_t num = 0; num < BME280_NUM; ++num)
   {
     wdt_reset();
@@ -207,24 +112,22 @@ void homeassistant(void)
     sprintf(buffer, "homeassistant/sensor/41/bme280-humidity-%d/config", num + 1);
     doc["~"] = "DtBoard/41";
     sprintf(buffer_value, "41-bme280-humidity-%d", num + 1);
-    doc["unique_id"] = buffer_value;
+    doc["uniq_id"] = buffer_value;
     sprintf(buffer_value, "BME280-%d", num + 1);
     doc["name"] = buffer_value;
     sprintf(buffer_value, "~/bme280-%d/humidity", num + 1);
-    doc["state_topic"] = buffer_value;
-
-    doc["device_class"] = "humidity";
+    doc["stat_t"] = buffer_value;
+    doc["dev_cla"] = "humidity";
 
     sprintf(buffer_value, "%X:%X:%X:%X:%X:%X", MAC1, MAC2, MAC3, MAC4, MAC5, MAC6);
-    doc["device"]["identifiers"] = buffer_value;
-    // doc["device"]["manufacturer"] = "DOUET Touch Familly";
-    // doc["device"]["model"] = "DTBoard02";
-    // doc["device"]["name"] = "Chauffage";
+    doc["dev"]["ids"] = buffer_value;
+
     serializeJson(doc, buffer_value, sizeof(buffer_value));
     Serial.println(buffer_value);
     DT_mqtt_send(buffer, buffer_value);
   }
-  //BME280 pressure
+
+  // BME280 pressure
   for (uint8_t num = 0; num < BME280_NUM; ++num)
   {
     wdt_reset();
@@ -232,22 +135,62 @@ void homeassistant(void)
     sprintf(buffer, "homeassistant/sensor/41/bme280-pressure-%d/config", num + 1);
     doc["~"] = "DtBoard/41";
     sprintf(buffer_value, "41-bme280-pressure-%d", num + 1);
-    doc["unique_id"] = buffer_value;
+    doc["uniq_id"] = buffer_value;
     sprintf(buffer_value, "BME280-%d", num + 1);
     doc["name"] = buffer_value;
     sprintf(buffer_value, "~/bme280-%d/pressure", num + 1);
-    doc["state_topic"] = buffer_value;
-
-    doc["device_class"] = "pressure";
+    doc["stat_t"] = buffer_value;
+    doc["dev_cla"] = "pressure";
 
     sprintf(buffer_value, "%X:%X:%X:%X:%X:%X", MAC1, MAC2, MAC3, MAC4, MAC5, MAC6);
-    doc["device"]["identifiers"] = buffer_value;
-    // JsonObject connection = doc["device"].createNestedArray("connection").createNestedObject();
-    // sprintf(buffer_value, "%X:%X:%X:%X:%X:%X", MAC1, MAC2, MAC3, MAC4, MAC5, MAC6);
-    // connection["mac"] = buffer_value;
-    doc["device"]["manufacturer"] = "DOUET Touch Familly";
-    doc["device"]["model"] = "DTBoard02";
-    doc["device"]["name"] = "Chauffage";
+    doc["dev"]["ids"] = buffer_value;
+
+    serializeJson(doc, buffer_value, sizeof(buffer_value));
+    Serial.println(buffer_value);
+    DT_mqtt_send(buffer, buffer_value);
+  }
+
+  // CCS811 CO2
+  for (uint8_t num = 0; num < CCS811_NUM; ++num)
+  {
+    wdt_reset(); // clear watchdog
+    doc.clear();
+    sprintf(buffer, "homeassistant/sensor/41/ccs811-co2-%d/config", num + 1);
+    doc["~"] = "DtBoard/41";
+    sprintf(buffer_value, "41-ccs811-co2-%d", num + 1);
+    doc["uniq_id"] = buffer_value;
+    sprintf(buffer_value, "ccs811-%d", num + 1);
+    doc["name"] = buffer_value;
+    sprintf(buffer_value, "~/ccs811-%d/co2", num + 1);
+    doc["stat_t"] = buffer_value;
+    doc["dev_cla"] = "carbon_dioxide";
+
+    sprintf(buffer_value, "%X:%X:%X:%X:%X:%X", MAC1, MAC2, MAC3, MAC4, MAC5, MAC6);
+    doc["dev"]["ids"] = buffer_value;
+
+    serializeJson(doc, buffer_value, sizeof(buffer_value));
+    Serial.println(buffer_value);
+    DT_mqtt_send(buffer, buffer_value);
+  }
+
+  // CCS811 COV
+  for (uint8_t num = 0; num < CCS811_NUM; ++num)
+  {
+    wdt_reset(); // clear watchdog
+    doc.clear();
+    sprintf(buffer, "homeassistant/sensor/41/ccs811-cov-%d/config", num + 1);
+    doc["~"] = "DtBoard/41";
+    sprintf(buffer_value, "41-ccs811-cov-%d", num + 1);
+    doc["uniq_id"] = buffer_value;
+    sprintf(buffer_value, "ccs811-%d", num + 1);
+    doc["name"] = buffer_value;
+    sprintf(buffer_value, "~/ccs811-%d/cov", num + 1);
+    doc["stat_t"] = buffer_value;
+    doc["dev_cla"] = "pm10";
+
+    sprintf(buffer_value, "%X:%X:%X:%X:%X:%X", MAC1, MAC2, MAC3, MAC4, MAC5, MAC6);
+    doc["dev"]["ids"] = buffer_value;
+
     serializeJson(doc, buffer_value, sizeof(buffer_value));
     Serial.println(buffer_value);
     DT_mqtt_send(buffer, buffer_value);
@@ -322,11 +265,38 @@ void bme280_callback_pressure(const uint8_t num, const float pressure)
   DT_mqtt_send(buffer, buffer_value);
 }
 
+void ccs811_callback_co2(const uint8_t num, const float co2)
+{
+  wdt_reset();
+  char buffer[48];
+  char buffer_value[32];
+
+  sprintf(buffer, "DtBoard/41/ccs811-%d/co2", num);
+  JsonVariant variant = doc.to<JsonVariant>();
+  variant.set(co2);
+  serializeJson(variant, buffer_value, 32);
+  DT_mqtt_send(buffer, buffer_value);
+}
+
+void ccs811_callback_cov(const uint8_t num, const float cov)
+{
+  wdt_reset();
+  char buffer[48];
+  char buffer_value[32];
+
+  sprintf(buffer, "DtBoard/41/ccs811-%d/cov", num);
+  JsonVariant variant = doc.to<JsonVariant>();
+  variant.set(cov);
+  serializeJson(variant, buffer_value, 32);
+  DT_mqtt_send(buffer, buffer_value);
+}
+
 void mqtt_publish()
 {
   wdt_reset();
   char buffer[BUFFER_SIZE];
   DT_mqtt_send("DtBoard/41/availability", "online");
+
   DT_mqtt_send("DtBoard/41/FG1/mode_state", "Off");
   DT_mqtt_send("DtBoard/41/FG1/action_state", "Off");
   DT_mqtt_send("DtBoard/41/FG1/temp_state", "19");
@@ -420,6 +390,11 @@ void setup()
   DT_BME280_set_callback_humidity(bme280_callback_humidity);
   DT_BME280_set_callback_pressure(bme280_callback_pressure);
 
+  Serial.println("starting BCCS811");
+  DT_CCS811_init();
+  DT_CCS811_set_callback_co2(ccs811_callback_co2);
+  DT_CCS811_set_callback_cov(ccs811_callback_cov);
+
   // client.setServer(server, 1883);
   // client.setCallback(callback);
 
@@ -453,14 +428,43 @@ void setup()
 
 void loop()
 {
+  uint32_t now = millis();
+
   wdt_reset();
 
   DT_relay_loop();
-  DT_temp_loop();
   DT_BME280_loop();
-  DT_mqtt_loop();
+  DT_CCS811_loop();
 
-  uint32_t now = millis();
+  static uint32_t pt100_temp = 0;
+  static uint32_t spi_temp = 0;
+  if (now - spi_temp >= 900)
+  {
+    if (now - pt100_temp >= 1000) // toute les secondes
+    {
+      pt100_temp = now;
+      spi_temp = now;
+      DT_temp_loop();
+    }
+  }
+  else
+  {
+    DT_mqtt_loop();
+  }
+
+  // adjust CCS811
+  static uint32_t ccs811_environmental = 0;
+  if (now - ccs811_environmental > 600000) // toute les 10 minutes
+  {
+    ccs811_environmental = now;
+    float humidity = DT_BME280_get_humidity(1);
+    float temperature = DT_BME280_get_temperature(1);
+    DT_CCS811_set_environmental_data(1, humidity, temperature);
+    humidity = DT_BME280_get_humidity(2);
+    temperature = DT_BME280_get_temperature(2);
+    DT_CCS811_set_environmental_data(2, humidity, temperature);
+  }
+
   static uint32_t old = 0;
 
   if (now - old > 1000)
@@ -468,7 +472,7 @@ void loop()
 
     /*
     old = now;
-    
+
     if (ccs811.available())
     {
       if (!ccs811.readData())
