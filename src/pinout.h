@@ -23,7 +23,7 @@ const uint8_t BME280_I2C[BME280_NUM] PROGMEM = {1, 1};
 // sonde de temperature CCS811
 #define CCS811_NUM 2
 // const uint8_t BME280_ADDRESS[BME280_NUM] PROGMEM = {0x76, 0x77};
-const uint8_t ccs811_address[CCS811_NUM] = {0x76, 0x77};
+const uint8_t ccs811_address[CCS811_NUM] = {0x5A, 0x5B};
 const uint8_t ccs811_I2C[CCS811_NUM] PROGMEM = {1, 1};
 
 // reseau

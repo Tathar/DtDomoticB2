@@ -6,8 +6,8 @@
 
 Adafruit_CCS811 ccs811[CCS811_NUM];
 bool ccs811_active[CCS811_NUM];
-float co2[CCS811_NUM];
-float cov[CCS811_NUM];
+float ccs811_co2[CCS811_NUM];
+float ccs811_cov[CCS811_NUM];
 
 void (*ccs811_callback_co2)(const uint8_t num, const float co2);
 void (*ccs811_callback_cov)(const uint8_t num, const float cov);
@@ -64,17 +64,17 @@ void DT_CCS811_loop()
                     {
 
                         float value = ccs811[num].geteCO2();
-                        if (value != co2[num])
+                        if (value != ccs811_co2[num])
                         {
-                            co2[num] = value;
+                            ccs811_co2[num] = value;
                             if (ccs811_callback_co2 != nullptr)
                                 ccs811_callback_co2(num + 1, value);
                         }
 
                         value = ccs811[num].getTVOC();
-                        if (value != cov[num])
+                        if (value != ccs811_cov[num])
                         {
-                            cov[num] = value;
+                            ccs811_cov[num] = value;
                             if (ccs811_callback_cov != nullptr)
                                 ccs811_callback_cov(num + 1, value);
                         }
@@ -101,12 +101,12 @@ void DT_CCS811_set_callback_cov(void (*callback)(const uint8_t num, const float 
 
 float DT_CCS811_get_co2(const uint8_t num)
 {
-    return co2[num - 1];
+    return ccs811_co2[num - 1];
 }
 
 float DT_CCS811_get_cov(const uint8_t num)
 {
-    return cov[num - 1];
+    return ccs811_cov[num - 1];
 }
 
 void DT_CCS811_set_environmental_data(uint8_t num, float humidity, float temperature)

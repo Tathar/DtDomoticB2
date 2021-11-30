@@ -153,6 +153,6 @@ void DT_mqtt_loop()
             if (_mqtt_update != nullptr)
                 _mqtt_update(mqtt);
         }
-        // delay(50);
+        // delay(100);
     }
 }

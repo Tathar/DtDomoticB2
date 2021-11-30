@@ -375,10 +375,6 @@ void mqtt_receve(char *topic, uint8_t *payload, unsigned int length)
 void setup()
 {
   Serial.begin(9600);
-  Serial.println("starting board");
-  DT_mqtt_init();
-  DT_mqtt_set_subscribe_callback(&mqtt_subscribe);
-  DT_mqtt_set_receve_callback(&mqtt_receve);
 
   Serial.println("starting PT100");
   DT_temp_init();
@@ -394,6 +390,11 @@ void setup()
   DT_CCS811_init();
   DT_CCS811_set_callback_co2(ccs811_callback_co2);
   DT_CCS811_set_callback_cov(ccs811_callback_cov);
+
+  Serial.println("starting board");
+  DT_mqtt_init();
+  DT_mqtt_set_subscribe_callback(&mqtt_subscribe);
+  DT_mqtt_set_receve_callback(&mqtt_receve);
 
   // client.setServer(server, 1883);
   // client.setCallback(callback);
@@ -432,25 +433,11 @@ void loop()
 
   wdt_reset();
 
+  DT_mqtt_loop();
   DT_relay_loop();
   DT_BME280_loop();
   DT_CCS811_loop();
-
-  static uint32_t pt100_temp = 0;
-  static uint32_t spi_temp = 0;
-  if (now - spi_temp >= 900)
-  {
-    if (now - pt100_temp >= 1000) // toute les secondes
-    {
-      pt100_temp = now;
-      spi_temp = now;
-      DT_temp_loop();
-    }
-  }
-  else
-  {
-    DT_mqtt_loop();
-  }
+  DT_temp_loop();
 
   // adjust CCS811
   static uint32_t ccs811_environmental = 0;

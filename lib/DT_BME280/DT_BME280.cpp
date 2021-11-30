@@ -28,6 +28,7 @@ void DT_BME280_init()
         // Wire.write(1 << (i2c_number - 1));
         // Wire.endTransmission();
         Serial.println(address, HEX);
+        Serial.println(i2c_number);
         unsigned status = bme280[num].begin(address);
 
         if (!status)
