@@ -9,6 +9,9 @@
 const uint8_t RELAY_ARRAY[RELAY_NUM] PROGMEM = {22, 23, 24, 25, 26, 27, 28, 29, 30, 31};
 const bool RELAY_REVERT[RELAY_NUM] PROGMEM = {true, true, false, false, false, false, false, false, false, false};
 
+#define MCP_NUM 2
+const uint8_t MCP_ADDRESS[MCP_NUM] PROGMEM = {0x40, 0x42};
+
 // sonde de temperature pt100
 #define TEMP_RREF 430.0
 #define TEMP_NUM 2

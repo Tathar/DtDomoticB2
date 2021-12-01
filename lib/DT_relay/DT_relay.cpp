@@ -1,16 +1,44 @@
 #include <DT_relay.h>
 #include "Arduino.h"
+#include <Adafruit_MCP23X08.h>
 
 uint16_t num_delay[RELAY_NUM];
 void (*_callback)(const uint8_t num, const bool action);
+Adafruit_MCP23X08 mcp[2];
 
 void DT_relay_init()
 {
+    uint8_t i2c = 0;
     _callback = NULL;
+
+    for (uint8_t mcp_num = 0; mcp_num < 2; ++mcp_num)
+    {
+        i2c = pgm_read_byte(MCP_ADDRESS + mcp_num);
+        if (!mcp[mcp_num].begin_I2C(i2c))
+        {
+            {
+                Serial.println("MCP23008 Init Error.");
+            }
+        }
+    }
+
     for (uint8_t num = 0; num < RELAY_NUM; ++num)
     {
+
         uint8_t pin = pgm_read_byte(RELAY_ARRAY + num);
-        pinMode(pin, OUTPUT);
+
+        if (pin >= 100)
+        {
+            pin -= 100;
+            i2c = pin / 10;
+            pin %= 10;
+            mcp[i2c].pinMode(pin, OUTPUT);
+        }
+        else
+        {
+            pinMode(pin, OUTPUT);
+        }
+
         DT_relay(num + 1, false);
         num_delay[num] = 0;
     }
@@ -20,13 +48,31 @@ void DT_relay(int num, bool active)
 {
     uint8_t pin = pgm_read_byte(RELAY_ARRAY + (num - 1));
     bool revert = pgm_read_byte(RELAY_REVERT + (num - 1));
-    if ((active && !revert) || (!active && revert))
+
+    if (pin >= 100)
     {
-        digitalWrite(pin, HIGH);
+        pin -= 100;
+        uint8_t i2c = pin / 10;
+        pin %= 10;
+        if ((active && !revert) || (!active && revert))
+        {
+            mcp[i2c].digitalWrite(pin, HIGH);
+        }
+        else
+        {
+            mcp[i2c].digitalWrite(pin, LOW);
+        }
     }
     else
     {
-        digitalWrite(pin, LOW);
+        if ((active && !revert) || (!active && revert))
+        {
+            digitalWrite(pin, HIGH);
+        }
+        else
+        {
+            digitalWrite(pin, LOW);
+        }
     }
 
     if (_callback != NULL)
@@ -39,7 +85,18 @@ uint8_t DT_relay_get(int num)
 {
     uint8_t pin = pgm_read_byte(RELAY_ARRAY + (num - 1));
     bool revert = pgm_read_byte(RELAY_REVERT + (num - 1));
-    bool ret = digitalRead(pin);
+    bool ret;
+    if (pin >= 100)
+    {
+        pin -= 100;
+        uint8_t i2c = pin / 10;
+        pin %= 10;
+        ret = mcp[i2c].digitalRead(pin);
+    }
+    else
+    {
+        ret = digitalRead(pin);
+    }
     return revert ? !ret : ret;
 }
 
