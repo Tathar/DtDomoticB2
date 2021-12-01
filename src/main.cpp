@@ -3,6 +3,7 @@
 #include <Ethernet.h>
 
 #include <DT_relay.h>
+#include <DT_input.h>
 #include <DT_PT100.h>
 #include <DT_mqtt.h>
 #include <DT_BME280.h>
@@ -54,6 +55,28 @@ void homeassistant(void)
     doc["dev"]["mf"] = "DOUET Touch Familly"; // manufacturer
     doc["dev"]["mdl"] = "DTBoard02";          // model
     doc["dev"]["name"] = "Chauffage";         // name
+
+    Serial.println(buffer_value);
+    serializeJson(doc, buffer_value, sizeof(buffer_value));
+    DT_mqtt_send(buffer, buffer_value);
+  }
+
+  // input
+  for (uint8_t num = 0; num < INPUT_NUM; ++num)
+  {
+    wdt_reset();
+    doc.clear();
+    sprintf(buffer, "homeassistant/binary_sensor/41/input-%d/config", num + 1);
+    doc["~"] = "DtBoard/41";
+    sprintf(buffer_value, "41-input-%d", num + 1);
+    doc["uniq_id"] = buffer_value; // unique_id
+    sprintf(buffer_value, "input-%d", num + 1);
+    doc["name"] = buffer_value; // name
+    sprintf(buffer_value, "~/input-%d/state", num + 1);
+    doc["stat_t"] = buffer_value; // state topic
+
+    sprintf(buffer_value, "%X:%X:%X:%X:%X:%X", MAC1, MAC2, MAC3, MAC4, MAC5, MAC6);
+    doc["dev"]["ids"] = buffer_value; // identifiers
 
     Serial.println(buffer_value);
     serializeJson(doc, buffer_value, sizeof(buffer_value));
@@ -204,6 +227,19 @@ void relay_callback(const uint8_t num, const bool action)
   sprintf(buffer, "relais numero %d dans l etat %d", num, (int)action);
   Serial.println(buffer);
   sprintf(buffer, "DtBoard/41/relay-%d/state", num);
+  if (action)
+    DT_mqtt_send(buffer, "ON");
+  else
+    DT_mqtt_send(buffer, "OFF");
+}
+
+void input_callback(const uint8_t num, const bool action)
+{
+  wdt_reset();
+  char buffer[32];
+  sprintf(buffer, "entrée numero %d dans l etat %d", num, (int)action);
+  Serial.println(buffer);
+  sprintf(buffer, "DtBoard/41/input-%d/state", num);
   if (action)
     DT_mqtt_send(buffer, "ON");
   else
@@ -376,6 +412,14 @@ void setup()
 {
   Serial.begin(9600);
 
+  Serial.println("starting relay");
+  DT_relay_init();
+  DT_relay_set_callback(relay_callback);
+
+  Serial.println("starting input");
+  DT_input_init();
+  DT_input_set_callback(input_callback);
+
   Serial.println("starting PT100");
   DT_pt100_init();
   DT_pt100_set_callback(pt100_callback);
@@ -393,8 +437,8 @@ void setup()
 
   Serial.println("starting board");
   DT_mqtt_init();
-  DT_mqtt_set_subscribe_callback(&mqtt_subscribe);
-  DT_mqtt_set_receve_callback(&mqtt_receve);
+  DT_mqtt_set_subscribe_callback(mqtt_subscribe);
+  DT_mqtt_set_receve_callback(mqtt_receve);
 
   // client.setServer(server, 1883);
   // client.setCallback(callback);
@@ -420,9 +464,6 @@ void setup()
   //   Serial.println("Failed to start sensor! Please check your wiring.");
   // }
 
-  Serial.println("starting relay");
-  DT_relay_init();
-  DT_relay_set_callback(&relay_callback);
   wdt_enable(WATCHDOG_TIME);
   Serial.println("Board started");
 }

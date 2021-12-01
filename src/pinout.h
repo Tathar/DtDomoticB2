@@ -12,6 +12,12 @@ const bool RELAY_REVERT[RELAY_NUM] PROGMEM = {true, true, false, false, false, f
 #define MCP_NUM 2
 const uint8_t MCP_ADDRESS[MCP_NUM] PROGMEM = {0x40, 0x42};
 
+// input 24V 230V
+
+#define INPUT_NUM 10
+const uint8_t INPUT_ARRAY[INPUT_NUM] PROGMEM = {22, 23, 24, 25, 26, 27, 28, 29, 30, 31};
+const bool INPUT_REVERT[INPUT_NUM] PROGMEM = {true, true, false, false, false, false, false, false, false, false};
+
 // sonde de temperature pt100
 #define TEMP_RREF 430.0
 #define TEMP_NUM 2
