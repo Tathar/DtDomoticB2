@@ -14,9 +14,9 @@ const uint8_t MCP_ADDRESS[MCP_NUM] PROGMEM = {0x40, 0x42};
 
 // input 24V 230V
 
-#define INPUT_NUM 10
-const uint8_t INPUT_ARRAY[INPUT_NUM] PROGMEM = {22, 23, 24, 25, 26, 27, 28, 29, 30, 31};
-const bool INPUT_REVERT[INPUT_NUM] PROGMEM = {true, true, false, false, false, false, false, false, false, false};
+#define INPUT_NUM 16
+const uint8_t INPUT_ARRAY[INPUT_NUM] PROGMEM = {54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69};
+const bool INPUT_REVERT[INPUT_NUM] PROGMEM = {true, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false};
 
 // sonde de temperature pt100
 #define TEMP_RREF 430.0

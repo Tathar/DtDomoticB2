@@ -7,11 +7,11 @@
 uint32_t debounce_start_time[INPUT_NUM];
 uint8_t old_pin_stats[INPUT_NUM];
 
-void (*input_callback)(const uint8_t num, const bool action);
+void (*input_callback)(const uint8_t num, const uint8_t action);
 
 void DT_input_init()
 {
-    input_callback = NULL;
+    input_callback = nullptr;
 
     for (uint8_t num = 0; num < INPUT_NUM; ++num)
     {
@@ -33,6 +33,9 @@ void DT_input_loop()
     {
         uint8_t pin = pgm_read_byte(INPUT_ARRAY + num);
         bool revert = pgm_read_byte(INPUT_REVERT + num);
+
+        // Serial.println(pin);
+        // Serial.println(revert);
         uint8_t pin_stats = digitalRead(pin);
 
         if (revert)
@@ -46,7 +49,7 @@ void DT_input_loop()
                 debounce_start_time[num] = now; // demmarage du timer de debounce
                 if (input_callback != nullptr)
                 {
-                    input_callback(num, pin_stats);
+                    input_callback(num + 1, pin_stats);
                 }
             }
 
@@ -56,14 +59,14 @@ void DT_input_loop()
                 debounce_start_time[num] = now; // demmarage du timer de debounce
                 if (input_callback != nullptr)
                 {
-                    input_callback(num, pin_stats);
+                    input_callback(num + 1, pin_stats);
                 }
             }
         }
     }
 }
 
-void DT_input_set_callback(void (*callback)(const uint8_t num, const bool action))
+void DT_input_set_callback(void (*callback)(const uint8_t num, const uint8_t action))
 {
     input_callback = callback;
 }

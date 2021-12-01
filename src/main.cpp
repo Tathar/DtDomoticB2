@@ -233,14 +233,14 @@ void relay_callback(const uint8_t num, const bool action)
     DT_mqtt_send(buffer, "OFF");
 }
 
-void input_callback(const uint8_t num, const bool action)
+void input_callback(const uint8_t num, const uint8_t action)
 {
   wdt_reset();
   char buffer[32];
   sprintf(buffer, "entrée numero %d dans l etat %d", num, (int)action);
   Serial.println(buffer);
   sprintf(buffer, "DtBoard/41/input-%d/state", num);
-  if (action)
+  if (action == HIGH)
     DT_mqtt_send(buffer, "ON");
   else
     DT_mqtt_send(buffer, "OFF");
@@ -343,8 +343,18 @@ void mqtt_publish()
   for (uint8_t num = 0; num < RELAY_NUM; ++num)
   {
     wdt_reset();
-    sprintf(buffer, "DtBoard/41/relay-%d/state", num);
-    if (DT_relay_get(2))
+    sprintf(buffer, "DtBoard/41/relay-%d/state", num + 1);
+    if (DT_relay_get(num + 1))
+      DT_mqtt_send(buffer, "ON");
+    else
+      DT_mqtt_send(buffer, "OFF");
+  }
+
+  for (uint8_t num = 0; num < INPUT_NUM; ++num)
+  {
+    wdt_reset();
+    sprintf(buffer, "DtBoard/41/input-%d/state", num + 1);
+    if (DT_input_get(num + 1) == HIGH)
       DT_mqtt_send(buffer, "ON");
     else
       DT_mqtt_send(buffer, "OFF");
@@ -476,6 +486,7 @@ void loop()
 
   DT_mqtt_loop();
   DT_relay_loop();
+  DT_input_loop();
   DT_BME280_loop();
   DT_CCS811_loop();
   DT_pt100_loop();

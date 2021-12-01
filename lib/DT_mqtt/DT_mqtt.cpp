@@ -2,6 +2,9 @@
 
 #include <avr/wdt.h> //watchdog
 
+#define add0x2(s) 0x##s
+#define toHEX(s) add0x2(s)
+
 // float to str
 //  char *dtostrf(double val, signed char width, unsigned char prec, char *s);
 // str to float

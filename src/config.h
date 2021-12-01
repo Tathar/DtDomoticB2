@@ -1,13 +1,6 @@
 #ifndef CONFIG
 #define CONFIG
 
-#define str(s) #s
-#define defstr(s) str(s)
-
-#define add0x(s) 0x##s
-#define concat6(a, b, c, d, e, f) a##b##c##d##e##f
-#define toMAC (a, b, c, d, e, f) #concat6(a, b, c, d, e, f)
-
 #include <Arduino.h>
 
 // input
@@ -25,9 +18,6 @@
 #define MAC4 0xFE
 #define MAC5 0xFE
 #define MAC6 0xED
-
-#define HEX(var) "0x"##str(var)
-#define MAC MAC1##MAC2##MAC3##MAC4##MAC5##MAC6
 
 #define BOARD_UID "FE:FE:ED"
 //#define DHCP
