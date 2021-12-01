@@ -1,4 +1,4 @@
-#include <DT_temp.h>
+#include <DT_PT100.h>
 #include "Arduino.h"
 
 #include <Adafruit_MAX31865.h>
@@ -60,7 +60,7 @@ float _temp_get(int num)
     }
 }
 
-void DT_temp_init()
+void DT_pt100_init()
 {
     pt100_callback = nullptr;
     for (uint8_t num = 0; num < TEMP_NUM; ++num)
@@ -73,8 +73,9 @@ void DT_temp_init()
     }
 }
 
-void DT_temp_loop()
+void DT_pt100_loop()
 {
+    delay(50);
     static uint32_t old_time = 0;
     uint32_t now = millis();
     float tmp = 0;
@@ -96,12 +97,12 @@ void DT_temp_loop()
     }
 }
 
-float DT_temp_get(uint8_t num)
+float DT_pt100_get(uint8_t num)
 {
     return old_temp[num - 1];
 }
 
-void DT_temp_set_callback(void (*callback)(const uint8_t num, const float temp))
+void DT_pt100_set_callback(void (*callback)(const uint8_t num, const float temp))
 {
     pt100_callback = callback;
 }

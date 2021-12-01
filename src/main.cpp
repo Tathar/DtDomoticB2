@@ -3,7 +3,7 @@
 #include <Ethernet.h>
 
 #include <DT_relay.h>
-#include <DT_temp.h>
+#include <DT_PT100.h>
 #include <DT_mqtt.h>
 #include <DT_BME280.h>
 #include <DT_CCS811.h>
@@ -377,8 +377,8 @@ void setup()
   Serial.begin(9600);
 
   Serial.println("starting PT100");
-  DT_temp_init();
-  DT_temp_set_callback(pt100_callback);
+  DT_pt100_init();
+  DT_pt100_set_callback(pt100_callback);
 
   Serial.println("starting BME280");
   DT_BME280_init();
@@ -437,7 +437,7 @@ void loop()
   DT_relay_loop();
   DT_BME280_loop();
   DT_CCS811_loop();
-  DT_temp_loop();
+  DT_pt100_loop();
 
   // adjust CCS811
   static uint32_t ccs811_environmental = 0;
