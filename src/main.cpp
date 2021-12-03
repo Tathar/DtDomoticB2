@@ -48,14 +48,13 @@ void homeassistant(void)
     sprintf(buffer_value, "~/relay-%d/state", num + 1);
     doc["stat_t"] = buffer_value; // state topic
 
-    sprintf(buffer_value, "%X:%X:%X:%X:%X:%X", MAC1, MAC2, MAC3, MAC4, MAC5, MAC6);
-    doc["dev"]["ids"] = buffer_value; // identifiers
+    doc["dev"]["ids"] = BOARD_IDENTIFIER; // identifiers
     // JsonObject connection = doc["device"].createNestedArray("connection").createNestedObject();
     // sprintf(buffer_value, "%X:%X:%X:%X:%X:%X", MAC1, MAC2, MAC3, MAC4, MAC5, MAC6);
     // connection["mac"] = buffer_value;
-    doc["dev"]["mf"] = "DOUET Touch Familly"; // manufacturer
-    doc["dev"]["mdl"] = "DTBoard02";          // model
-    doc["dev"]["name"] = "Chauffage";         // name
+    doc["dev"]["mf"] = BOARD_MANUFACTURER; // manufacturer
+    doc["dev"]["mdl"] = "DTBoard02";       // model
+    doc["dev"]["name"] = "Chauffage";      // name
 
     Serial.println(buffer_value);
     serializeJson(doc, buffer_value, sizeof(buffer_value));
@@ -76,8 +75,7 @@ void homeassistant(void)
     sprintf(buffer_value, "~/input-%d/state", num + 1);
     doc["stat_t"] = buffer_value; // state topic
 
-    sprintf(buffer_value, "%X:%X:%X:%X:%X:%X", MAC1, MAC2, MAC3, MAC4, MAC5, MAC6);
-    doc["dev"]["ids"] = buffer_value; // identifiers
+    doc["dev"]["ids"] = BOARD_IDENTIFIER; // identifiers
 
     Serial.println(buffer_value);
     serializeJson(doc, buffer_value, sizeof(buffer_value));
@@ -98,8 +96,7 @@ void homeassistant(void)
     sprintf(buffer_value, "~/pt100-%d/temperature", num + 1);
     doc["stat_t"] = buffer_value;
     doc["dev_cla"] = "temperature";
-    sprintf(buffer_value, "%X:%X:%X:%X:%X:%X", MAC1, MAC2, MAC3, MAC4, MAC5, MAC6);
-    doc["dev"]["ids"] = buffer_value;
+    doc["dev"]["ids"] = BOARD_IDENTIFIER; // identifiers
 
     serializeJson(doc, buffer_value, sizeof(buffer_value));
     Serial.println(buffer_value);
@@ -120,8 +117,7 @@ void homeassistant(void)
     doc["stat_t"] = buffer_value;
     doc["dev_cla"] = "temperature";
 
-    sprintf(buffer_value, "%X:%X:%X:%X:%X:%X", MAC1, MAC2, MAC3, MAC4, MAC5, MAC6);
-    doc["dev"]["ids"] = buffer_value;
+    doc["dev"]["ids"] = BOARD_IDENTIFIER; // identifiers
 
     serializeJson(doc, buffer_value, sizeof(buffer_value));
     Serial.println(buffer_value);
@@ -143,8 +139,7 @@ void homeassistant(void)
     doc["stat_t"] = buffer_value;
     doc["dev_cla"] = "humidity";
 
-    sprintf(buffer_value, "%X:%X:%X:%X:%X:%X", MAC1, MAC2, MAC3, MAC4, MAC5, MAC6);
-    doc["dev"]["ids"] = buffer_value;
+    doc["dev"]["ids"] = BOARD_IDENTIFIER; // identifiers
 
     serializeJson(doc, buffer_value, sizeof(buffer_value));
     Serial.println(buffer_value);
@@ -166,8 +161,7 @@ void homeassistant(void)
     doc["stat_t"] = buffer_value;
     doc["dev_cla"] = "pressure";
 
-    sprintf(buffer_value, "%X:%X:%X:%X:%X:%X", MAC1, MAC2, MAC3, MAC4, MAC5, MAC6);
-    doc["dev"]["ids"] = buffer_value;
+    doc["dev"]["ids"] = BOARD_IDENTIFIER; // identifiers
 
     serializeJson(doc, buffer_value, sizeof(buffer_value));
     Serial.println(buffer_value);
@@ -189,8 +183,7 @@ void homeassistant(void)
     doc["stat_t"] = buffer_value;
     doc["dev_cla"] = "carbon_dioxide";
 
-    sprintf(buffer_value, "%X:%X:%X:%X:%X:%X", MAC1, MAC2, MAC3, MAC4, MAC5, MAC6);
-    doc["dev"]["ids"] = buffer_value;
+    doc["dev"]["ids"] = BOARD_IDENTIFIER; // identifiers
 
     serializeJson(doc, buffer_value, sizeof(buffer_value));
     Serial.println(buffer_value);
@@ -212,8 +205,7 @@ void homeassistant(void)
     doc["stat_t"] = buffer_value;
     doc["dev_cla"] = "pm10";
 
-    sprintf(buffer_value, "%X:%X:%X:%X:%X:%X", MAC1, MAC2, MAC3, MAC4, MAC5, MAC6);
-    doc["dev"]["ids"] = buffer_value;
+    doc["dev"]["ids"] = BOARD_IDENTIFIER; // identifiers
 
     serializeJson(doc, buffer_value, sizeof(buffer_value));
     Serial.println(buffer_value);

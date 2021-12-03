@@ -3,6 +3,15 @@
 
 #include <Arduino.h>
 
+#define STRINGIFY(x) #x
+#define TO_C_STR(x) STRINGIFY(x)
+
+#define BOARD_MANUFACTURER "DOUET Touch Familly"
+#define BOARD_MODEL "DTBoard02"
+#define BOARD_NAME "Chauffage"
+#define BOARD_SW_VERSION "0.1"
+#define BOARD_IDENTIFIER "DTB02-001"
+
 // input
 #define DEBOUNCE_TIME 50
 
@@ -19,7 +28,6 @@
 #define MAC5 0xFE
 #define MAC6 0xED
 
-#define BOARD_UID "FE:FE:ED"
 //#define DHCP
 
 // ip address
