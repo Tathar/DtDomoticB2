@@ -18,6 +18,8 @@
 #include <config.h>
 
 DynamicJsonDocument doc(256);
+char buffer[64];
+char buffer_value[512];
 
 // #include "Wire.h"
 // #include "DFRobot_CCS811.h"
@@ -30,8 +32,6 @@ long int lastReconnectAttempt = 0;
 void homeassistant(void)
 {
   wdt_reset();
-  char buffer[64];
-  char buffer_value[512];
   // relay
   for (uint8_t num = 0; num < RELAY_NUM; ++num)
   {
@@ -53,8 +53,9 @@ void homeassistant(void)
     // sprintf(buffer_value, "%X:%X:%X:%X:%X:%X", MAC1, MAC2, MAC3, MAC4, MAC5, MAC6);
     // connection["mac"] = buffer_value;
     doc["dev"]["mf"] = BOARD_MANUFACTURER; // manufacturer
-    doc["dev"]["mdl"] = "DTBoard02";       // model
-    doc["dev"]["name"] = "Chauffage";      // name
+    doc["dev"]["mdl"] = BOARD_MODEL;       // model
+    doc["dev"]["name"] = BOARD_NAME;       // name
+    doc["dev"]["sw"] = BOARD_SW_VERSION;   // software version
 
     Serial.println(buffer_value);
     serializeJson(doc, buffer_value, sizeof(buffer_value));
@@ -216,7 +217,6 @@ void homeassistant(void)
 void relay_callback(const uint8_t num, const bool action)
 {
   wdt_reset();
-  char buffer[32];
   sprintf(buffer, "relais numero %d dans l etat %d", num, (int)action);
   Serial.println(buffer);
   sprintf(buffer, "DtBoard/" BOARD_IDENTIFIER "/relay-%d/state", num);
@@ -229,7 +229,6 @@ void relay_callback(const uint8_t num, const bool action)
 void input_callback(const uint8_t num, const uint8_t action)
 {
   wdt_reset();
-  char buffer[32];
   sprintf(buffer, "entrée numero %d dans l etat %d", num, (int)action);
   Serial.println(buffer);
   sprintf(buffer, "DtBoard/" BOARD_IDENTIFIER "/input-%d/state", num);
@@ -243,8 +242,7 @@ void pt100_callback(const uint8_t num, const float temp)
 {
   wdt_reset();
   Serial.print("PT100_CALLBACK ");
-  char buffer[48];
-  char buffer_value[32];
+
   sprintf(buffer, "DtBoard/" BOARD_IDENTIFIER "/pt100-%d/temperature", num);
   JsonVariant variant = doc.to<JsonVariant>();
   variant.set(temp);
@@ -258,8 +256,6 @@ void pt100_callback(const uint8_t num, const float temp)
 void bme280_callback_temperature(const uint8_t num, const float temperature)
 {
   wdt_reset();
-  char buffer[48];
-  char buffer_value[32];
 
   sprintf(buffer, "DtBoard/" BOARD_IDENTIFIER "/bme280-%d/temperature", num);
   JsonVariant variant = doc.to<JsonVariant>();
@@ -271,8 +267,6 @@ void bme280_callback_temperature(const uint8_t num, const float temperature)
 void bme280_callback_humidity(const uint8_t num, const float humidity)
 {
   wdt_reset();
-  char buffer[48];
-  char buffer_value[32];
 
   sprintf(buffer, "DtBoard/" BOARD_IDENTIFIER "/bme280-%d/humidity", num);
   JsonVariant variant = doc.to<JsonVariant>();
@@ -284,8 +278,6 @@ void bme280_callback_humidity(const uint8_t num, const float humidity)
 void bme280_callback_pressure(const uint8_t num, const float pressure)
 {
   wdt_reset();
-  char buffer[48];
-  char buffer_value[32];
 
   sprintf(buffer, "DtBoard/" BOARD_IDENTIFIER "/bme280-%d/pressure", num);
   JsonVariant variant = doc.to<JsonVariant>();
@@ -297,8 +289,6 @@ void bme280_callback_pressure(const uint8_t num, const float pressure)
 void ccs811_callback_co2(const uint8_t num, const float co2)
 {
   wdt_reset();
-  char buffer[48];
-  char buffer_value[32];
 
   sprintf(buffer, "DtBoard/" BOARD_IDENTIFIER "/ccs811-%d/co2", num);
   JsonVariant variant = doc.to<JsonVariant>();
@@ -310,8 +300,6 @@ void ccs811_callback_co2(const uint8_t num, const float co2)
 void ccs811_callback_cov(const uint8_t num, const float cov)
 {
   wdt_reset();
-  char buffer[48];
-  char buffer_value[32];
 
   sprintf(buffer, "DtBoard/" BOARD_IDENTIFIER "/ccs811-%d/cov", num);
   JsonVariant variant = doc.to<JsonVariant>();
@@ -323,7 +311,7 @@ void ccs811_callback_cov(const uint8_t num, const float cov)
 void fake_ntc_callback(uint8_t value)
 {
   wdt_reset();
-  char buffer_value[32];
+
   JsonVariant variant = doc.to<JsonVariant>();
   variant.set(value);
   serializeJson(variant, buffer_value, 32);
@@ -333,7 +321,7 @@ void fake_ntc_callback(uint8_t value)
 void mqtt_publish()
 {
   wdt_reset();
-  char buffer[BUFFER_SIZE];
+
   DT_mqtt_send("DtBoard/" BOARD_IDENTIFIER "/availability", "online");
 
   DT_mqtt_send("DtBoard/" BOARD_IDENTIFIER "/FG1/mode_state", "Off");
@@ -371,7 +359,6 @@ void mqtt_subscribe(PubSubClient &mqtt)
   mqtt.subscribe("DtBoard/" BOARD_IDENTIFIER "/FG1/temp_set");
   mqtt.subscribe("DtBoard/" BOARD_IDENTIFIER "/FG1/away_set");
 
-  char buffer[32];
   for (uint8_t num = 0; num < RELAY_NUM; ++num)
   {
     wdt_reset();
@@ -388,7 +375,7 @@ void mqtt_receve(char *topic, uint8_t *payload, unsigned int length)
   wdt_reset();
   Serial.print("receve topic ");
   Serial.println(topic);
-  char buffer[BUFFER_SIZE];
+
   // Copy the payload to the new buffer
   if (length < BUFFER_SIZE)
   {
@@ -425,7 +412,7 @@ void setup()
 {
   Serial.begin(9600);
 
-  Serial.println("starting board");
+  Serial.println("starting board version " BOARD_SW_VERSION);
 
   Serial.println("starting mqtt");
   DT_mqtt_init();
