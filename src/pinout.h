@@ -42,4 +42,10 @@ const uint8_t ccs811_I2C[CCS811_NUM] PROGMEM = {1, 1};
 // I2C Multiplexer
 #define I2C_MULTIPLEXER_ADDRESS 0x70
 
+// Fake NTC (Digital pot)
+
+#define FAKE_NTC_CS 13
+#define FAKE_NTC_R1_ADDRESS 0x11
+#define FAKE_NTC_R2_ADDRESS 0x12
+
 #endif

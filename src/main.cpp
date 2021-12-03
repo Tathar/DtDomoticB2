@@ -8,6 +8,7 @@
 #include <DT_mqtt.h>
 #include <DT_BME280.h>
 #include <DT_CCS811.h>
+#include <DT_fake_ntc.h>
 
 #include <avr/wdt.h> //watchdog
 
@@ -327,6 +328,16 @@ void ccs811_callback_cov(const uint8_t num, const float cov)
   DT_mqtt_send(buffer, buffer_value);
 }
 
+void fake_ntc_callback(uint8_t value)
+{
+  wdt_reset();
+  char buffer_value[32];
+  JsonVariant variant = doc.to<JsonVariant>();
+  variant.set(value);
+  serializeJson(variant, buffer_value, 32);
+  DT_mqtt_send("DtBoard/41/fake_ntc/value", buffer_value);
+}
+
 void mqtt_publish()
 {
   wdt_reset();
@@ -422,6 +433,13 @@ void setup()
 {
   Serial.begin(9600);
 
+  Serial.println("starting board");
+
+  Serial.println("starting mqtt");
+  DT_mqtt_init();
+  DT_mqtt_set_subscribe_callback(mqtt_subscribe);
+  DT_mqtt_set_receve_callback(mqtt_receve);
+
   Serial.println("starting relay");
   DT_relay_init();
   DT_relay_set_callback(relay_callback);
@@ -445,10 +463,9 @@ void setup()
   DT_CCS811_set_callback_co2(ccs811_callback_co2);
   DT_CCS811_set_callback_cov(ccs811_callback_cov);
 
-  Serial.println("starting board");
-  DT_mqtt_init();
-  DT_mqtt_set_subscribe_callback(mqtt_subscribe);
-  DT_mqtt_set_receve_callback(mqtt_receve);
+  Serial.println("starting fake_mqtt");
+  DT_fake_ntc_init();
+  DT_fake_ntc_callback(fake_ntc_callback);
 
   // client.setServer(server, 1883);
   // client.setCallback(callback);
