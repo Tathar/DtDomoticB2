@@ -37,15 +37,15 @@ void homeassistant(void)
   {
     wdt_reset();
     doc.clear();
-    sprintf(buffer, "homeassistant/switch/" BOARD_IDENTIFIER "/relay-%d/config", num + 1);
-    doc["~"] = "DtBoard/41";
-    sprintf(buffer_value, "41-relay-%d", num + 1);
+    sprintf(buffer, "homeassistant/switch/" BOARD_IDENTIFIER "/relay-%02d/config", num + 1);
+    doc["~"] = "DtBoard/" BOARD_IDENTIFIER;
+    sprintf(buffer_value, BOARD_IDENTIFIER "-relay-%02d", num + 1);
     doc["uniq_id"] = buffer_value; // unique_id
-    sprintf(buffer_value, "relay-%d", num + 1);
+    sprintf(buffer_value, "relay-%02d", num + 1);
     doc["name"] = buffer_value; // name
-    sprintf(buffer_value, "~/relay-%d/set", num + 1);
+    sprintf(buffer_value, "~/relay-%02d/set", num + 1);
     doc["command_topic"] = buffer_value;
-    sprintf(buffer_value, "~/relay-%d/state", num + 1);
+    sprintf(buffer_value, "~/relay-%02d/state", num + 1);
     doc["stat_t"] = buffer_value; // state topic
 
     doc["dev"]["ids"] = BOARD_IDENTIFIER; // identifiers
@@ -67,13 +67,13 @@ void homeassistant(void)
   {
     wdt_reset();
     doc.clear();
-    sprintf(buffer, "homeassistant/binary_sensor/" BOARD_IDENTIFIER "/input-%d/config", num + 1);
-    doc["~"] = "DtBoard/41";
-    sprintf(buffer_value, "41-input-%d", num + 1);
+    sprintf(buffer, "homeassistant/binary_sensor/" BOARD_IDENTIFIER "/input-%02d/config", num + 1);
+    doc["~"] = "DtBoard/" BOARD_IDENTIFIER;
+    sprintf(buffer_value, BOARD_IDENTIFIER "-input-%02d", num + 1);
     doc["uniq_id"] = buffer_value; // unique_id
-    sprintf(buffer_value, "input-%d", num + 1);
+    sprintf(buffer_value, "input-%02d", num + 1);
     doc["name"] = buffer_value; // name
-    sprintf(buffer_value, "~/input-%d/state", num + 1);
+    sprintf(buffer_value, "~/input-%02d/state", num + 1);
     doc["stat_t"] = buffer_value; // state topic
 
     doc["dev"]["ids"] = BOARD_IDENTIFIER; // identifiers
@@ -88,15 +88,16 @@ void homeassistant(void)
   {
     wdt_reset();
     doc.clear();
-    sprintf(buffer, "homeassistant/sensor/" BOARD_IDENTIFIER "/pt100-%d/config", num + 1);
-    doc["~"] = "DtBoard/41";
-    sprintf(buffer_value, "41-pt100-%d", num + 1);
+    sprintf(buffer, "homeassistant/sensor/" BOARD_IDENTIFIER "/pt100-%02d/config", num + 1);
+    doc["~"] = "DtBoard/" BOARD_IDENTIFIER;
+    sprintf(buffer_value, BOARD_IDENTIFIER "-pt100-%02d", num + 1);
     doc["uniq_id"] = buffer_value;
-    sprintf(buffer_value, "pt100-%d", num + 1);
+    sprintf(buffer_value, "pt100-%02d", num + 1);
     doc["name"] = buffer_value;
-    sprintf(buffer_value, "~/pt100-%d/temperature", num + 1);
+    sprintf(buffer_value, "~/pt100-%02d/temperature", num + 1);
     doc["stat_t"] = buffer_value;
     doc["dev_cla"] = "temperature";
+    doc["unit_of_meas"] = "°C";
     doc["dev"]["ids"] = BOARD_IDENTIFIER; // identifiers
 
     serializeJson(doc, buffer_value, sizeof(buffer_value));
@@ -108,15 +109,16 @@ void homeassistant(void)
   {
     wdt_reset();
     doc.clear();
-    sprintf(buffer, "homeassistant/sensor/" BOARD_IDENTIFIER "/bme280-temperature-%d/config", num + 1);
-    doc["~"] = "DtBoard/41";
-    sprintf(buffer_value, "41-bme280-temperature-%d", num + 1);
+    sprintf(buffer, "homeassistant/sensor/" BOARD_IDENTIFIER "/bme280-temperature-%02d/config", num + 1);
+    doc["~"] = "DtBoard/" BOARD_IDENTIFIER;
+    sprintf(buffer_value, BOARD_IDENTIFIER "-bme280-temperature-%02d", num + 1);
     doc["uniq_id"] = buffer_value;
-    sprintf(buffer_value, "BME280-%d", num + 1);
+    sprintf(buffer_value, "BME280-%02d", num + 1);
     doc["name"] = buffer_value;
-    sprintf(buffer_value, "~/bme280-%d/temperature", num + 1);
+    sprintf(buffer_value, "~/bme280-%02d/temperature", num + 1);
     doc["stat_t"] = buffer_value;
     doc["dev_cla"] = "temperature";
+    doc["unit_of_meas"] = "°C";
 
     doc["dev"]["ids"] = BOARD_IDENTIFIER; // identifiers
 
@@ -130,15 +132,16 @@ void homeassistant(void)
   {
     wdt_reset();
     doc.clear();
-    sprintf(buffer, "homeassistant/sensor/" BOARD_IDENTIFIER "/bme280-humidity-%d/config", num + 1);
-    doc["~"] = "DtBoard/41";
-    sprintf(buffer_value, "41-bme280-humidity-%d", num + 1);
+    sprintf(buffer, "homeassistant/sensor/" BOARD_IDENTIFIER "/bme280-humidity-%02d/config", num + 1);
+    doc["~"] = "DtBoard/" BOARD_IDENTIFIER;
+    sprintf(buffer_value, BOARD_IDENTIFIER "-bme280-humidity-%02d", num + 1);
     doc["uniq_id"] = buffer_value;
-    sprintf(buffer_value, "BME280-%d", num + 1);
+    sprintf(buffer_value, "BME280-%02d", num + 1);
     doc["name"] = buffer_value;
-    sprintf(buffer_value, "~/bme280-%d/humidity", num + 1);
+    sprintf(buffer_value, "~/bme280-%02d/humidity", num + 1);
     doc["stat_t"] = buffer_value;
     doc["dev_cla"] = "humidity";
+    doc["unit_of_meas"] = "%";
 
     doc["dev"]["ids"] = BOARD_IDENTIFIER; // identifiers
 
@@ -152,15 +155,16 @@ void homeassistant(void)
   {
     wdt_reset();
     doc.clear();
-    sprintf(buffer, "homeassistant/sensor/" BOARD_IDENTIFIER "/bme280-pressure-%d/config", num + 1);
-    doc["~"] = "DtBoard/41";
-    sprintf(buffer_value, "41-bme280-pressure-%d", num + 1);
+    sprintf(buffer, "homeassistant/sensor/" BOARD_IDENTIFIER "/bme280-pressure-%02d/config", num + 1);
+    doc["~"] = "DtBoard/" BOARD_IDENTIFIER;
+    sprintf(buffer_value, BOARD_IDENTIFIER "-bme280-pressure-%02d", num + 1);
     doc["uniq_id"] = buffer_value;
-    sprintf(buffer_value, "BME280-%d", num + 1);
+    sprintf(buffer_value, "BME280-%02d", num + 1);
     doc["name"] = buffer_value;
-    sprintf(buffer_value, "~/bme280-%d/pressure", num + 1);
+    sprintf(buffer_value, "~/bme280-%02d/pressure", num + 1);
     doc["stat_t"] = buffer_value;
     doc["dev_cla"] = "pressure";
+    doc["unit_of_meas"] = "Pa";
 
     doc["dev"]["ids"] = BOARD_IDENTIFIER; // identifiers
 
@@ -174,15 +178,16 @@ void homeassistant(void)
   {
     wdt_reset(); // clear watchdog
     doc.clear();
-    sprintf(buffer, "homeassistant/sensor/" BOARD_IDENTIFIER "/ccs811-co2-%d/config", num + 1);
-    doc["~"] = "DtBoard/41";
-    sprintf(buffer_value, "41-ccs811-co2-%d", num + 1);
+    sprintf(buffer, "homeassistant/sensor/" BOARD_IDENTIFIER "/ccs811-co2-%02d/config", num + 1);
+    doc["~"] = "DtBoard/" BOARD_IDENTIFIER;
+    sprintf(buffer_value, BOARD_IDENTIFIER "-ccs811-co2-%02d", num + 1);
     doc["uniq_id"] = buffer_value;
-    sprintf(buffer_value, "ccs811-%d", num + 1);
+    sprintf(buffer_value, "ccs811-%02d", num + 1);
     doc["name"] = buffer_value;
-    sprintf(buffer_value, "~/ccs811-%d/co2", num + 1);
+    sprintf(buffer_value, "~/ccs811-%02d/co2", num + 1);
     doc["stat_t"] = buffer_value;
     doc["dev_cla"] = "carbon_dioxide";
+    doc["unit_of_meas"] = "CO2";
 
     doc["dev"]["ids"] = BOARD_IDENTIFIER; // identifiers
 
@@ -196,15 +201,16 @@ void homeassistant(void)
   {
     wdt_reset(); // clear watchdog
     doc.clear();
-    sprintf(buffer, "homeassistant/sensor/" BOARD_IDENTIFIER "/ccs811-cov-%d/config", num + 1);
-    doc["~"] = "DtBoard/41";
-    sprintf(buffer_value, "41-ccs811-cov-%d", num + 1);
+    sprintf(buffer, "homeassistant/sensor/" BOARD_IDENTIFIER "/ccs811-cov-%02d/config", num + 1);
+    doc["~"] = "DtBoard/" BOARD_IDENTIFIER;
+    sprintf(buffer_value, BOARD_IDENTIFIER "-ccs811-cov-%02d", num + 1);
     doc["uniq_id"] = buffer_value;
-    sprintf(buffer_value, "ccs811-%d", num + 1);
+    sprintf(buffer_value, "ccs811-%02d", num + 1);
     doc["name"] = buffer_value;
-    sprintf(buffer_value, "~/ccs811-%d/cov", num + 1);
+    sprintf(buffer_value, "~/ccs811-%02d/cov", num + 1);
     doc["stat_t"] = buffer_value;
     doc["dev_cla"] = "pm10";
+    doc["unit_of_meas"] = "ppm";
 
     doc["dev"]["ids"] = BOARD_IDENTIFIER; // identifiers
 
@@ -219,7 +225,7 @@ void relay_callback(const uint8_t num, const bool action)
   wdt_reset();
   sprintf(buffer, "relais numero %d dans l etat %d", num, (int)action);
   Serial.println(buffer);
-  sprintf(buffer, "DtBoard/" BOARD_IDENTIFIER "/relay-%d/state", num);
+  sprintf(buffer, "DtBoard/" BOARD_IDENTIFIER "/relay-%02d/state", num);
   if (action)
     DT_mqtt_send(buffer, "ON");
   else
@@ -231,7 +237,7 @@ void input_callback(const uint8_t num, const uint8_t action)
   wdt_reset();
   sprintf(buffer, "entrée numero %d dans l etat %d", num, (int)action);
   Serial.println(buffer);
-  sprintf(buffer, "DtBoard/" BOARD_IDENTIFIER "/input-%d/state", num);
+  sprintf(buffer, "DtBoard/" BOARD_IDENTIFIER "/input-%02d/state", num);
   if (action == HIGH)
     DT_mqtt_send(buffer, "ON");
   else
@@ -243,7 +249,7 @@ void pt100_callback(const uint8_t num, const float temp)
   wdt_reset();
   Serial.print("PT100_CALLBACK ");
 
-  sprintf(buffer, "DtBoard/" BOARD_IDENTIFIER "/pt100-%d/temperature", num);
+  sprintf(buffer, "DtBoard/" BOARD_IDENTIFIER "/pt100-%02d/temperature", num);
   JsonVariant variant = doc.to<JsonVariant>();
   variant.set(temp);
   serializeJson(variant, buffer_value, 32);
@@ -257,7 +263,7 @@ void bme280_callback_temperature(const uint8_t num, const float temperature)
 {
   wdt_reset();
 
-  sprintf(buffer, "DtBoard/" BOARD_IDENTIFIER "/bme280-%d/temperature", num);
+  sprintf(buffer, "DtBoard/" BOARD_IDENTIFIER "/bme280-%02d/temperature", num);
   JsonVariant variant = doc.to<JsonVariant>();
   variant.set(temperature);
   serializeJson(variant, buffer_value, 32);
@@ -268,7 +274,7 @@ void bme280_callback_humidity(const uint8_t num, const float humidity)
 {
   wdt_reset();
 
-  sprintf(buffer, "DtBoard/" BOARD_IDENTIFIER "/bme280-%d/humidity", num);
+  sprintf(buffer, "DtBoard/" BOARD_IDENTIFIER "/bme280-%02d/humidity", num);
   JsonVariant variant = doc.to<JsonVariant>();
   variant.set(humidity);
   serializeJson(variant, buffer_value, 32);
@@ -279,7 +285,7 @@ void bme280_callback_pressure(const uint8_t num, const float pressure)
 {
   wdt_reset();
 
-  sprintf(buffer, "DtBoard/" BOARD_IDENTIFIER "/bme280-%d/pressure", num);
+  sprintf(buffer, "DtBoard/" BOARD_IDENTIFIER "/bme280-%02d/pressure", num);
   JsonVariant variant = doc.to<JsonVariant>();
   variant.set(pressure);
   serializeJson(variant, buffer_value, 32);
@@ -290,7 +296,7 @@ void ccs811_callback_co2(const uint8_t num, const float co2)
 {
   wdt_reset();
 
-  sprintf(buffer, "DtBoard/" BOARD_IDENTIFIER "/ccs811-%d/co2", num);
+  sprintf(buffer, "DtBoard/" BOARD_IDENTIFIER "/ccs811-%02d/co2", num);
   JsonVariant variant = doc.to<JsonVariant>();
   variant.set(co2);
   serializeJson(variant, buffer_value, 32);
@@ -301,7 +307,7 @@ void ccs811_callback_cov(const uint8_t num, const float cov)
 {
   wdt_reset();
 
-  sprintf(buffer, "DtBoard/" BOARD_IDENTIFIER "/ccs811-%d/cov", num);
+  sprintf(buffer, "DtBoard/" BOARD_IDENTIFIER "/ccs811-%02d/cov", num);
   JsonVariant variant = doc.to<JsonVariant>();
   variant.set(cov);
   serializeJson(variant, buffer_value, 32);
@@ -328,13 +334,13 @@ void mqtt_publish()
   DT_mqtt_send("DtBoard/" BOARD_IDENTIFIER "/FG1/action_state", "Off");
   DT_mqtt_send("DtBoard/" BOARD_IDENTIFIER "/FG1/temp_state", "19");
   DT_mqtt_send("DtBoard/" BOARD_IDENTIFIER "/FG1/away_state", "Off");
-  DT_mqtt_send("DtBoard/" BOARD_IDENTIFIER "/pt100-1/temperature", "25.12");
-  DT_mqtt_send("DtBoard/" BOARD_IDENTIFIER "/pt100-2/temperature", "12.25");
+  DT_mqtt_send("DtBoard/" BOARD_IDENTIFIER "/pt100-01/temperature", "25.12");
+  DT_mqtt_send("DtBoard/" BOARD_IDENTIFIER "/pt100-02/temperature", "12.25");
 
   for (uint8_t num = 0; num < RELAY_NUM; ++num)
   {
     wdt_reset();
-    sprintf(buffer, "DtBoard/" BOARD_IDENTIFIER "/relay-%d/state", num + 1);
+    sprintf(buffer, "DtBoard/" BOARD_IDENTIFIER "/relay-%02d/state", num + 1);
     if (DT_relay_get(num + 1))
       DT_mqtt_send(buffer, "ON");
     else
@@ -344,7 +350,7 @@ void mqtt_publish()
   for (uint8_t num = 0; num < INPUT_NUM; ++num)
   {
     wdt_reset();
-    sprintf(buffer, "DtBoard/" BOARD_IDENTIFIER "/input-%d/state", num + 1);
+    sprintf(buffer, "DtBoard/" BOARD_IDENTIFIER "/input-%02d/state", num + 1);
     if (DT_input_get(num + 1) == HIGH)
       DT_mqtt_send(buffer, "ON");
     else
@@ -362,7 +368,7 @@ void mqtt_subscribe(PubSubClient &mqtt)
   for (uint8_t num = 0; num < RELAY_NUM; ++num)
   {
     wdt_reset();
-    sprintf(buffer, "DtBoard/" BOARD_IDENTIFIER "/relay-%d/set", num + 1);
+    sprintf(buffer, "DtBoard/" BOARD_IDENTIFIER "/relay-%02d/set", num + 1);
     mqtt.subscribe(buffer);
   }
   mqtt.subscribe("homeassistant/status");
@@ -389,7 +395,7 @@ void mqtt_receve(char *topic, uint8_t *payload, unsigned int length)
     return;
 
   int num = 0;
-  if (sscanf(topic, "DtBoard/" BOARD_IDENTIFIER "/relay-%d/set", &num) == 1)
+  if (sscanf(topic, "DtBoard/" BOARD_IDENTIFIER "/relay-%02d/set", &num) == 1)
   {
     Serial.print("sscanf = ");
     Serial.println(num);
