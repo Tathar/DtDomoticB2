@@ -20,12 +20,8 @@ float C2;
 float C3;
 // consigne Jacuzzi
 float C4;
-// consigne ECS1 & ECS2
-float C5;
 // consigne mode boost
 float C6;
-// consigne Mode Silence
-float C7;
 // consigne Temp PCBT a -10°C
 float C8;
 // consigne Temp PCBT a +10°C
@@ -40,15 +36,16 @@ float C11;
 
 void DT_Poele_init()
 {
-    ev1 = false;
+    ev1 = true;
     C1 = 60;
 }
+
 void DT_Poele_loop()
 {
     if (config.poele_mode == DT_POELE_NORMAL)
     {
         // mode ECS + Chauffage
-        ev1 = false;
+        ev1 = true;
         // calcule consigne balon
         C1 = max(C2, C3);
         C1 = max(C1, C4);
@@ -56,10 +53,31 @@ void DT_Poele_loop()
         // temperature envoyer au poele
         T4 = config.V1 + DT_pt100_get(PT100_BALON) - C1;
     }
+    else if (config.poele_mode == DT_POELE_SILANCE)
+    {
+        // mode ECS + Chauffage
+        ev1 = true;
+        T4 = confi.C7;
+    }
+    else if (config.poele_mode == DT_POELE_SECOURS)
+    {
+        // mode ECS + Chauffage
+        ev1 = true;
+        // temperature envoyer au poele
+        T4 = DT_pt100_get(PT100_BALON);
+    }
+    else if (config.poele_mode == DT_POELE_ECS)
+    {
+        // mode ECS uniquement
+        ev1 = false;
+        // temperature envoyer au poele
+        T4 = DT_pt100_get(PT100_BALON);
+    }
 
+    // securité
     if (DT_pt100_get(PT100_BALON) > 85)
     {
-        T4 = T1;
+        T4 = config.V1 - config.V2 + min(DT_pt100_get(PT100_ECS1), DT_pt100_get(PT100_ECS2) - config.C5);
     }
 
     DT_fake_ntc_set(T4);

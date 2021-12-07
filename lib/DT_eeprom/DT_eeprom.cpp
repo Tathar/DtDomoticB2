@@ -34,6 +34,8 @@ void chargeEEPROM()
                 config.V1 = 60; // Variable paramètre poêle (60°C)
                 config.V2 = 20; // Variable Reserve chaleur Ballon (20°C)
                 config.V3 = 0;  // Variable Temp Demi plage Morte
+                config.C5 = 60; // consigne ECS1 & ECS2
+                config.C7 = 0;  // Variable Temp Demi plage Morte
         }
 
         // Sauvegarde les nouvelles données

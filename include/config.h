@@ -67,6 +67,8 @@
 // Poele
 
 #define PT100_BALON 1
+#define PT100_ECS1 2
+#define PT100_ECS2 3
 
 // Vanne 3 Voies
 #define VANNE_PCBT_HOT 1
