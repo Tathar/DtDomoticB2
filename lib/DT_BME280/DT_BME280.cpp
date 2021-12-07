@@ -1,5 +1,5 @@
 #include <DT_BME280.h>
-#include <../../src/pinout.h>
+#include <pinout.h>
 
 // #include <Adafruit_Sensor.h>
 #include <Adafruit_BME280.h>

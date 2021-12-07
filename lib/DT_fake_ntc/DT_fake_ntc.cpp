@@ -1,6 +1,6 @@
 #include <DT_fake_ntc.h>
 #include "Arduino.h"
-#include <../../src/pinout.h>
+#include <pinout.h>
 #include <SPI.h>
 
 const uint8_t NTC_R1[] PROGMEM = {

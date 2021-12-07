@@ -6,8 +6,8 @@
 // #define MQTT_MAX_PACKET_SIZE 512
 #include <PubSubClient.h>
 
-#include <../../src/pinout.h>
-#include <../../src/config.h>
+#include <pinout.h>
+#include <config.h>
 
 void DT_mqtt_loop();
 void DT_mqtt_init();

@@ -1,8 +1,8 @@
 #include <DT_input.h>
 #include "Arduino.h"
 
-#include <../../src/pinout.h>
-#include <../../src/config.h>
+#include <pinout.h>
+#include <config.h>
 
 uint32_t debounce_start_time[INPUT_NUM];
 uint8_t old_pin_stats[INPUT_NUM];

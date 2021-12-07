@@ -1,7 +1,7 @@
 #ifndef DT_PT100
 #define DT_PT100
 
-#include <../../src/pinout.h>
+#include <pinout.h>
 
 void DT_pt100_init();
 void DT_pt100_loop();

@@ -1,7 +1,7 @@
 #ifndef DT_RELAY
 #define DT_RELAY
 
-#include <../../src/pinout.h>
+#include <pinout.h>
 
 void DT_relay_init();
 void DT_relay_loop();

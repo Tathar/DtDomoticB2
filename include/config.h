@@ -2,6 +2,7 @@
 #define CONFIG
 
 #include <Arduino.h>
+#include <config.h>
 
 #define STRINGIFY(x) #x
 #define TO_C_STR(x) STRINGIFY(x)
@@ -62,5 +63,16 @@
 
 #define NETWORK_RESET_TIME 20000 // temp avant reset de la carte reseau en qua d'imposibilité de se connecter (en miliseconde)
 #define MQTT_UPDATE 1000         // in ms
+
+// Poele
+
+#define PT100_BALON 1
+
+// Vanne 3 Voies
+#define VANNE_PCBT_HOT 1
+#define VANNE_PCBT_COLD 2
+
+#define VANNE_MUR_CHAUFANT_HOT 3
+#define VANNE_MUR_CHAUFANT_COLD 4
 
 #endif
