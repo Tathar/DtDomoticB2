@@ -6,6 +6,6 @@
 void DT_pt100_init();
 void DT_pt100_loop();
 void DT_pt100_set_callback(void (*callback)(const uint8_t num, const float temp) = nullptr);
-float DT_pt100_get(int num);
+float DT_pt100_get(uint8_t num);
 
 #endif

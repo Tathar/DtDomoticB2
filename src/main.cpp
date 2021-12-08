@@ -219,6 +219,27 @@ void homeassistant(void)
     Serial.println(buffer_value);
     DT_mqtt_send(buffer, buffer_value);
   }
+
+  // Poele mode
+  wdt_reset(); // clear watchdog
+  doc.clear();
+  doc["~"] = "DtBoard/" BOARD_IDENTIFIER "/poele";
+  doc["uniq_id"] = BOARD_IDENTIFIER "-poele";
+  doc["name"] = "mode poele";
+  doc["command_topic"] = "~/set";
+  doc["stat_t"] = "~/state";
+
+  JsonArray options = doc.createNestedArray("options");
+  options.add("Silence");
+  options.add("Secours");
+  options.add("Normal");
+  options.add("ECS");
+  options.add("Boost");
+
+  doc["dev"]["ids"] = BOARD_IDENTIFIER; // identifiers
+
+  serializeJson(doc, buffer_value, sizeof(buffer_value));
+  DT_mqtt_send("homeassistant/select/" BOARD_IDENTIFIER "/poele/config", buffer_value);
 }
 
 void relay_callback(const uint8_t num, const bool action)
@@ -357,6 +378,28 @@ void mqtt_publish()
     else
       DT_mqtt_send(buffer, "OFF");
   }
+
+  // mode poele
+  if (DT_Poele_get_mode() == DT_POELE_SILENCE)
+  {
+    DT_mqtt_send("DtBoard/" BOARD_IDENTIFIER "/poele/state", "Silence");
+  }
+  else if (DT_Poele_get_mode() == DT_POELE_SECOURS)
+  {
+    DT_mqtt_send("DtBoard/" BOARD_IDENTIFIER "/poele/state", "Secours");
+  }
+  else if (DT_Poele_get_mode() == DT_POELE_NORMAL)
+  {
+    DT_mqtt_send("DtBoard/" BOARD_IDENTIFIER "/poele/state", "Normal");
+  }
+  else if (DT_Poele_get_mode() == DT_POELE_ECS)
+  {
+    DT_mqtt_send("DtBoard/" BOARD_IDENTIFIER "/poele/state", "ECS");
+  }
+  else if (DT_Poele_get_mode() == DT_POELE_BOOST)
+  {
+    DT_mqtt_send("DtBoard/" BOARD_IDENTIFIER "/poele/state", "Boost");
+  }
 }
 
 void mqtt_subscribe(PubSubClient &mqtt)
@@ -366,12 +409,16 @@ void mqtt_subscribe(PubSubClient &mqtt)
   mqtt.subscribe("DtBoard/" BOARD_IDENTIFIER "/FG1/temp_set");
   mqtt.subscribe("DtBoard/" BOARD_IDENTIFIER "/FG1/away_set");
 
+  // relay
   for (uint8_t num = 0; num < RELAY_NUM; ++num)
   {
     wdt_reset();
     sprintf(buffer, "DtBoard/" BOARD_IDENTIFIER "/relay-%02d/set", num + 1);
     mqtt.subscribe(buffer);
   }
+  // Poele
+  mqtt.subscribe("DtBoard/" BOARD_IDENTIFIER "/poele/set");
+
   mqtt.subscribe("homeassistant/status");
   mqtt_publish();
   homeassistant();
@@ -404,6 +451,35 @@ void mqtt_receve(char *topic, uint8_t *payload, unsigned int length)
       DT_relay(num, true);
     else if (strcmp(buffer, "OFF") == 0)
       DT_relay(num, false);
+  }
+  else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/poele/set") == 0)
+  {
+    if (strcmp(buffer, "Silence") == 0)
+    {
+      DT_Poele_set_mode(DT_POELE_SILENCE);
+      DT_mqtt_send("DtBoard/" BOARD_IDENTIFIER "/poele/state", "Silence");
+    }
+
+    else if (strcmp(buffer, "Secours") == 0)
+    {
+      DT_Poele_set_mode(DT_POELE_SECOURS);
+      DT_mqtt_send("DtBoard/" BOARD_IDENTIFIER "/poele/state", "Secours");
+    }
+    else if (strcmp(buffer, "Normal") == 0)
+    {
+      DT_Poele_set_mode(DT_POELE_NORMAL);
+      DT_mqtt_send("DtBoard/" BOARD_IDENTIFIER "/poele/state", "Normal");
+    }
+    else if (strcmp(buffer, "ECS") == 0)
+    {
+      DT_Poele_set_mode(DT_POELE_ECS);
+      DT_mqtt_send("DtBoard/" BOARD_IDENTIFIER "/poele/state", "ECS");
+    }
+    else if (strcmp(buffer, "Boost") == 0)
+    {
+      DT_Poele_set_mode(DT_POELE_BOOST);
+      DT_mqtt_send("DtBoard/" BOARD_IDENTIFIER "/poele/state", "Boost");
+    }
   }
   else if (strcmp(topic, "homeassistant/status") == 0)
   {
@@ -449,9 +525,12 @@ void setup()
   DT_CCS811_set_callback_co2(ccs811_callback_co2);
   DT_CCS811_set_callback_cov(ccs811_callback_cov);
 
-  Serial.println("starting fake_mqtt");
+  Serial.println("starting fake_ntc");
   DT_fake_ntc_init();
   DT_fake_ntc_callback(fake_ntc_callback);
+
+  Serial.println("starting Poele");
+  DT_Poele_init();
 
   // client.setServer(server, 1883);
   // client.setCallback(callback);
@@ -493,6 +572,7 @@ void loop()
   DT_BME280_loop();
   DT_CCS811_loop();
   DT_pt100_loop();
+  DT_Poele_loop();
 
   // adjust CCS811
   static uint32_t ccs811_environmental = 0;

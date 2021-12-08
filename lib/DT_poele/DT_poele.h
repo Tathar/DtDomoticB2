@@ -5,7 +5,7 @@
 enum DT_Poele_mode
 {
     DT_POELE_OFF,
-    DT_POELE_SILANCE,
+    DT_POELE_SILENCE,
     DT_POELE_SECOURS,
     DT_POELE_NORMAL,
     DT_POELE_ECS,
@@ -15,5 +15,6 @@ enum DT_Poele_mode
 void DT_Poele_init();
 void DT_Poele_loop();
 void DT_Poele_set_mode(DT_Poele_mode mode);
+DT_Poele_mode DT_Poele_get_mode(void);
 
 #endif

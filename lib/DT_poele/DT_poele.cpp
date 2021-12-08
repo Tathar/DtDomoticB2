@@ -11,7 +11,7 @@
 // 0(Circuit ballon tampon + Ballon ECS) / 1(Circuit Ballon ECS)
 bool ev1;
 // Temp envoyé au poêle
-uint8_t T4;
+float T4;
 // consigne temp Ballon
 float C1;
 // consigne Temp PCBT
@@ -20,8 +20,6 @@ float C2;
 float C3;
 // consigne Jacuzzi
 float C4;
-// consigne mode boost
-float C6;
 // consigne Temp PCBT a -10°C
 float C8;
 // consigne Temp PCBT a +10°C
@@ -42,47 +40,70 @@ void DT_Poele_init()
 
 void DT_Poele_loop()
 {
-    if (config.poele_mode == DT_POELE_NORMAL)
-    {
-        // mode ECS + Chauffage
-        ev1 = true;
-        // calcule consigne balon
-        C1 = max(C2, C3);
-        C1 = max(C1, C4);
-        C1 += config.V2;
-        // temperature envoyer au poele
-        T4 = config.V1 + DT_pt100_get(PT100_BALON) - C1;
-    }
-    else if (config.poele_mode == DT_POELE_SILANCE)
-    {
-        // mode ECS + Chauffage
-        ev1 = true;
-        T4 = confi.C7;
-    }
-    else if (config.poele_mode == DT_POELE_SECOURS)
-    {
-        // mode ECS + Chauffage
-        ev1 = true;
-        // temperature envoyer au poele
-        T4 = DT_pt100_get(PT100_BALON);
-    }
-    else if (config.poele_mode == DT_POELE_ECS)
-    {
-        // mode ECS uniquement
-        ev1 = false;
-        // temperature envoyer au poele
-        T4 = DT_pt100_get(PT100_BALON);
-    }
+    uint32_t now = millis();
+    static uint32_t old = 0;
 
-    // securité
-    if (DT_pt100_get(PT100_BALON) > 85)
+    if (now - old >= 1000)
     {
-        T4 = config.V1 - config.V2 + min(DT_pt100_get(PT100_ECS1), DT_pt100_get(PT100_ECS2) - config.C5);
-    }
+        old = now;
+        if (config.poele_mode == DT_POELE_NORMAL)
+        {
+            // mode ECS + Chauffage
+            ev1 = true;
+            // calcule consigne balon
+            C1 = max(C2, C3);
+            C1 = max(C1, C4);
+            C1 += config.V2;
+            // temperature envoyer au poele
+            T4 = config.V1 + DT_pt100_get(PT100_BALON) - C1;
+        }
+        else if (config.poele_mode == DT_POELE_SILENCE)
+        {
+            // mode ECS + Chauffage
+            ev1 = true;
+            T4 = config.C7;
+        }
+        else if (config.poele_mode == DT_POELE_SECOURS)
+        {
+            // mode ECS + Chauffage
+            ev1 = true;
+            // temperature envoyer au poele
+            T4 = DT_pt100_get(PT100_BALON);
+        }
+        else if (config.poele_mode == DT_POELE_ECS)
+        {
+            // mode ECS uniquement
+            ev1 = false;
+            // temperature envoyer au poele
+            float _min = min(DT_pt100_get(PT100_ECS1), DT_pt100_get(PT100_ECS2));
+            T4 = config.V1 - config.V2 + _min - config.C5;
+        }
+        else if (config.poele_mode == DT_POELE_BOOST)
+        {
+            // mode ECS uniquement
+            ev1 = true;
+            // temperature envoyer au poele
+            T4 = config.V1 + DT_pt100_get(PT100_BALON) - config.C6;
+        }
 
-    DT_fake_ntc_set(T4);
+        // securité
+        if (DT_pt100_get(PT100_BALON) > 85)
+        {
+
+            // temperature envoyer au poele
+            T4 = DT_pt100_get(PT100_BALON);
+        }
+
+        DT_fake_ntc_set(T4);
+    }
 }
+
 void DT_Poele_set_mode(DT_Poele_mode mode)
 {
     config.poele_mode = mode;
+}
+
+DT_Poele_mode DT_Poele_get_mode(void)
+{
+    return config.poele_mode;
 }

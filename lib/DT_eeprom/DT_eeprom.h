@@ -24,6 +24,7 @@ typedef struct Config
     uint8_t V2; // Variable Reserve chaleur Ballon (20°C)
     uint8_t V3; // Variable Temp Demi plage Morte
     uint8_t C5; // consigne ECS1 & ECS2
+    uint8_t C6; // consigne mode boost
     uint8_t C7; // consigne Mode Silence
 
 } Config_t;
