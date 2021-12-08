@@ -36,6 +36,7 @@ void DT_CCS811_init()
         else
         {
             // ccs811[num].setSampling();
+            ccs811[num].setDriveMode(CCS811_DRIVE_MODE_60SEC);
             ccs811_active[num] = true;
         }
     }
