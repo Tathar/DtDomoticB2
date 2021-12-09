@@ -240,6 +240,21 @@ void homeassistant(void)
 
   serializeJson(doc, buffer_value, sizeof(buffer_value));
   DT_mqtt_send("homeassistant/select/" BOARD_IDENTIFIER "/poele/config", buffer_value);
+
+  // Fake NTC
+  wdt_reset();
+  doc.clear();
+  doc["~"] = "DtBoard/" BOARD_IDENTIFIER "/fake_NTC";
+  doc["uniq_id"] = BOARD_IDENTIFIER "-fake_NTC";
+  doc["name"] = "NTC Poele";
+  doc["stat_t"] = "~/temperature";
+  doc["dev_cla"] = "temperature";
+  doc["unit_of_meas"] = "°C";
+  doc["dev"]["ids"] = BOARD_IDENTIFIER; // identifiers
+
+  serializeJson(doc, buffer_value, sizeof(buffer_value));
+  Serial.println(buffer_value);
+  DT_mqtt_send("homeassistant/sensor/" BOARD_IDENTIFIER "/fake_NTC", buffer_value);
 }
 
 void relay_callback(const uint8_t num, const bool action)
@@ -343,7 +358,7 @@ void fake_ntc_callback(uint8_t value)
   JsonVariant variant = doc.to<JsonVariant>();
   variant.set(value);
   serializeJson(variant, buffer_value, 32);
-  DT_mqtt_send("DtBoard/" BOARD_IDENTIFIER "/fake_ntc/value", buffer_value);
+  DT_mqtt_send("DtBoard/" BOARD_IDENTIFIER "/fake_ntc/temperature", buffer_value);
 }
 
 void mqtt_publish()
