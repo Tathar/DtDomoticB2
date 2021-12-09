@@ -30,6 +30,7 @@ void chargeEEPROM()
         {
                 config.struct_version = 1;
                 config.poele_mode = DT_POELE_OFF;
+                config.mode_3voies = DT_3VOIES_OFF;
 
                 config.V1 = 60; // Variable paramètre poêle (60°C)
                 config.V2 = 20; // Variable Reserve chaleur Ballon (20°C)

@@ -7,7 +7,8 @@
 #include "Arduino.h"
 #endif
 
-#include <DT_poele.h>
+#include "../lib/DT_poele/DT_poele.h"
+#include <DT_3voies.h>
 
 static const uint8_t STRUCT_MAGIC = 1;
 static const uint8_t STRUCT_VERSION = 1;
@@ -19,6 +20,7 @@ typedef struct Config
     uint8_t struct_version;
 
     DT_Poele_mode poele_mode;
+    DT_3voies_mode mode_3voies;
 
     uint8_t V1; // Variable paramètre poêle (60°C)
     uint8_t V2; // Variable Reserve chaleur Ballon (20°C)
