@@ -17,6 +17,7 @@
 #define DEBOUNCE_TIME 50
 
 #define BUFFER_SIZE 65
+#define BUFFER_VALUE_SIZE 512
 
 // watchdog
 #define WATCHDOG_TIME WDTO_1S

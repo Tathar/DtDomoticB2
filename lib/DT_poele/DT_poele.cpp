@@ -8,27 +8,11 @@
 
 #include <config.h>
 
-// 0(Circuit ballon tampon + Ballon ECS) / 1(Circuit Ballon ECS)
-bool ev1;
-// Temp envoyé au poêle
-float T4;
-// consigne temp Ballon
-float C1;
-// consigne Temp PCBT
-float C2;
-// consigne MCBT
-float C3;
-// consigne Jacuzzi
-float C4;
-// consigne Temp PCBT a -10°C
-float C8;
-// consigne Temp PCBT a +10°C
-float C9;
-// consigne Temp MCBT a -10°C
-float C10;
-// consigne Temp MCBT a +10°C
-float C11;
+void (*poele_callback)(const bool ev1, const float T4, const uint8_t C1);
 
+bool ev1; // 0(Circuit ballon tampon + Ballon ECS) / 1(Circuit Ballon ECS)
+float T4; // Temperature envoyé au poêle
+float C1; // consigne temp Ballon
 // T1 = Temp Ballon					T2 = Temp ECS							T3 = Temp ECS2
 // T5 = Temp Extérieur					T6 = Temp Vanne 3V PCBT					T7 = Temp Vanne 3V MCBT				T8 = Temp Vanne 3V Jacuzzi
 
@@ -46,13 +30,16 @@ void DT_Poele_loop()
     if (now - old >= 1000)
     {
         old = now;
+        float old_t4 = T4;
+        float old_C1 = C1;
+        bool old_ev1 = ev1;
         if (config.poele_mode == DT_POELE_NORMAL)
         {
             // mode ECS + Chauffage
             ev1 = true;
             // calcule consigne balon
-            C1 = max(C2, C3);
-            C1 = max(C1, C4);
+            C1 = max(config.C2, config.C3);
+            C1 = max(C1, config.C4);
             C1 += config.V2;
             // temperature envoyer au poele
             T4 = config.V1 + DT_pt100_get(PT100_BALON) - C1;
@@ -89,12 +76,19 @@ void DT_Poele_loop()
         // securité
         if (DT_pt100_get(PT100_BALON) > 85)
         {
-
             // temperature envoyer au poele
             T4 = DT_pt100_get(PT100_BALON);
         }
 
         DT_fake_ntc_set(T4);
+
+        if (poele_callback != nullptr && ((old_C1 != C1) || (old_t4 != T4) || (old_ev1 != ev1)))
+        {
+            poele_callback(ev1, T4, C1);
+            old_C1 = C1;
+            old_t4 = T4;
+            old_ev1 = ev1;
+        }
     }
 }
 
@@ -106,4 +100,9 @@ void DT_Poele_set_mode(DT_Poele_mode mode)
 DT_Poele_mode DT_Poele_get_mode(void)
 {
     return config.poele_mode;
+}
+
+void DT_pt100_set_callback(void (*callback)(const bool ev1, const float T4, const uint8_t C1))
+{
+    poele_callback = callback;
 }

@@ -17,7 +17,7 @@ void sauvegardeEEPROM()
 /** Charge le contenu de la mémoire EEPROM dans la structure */
 void chargeEEPROM()
 {
-        uint8_t i = 0; // for loop
+        // uint8_t i = 0; // for loop
 
         // Lit la mémoire EEPROM
         EEPROM.get(0, config);
@@ -29,12 +29,16 @@ void chargeEEPROM()
         if (config.struct_version < 1 || erreur)
         {
                 config.struct_version = 1;
+                //TODO: mqtt home assistant
                 config.poele_mode = DT_POELE_OFF;
                 config.mode_3voies = DT_3VOIES_OFF;
 
                 config.V1 = 60; // Variable paramètre poêle (60°C)
                 config.V2 = 20; // Variable Reserve chaleur Ballon (20°C)
                 config.V3 = 0;  // Variable Temp Demi plage Morte
+                config.C2 = 30; // consigne Temp PCBT
+                config.C3 = 60; // consigne MCBT
+                config.C4 = 80; // consigne Jacuzzi
                 config.C5 = 60; // consigne ECS1 & ECS2
                 config.C7 = 0;  // Variable Temp Demi plage Morte
         }
