@@ -411,12 +411,12 @@ void poele_callback(const bool ev1, const float T4, const uint8_t C1)
   serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
   DT_mqtt_send("DtBoard/" BOARD_IDENTIFIER "/poele/ev1", buffer_value);
   //T4
-  JsonVariant variant = doc.to<JsonVariant>();
+  variant = doc.to<JsonVariant>();
   variant.set(T4);
   serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
   DT_mqtt_send("DtBoard/" BOARD_IDENTIFIER "/poele/T4", buffer_value);
   //C1
-  JsonVariant variant = doc.to<JsonVariant>();
+  variant = doc.to<JsonVariant>();
   variant.set(C1);
   serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
   DT_mqtt_send("DtBoard/" BOARD_IDENTIFIER "/poele/C1", buffer_value);
