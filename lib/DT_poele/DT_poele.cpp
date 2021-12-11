@@ -33,44 +33,44 @@ void DT_Poele_loop()
         float old_t4 = T4;
         float old_C1 = C1;
         bool old_ev1 = ev1;
-        if (config.poele_mode == DT_POELE_NORMAL)
+        if (eeprom_config.poele_mode == DT_POELE_NORMAL)
         {
             // mode ECS + Chauffage
             ev1 = true;
             // calcule consigne balon
-            C1 = max(config.C2, config.C3);
-            C1 = max(C1, config.C4);
-            C1 += config.V2;
+            C1 = max(mem_config.C2, mem_config.C3);
+            C1 = max(C1, eeprom_config.C4);
+            C1 += eeprom_config.V2;
             // temperature envoyer au poele
-            T4 = config.V1 + DT_pt100_get(PT100_BALON) - C1;
+            T4 = eeprom_config.V1 + DT_pt100_get(PT100_BALON) - C1;
         }
-        else if (config.poele_mode == DT_POELE_SILENCE)
+        else if (eeprom_config.poele_mode == DT_POELE_SILENCE)
         {
             // mode ECS + Chauffage
             ev1 = true;
-            T4 = config.C7;
+            T4 = eeprom_config.C7;
         }
-        else if (config.poele_mode == DT_POELE_SECOURS)
+        else if (eeprom_config.poele_mode == DT_POELE_SECOURS)
         {
             // mode ECS + Chauffage
             ev1 = true;
             // temperature envoyer au poele
             T4 = DT_pt100_get(PT100_BALON);
         }
-        else if (config.poele_mode == DT_POELE_ECS)
+        else if (eeprom_config.poele_mode == DT_POELE_ECS)
         {
             // mode ECS uniquement
             ev1 = false;
             // temperature envoyer au poele
             float _min = min(DT_pt100_get(PT100_ECS1), DT_pt100_get(PT100_ECS2));
-            T4 = config.V1 - config.V2 + _min - config.C5;
+            T4 = eeprom_config.V1 - eeprom_config.V2 + _min - eeprom_config.C5;
         }
-        else if (config.poele_mode == DT_POELE_BOOST)
+        else if (eeprom_config.poele_mode == DT_POELE_BOOST)
         {
             // mode ECS uniquement
             ev1 = true;
             // temperature envoyer au poele
-            T4 = config.V1 + DT_pt100_get(PT100_BALON) - config.C6;
+            T4 = eeprom_config.V1 + DT_pt100_get(PT100_BALON) - eeprom_config.C6;
         }
 
         // securité
@@ -94,12 +94,12 @@ void DT_Poele_loop()
 
 void DT_Poele_set_mode(DT_Poele_mode mode)
 {
-    config.poele_mode = mode;
+    eeprom_config.poele_mode = mode;
 }
 
 DT_Poele_mode DT_Poele_get_mode(void)
 {
-    return config.poele_mode;
+    return eeprom_config.poele_mode;
 }
 
 void DT_pt100_set_callback(void (*callback)(const bool ev1, const float T4, const uint8_t C1))

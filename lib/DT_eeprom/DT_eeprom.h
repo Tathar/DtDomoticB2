@@ -14,7 +14,13 @@ static const uint8_t STRUCT_MAGIC = 1;
 static const uint8_t STRUCT_VERSION = 1;
 
 // declaration de la structure de configuration
-typedef struct Config
+struct Mem_Config
+{
+    float C2; // consigne Temp PCBT
+    float C3; // consigne MCHT
+};
+
+struct Eeprom_Config
 {
     uint8_t magic;
     uint8_t struct_version;
@@ -25,21 +31,21 @@ typedef struct Config
     uint8_t V1; // Variable paramètre poêle (60°C)
     uint8_t V2; // Variable Reserve chaleur Ballon (20°C)
     uint8_t V3; // Variable Temp Demi plage Morte
-    float C2;   // consigne Temp PCBT
-    float C3;   // consigne MCBT
+    // float C2;   // consigne Temp PCBT
+    // float C3;   // consigne MCHT
     float C4;   // consigne Jacuzzi
     uint8_t C5; // consigne ECS1 & ECS2
     uint8_t C6; // consigne mode boost
     uint8_t C7; // consigne Mode Silence
-    float C8;  // consigne Temp PCBT a -10°C
-    float C9;  // consigne Temp PCBT a +10°C
-    float C10; // consigne Temp MCBT a -10°C
-    float C11; // consigne Temp MCBT a +10°C
-
-} Config_t;
+    float C8;   // consigne Temp PCBT a -10°C
+    float C9;   // consigne Temp PCBT a +10°C
+    float C10;  // consigne Temp MCBT a -10°C
+    float C11;  // consigne Temp MCBT a +10°C
+};
 
 // structure de configuration
-extern Config config;
+extern Eeprom_Config eeprom_config;
+extern Mem_Config mem_config;
 
 /** Sauvegarde en mémoire EEPROM le contenu actuel de la structure */
 void sauvegardeEEPROM(void);
