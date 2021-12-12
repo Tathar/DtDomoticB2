@@ -2,7 +2,7 @@
 #include "Arduino.h"
 #include <Adafruit_MCP23X08.h>
 
-uint16_t num_delay[RELAY_NUM];
+uint32_t num_delay[RELAY_NUM];
 void (*_callback)(const uint8_t num, const bool action);
 Adafruit_MCP23X08 mcp[2];
 
@@ -44,7 +44,7 @@ void DT_relay_init()
     }
 }
 
-void DT_relay(int num, bool active)
+void DT_relay(uint8_t num, bool active)
 {
     uint8_t pin = pgm_read_byte(RELAY_ARRAY + (num - 1));
     bool revert = pgm_read_byte(RELAY_REVERT + (num - 1));
@@ -81,7 +81,7 @@ void DT_relay(int num, bool active)
     }
 }
 
-uint8_t DT_relay_get(int num)
+uint8_t DT_relay_get(uint8_t num)
 {
     uint8_t pin = pgm_read_byte(RELAY_ARRAY + (num - 1));
     bool revert = pgm_read_byte(RELAY_REVERT + (num - 1));
@@ -100,7 +100,7 @@ uint8_t DT_relay_get(int num)
     return revert ? !ret : ret;
 }
 
-void DT_relay(int num, int time)
+void DT_relay(uint8_t num, uint32_t time)
 {
     if (time > 0)
     {
