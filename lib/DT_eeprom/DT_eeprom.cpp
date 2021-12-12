@@ -32,20 +32,33 @@ void chargeEEPROM()
                 eeprom_config.struct_version = 1;
                 //TODO: mqtt home assistant
                 eeprom_config.poele_mode = DT_POELE_OFF;
-                eeprom_config.mode_3voies = DT_3VOIES_OFF;
+                eeprom_config.mode_3voies_PCBT = DT_3VOIES_OFF;
+                eeprom_config.mode_3voies_MCBT = DT_3VOIES_OFF;
 
-                eeprom_config.V1 = 60; // Variable paramètre poêle (60°C)
-                eeprom_config.V2 = 20; // Variable Reserve chaleur Ballon (20°C)
-                eeprom_config.V3 = 0;  // Variable Temp Demi plage Morte
-                // eeprom_config.C2 = 30; // consigne Temp PCBT
-                // eeprom_config.C3 = 60; // consigne MCBT
-                eeprom_config.C4 = 80;  // consigne Jacuzzi
-                eeprom_config.C5 = 60;  // consigne ECS1 & ECS2
-                eeprom_config.C7 = 0;   // Variable Temp Demi plage Morte
-                eeprom_config.C8 = 35;  // consigne Temp PCBT a -10°C
-                eeprom_config.C9 = 20;  // consigne Temp PCBT a +10°C
-                eeprom_config.C10 = 50; // consigne Temp MCBT a -10°C
-                eeprom_config.C11 = 35; // consigne Temp MCBT a +10°C
+                eeprom_config.V1 = 60;                   // Variable paramètre poêle (60°C)
+                eeprom_config.V2 = 20;                   // Variable Reserve chaleur Ballon (20°C)
+                eeprom_config.V3 = 0;                    // Variable Temp Demi plage Morte
+                eeprom_config.C4 = 80;                   // consigne Jacuzzi
+                eeprom_config.C5 = 60;                   // consigne ECS1 & ECS2
+                eeprom_config.C7 = 0;                    // Variable Temp Demi plage Morte
+                eeprom_config.C8 = 35;                   // consigne Temp PCBT a -10°C
+                eeprom_config.C9 = 20;                   // consigne Temp PCBT a +10°C
+                eeprom_config.C10 = 50;                  // consigne Temp MCBT a -10°C
+                eeprom_config.C11 = 35;                  // consigne Temp MCBT a +10°C
+                eeprom_config.C_PCBT_MIN = 20;           // consigne Temp PCBT minimum
+                eeprom_config.C_PCBT_MAX = TMP_PCBT_MAX; // consigne Temp PCBT maximum
+                eeprom_config.C_MCBT_MIN = 25;           // consigne Temp MCBT minimum
+                eeprom_config.C_MCBT_MAX = TMP_MCBT_MAX; // consigne Temp MCBT maximum
+
+                eeprom_config.KP_PCBT = 500;  // pid KP MCBT
+                eeprom_config.KI_PCBT = 0;    // pid KI MCBT
+                eeprom_config.KD_PCBT = 0;    // pid KD MCBT
+                eeprom_config.KT_PCBT = 1000; // pid interval MCBT (en ms)
+
+                eeprom_config.KP_MCBT = 500;  // pid KP MCBT
+                eeprom_config.KI_MCBT = 0;    // pid KI MCBT
+                eeprom_config.KD_MCBT = 0;    // pid KD MCBT
+                eeprom_config.KT_MCBT = 1000; // pid interval MCBT (en ms)
         }
 
         // Sauvegarde les nouvelles données

@@ -72,10 +72,24 @@
 #define PT100_ECS2 3
 
 // Vanne 3 Voies
-#define VANNE_PCBT_HOT 1
-#define VANNE_PCBT_COLD 2
 
-#define VANNE_MUR_CHAUFANT_HOT 3
-#define VANNE_MUR_CHAUFANT_COLD 4
+#define TMP_PCBT_MAX 38 //valeur maximum de la consigne de temperature
+#define TMP_MCBT_MAX 60 //valeur maximum de la consigne de temperature
+#define DBMAC 0.5       //demi bamnde morte pour l'arret des circulateur (en °C)
+
+#define PT100_EXT 4
+#define PT100_3_VOIES_PCBT 5
+#define PT100_3_VOIES_MCBT 6
+
+#define CIRCULATEUR_PCBT 1
+#define VANNE_PCBT_HOT 2
+#define VANNE_PCBT_COLD 3
+
+#define CIRCULATEUR_MCBT 4
+#define VANNE_MCBT_HOT 5
+#define VANNE_MCBT_COLD 6
+
+//Circulateur
+#define CIRCULATEUR
 
 #endif
