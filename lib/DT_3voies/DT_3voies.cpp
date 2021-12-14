@@ -13,14 +13,14 @@
 
 #define NB_VANNE3_VOIES 2
 
-#define D2MS 86400000 //1 jours en miliseconde
+#define D2MS 86400000 // 1 jours en miliseconde
 
-#define temp_long_1 25 //en °C
-#define temp_long_2 35 //en °C
+#define temp_long_1 25 // en °C
+#define temp_long_2 35 // en °C
 
 float Input_PCBT, Output_PCBT;
 float Input_MCBT, Output_MCBT;
-//Specify the links and initial tuning parameters
+// Specify the links and initial tuning parameters
 
 QuickPID pid_pcbt = QuickPID(&Input_PCBT, &Output_PCBT, &mem_config.C2, 500, 0, 0, QuickPID::DIRECT);
 QuickPID pid_mcbt = QuickPID(&Input_MCBT, &Output_MCBT, &mem_config.C3, 500, 0, 0, QuickPID::DIRECT);
@@ -44,7 +44,7 @@ float scale(float in, float in_min, float in_max, float out_min, float out_max)
 void DT_3voies_init()
 {
 
-    //calcule des consignes de temperature
+    // calcule des consignes de temperature
     if (eeprom_config.mode_3voies_PCBT == DT_3VOIES_DEMMARAGE)
     {
         mem_config.C2 = DT_pt100_get(PT100_3_VOIES_PCBT);
@@ -75,23 +75,23 @@ void DT_3voies_init()
         mem_config.C3 = scale(DT_pt100_get(PT100_EXT), -10, 10, eeprom_config.C10, eeprom_config.C11);
     }
 
-    //KP, KI, KD
+    // KP, KI, KD
     pid_pcbt.SetTunings(eeprom_config.KP_PCBT, eeprom_config.KI_PCBT, eeprom_config.KD_PCBT);
     pid_mcbt.SetTunings(eeprom_config.KP_MCBT, eeprom_config.KI_MCBT, eeprom_config.KD_MCBT);
 
-    //min, max
+    // min, max
     pid_pcbt.SetOutputLimits(eeprom_config.KT_PCBT * -1, eeprom_config.KT_PCBT);
     pid_mcbt.SetOutputLimits(eeprom_config.KT_MCBT * -1, eeprom_config.KT_MCBT);
 
-    //loop time (KT)
+    // loop time (KT)
     pid_pcbt.SetSampleTimeUs(eeprom_config.KT_PCBT * 1000);
     pid_mcbt.SetSampleTimeUs(eeprom_config.KT_MCBT * 1000);
 
-    //temperature de l'eau
+    // temperature de l'eau
     Input_PCBT = DT_pt100_get(PT100_3_VOIES_PCBT);
     Input_MCBT = DT_pt100_get(PT100_3_VOIES_MCBT);
 
-    //turn the PID on
+    // turn the PID on
     if (eeprom_config.mode_3voies_PCBT == DT_3VOIES_OFF)
     {
         DT_relay(CIRCULATEUR_PCBT, false);
@@ -103,7 +103,7 @@ void DT_3voies_init()
         pid_pcbt.SetMode(QuickPID::AUTOMATIC);
     }
 
-    //turn the PID on
+    // turn the PID on
     if (eeprom_config.mode_3voies_MCBT == DT_3VOIES_OFF)
     {
         DT_relay(CIRCULATEUR_MCBT, false);
@@ -123,7 +123,7 @@ void DT_3voies_loop()
     static float old_C2 = 0;
     static float old_C3 = 0;
 
-    //calcule des consignes de temperature
+    // calcule des consignes de temperature
     if (eeprom_config.mode_3voies_PCBT == DT_3VOIES_DEMMARAGE)
     {
         if (now - temp_start_pcbt > temp_etape_pcbt)
@@ -169,7 +169,7 @@ void DT_3voies_loop()
         mem_config.C3 = scale(DT_pt100_get(PT100_EXT), -10, 10, eeprom_config.C10, eeprom_config.C11);
     }
 
-    //protection sur temperature
+    // protection sur temperature
     if (mem_config.C2 > eeprom_config.C_PCBT_MAX)
         mem_config.C2 = eeprom_config.C_PCBT_MAX;
 
@@ -182,43 +182,54 @@ void DT_3voies_loop()
     if (mem_config.C3 > TMP_MCBT_MAX)
         mem_config.C3 = TMP_MCBT_MAX;
 
-    //temperature de l'eau
+    // test de la temperature du planche
+    for (uint8_t num = 0; num < NUM_PT100_PLANCHE; ++num)
+    {
+        uint8_t num_pt100 = pgm_read_byte(pt100_planchee + num);
+        if (DT_pt100_get(PT100_EXT) > MAX_TMP_PLANCHE + 1)
+        {
+            DT_relay(CIRCULATEUR_PCBT, false); // arret du circulateur
+            return;                            // arret de la fonction
+        }
+    }
+
+    // temperature de l'eau
     Input_PCBT = DT_pt100_get(PT100_3_VOIES_PCBT);
     Input_MCBT = DT_pt100_get(PT100_3_VOIES_MCBT);
 
-    //consigne minimum pour fonctionnement des circulateur
+    // consigne minimum pour fonctionnement des circulateur
     if ((eeprom_config.mode_3voies_PCBT != DT_3VOIES_DEMMARAGE) && (mem_config.C2 < eeprom_config.C_PCBT_MIN - DBMAC))
     {
-        DT_relay(CIRCULATEUR_PCBT, false);  //arret du circulateur
-        pid_pcbt.SetMode(QuickPID::MANUAL); //arret de la vanne 3 voie
+        DT_relay(CIRCULATEUR_PCBT, false);  // arret du circulateur
+        pid_pcbt.SetMode(QuickPID::MANUAL); // arret de la vanne 3 voie
     }
     else if ((eeprom_config.mode_3voies_PCBT != DT_3VOIES_OFF) && (mem_config.C2 > eeprom_config.C_PCBT_MIN + DBMAC))
     {
-        DT_relay(CIRCULATEUR_PCBT, true);      //demmarage du circulateur
-        pid_pcbt.SetMode(QuickPID::AUTOMATIC); //demmarage de la vanne 3 voie
+        DT_relay(CIRCULATEUR_PCBT, true);      // demmarage du circulateur
+        pid_pcbt.SetMode(QuickPID::AUTOMATIC); // demmarage de la vanne 3 voie
     }
 
     if ((eeprom_config.mode_3voies_MCBT != DT_3VOIES_DEMMARAGE) && (mem_config.C3 < eeprom_config.C_MCBT_MIN - DBMAC))
     {
-        DT_relay(CIRCULATEUR_MCBT, false);  //arret du circulateur
-        pid_mcbt.SetMode(QuickPID::MANUAL); //arret de la vanne 3 voie
+        DT_relay(CIRCULATEUR_MCBT, false);  // arret du circulateur
+        pid_mcbt.SetMode(QuickPID::MANUAL); // arret de la vanne 3 voie
     }
     else if ((eeprom_config.mode_3voies_MCBT != DT_3VOIES_OFF) && (mem_config.C3 > eeprom_config.C_MCBT_MIN + DBMAC))
     {
-        DT_relay(CIRCULATEUR_MCBT, true);      //demmarage du circulateur
-        pid_mcbt.SetMode(QuickPID::AUTOMATIC); //demmarage de la vanne 3 voie
+        DT_relay(CIRCULATEUR_MCBT, true);      // demmarage du circulateur
+        pid_mcbt.SetMode(QuickPID::AUTOMATIC); // demmarage de la vanne 3 voie
     }
 
-    //calcule du PID
+    // calcule du PID
     if (pid_pcbt.Compute())
     {
         if (Output_PCBT > 0)
         {
-            DT_relay(VANNE_PCBT_HOT, (uint32_t)Output_PCBT); //activation de la vanne
+            DT_relay(VANNE_PCBT_HOT, (uint32_t)Output_PCBT); // activation de la vanne
         }
         else
         {
-            DT_relay(VANNE_PCBT_COLD, (uint32_t)(Output_PCBT * -1)); //activation de la vanne
+            DT_relay(VANNE_PCBT_COLD, (uint32_t)(Output_PCBT * -1)); // activation de la vanne
         }
     }
 
@@ -226,11 +237,11 @@ void DT_3voies_loop()
     {
         if (Output_MCBT >= 0)
         {
-            DT_relay(VANNE_MCBT_HOT, (uint32_t)Output_MCBT); //activation de la vanne
+            DT_relay(VANNE_MCBT_HOT, (uint32_t)Output_MCBT); // activation de la vanne
         }
         else
         {
-            DT_relay(VANNE_MCBT_COLD, (uint32_t)(Output_MCBT * -1)); //activation de la vanne
+            DT_relay(VANNE_MCBT_COLD, (uint32_t)(Output_MCBT * -1)); // activation de la vanne
         }
     }
 
@@ -322,7 +333,7 @@ void DT_3voies_PCBT_set_KP(float kp)
 {
     eeprom_config.KP_PCBT = kp;
     sauvegardeEEPROM();
-    //set KP, KI, KD
+    // set KP, KI, KD
     pid_pcbt.SetTunings(eeprom_config.KP_PCBT, eeprom_config.KI_PCBT, eeprom_config.KD_PCBT);
 }
 
@@ -330,7 +341,7 @@ void DT_3voies_MCBT_set_KP(float kp)
 {
     eeprom_config.KP_MCBT = kp;
     sauvegardeEEPROM();
-    //set KP, KI, KD
+    // set KP, KI, KD
     pid_mcbt.SetTunings(eeprom_config.KP_MCBT, eeprom_config.KI_MCBT, eeprom_config.KD_MCBT);
 }
 
@@ -338,7 +349,7 @@ void DT_3voies_PCBT_set_KI(float ki)
 {
     eeprom_config.KI_PCBT = ki;
     sauvegardeEEPROM();
-    //set KP, KI, KD
+    // set KP, KI, KD
     pid_pcbt.SetTunings(eeprom_config.KP_PCBT, eeprom_config.KI_PCBT, eeprom_config.KD_PCBT);
 }
 
@@ -346,7 +357,7 @@ void DT_3voies_MCBT_set_KI(float ki)
 {
     eeprom_config.KI_MCBT = ki;
     sauvegardeEEPROM();
-    //set KP, KI, KD
+    // set KP, KI, KD
     pid_mcbt.SetTunings(eeprom_config.KP_MCBT, eeprom_config.KI_MCBT, eeprom_config.KD_MCBT);
 }
 
@@ -354,7 +365,7 @@ void DT_3voies_PCBT_set_KD(float kd)
 {
     eeprom_config.KD_PCBT = kd;
     sauvegardeEEPROM();
-    //set KP, KI, KD
+    // set KP, KI, KD
     pid_pcbt.SetTunings(eeprom_config.KP_PCBT, eeprom_config.KI_PCBT, eeprom_config.KD_PCBT);
 }
 
@@ -362,7 +373,7 @@ void DT_3voies_MCBT_set_KD(float kd)
 {
     eeprom_config.KD_MCBT = kd;
     sauvegardeEEPROM();
-    //set KP, KI, KD
+    // set KP, KI, KD
     pid_mcbt.SetTunings(eeprom_config.KP_MCBT, eeprom_config.KI_MCBT, eeprom_config.KD_MCBT);
 }
 
@@ -370,9 +381,9 @@ void DT_3voies_PCBT_set_KT(uint32_t kt)
 {
     eeprom_config.KT_PCBT = kt;
     sauvegardeEEPROM();
-    //set loop time (KT)
+    // set loop time (KT)
     pid_pcbt.SetSampleTimeUs(eeprom_config.KT_PCBT * 1000);
-    //min, max
+    // min, max
     pid_pcbt.SetOutputLimits(eeprom_config.KT_PCBT * -1, eeprom_config.KT_PCBT);
 }
 
@@ -380,9 +391,9 @@ void DT_3voies_MCBT_set_KT(uint32_t kt)
 {
     eeprom_config.KT_MCBT = kt;
     sauvegardeEEPROM();
-    //set loop time (KT)
+    // set loop time (KT)
     pid_mcbt.SetSampleTimeUs(eeprom_config.KT_MCBT * 1000);
-    //min, max
+    // min, max
     pid_mcbt.SetOutputLimits(eeprom_config.KT_MCBT * -1, eeprom_config.KT_MCBT);
 }
 
