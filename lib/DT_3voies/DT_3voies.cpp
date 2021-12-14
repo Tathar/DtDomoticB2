@@ -186,7 +186,7 @@ void DT_3voies_loop()
     for (uint8_t num = 0; num < NUM_PT100_PLANCHE; ++num)
     {
         uint8_t num_pt100 = pgm_read_byte(pt100_planchee + num);
-        if (DT_pt100_get(PT100_EXT) > MAX_TMP_PLANCHE + 1)
+        if (DT_pt100_get(num_pt100) > MAX_TMP_PLANCHE + 1)
         {
             DT_relay(CIRCULATEUR_PCBT, false); // arret du circulateur
             return;                            // arret de la fonction
