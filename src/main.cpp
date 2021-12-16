@@ -455,6 +455,14 @@ void mqtt_publish()
       DT_mqtt_send(buffer, "OFF");
   }
 
+  //PT100
+  for (uint8_t num = 0; num < TEMP_NUM; ++num)
+  {
+    wdt_reset();
+    sprintf(buffer, "DtBoard/" BOARD_IDENTIFIER "/pt100-%02d/temperature", num + 1);
+    DT_mqtt_send(buffer, DT_pt100_get(num + 1));
+  }
+
   // mode poele
   if (DT_Poele_get_mode() == DT_POELE_SILENCE)
   {

@@ -3,7 +3,7 @@
 
 #include <pinout.h>
 
-#define TEMP_DEFAULT_PT100 -273.5 // temperature renvoyer en cas de default (zero absolut)
+#define TEMP_DEFAULT_PT100 -273.15 // temperature renvoyer en cas de default (zero absolut)
 
 void DT_pt100_init();
 void DT_pt100_loop();
