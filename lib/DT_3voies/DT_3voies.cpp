@@ -176,17 +176,17 @@ void DT_3voies_loop()
     if (mem_config.C3 > eeprom_config.C_MCBT_MAX)
         mem_config.C3 = eeprom_config.C_MCBT_MAX;
 
-    if (mem_config.C2 > TMP_PCBT_MAX)
-        mem_config.C2 = TMP_PCBT_MAX;
+    if (mem_config.C2 > TMP_EAU_PCBT_MAX)
+        mem_config.C2 = TMP_EAU_PCBT_MAX;
 
-    if (mem_config.C3 > TMP_MCBT_MAX)
-        mem_config.C3 = TMP_MCBT_MAX;
+    if (mem_config.C3 > TMP_EAU_MCBT_MAX)
+        mem_config.C3 = TMP_EAU_MCBT_MAX;
 
     // test de la temperature du planche
-    for (uint8_t num = 0; num < NUM_PT100_PLANCHE; ++num)
+    for (uint8_t num = 0; num < NUM_PLANCHE; ++num)
     {
-        uint8_t num_pt100 = pgm_read_byte(pt100_planchee + num);
-        if (DT_pt100_get(num_pt100) > MAX_TMP_PLANCHE + 1)
+        uint8_t num_pt100 = pgm_read_byte(PT100_PLANCHEE + num);
+        if ((DT_pt100_get(num_pt100) > MAX_TMP_PLANCHE + 1) && (DT_pt100_get(num_pt100) != TEMP_DEFAULT_PT100))
         {
             DT_relay(CIRCULATEUR_PCBT, false); // arret du circulateur
             return;                            // arret de la fonction

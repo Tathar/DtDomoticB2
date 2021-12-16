@@ -73,9 +73,9 @@
 
 // Vanne 3 Voies
 
-#define TMP_PCBT_MAX 38 // valeur maximum de la consigne de temperature
-#define TMP_MCBT_MAX 60 // valeur maximum de la consigne de temperature
-#define DBMAC 0.5       // demi bamnde morte pour l'arret des circulateur (en °C)
+#define TMP_EAU_PCBT_MAX 38 // valeur maximum de la consigne de temperature
+#define TMP_EAU_MCBT_MAX 60 // valeur maximum de la consigne de temperature
+#define DBMAC 0.5           // demi bamnde morte pour l'arret des circulateur (en °C)
 
 #define PT100_EXT 4
 #define PT100_3_VOIES_PCBT 5
@@ -91,15 +91,22 @@
 
 // Planchée chauffant
 #define MAX_TMP_PLANCHE 27 // en °C
-#define NUM_PT100_PLANCHE 6
+#define NUM_PLANCHE 6
 #define PT100_PLANCHE_CUISINE 7
+#define RELAIS_PLANCHE_CUISINE 7
 #define PT100_PLANCHE_SALON 8
+#define RELAIS_PLANCHE_SALON 8
 #define PT100_PLANCHE_CH_1 9
+#define RELAIS_PLANCHE_CH_1 9
 #define PT100_PLANCHE_CH_2 10
+#define RELAIS_PLANCHE_CH_2 10
 #define PT100_PLANCHE_SDB 11
+#define RELAIS_PLANCHE_SDB 11
 #define PT100_PLANCHE_CELIER 12
+#define RELAIS_PLANCHE_CELIER 12
 
-const float pt100_planchee[NUM_PT100_PLANCHE] PROGMEM = {PT100_PLANCHE_CUISINE, PT100_PLANCHE_SALON, PT100_PLANCHE_CH_1, PT100_PLANCHE_CH_2, PT100_PLANCHE_SDB, PT100_PLANCHE_CELIER};
+const float PT100_PLANCHEE[NUM_PLANCHE] PROGMEM = {PT100_PLANCHE_CUISINE, PT100_PLANCHE_SALON, PT100_PLANCHE_CH_1, PT100_PLANCHE_CH_2, PT100_PLANCHE_SDB, PT100_PLANCHE_CELIER};
+const uint8_t RELAI_PLANCHE[NUM_PLANCHE] PROGMEM = {RELAIS_PLANCHE_CUISINE, RELAIS_PLANCHE_SALON, RELAIS_PLANCHE_CH_1, RELAIS_PLANCHE_CH_2, RELAIS_PLANCHE_SDB, RELAIS_PLANCHE_CELIER};
 
 // Circulateur
 #define CIRCULATEUR

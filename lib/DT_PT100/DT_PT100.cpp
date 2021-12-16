@@ -3,6 +3,9 @@
 
 #include <Adafruit_MAX31865.h>
 
+#define MIN_DEFAULT_PT100 -100 // si la temperature est inferieur, on considere que la PT100 est en default
+#define MAX_DEFAULT_PT100 200  // si la temperature est superieur, on considere que la PT100 est en default
+
 Adafruit_MAX31865 temp[2] = {Adafruit_MAX31865(11), Adafruit_MAX31865(12)};
 
 float old_temp[TEMP_NUM];
@@ -47,16 +50,20 @@ float _temp_get(int num)
             Serial.println("Under/Over voltage");
         }
         temp[num].clearFault();
-        return -273.15;
+        return TEMP_DEFAULT_PT100;
     }
     else
     {
         Serial.print(" return ");
-        Serial.print(temp[num].temperature(100, TEMP_RREF));
+        float tmp = temp[num].temperature(100, TEMP_RREF);
+        Serial.print(tmp);
         Serial.println("°C");
         // sprintf(buffer, "with %%p:  x    = %p\n", &capteur);
         // Serial.print(buffer);
-        return temp[num].temperature(100, TEMP_RREF);
+        if (tmp < MIN_DEFAULT_PT100 || tmp > MAX_DEFAULT_PT100)
+            return TEMP_DEFAULT_PT100;
+
+        return tmp;
     }
 }
 
@@ -85,17 +92,10 @@ void DT_pt100_loop()
         for (uint8_t num = 0; num < 2; num++)
         {
             tmp = _temp_get(num);
-            if (tmp < -100 || tmp > 200)
+            old_temp[num] = tmp;
+            if (pt100_callback != nullptr)
             {
-                temp[num].clearFault();
-            }
-            else if (old_temp[num] != tmp)
-            {
-                old_temp[num] = tmp;
-                if (pt100_callback != nullptr)
-                {
-                    pt100_callback(num + 1, tmp);
-                }
+                pt100_callback(num + 1, tmp);
             }
         }
     }
