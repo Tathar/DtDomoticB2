@@ -21,7 +21,7 @@ void DT_BME280_init()
     bme280_callback_pressure = nullptr;
     for (uint8_t num = 0; num < BME280_NUM; ++num)
     {
-        uint16_t address = bme280_address[num];
+        uint16_t address = pgm_read_byte(BME280_ADDRESS + num);
         uint8_t i2c_number = pgm_read_byte(BME280_ADDRESS + num);
 
         // Wire.beginTransmission(I2C_MULTIPLEXER_ADDRESS); //change I2C channel
@@ -63,9 +63,9 @@ void DT_BME280_loop()
             {
                 uint8_t i2c_number = pgm_read_byte(BME280_ADDRESS + num);
 
-                // Wire.beginTransmission(I2C_MULTIPLEXER_ADDRESS); //change I2C channel
-                // Wire.write(1 << (i2c_number - 1));
-                // Wire.endTransmission();
+                Wire.beginTransmission(I2C_MULTIPLEXER_ADDRESS); //change I2C channel
+                Wire.write(1 << (i2c_number - 1));
+                Wire.endTransmission();
 
                 float value = bme280[num].readTemperature();
                 if (value != temperature[num])

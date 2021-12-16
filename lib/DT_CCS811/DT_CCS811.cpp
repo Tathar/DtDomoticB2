@@ -18,12 +18,13 @@ void DT_CCS811_init()
     ccs811_callback_cov = nullptr;
     for (uint8_t num = 0; num < CCS811_NUM; ++num)
     {
-        uint16_t address = ccs811_address[num];
-        uint8_t i2c_number = pgm_read_byte(ccs811_I2C + num);
+        uint16_t address = pgm_read_byte(CCS811_ADDRESS + num);
+        uint8_t i2c_number = pgm_read_byte(CCS811_I2C + num);
 
-        // Wire.beginTransmission(I2C_MULTIPLEXER_ADDRESS); //change I2C channel
-        // Wire.write(1 << (i2c_number - 1));
-        // Wire.endTransmission();
+        Wire.beginTransmission(I2C_MULTIPLEXER_ADDRESS); //change I2C channel
+        Wire.write(1 << (i2c_number - 1));
+        Wire.endTransmission();
+
         Serial.println(address, HEX);
         Serial.println(i2c_number);
         unsigned status = ccs811[num].begin(address);
@@ -53,7 +54,7 @@ void DT_CCS811_loop()
         {
             if (ccs811_active[num])
             {
-                uint8_t i2c_number = pgm_read_byte(ccs811_I2C + num);
+                uint8_t i2c_number = pgm_read_byte(CCS811_I2C + num);
 
                 // Wire.beginTransmission(I2C_MULTIPLEXER_ADDRESS); //change I2C channel
                 // Wire.write(1 << (i2c_number - 1));
