@@ -227,13 +227,14 @@ void homeassistant(void)
   doc["uniq_id"] = BOARD_IDENTIFIER "-fake_NTC";
   doc["name"] = "NTC Poele";
   doc["stat_t"] = "~/temperature";
+  doc["command_topic"] = "~/temperature_set";
   doc["dev_cla"] = "temperature";
   doc["unit_of_meas"] = "°C";
   doc["dev"]["ids"] = BOARD_IDENTIFIER; // identifiers
 
   serializeJson(doc, buffer_value, sizeof(buffer_value));
   Serial.println(buffer_value);
-  DT_mqtt_send("homeassistant/sensor/" BOARD_IDENTIFIER "/fake_NTC", buffer_value);
+  DT_mqtt_send("homeassistant/numbers/" BOARD_IDENTIFIER "/fake_NTC", buffer_value);
 
   // Poele mode
   wdt_reset(); // clear watchdog
@@ -250,13 +251,14 @@ void homeassistant(void)
   options.add("Normal");
   options.add("ECS");
   options.add("Boost");
+  options.add("Manuel");
 
   doc["dev"]["ids"] = BOARD_IDENTIFIER; // identifiers
 
   serializeJson(doc, buffer_value, sizeof(buffer_value));
   DT_mqtt_send("homeassistant/select/" BOARD_IDENTIFIER "/poele-mode/config", buffer_value);
 
-  //Poele ev1
+  // Poele ev1
   wdt_reset();
   doc.clear();
   doc["~"] = "DtBoard/" BOARD_IDENTIFIER "/poele";
@@ -268,21 +270,7 @@ void homeassistant(void)
   Serial.println(buffer_value);
   DT_mqtt_send("homeassistant/binary_sensor/" BOARD_IDENTIFIER "/poele-ev1/config", buffer_value);
 
-  //Poele T4
-  wdt_reset();
-  doc.clear();
-  doc["~"] = "DtBoard/" BOARD_IDENTIFIER "/poele";
-  doc["uniq_id"] = BOARD_IDENTIFIER "-poele-T4";
-  doc["name"] = "Poele T4";
-  doc["stat_t"] = "~/T4";
-  doc["dev_cla"] = "temperature";
-  doc["unit_of_meas"] = "°C";
-  doc["dev"]["ids"] = BOARD_IDENTIFIER; // identifiers
-  serializeJson(doc, buffer_value, sizeof(buffer_value));
-  Serial.println(buffer_value);
-  DT_mqtt_send("homeassistant/sensor/" BOARD_IDENTIFIER "/poele-t4/config", buffer_value);
-
-  //Poele C1
+  // Poele C1
   wdt_reset();
   doc.clear();
   doc["~"] = "DtBoard/" BOARD_IDENTIFIER "/poele";
@@ -297,7 +285,7 @@ void homeassistant(void)
   DT_mqtt_send("homeassistant/sensor/" BOARD_IDENTIFIER "/poele-c1/config", buffer_value);
 }
 
-//Relay Callback
+// Relay Callback
 void relay_callback(const uint8_t num, const bool action)
 {
   wdt_reset();
@@ -402,20 +390,15 @@ void fake_ntc_callback(uint8_t value)
   DT_mqtt_send("DtBoard/" BOARD_IDENTIFIER "/fake_ntc/temperature", buffer_value);
 }
 
-void poele_callback(const bool ev1, const float T4, const uint8_t C1)
+void poele_callback(const bool ev1, const uint8_t C1)
 {
   wdt_reset();
-  //ev1
+  // ev1
   JsonVariant variant = doc.to<JsonVariant>();
   variant.set(ev1);
   serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
   DT_mqtt_send("DtBoard/" BOARD_IDENTIFIER "/poele/ev1", buffer_value);
-  //T4
-  variant = doc.to<JsonVariant>();
-  variant.set(T4);
-  serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
-  DT_mqtt_send("DtBoard/" BOARD_IDENTIFIER "/poele/T4", buffer_value);
-  //C1
+  // C1
   variant = doc.to<JsonVariant>();
   variant.set(C1);
   serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
@@ -427,13 +410,6 @@ void mqtt_publish()
   wdt_reset();
 
   DT_mqtt_send("DtBoard/" BOARD_IDENTIFIER "/availability", "online");
-
-  DT_mqtt_send("DtBoard/" BOARD_IDENTIFIER "/FG1/mode_state", "Off");
-  DT_mqtt_send("DtBoard/" BOARD_IDENTIFIER "/FG1/action_state", "Off");
-  DT_mqtt_send("DtBoard/" BOARD_IDENTIFIER "/FG1/temp_state", "19");
-  DT_mqtt_send("DtBoard/" BOARD_IDENTIFIER "/FG1/away_state", "Off");
-  DT_mqtt_send("DtBoard/" BOARD_IDENTIFIER "/pt100-01/temperature", "25.12");
-  DT_mqtt_send("DtBoard/" BOARD_IDENTIFIER "/pt100-02/temperature", "12.25");
 
   for (uint8_t num = 0; num < RELAY_NUM; ++num)
   {
@@ -455,7 +431,7 @@ void mqtt_publish()
       DT_mqtt_send(buffer, "OFF");
   }
 
-  //PT100
+  // PT100
   for (uint8_t num = 0; num < TEMP_NUM; ++num)
   {
     wdt_reset();
@@ -483,6 +459,10 @@ void mqtt_publish()
   else if (DT_Poele_get_mode() == DT_POELE_BOOST)
   {
     DT_mqtt_send("DtBoard/" BOARD_IDENTIFIER "/poele/mode/state", "Boost");
+  }
+  else if (DT_Poele_get_mode() == DT_POELE_MANUAL)
+  {
+    DT_mqtt_send("DtBoard/" BOARD_IDENTIFIER "/poele/mode/state", "Manuel");
   }
 }
 
@@ -527,7 +507,7 @@ void mqtt_receve(char *topic, uint8_t *payload, unsigned int length)
     return;
 
   int num = 0;
-  if (sscanf(topic, "DtBoard/" BOARD_IDENTIFIER "/relay-%02d/set", &num) == 1)
+  if (sscanf(topic, "DtBoard/" BOARD_IDENTIFIER "/relay-%02d/set", &num) == 1) // relais
   {
     Serial.print("sscanf = ");
     Serial.println(num);
@@ -536,7 +516,15 @@ void mqtt_receve(char *topic, uint8_t *payload, unsigned int length)
     else if (strcmp(buffer, "OFF") == 0)
       DT_relay(num, false);
   }
-  else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/poele/mode/set") == 0)
+  else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/fake_NTC/temperature_set") == 0) // Fake NTC
+  {
+    uint8_t temperature = 0;
+    if (sscanf(buffer, "%" SCNu8, &temperature) == 1)
+    {
+      DT_fake_ntc_set(temperature);
+    }
+  }
+  else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/poele/mode/set") == 0) // Mode du Poele
   {
     if (strcmp(buffer, "Silence") == 0)
     {
@@ -564,8 +552,13 @@ void mqtt_receve(char *topic, uint8_t *payload, unsigned int length)
       DT_Poele_set_mode(DT_POELE_BOOST);
       DT_mqtt_send("DtBoard/" BOARD_IDENTIFIER "/poele/mode/state", "Boost");
     }
+    else if (strcmp(buffer, "Manuel") == 0)
+    {
+      DT_Poele_set_mode(DT_POELE_MANUAL);
+      DT_mqtt_send("DtBoard/" BOARD_IDENTIFIER "/poele/mode/state", "Manuel");
+    }
   }
-  else if (strcmp(topic, "homeassistant/status") == 0)
+  else if (strcmp(topic, "homeassistant/status") == 0) // Home Assistant Online / Offline
   {
     if (strcmp(buffer, "online") == 0)
     {

@@ -8,7 +8,7 @@
 
 #include <config.h>
 
-void (*poele_callback)(const bool ev1, const float T4, const uint8_t C1);
+void (*poele_callback)(const bool ev1, const uint8_t C1);
 
 bool ev1; // 0(Circuit ballon tampon + Ballon ECS) / 1(Circuit Ballon ECS)
 float T4; // Temperature envoyé au poêle
@@ -80,13 +80,15 @@ void DT_Poele_loop()
             T4 = DT_pt100_get(PT100_BALON);
         }
 
-        DT_fake_ntc_set(T4);
-
-        if (poele_callback != nullptr && ((old_C1 != C1) || (old_t4 != T4) || (old_ev1 != ev1)))
+        if (eeprom_config.poele_mode != DT_POELE_MANUAL)
         {
-            poele_callback(ev1, T4, C1);
+            DT_fake_ntc_set(T4);
+        }
+
+        if (poele_callback != nullptr && ((old_C1 != C1) || (old_ev1 != ev1)))
+        {
+            poele_callback(ev1, C1);
             old_C1 = C1;
-            old_t4 = T4;
             old_ev1 = ev1;
         }
     }
@@ -102,7 +104,12 @@ DT_Poele_mode DT_Poele_get_mode(void)
     return eeprom_config.poele_mode;
 }
 
-void DT_pt100_set_callback(void (*callback)(const bool ev1, const float T4, const uint8_t C1))
+void DT_pt100_set_callback(void (*callback)(const bool ev1, const uint8_t C1))
 {
     poele_callback = callback;
+}
+
+void DT_pt100_set_C1(const float c1)
+{
+    C1 = c1;
 }
