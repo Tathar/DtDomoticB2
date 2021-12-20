@@ -66,10 +66,13 @@
 #define MQTT_UPDATE 1000         // in ms
 
 // Poele
+#define MIN_T4 0  //en °C (fake NTC)
+#define MAX_C1 85 //en °C (consigne temperature Balon)
 
 #define PT100_BALON 1
 #define PT100_ECS1 2
 #define PT100_ECS2 3
+#define RELAY_EV1 1
 
 // Vanne 3 Voies
 
