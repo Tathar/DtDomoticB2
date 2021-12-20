@@ -10,6 +10,7 @@
 #include <DT_CCS811.h>
 #include <DT_fake_ntc.h>
 #include <DT_poele.h>
+#include <DT_eeprom.h>
 
 #include <avr/wdt.h> //watchdog
 
@@ -234,7 +235,7 @@ void homeassistant(void)
 
   serializeJson(doc, buffer_value, sizeof(buffer_value));
   Serial.println(buffer_value);
-  DT_mqtt_send("homeassistant/numbers/" BOARD_IDENTIFIER "/fake_NTC", buffer_value);
+  DT_mqtt_send("homeassistant/number/" BOARD_IDENTIFIER "/fake_NTC/config", buffer_value);
 
   // Poele mode
   wdt_reset(); // clear watchdog
@@ -243,7 +244,7 @@ void homeassistant(void)
   doc["uniq_id"] = BOARD_IDENTIFIER "-poele-mode";
   doc["name"] = "mode poele";
   doc["command_topic"] = "~/set";
-  doc["stat_t"] = "~/state";
+  doc["state_topic"] = "~/state";
 
   JsonArray options = doc.createNestedArray("options");
   options.add("Silence");
@@ -252,23 +253,12 @@ void homeassistant(void)
   options.add("ECS");
   options.add("Boost");
   options.add("Manuel");
+  options.add("Arret");
 
   doc["dev"]["ids"] = BOARD_IDENTIFIER; // identifiers
 
   serializeJson(doc, buffer_value, sizeof(buffer_value));
   DT_mqtt_send("homeassistant/select/" BOARD_IDENTIFIER "/poele-mode/config", buffer_value);
-
-  // Poele ev1
-  wdt_reset();
-  doc.clear();
-  doc["~"] = "DtBoard/" BOARD_IDENTIFIER "/poele";
-  doc["uniq_id"] = BOARD_IDENTIFIER "-poele-ev1";
-  doc["name"] = "Poele EV1";
-  doc["stat_t"] = "~/ev1";
-  doc["dev"]["ids"] = BOARD_IDENTIFIER; // identifiers
-  serializeJson(doc, buffer_value, sizeof(buffer_value));
-  Serial.println(buffer_value);
-  DT_mqtt_send("homeassistant/binary_sensor/" BOARD_IDENTIFIER "/poele-ev1/config", buffer_value);
 
   // Poele C1
   wdt_reset();
@@ -283,6 +273,399 @@ void homeassistant(void)
   serializeJson(doc, buffer_value, sizeof(buffer_value));
   Serial.println(buffer_value);
   DT_mqtt_send("homeassistant/sensor/" BOARD_IDENTIFIER "/poele-c1/config", buffer_value);
+
+  //EEPROM
+  // V1
+  wdt_reset();
+  doc.clear();
+  doc["~"] = "DtBoard/" BOARD_IDENTIFIER "/V1";
+  doc["uniq_id"] = BOARD_IDENTIFIER "-V1";
+  doc["name"] = "paramètre poêle (V1)";
+  doc["stat_t"] = "~/state";
+  doc["command_topic"] = "~/set";
+  doc["dev_cla"] = "temperature";
+  doc["unit_of_meas"] = "°C";
+  doc["dev"]["ids"] = BOARD_IDENTIFIER; // identifiers
+
+  serializeJson(doc, buffer_value, sizeof(buffer_value));
+  Serial.println(buffer_value);
+  DT_mqtt_send("homeassistant/number/" BOARD_IDENTIFIER "/V1/config", buffer_value);
+
+  // V2
+  wdt_reset();
+  doc.clear();
+  doc["~"] = "DtBoard/" BOARD_IDENTIFIER "/V2";
+  doc["uniq_id"] = BOARD_IDENTIFIER "-V2";
+  doc["name"] = "Reserve chaleur Ballon (V2)";
+  doc["stat_t"] = "~/state";
+  doc["command_topic"] = "~/set";
+  doc["dev_cla"] = "temperature";
+  doc["unit_of_meas"] = "°C";
+  doc["dev"]["ids"] = BOARD_IDENTIFIER; // identifiers
+
+  serializeJson(doc, buffer_value, sizeof(buffer_value));
+  Serial.println(buffer_value);
+  DT_mqtt_send("homeassistant/number/" BOARD_IDENTIFIER "/V2/config", buffer_value);
+
+  // V3
+  wdt_reset();
+  doc.clear();
+  doc["~"] = "DtBoard/" BOARD_IDENTIFIER "/V3";
+  doc["uniq_id"] = BOARD_IDENTIFIER "-V3";
+  doc["name"] = "Temp Demi plage Morte (V3)";
+  doc["stat_t"] = "~/state";
+  doc["command_topic"] = "~/set";
+  // doc["dev_cla"] = "temperature";
+  // doc["unit_of_meas"] = "°C";
+  doc["dev"]["ids"] = BOARD_IDENTIFIER; // identifiers
+
+  serializeJson(doc, buffer_value, sizeof(buffer_value));
+  Serial.println(buffer_value);
+  DT_mqtt_send("homeassistant/number/" BOARD_IDENTIFIER "/V3/config", buffer_value);
+
+  // C4
+  wdt_reset();
+  doc.clear();
+  doc["~"] = "DtBoard/" BOARD_IDENTIFIER "/C4";
+  doc["uniq_id"] = BOARD_IDENTIFIER "-C4";
+  doc["name"] = "consigne Jacuzzi (C4)";
+  doc["stat_t"] = "~/state";
+  doc["command_topic"] = "~/set";
+  // doc["dev_cla"] = "temperature";
+  // doc["unit_of_meas"] = "°C";
+  doc["dev"]["ids"] = BOARD_IDENTIFIER; // identifiers
+
+  serializeJson(doc, buffer_value, sizeof(buffer_value));
+  Serial.println(buffer_value);
+  DT_mqtt_send("homeassistant/number/" BOARD_IDENTIFIER "/C4/config", buffer_value);
+
+  // C5
+  wdt_reset();
+  doc.clear();
+  doc["~"] = "DtBoard/" BOARD_IDENTIFIER "/C5";
+  doc["uniq_id"] = BOARD_IDENTIFIER "-C5";
+  doc["name"] = "consigne ECS1 & ECS2 (C5)";
+  doc["stat_t"] = "~/state";
+  doc["command_topic"] = "~/set";
+  // doc["dev_cla"] = "temperature";
+  // doc["unit_of_meas"] = "°C";
+  doc["dev"]["ids"] = BOARD_IDENTIFIER; // identifiers
+
+  serializeJson(doc, buffer_value, sizeof(buffer_value));
+  Serial.println(buffer_value);
+  DT_mqtt_send("homeassistant/number/" BOARD_IDENTIFIER "/C5/config", buffer_value);
+
+  // C6
+  wdt_reset();
+  doc.clear();
+  doc["~"] = "DtBoard/" BOARD_IDENTIFIER "/C6";
+  doc["uniq_id"] = BOARD_IDENTIFIER "-C6";
+  doc["name"] = "consigne mode boost (C6)";
+  doc["stat_t"] = "~/state";
+  doc["command_topic"] = "~/set";
+  // doc["dev_cla"] = "temperature";
+  // doc["unit_of_meas"] = "°C";
+  doc["dev"]["ids"] = BOARD_IDENTIFIER; // identifiers
+
+  serializeJson(doc, buffer_value, sizeof(buffer_value));
+  Serial.println(buffer_value);
+  DT_mqtt_send("homeassistant/number/" BOARD_IDENTIFIER "/C6/config", buffer_value);
+
+  // C7
+  wdt_reset();
+  doc.clear();
+  doc["~"] = "DtBoard/" BOARD_IDENTIFIER "/C7";
+  doc["uniq_id"] = BOARD_IDENTIFIER "-C7";
+  doc["name"] = "consigne Mode Silence (C7)";
+  doc["stat_t"] = "~/state";
+  doc["command_topic"] = "~/set";
+  // doc["dev_cla"] = "temperature";
+  // doc["unit_of_meas"] = "°C";
+  doc["dev"]["ids"] = BOARD_IDENTIFIER; // identifiers
+
+  serializeJson(doc, buffer_value, sizeof(buffer_value));
+  Serial.println(buffer_value);
+  DT_mqtt_send("homeassistant/number/" BOARD_IDENTIFIER "/C7/config", buffer_value);
+
+  // C8
+  wdt_reset();
+  doc.clear();
+  doc["~"] = "DtBoard/" BOARD_IDENTIFIER "/C8";
+  doc["uniq_id"] = BOARD_IDENTIFIER "-C8";
+  doc["name"] = "consigne Temp PCBT a -10°C (C8)";
+  doc["stat_t"] = "~/state";
+  doc["command_topic"] = "~/set";
+  // doc["dev_cla"] = "temperature";
+  // doc["unit_of_meas"] = "°C";
+  doc["dev"]["ids"] = BOARD_IDENTIFIER; // identifiers
+
+  serializeJson(doc, buffer_value, sizeof(buffer_value));
+  Serial.println(buffer_value);
+  DT_mqtt_send("homeassistant/number/" BOARD_IDENTIFIER "/C8/config", buffer_value);
+
+  // C9
+  wdt_reset();
+  doc.clear();
+  doc["~"] = "DtBoard/" BOARD_IDENTIFIER "/C9";
+  doc["uniq_id"] = BOARD_IDENTIFIER "-C9";
+  doc["name"] = "consigne Temp PCBT a +10°C (C9)";
+  doc["stat_t"] = "~/state";
+  doc["command_topic"] = "~/set";
+  // doc["dev_cla"] = "temperature";
+  // doc["unit_of_meas"] = "°C";
+  doc["dev"]["ids"] = BOARD_IDENTIFIER; // identifiers
+
+  serializeJson(doc, buffer_value, sizeof(buffer_value));
+  Serial.println(buffer_value);
+  DT_mqtt_send("homeassistant/number/" BOARD_IDENTIFIER "/C9/config", buffer_value);
+
+  // C10
+  wdt_reset();
+  doc.clear();
+  doc["~"] = "DtBoard/" BOARD_IDENTIFIER "/C10";
+  doc["uniq_id"] = BOARD_IDENTIFIER "-C10";
+  doc["name"] = "consigne Temp MCBT a -10°C (C10)";
+  doc["stat_t"] = "~/state";
+  doc["command_topic"] = "~/set";
+  // doc["dev_cla"] = "temperature";
+  // doc["unit_of_meas"] = "°C";
+  doc["dev"]["ids"] = BOARD_IDENTIFIER; // identifiers
+
+  serializeJson(doc, buffer_value, sizeof(buffer_value));
+  Serial.println(buffer_value);
+  DT_mqtt_send("homeassistant/number/" BOARD_IDENTIFIER "/C10/config", buffer_value);
+
+  // C11
+  wdt_reset();
+  doc.clear();
+  doc["~"] = "DtBoard/" BOARD_IDENTIFIER "/C11";
+  doc["uniq_id"] = BOARD_IDENTIFIER "-C11";
+  doc["name"] = "consigne Temp MCBT a +10°C (C11)";
+  doc["stat_t"] = "~/state";
+  doc["command_topic"] = "~/set";
+  // doc["dev_cla"] = "temperature";
+  // doc["unit_of_meas"] = "°C";
+  doc["dev"]["ids"] = BOARD_IDENTIFIER; // identifiers
+
+  serializeJson(doc, buffer_value, sizeof(buffer_value));
+  Serial.println(buffer_value);
+  DT_mqtt_send("homeassistant/number/" BOARD_IDENTIFIER "/C11/config", buffer_value);
+
+  // C_PCBT_MIN
+  wdt_reset();
+  doc.clear();
+  doc["~"] = "DtBoard/" BOARD_IDENTIFIER "/C_PCBT_MIN";
+  doc["uniq_id"] = BOARD_IDENTIFIER "-C_PCBT_MIN";
+  doc["name"] = "consigne Temp PCBT minimum (C_PCBT_MIN)";
+  doc["stat_t"] = "~/state";
+  doc["command_topic"] = "~/set";
+  // doc["dev_cla"] = "temperature";
+  // doc["unit_of_meas"] = "°C";
+  doc["dev"]["ids"] = BOARD_IDENTIFIER; // identifiers
+
+  serializeJson(doc, buffer_value, sizeof(buffer_value));
+  Serial.println(buffer_value);
+  DT_mqtt_send("homeassistant/number/" BOARD_IDENTIFIER "/C_PCBT_MIN/config", buffer_value);
+
+  // C_PCBT_MAX
+  wdt_reset();
+  doc.clear();
+  doc["~"] = "DtBoard/" BOARD_IDENTIFIER "/C_PCBT_MAX";
+  doc["uniq_id"] = BOARD_IDENTIFIER "-C_PCBT_MAX";
+  doc["name"] = "consigne Temp PCBT maximum (C_PCBT_MAX)";
+  doc["stat_t"] = "~/state";
+  doc["command_topic"] = "~/set";
+  // doc["dev_cla"] = "temperature";
+  // doc["unit_of_meas"] = "°C";
+  doc["dev"]["ids"] = BOARD_IDENTIFIER; // identifiers
+
+  serializeJson(doc, buffer_value, sizeof(buffer_value));
+  Serial.println(buffer_value);
+  DT_mqtt_send("homeassistant/number/" BOARD_IDENTIFIER "/C_PCBT_MAX/config", buffer_value);
+
+  // C_MCBT_MIN
+  wdt_reset();
+  doc.clear();
+  doc["~"] = "DtBoard/" BOARD_IDENTIFIER "/C_MCBT_MIN";
+  doc["uniq_id"] = BOARD_IDENTIFIER "-C_MCBT_MIN";
+  doc["name"] = "consigne Temp MCBT minimum (C_MCBT_MIN)";
+  doc["stat_t"] = "~/state";
+  doc["command_topic"] = "~/set";
+  // doc["dev_cla"] = "temperature";
+  // doc["unit_of_meas"] = "°C";
+  doc["dev"]["ids"] = BOARD_IDENTIFIER; // identifiers
+
+  serializeJson(doc, buffer_value, sizeof(buffer_value));
+  Serial.println(buffer_value);
+  DT_mqtt_send("homeassistant/number/" BOARD_IDENTIFIER "/C_MCBT_MIN/config", buffer_value);
+
+  // C_MCBT_MAX
+  wdt_reset();
+  doc.clear();
+  doc["~"] = "DtBoard/" BOARD_IDENTIFIER "/C_MCBT_MAX";
+  doc["uniq_id"] = BOARD_IDENTIFIER "-C_MCBT_MAX";
+  doc["name"] = "consigne Temp MCBT maximum (C_MCBT_MAX)";
+  doc["stat_t"] = "~/state";
+  doc["command_topic"] = "~/set";
+  // doc["dev_cla"] = "temperature";
+  // doc["unit_of_meas"] = "°C";
+  doc["dev"]["ids"] = BOARD_IDENTIFIER; // identifiers
+
+  serializeJson(doc, buffer_value, sizeof(buffer_value));
+  Serial.println(buffer_value);
+  DT_mqtt_send("homeassistant/number/" BOARD_IDENTIFIER "/C_MCBT_MAX/config", buffer_value);
+
+  // KP_PCBT
+  wdt_reset();
+  doc.clear();
+  doc["~"] = "DtBoard/" BOARD_IDENTIFIER "/KP_PCBT";
+  doc["uniq_id"] = BOARD_IDENTIFIER "-KP_PCBT";
+  doc["name"] = "pid KP PCBT (KP_PCBT)";
+  doc["stat_t"] = "~/state";
+  doc["command_topic"] = "~/set";
+  doc["min"] = 0;
+  doc["max"] = 1000;
+  doc["step"] = 0.01;
+  // doc["dev_cla"] = "temperature";
+  // doc["unit_of_meas"] = "°C";
+  doc["dev"]["ids"] = BOARD_IDENTIFIER; // identifiers
+
+  serializeJson(doc, buffer_value, sizeof(buffer_value));
+  Serial.println(buffer_value);
+  DT_mqtt_send("homeassistant/number/" BOARD_IDENTIFIER "/KP_PCBT/config", buffer_value);
+
+  // KI_PCBT
+  wdt_reset();
+  doc.clear();
+  doc["~"] = "DtBoard/" BOARD_IDENTIFIER "/KI_PCBT";
+  doc["uniq_id"] = BOARD_IDENTIFIER "-KI_PCBT";
+  doc["name"] = "pid KI PCBT (KI_PCBT)";
+  doc["stat_t"] = "~/state";
+  doc["command_topic"] = "~/set";
+  doc["min"] = 0;
+  doc["max"] = 1000;
+  doc["step"] = 0.01;
+  // doc["dev_cla"] = "temperature";
+  // doc["unit_of_meas"] = "°C";
+  doc["dev"]["ids"] = BOARD_IDENTIFIER; // identifiers
+
+  serializeJson(doc, buffer_value, sizeof(buffer_value));
+  Serial.println(buffer_value);
+  DT_mqtt_send("homeassistant/number/" BOARD_IDENTIFIER "/KI_PCBT/config", buffer_value);
+
+  // KD_PCBT
+  wdt_reset();
+  doc.clear();
+  doc["~"] = "DtBoard/" BOARD_IDENTIFIER "/KD_PCBT";
+  doc["uniq_id"] = BOARD_IDENTIFIER "-KD_PCBT";
+  doc["name"] = "pid KD PCBT (KD_PCBT)";
+  doc["stat_t"] = "~/state";
+  doc["command_topic"] = "~/set";
+  doc["min"] = 0;
+  doc["max"] = 1000;
+  doc["step"] = 0.01;
+  // doc["dev_cla"] = "temperature";
+  // doc["unit_of_meas"] = "°C";
+  doc["dev"]["ids"] = BOARD_IDENTIFIER; // identifiers
+
+  serializeJson(doc, buffer_value, sizeof(buffer_value));
+  Serial.println(buffer_value);
+  DT_mqtt_send("homeassistant/number/" BOARD_IDENTIFIER "/KD_PCBT/config", buffer_value);
+
+  // KT_PCBT
+  wdt_reset();
+  doc.clear();
+  doc["~"] = "DtBoard/" BOARD_IDENTIFIER "/KT_PCBT";
+  doc["uniq_id"] = BOARD_IDENTIFIER "-KT_PCBT";
+  doc["name"] = "pid interval PCBT (en ms) (KT_PCBT)";
+  doc["stat_t"] = "~/state";
+  doc["command_topic"] = "~/set";
+  doc["min"] = 0;
+  doc["max"] = 60000;
+  // doc["step"] = 0.01;
+  // doc["dev_cla"] = "temperature";
+  // doc["unit_of_meas"] = "°C";
+  doc["dev"]["ids"] = BOARD_IDENTIFIER; // identifiers
+
+  serializeJson(doc, buffer_value, sizeof(buffer_value));
+  Serial.println(buffer_value);
+  DT_mqtt_send("homeassistant/number/" BOARD_IDENTIFIER "/KT_PCBT/config", buffer_value);
+
+  // KP_MCBT
+  wdt_reset();
+  doc.clear();
+  doc["~"] = "DtBoard/" BOARD_IDENTIFIER "/KP_MCBT";
+  doc["uniq_id"] = BOARD_IDENTIFIER "-KP_MCBT";
+  doc["name"] = "pid KP MCBT (KP_MCBT)";
+  doc["stat_t"] = "~/state";
+  doc["command_topic"] = "~/set";
+  doc["min"] = 0;
+  doc["max"] = 1000;
+  doc["step"] = 0.01;
+  // doc["dev_cla"] = "temperature";
+  // doc["unit_of_meas"] = "°C";
+  doc["dev"]["ids"] = BOARD_IDENTIFIER; // identifiers
+
+  serializeJson(doc, buffer_value, sizeof(buffer_value));
+  Serial.println(buffer_value);
+  DT_mqtt_send("homeassistant/number/" BOARD_IDENTIFIER "/KP_MCBT/config", buffer_value);
+
+  // KI_MCBT
+  wdt_reset();
+  doc.clear();
+  doc["~"] = "DtBoard/" BOARD_IDENTIFIER "/KI_MCBT";
+  doc["uniq_id"] = BOARD_IDENTIFIER "-KI_MCBT";
+  doc["name"] = "pid KI MCBT (KI_MCBT)";
+  doc["stat_t"] = "~/state";
+  doc["command_topic"] = "~/set";
+  doc["min"] = 0;
+  doc["max"] = 1000;
+  doc["step"] = 0.01;
+  // doc["dev_cla"] = "temperature";
+  // doc["unit_of_meas"] = "°C";
+  doc["dev"]["ids"] = BOARD_IDENTIFIER; // identifiers
+
+  serializeJson(doc, buffer_value, sizeof(buffer_value));
+  Serial.println(buffer_value);
+  DT_mqtt_send("homeassistant/number/" BOARD_IDENTIFIER "/KI_MCBT/config", buffer_value);
+
+  // KD_MCBT
+  wdt_reset();
+  doc.clear();
+  doc["~"] = "DtBoard/" BOARD_IDENTIFIER "/KD_MCBT";
+  doc["uniq_id"] = BOARD_IDENTIFIER "-KD_MCBT";
+  doc["name"] = "pid KD MCBT (KD_MCBT)";
+  doc["stat_t"] = "~/state";
+  doc["command_topic"] = "~/set";
+  doc["min"] = 0;
+  doc["max"] = 1000;
+  doc["step"] = 0.01;
+  // doc["dev_cla"] = "temperature";
+  // doc["unit_of_meas"] = "°C";
+  doc["dev"]["ids"] = BOARD_IDENTIFIER; // identifiers
+
+  serializeJson(doc, buffer_value, sizeof(buffer_value));
+  Serial.println(buffer_value);
+  DT_mqtt_send("homeassistant/number/" BOARD_IDENTIFIER "/KD_MCBT/config", buffer_value);
+
+  // KT_MCBT
+  wdt_reset();
+  doc.clear();
+  doc["~"] = "DtBoard/" BOARD_IDENTIFIER "/KT_MCBT";
+  doc["uniq_id"] = BOARD_IDENTIFIER "-KT_MCBT";
+  doc["name"] = "pid interval MCBT (en ms) (KT_MCBT)";
+  doc["stat_t"] = "~/state";
+  doc["command_topic"] = "~/set";
+  doc["min"] = 0;
+  doc["max"] = 60000;
+  // doc["step"] = 0.01;
+  // doc["dev_cla"] = "temperature";
+  // doc["unit_of_meas"] = "°C";
+  doc["dev"]["ids"] = BOARD_IDENTIFIER; // identifiers
+
+  serializeJson(doc, buffer_value, sizeof(buffer_value));
+  Serial.println(buffer_value);
+  DT_mqtt_send("homeassistant/number/" BOARD_IDENTIFIER "/KT_MCBT/config", buffer_value);
 }
 
 // Relay Callback
@@ -387,19 +770,13 @@ void fake_ntc_callback(uint8_t value)
   JsonVariant variant = doc.to<JsonVariant>();
   variant.set(value);
   serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
-  DT_mqtt_send("DtBoard/" BOARD_IDENTIFIER "/fake_ntc/temperature", buffer_value);
+  DT_mqtt_send("DtBoard/" BOARD_IDENTIFIER "/fake_NTC/temperature", buffer_value);
 }
 
-void poele_callback(const bool ev1, const uint8_t C1)
+void poele_callback(const uint8_t C1)
 {
   wdt_reset();
-  // ev1
   JsonVariant variant = doc.to<JsonVariant>();
-  variant.set(ev1);
-  serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
-  DT_mqtt_send("DtBoard/" BOARD_IDENTIFIER "/poele/ev1", buffer_value);
-  // C1
-  variant = doc.to<JsonVariant>();
   variant.set(C1);
   serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
   DT_mqtt_send("DtBoard/" BOARD_IDENTIFIER "/poele/C1", buffer_value);
@@ -464,6 +841,10 @@ void mqtt_publish()
   {
     DT_mqtt_send("DtBoard/" BOARD_IDENTIFIER "/poele/mode/state", "Manuel");
   }
+  else if (DT_Poele_get_mode() == DT_POELE_OFF)
+  {
+    DT_mqtt_send("DtBoard/" BOARD_IDENTIFIER "/poele/mode/state", "Arret");
+  }
 }
 
 void mqtt_subscribe(PubSubClient &mqtt)
@@ -482,6 +863,9 @@ void mqtt_subscribe(PubSubClient &mqtt)
   }
   // Poele
   mqtt.subscribe("DtBoard/" BOARD_IDENTIFIER "/poele/mode/set");
+
+  //fake_NTC
+  mqtt.subscribe("DtBoard/" BOARD_IDENTIFIER "/fake_NTC/temperature_set");
 
   mqtt.subscribe("homeassistant/status");
   mqtt_publish();
@@ -521,6 +905,8 @@ void mqtt_receve(char *topic, uint8_t *payload, unsigned int length)
     uint8_t temperature = 0;
     if (sscanf(buffer, "%" SCNu8, &temperature) == 1)
     {
+      Serial.print("fake_NTC = ");
+      Serial.println(temperature);
       DT_fake_ntc_set(temperature);
     }
   }
@@ -557,6 +943,11 @@ void mqtt_receve(char *topic, uint8_t *payload, unsigned int length)
       DT_Poele_set_mode(DT_POELE_MANUAL);
       DT_mqtt_send("DtBoard/" BOARD_IDENTIFIER "/poele/mode/state", "Manuel");
     }
+    else if (strcmp(buffer, "Arret") == 0)
+    {
+      DT_Poele_set_mode(DT_POELE_OFF);
+      DT_mqtt_send("DtBoard/" BOARD_IDENTIFIER "/poele/mode/state", "Arret");
+    }
   }
   else if (strcmp(topic, "homeassistant/status") == 0) // Home Assistant Online / Offline
   {
@@ -573,6 +964,9 @@ void setup()
   Serial.begin(9600);
 
   Serial.println("starting board version " BOARD_SW_VERSION);
+
+  Serial.println("Load eeprom");
+  chargeEEPROM();
 
   Serial.println("starting mqtt");
   DT_mqtt_init();
@@ -602,12 +996,13 @@ void setup()
   DT_CCS811_set_callback_co2(ccs811_callback_co2);
   DT_CCS811_set_callback_cov(ccs811_callback_cov);
 
-  Serial.println("starting fake_ntc");
+  Serial.println("starting fake_NTC");
   DT_fake_ntc_init();
   DT_fake_ntc_callback(fake_ntc_callback);
 
   Serial.println("starting Poele");
   DT_Poele_init();
+  DT_Poele_set_callback(poele_callback);
 
   // client.setServer(server, 1883);
   // client.setCallback(callback);
