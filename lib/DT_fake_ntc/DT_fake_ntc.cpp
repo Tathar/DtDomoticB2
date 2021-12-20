@@ -42,18 +42,21 @@ void DT_fake_ntc_init(uint8_t value)
 
 void DT_fake_ntc_set(uint8_t value)
 {
-    uint8_t r1 = pgm_read_byte(NTC_R1 + value);
-    uint8_t r2 = pgm_read_byte(NTC_R2 + value);
-    digitalWrite(FAKE_NTC_CS, LOW);
-    SPI.transfer(FAKE_NTC_R1_ADDRESS);
-    SPI.transfer(r1);
-    SPI.transfer(FAKE_NTC_R2_ADDRESS);
-    SPI.transfer(r2);
-    digitalWrite(FAKE_NTC_CS, HIGH);
-    fake_ntc_value = value;
-    if (fake_ntc_callback != nullptr)
+    if (value <= 100 && fake_ntc_value != value)
     {
-        fake_ntc_callback(value);
+        uint8_t r1 = pgm_read_byte(NTC_R1 + value);
+        uint8_t r2 = pgm_read_byte(NTC_R2 + value);
+        digitalWrite(FAKE_NTC_CS, LOW);
+        SPI.transfer(FAKE_NTC_R1_ADDRESS);
+        SPI.transfer(r1);
+        SPI.transfer(FAKE_NTC_R2_ADDRESS);
+        SPI.transfer(r2);
+        digitalWrite(FAKE_NTC_CS, HIGH);
+        fake_ntc_value = value;
+        if (fake_ntc_callback != nullptr)
+        {
+            fake_ntc_callback(value);
+        }
     }
 }
 
