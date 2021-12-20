@@ -82,19 +82,19 @@ void DT_pt100_init()
     for (uint8_t num = 0; num < TEMP_NUM; ++num)
     {
 
-        Serial.print("pgm read pin = ");
+        // Serial.print("pgm read pin = ");
         uint8_t pin = pgm_read_byte(TEMP_ARRAY + num);
         Serial.println(pin);
-        Serial.println("creation object");
+        // Serial.println("creation object");
         temp[num] = new Adafruit_MAX31865(pin);
-        Serial.println("old_temp = 0");
+        // Serial.println("old_temp = 0");
         old_temp[num] = 0;
         // uint8_t pin = pgm_read_byte(TEMP_ARRAY + num);
         pinMode(pin, OUTPUT);
         digitalWrite(pin, HIGH);
-        Serial.println("adafruit.begin()");
+        // Serial.println("adafruit.begin()");
         temp[num]->begin(MAX31865_3WIRE);
-        Serial.println("fin begin");
+        // Serial.println("fin begin");
     }
 }
 
