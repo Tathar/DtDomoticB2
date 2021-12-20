@@ -44,17 +44,19 @@ void DT_relay_init()
     }
 }
 
-void DT_relay(uint8_t num, bool active)
+void DT_relay(uint8_t num, bool state)
 {
     uint8_t pin = pgm_read_byte(RELAY_ARRAY + (num - 1));
     bool revert = pgm_read_byte(RELAY_REVERT + (num - 1));
+
+    bool old_state = DT_relay_get(num);
 
     if (pin >= 100)
     {
         pin -= 100;
         uint8_t i2c = pin / 10;
         pin %= 10;
-        if ((active && !revert) || (!active && revert))
+        if ((state && !revert) || (!state && revert))
         {
             mcp[i2c].digitalWrite(pin, HIGH);
         }
@@ -65,7 +67,7 @@ void DT_relay(uint8_t num, bool active)
     }
     else
     {
-        if ((active && !revert) || (!active && revert))
+        if ((state && !revert) || (!state && revert))
         {
             digitalWrite(pin, HIGH);
         }
@@ -75,13 +77,13 @@ void DT_relay(uint8_t num, bool active)
         }
     }
 
-    if (_callback != NULL)
+    if (_callback != NULL && old_state != state)
     {
-        _callback(num, active);
+        _callback(num, state);
     }
 }
 
-uint8_t DT_relay_get(uint8_t num)
+bool DT_relay_get(uint8_t num)
 {
     uint8_t pin = pgm_read_byte(RELAY_ARRAY + (num - 1));
     bool revert = pgm_read_byte(RELAY_REVERT + (num - 1));
