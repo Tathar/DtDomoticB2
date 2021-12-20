@@ -40,7 +40,7 @@ void chargeEEPROM()
                 eeprom_config.V3 = 0;                        // Variable Temp Demi plage Morte
                 eeprom_config.C4 = 80;                       // consigne Jacuzzi
                 eeprom_config.C5 = 60;                       // consigne ECS1 & ECS2
-                eeprom_config.C7 = 0;                        // Variable Temp Demi plage Morte
+                eeprom_config.C7 = 90;                       // Valeur renvoyer au poele pour le mode silance (Fake NTC)
                 eeprom_config.C8 = 35;                       // consigne Temp PCBT a -10°C
                 eeprom_config.C9 = 20;                       // consigne Temp PCBT a +10°C
                 eeprom_config.C10 = 50;                      // consigne Temp MCBT a -10°C

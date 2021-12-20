@@ -8,9 +8,9 @@
 #endif
 
 #include "../lib/DT_poele/DT_poele.h"
-#include <DT_3voies.h>
+#include "../lib/DT_3voies/DT_3voies.h"
 
-static const uint8_t STRUCT_MAGIC = 1;
+static const uint8_t STRUCT_MAGIC = 42;
 static const uint8_t STRUCT_VERSION = 1;
 
 // declaration de la structure de configuration
@@ -47,10 +47,10 @@ struct Eeprom_Config
     float C_MCBT_MIN; // consigne Temp MCBT minimum
     float C_MCBT_MAX; // consigne Temp MCBT maximum
 
-    float KP_PCBT; // pid KP MCBT
-    float KI_PCBT; // pid KI MCBT
-    float KD_PCBT; // pid KD MCBT
-    float KT_PCBT; // pid interval MCBT (en ms)
+    float KP_PCBT;    // pid KP PCBT
+    float KI_PCBT;    // pid KI PCBT
+    float KD_PCBT;    // pid KD PCBT
+    uint32_t KT_PCBT; // pid interval PCBT (en ms)
 
     float KP_MCBT;    // pid KP MCBT
     float KI_MCBT;    // pid KI MCBT
