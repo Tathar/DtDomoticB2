@@ -1570,4 +1570,11 @@ void loop()
       }
     }*/
   }
+
+  static uint32_t save_eeprom = 0;
+  if (now - save_eeprom > SAVE_EEPROM) //Backup data in eeprom
+  {
+    save_eeprom = now;
+    sauvegardeEEPROM();
+  }
 }

@@ -7,6 +7,8 @@
 #define STRINGIFY(x) #x
 #define TO_C_STR(x) STRINGIFY(x)
 
+#define SAVE_EEPROM 600000 //sauvegarde des données dans l eeprom toute les x ms
+
 #define BOARD_MANUFACTURER "DOUET Touch Familly"
 #define BOARD_MODEL "DTBoard02"
 #define BOARD_NAME "Chauffage"

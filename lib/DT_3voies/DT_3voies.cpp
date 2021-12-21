@@ -260,7 +260,7 @@ void DT_3voies_loop()
 void DT_3voies_PCBT_set_mode(DT_3voies_mode mode)
 {
     eeprom_config.mode_3voies_PCBT = mode;
-    sauvegardeEEPROM();
+    // sauvegardeEEPROM();
     if (eeprom_config.mode_3voies_PCBT == DT_3VOIES_OFF)
     {
         DT_relay(CIRCULATEUR_PCBT, false);
@@ -291,7 +291,7 @@ void DT_3voies_PCBT_set_mode(DT_3voies_mode mode)
 void DT_3voies_MCBT_set_mode(DT_3voies_mode mode)
 {
     eeprom_config.mode_3voies_MCBT = mode;
-    sauvegardeEEPROM();
+    // sauvegardeEEPROM();
     if (eeprom_config.mode_3voies_MCBT == DT_3VOIES_OFF)
     {
         DT_relay(CIRCULATEUR_MCBT, false);
@@ -332,7 +332,7 @@ DT_3voies_mode DT_3voies_MCBT_get_mode(void)
 void DT_3voies_PCBT_set_KP(float kp)
 {
     eeprom_config.KP_PCBT = kp;
-    sauvegardeEEPROM();
+    // sauvegardeEEPROM();
     // set KP, KI, KD
     pid_pcbt.SetTunings(eeprom_config.KP_PCBT, eeprom_config.KI_PCBT, eeprom_config.KD_PCBT);
 }
@@ -340,7 +340,7 @@ void DT_3voies_PCBT_set_KP(float kp)
 void DT_3voies_MCBT_set_KP(float kp)
 {
     eeprom_config.KP_MCBT = kp;
-    sauvegardeEEPROM();
+    // sauvegardeEEPROM();
     // set KP, KI, KD
     pid_mcbt.SetTunings(eeprom_config.KP_MCBT, eeprom_config.KI_MCBT, eeprom_config.KD_MCBT);
 }
@@ -348,7 +348,7 @@ void DT_3voies_MCBT_set_KP(float kp)
 void DT_3voies_PCBT_set_KI(float ki)
 {
     eeprom_config.KI_PCBT = ki;
-    sauvegardeEEPROM();
+    // sauvegardeEEPROM();
     // set KP, KI, KD
     pid_pcbt.SetTunings(eeprom_config.KP_PCBT, eeprom_config.KI_PCBT, eeprom_config.KD_PCBT);
 }
@@ -356,7 +356,7 @@ void DT_3voies_PCBT_set_KI(float ki)
 void DT_3voies_MCBT_set_KI(float ki)
 {
     eeprom_config.KI_MCBT = ki;
-    sauvegardeEEPROM();
+    // sauvegardeEEPROM();
     // set KP, KI, KD
     pid_mcbt.SetTunings(eeprom_config.KP_MCBT, eeprom_config.KI_MCBT, eeprom_config.KD_MCBT);
 }
@@ -364,7 +364,7 @@ void DT_3voies_MCBT_set_KI(float ki)
 void DT_3voies_PCBT_set_KD(float kd)
 {
     eeprom_config.KD_PCBT = kd;
-    sauvegardeEEPROM();
+    // sauvegardeEEPROM();
     // set KP, KI, KD
     pid_pcbt.SetTunings(eeprom_config.KP_PCBT, eeprom_config.KI_PCBT, eeprom_config.KD_PCBT);
 }
@@ -372,7 +372,7 @@ void DT_3voies_PCBT_set_KD(float kd)
 void DT_3voies_MCBT_set_KD(float kd)
 {
     eeprom_config.KD_MCBT = kd;
-    sauvegardeEEPROM();
+    // sauvegardeEEPROM();
     // set KP, KI, KD
     pid_mcbt.SetTunings(eeprom_config.KP_MCBT, eeprom_config.KI_MCBT, eeprom_config.KD_MCBT);
 }
@@ -380,7 +380,7 @@ void DT_3voies_MCBT_set_KD(float kd)
 void DT_3voies_PCBT_set_KT(uint32_t kt)
 {
     eeprom_config.KT_PCBT = kt;
-    sauvegardeEEPROM();
+    // sauvegardeEEPROM();
     // set loop time (KT)
     pid_pcbt.SetSampleTimeUs(eeprom_config.KT_PCBT * 1000);
     // min, max
@@ -390,7 +390,7 @@ void DT_3voies_PCBT_set_KT(uint32_t kt)
 void DT_3voies_MCBT_set_KT(uint32_t kt)
 {
     eeprom_config.KT_MCBT = kt;
-    sauvegardeEEPROM();
+    // sauvegardeEEPROM();
     // set loop time (KT)
     pid_mcbt.SetSampleTimeUs(eeprom_config.KT_MCBT * 1000);
     // min, max

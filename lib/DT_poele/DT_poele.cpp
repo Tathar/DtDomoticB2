@@ -115,7 +115,7 @@ void DT_Poele_loop()
 void DT_Poele_set_mode(DT_Poele_mode mode)
 {
     eeprom_config.poele_mode = mode;
-    sauvegardeEEPROM();
+    // sauvegardeEEPROM();
 }
 
 DT_Poele_mode DT_Poele_get_mode(void)
