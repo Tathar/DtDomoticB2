@@ -18,6 +18,7 @@ void DT_mqtt_update();
 bool DT_mqtt_send(const char *tag, const char *value);
 bool DT_mqtt_send(const char *tag, const int value);
 bool DT_mqtt_send(const char *tag, const unsigned int value);
+bool DT_mqtt_send(const char *tag, const uint32_t value);
 bool DT_mqtt_send(const char *tag, const float value);
 
 #endif

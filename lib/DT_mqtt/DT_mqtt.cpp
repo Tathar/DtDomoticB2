@@ -55,6 +55,13 @@ bool DT_mqtt_send(const char *tag, const int value)
     return mqtt.publish(tag, buffer, strlen(buffer));
 }
 
+bool DT_mqtt_send(const char *tag, const uint32_t value)
+{
+    char buffer[32];
+    sprintf(buffer, "%" PRIu32, value);
+    return mqtt.publish(tag, buffer, strlen(buffer));
+}
+
 bool DT_mqtt_send(const char *tag, const char *value)
 {
     return mqtt.publish(tag, value, strlen(value));
