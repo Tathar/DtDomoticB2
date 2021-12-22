@@ -7,7 +7,7 @@
 #define STRINGIFY(x) #x
 #define TO_C_STR(x) STRINGIFY(x)
 
-#define SAVE_EEPROM 600000 //sauvegarde des données dans l eeprom toute les x ms
+#define SAVE_EEPROM 600000 // sauvegarde des données dans l eeprom toute les x ms
 
 #define BOARD_MANUFACTURER "DOUET Touch Familly"
 #define BOARD_MODEL "DTBoard02"
@@ -68,12 +68,16 @@
 #define MQTT_UPDATE 1000         // in ms
 
 // Poele
-#define MIN_T4 0  //en °C (fake NTC)
-#define MAX_C1 85 //en °C (consigne temperature Balon)
+#define MIN_T4 0                     // en °C (fake NTC)
+#define MAX_C1 85                    // en °C (consigne temperature Balon)
+#define TEMPERATURE_DEFAULT_POELE 85 // en °C (Temperature a la quelle le poele ce met en default)
+#define TEMP_DEFAULT_PT100_POELE 60000
 
-#define PT100_BALON 1
-#define PT100_ECS1 2
-#define PT100_ECS2 3
+#define PT100_H_BALON 1
+#define PT100_B_BALON 2
+#define PT100_ECS1 3
+#define PT100_ECS2 4
+
 #define RELAY_EV1 1
 
 // Vanne 3 Voies
@@ -82,9 +86,9 @@
 #define TMP_EAU_MCBT_MAX 60 // valeur maximum de la consigne de temperature
 #define DBMAC 0.5           // demi bamnde morte pour l'arret des circulateur (en °C)
 
-#define PT100_EXT 4
-#define PT100_3_VOIES_PCBT 5
-#define PT100_3_VOIES_MCBT 6
+#define PT100_EXT 5
+#define PT100_3_VOIES_PCBT 6
+#define PT100_3_VOIES_MCBT 7
 
 #define CIRCULATEUR_PCBT 1
 #define VANNE_PCBT_HOT 2
@@ -96,9 +100,7 @@
 
 // Planchée chauffant
 #define MAX_TMP_PLANCHE 27 // en °C
-#define NUM_PLANCHE 6
-#define PT100_PLANCHE_CUISINE 7
-#define RELAIS_PLANCHE_CUISINE 7
+#define NUM_PLANCHE 4
 #define PT100_PLANCHE_SALON 8
 #define RELAIS_PLANCHE_SALON 8
 #define PT100_PLANCHE_CH_1 9
@@ -107,11 +109,9 @@
 #define RELAIS_PLANCHE_CH_2 10
 #define PT100_PLANCHE_SDB 11
 #define RELAIS_PLANCHE_SDB 11
-#define PT100_PLANCHE_CELIER 12
-#define RELAIS_PLANCHE_CELIER 12
 
-const float PT100_PLANCHEE[NUM_PLANCHE] PROGMEM = {PT100_PLANCHE_CUISINE, PT100_PLANCHE_SALON, PT100_PLANCHE_CH_1, PT100_PLANCHE_CH_2, PT100_PLANCHE_SDB, PT100_PLANCHE_CELIER};
-const uint8_t RELAI_PLANCHE[NUM_PLANCHE] PROGMEM = {RELAIS_PLANCHE_CUISINE, RELAIS_PLANCHE_SALON, RELAIS_PLANCHE_CH_1, RELAIS_PLANCHE_CH_2, RELAIS_PLANCHE_SDB, RELAIS_PLANCHE_CELIER};
+const float PT100_PLANCHEE[NUM_PLANCHE] PROGMEM = {PT100_PLANCHE_SALON, PT100_PLANCHE_CH_1, PT100_PLANCHE_CH_2, PT100_PLANCHE_SDB};
+const uint8_t RELAI_PLANCHE[NUM_PLANCHE] PROGMEM = {RELAIS_PLANCHE_SALON, RELAIS_PLANCHE_CH_1, RELAIS_PLANCHE_CH_2, RELAIS_PLANCHE_SDB};
 
 // Circulateur
 #define CIRCULATEUR
