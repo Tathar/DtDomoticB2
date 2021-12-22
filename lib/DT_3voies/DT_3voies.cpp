@@ -186,7 +186,7 @@ void DT_3voies_loop()
     for (uint8_t num = 0; num < NUM_PLANCHE; ++num)
     {
         uint8_t num_pt100 = pgm_read_byte(PT100_PLANCHEE + num);
-        if ((DT_pt100_get(num_pt100) > MAX_TMP_PLANCHE + 1) && (DT_pt100_get(num_pt100) != TEMP_DEFAULT_PT100))
+        if ((DT_pt100_get(num_pt100) != TEMP_DEFAULT_PT100) && (DT_pt100_get(num_pt100) > MAX_TMP_PLANCHE + 1))
         {
             DT_relay(CIRCULATEUR_PCBT, false); // arret du circulateur
             return;                            // arret de la fonction
@@ -194,8 +194,15 @@ void DT_3voies_loop()
     }
 
     // temperature de l'eau
-    Input_PCBT = DT_pt100_get(PT100_3_VOIES_PCBT);
-    Input_MCBT = DT_pt100_get(PT100_3_VOIES_MCBT);
+    if (DT_pt100_get(PT100_3_VOIES_PCBT) < 0)
+    {
+        Input_PCBT = DT_pt100_get(PT100_3_VOIES_PCBT);
+    }
+
+    if (DT_pt100_get(PT100_3_VOIES_MCBT) < 0)
+    {
+        Input_MCBT = DT_pt100_get(PT100_3_VOIES_MCBT);
+    }
 
     // consigne minimum pour fonctionnement des circulateur
     if ((eeprom_config.mode_3voies_PCBT != DT_3VOIES_DEMMARAGE) && (mem_config.C2 < eeprom_config.C_PCBT_MIN - DBMAC))
