@@ -277,8 +277,8 @@ void homeassistant(void)
   strlcpy_P(buffer, PSTR("homeassistant/sensor/" BOARD_IDENTIFIER "/poele-c1/config"), BUFFER_SIZE);
   DT_mqtt_send(buffer, buffer_value);
 
-  //EEPROM
-  // V1
+  // EEPROM
+  //  V1
   wdt_reset();
   doc.clear();
   doc["~"] = F("DtBoard/" BOARD_IDENTIFIER "/V1");
@@ -893,8 +893,8 @@ void mqtt_publish()
   strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/poele/C1"), BUFFER_SIZE);
   DT_mqtt_send(buffer, buffer_value);
 
-  //EEPROM
-  // V1
+  // EEPROM
+  //  V1
   wdt_reset();
   strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/V1/state"), BUFFER_SIZE);
   DT_mqtt_send(buffer, eeprom_config.V1);
@@ -1025,13 +1025,13 @@ void mqtt_subscribe(PubSubClient &mqtt)
     mqtt.subscribe(buffer);
   }
 
-  //fake_NTC
+  // fake_NTC
   mqtt.subscribe("DtBoard/" BOARD_IDENTIFIER "/fake_NTC/temperature_set");
   // Poele
   mqtt.subscribe("DtBoard/" BOARD_IDENTIFIER "/poele/mode/set");
 
-  //EEPROM
-  // V1
+  // EEPROM
+  //  V1
   wdt_reset();
   mqtt.subscribe("DtBoard/" BOARD_IDENTIFIER "/V1/set");
 
@@ -1212,7 +1212,7 @@ void mqtt_receve(char *topic, uint8_t *payload, unsigned int length)
       strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/poele/mode/state"), BUFFER_SIZE);
       DT_mqtt_send(buffer, "Arret");
     }
-  }                                                                   //EEPROM
+  }                                                                   // EEPROM
   else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/V1/set") == 0) // V1
   {
     if (sscanf(buffer, "%" SCNu8, &u8t_value) == 1)
@@ -1533,6 +1533,7 @@ void loop()
   DT_CCS811_loop();
   DT_pt100_loop();
   DT_Poele_loop();
+  DT_fake_ntc_loop();
 
   // adjust CCS811
   static uint32_t ccs811_environmental = 0;
@@ -1572,7 +1573,7 @@ void loop()
   }
 
   static uint32_t save_eeprom = 0;
-  if (now - save_eeprom > SAVE_EEPROM) //Backup data in eeprom
+  if (now - save_eeprom > SAVE_EEPROM) // Backup data in eeprom
   {
     save_eeprom = now;
     sauvegardeEEPROM();

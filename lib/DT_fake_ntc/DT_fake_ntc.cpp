@@ -28,7 +28,7 @@ const uint8_t NTC_R2[] PROGMEM = {145, 112, 91, 88, 109, 84, 94, 70, 98, 82,
                                   4, 4, 5, 4, 3, 3, 3, 3, 3, 3,
                                   3};
 uint8_t fake_ntc_value = 0;
-
+uint8_t fake_ntc_new_value;
 void (*fake_ntc_callback)(const uint8_t value);
 
 void DT_fake_ntc_init(uint8_t value)
@@ -38,6 +38,24 @@ void DT_fake_ntc_init(uint8_t value)
     digitalWrite(FAKE_NTC_CS, HIGH);
     SPI.begin();
     DT_fake_ntc_set(value);
+}
+
+void DT_fake_ntc_loop()
+{
+    static uint32_t old = 0;
+    uint32_t now = millis();
+    if (now - old > 1000)
+    {
+        old = now;
+        if (fake_ntc_value < fake_ntc_new_value)
+        {
+            DT_fake_ntc_set((uint8_t)(fake_ntc_value + 1));
+        }
+        else if (fake_ntc_value > fake_ntc_new_value)
+        {
+            DT_fake_ntc_set((uint8_t)(fake_ntc_value - 1));
+        }
+    }
 }
 
 void DT_fake_ntc_set(uint8_t value)
@@ -53,10 +71,19 @@ void DT_fake_ntc_set(uint8_t value)
         SPI.transfer(r2);
         digitalWrite(FAKE_NTC_CS, HIGH);
         fake_ntc_value = value;
+        fake_ntc_new_value = value;
         if (fake_ntc_callback != nullptr)
         {
             fake_ntc_callback(value);
         }
+    }
+}
+
+void DT_fake_ntc_slow_set(uint8_t value)
+{
+    if (value <= 100 && fake_ntc_value != value)
+    {
+        fake_ntc_new_value = value;
     }
 }
 

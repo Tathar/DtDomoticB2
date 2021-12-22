@@ -192,7 +192,7 @@ void DT_Poele_loop()
 
         if (eeprom_config.poele_mode != DT_POELE_MANUAL)
         {
-            DT_fake_ntc_set(T4);
+            DT_fake_ntc_slow_set(T4);
         }
 
         if (poele_callback != nullptr && old_C1 != C1)
