@@ -277,6 +277,48 @@ void homeassistant(void)
   strlcpy_P(buffer, PSTR("homeassistant/sensor/" BOARD_IDENTIFIER "/poele-c1/config"), BUFFER_SIZE);
   DT_mqtt_send(buffer, buffer_value);
 
+  // 3 voies PCBT mode
+  wdt_reset(); // clear watchdog
+  doc.clear();
+  doc["~"] = F("DtBoard/" BOARD_IDENTIFIER "/pcbt/mode");
+  doc["uniq_id"] = F(BOARD_IDENTIFIER "-pcbt-mode");
+  doc["name"] = F("mode pcbt");
+  doc["command_topic"] = F("~/set");
+  doc["state_topic"] = F("~/state");
+
+  options = doc.createNestedArray("options");
+  options.add("Demmarage");
+  options.add("Normal");
+  options.add("Manuel");
+  options.add("Arret");
+
+  doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
+
+  serializeJson(doc, buffer_value, sizeof(buffer_value));
+  strlcpy_P(buffer, PSTR("homeassistant/select/" BOARD_IDENTIFIER "/pcbt-mode/config"), BUFFER_SIZE);
+  DT_mqtt_send(buffer, buffer_value);
+
+  // 3 voies MCBT mode
+  wdt_reset(); // clear watchdog
+  doc.clear();
+  doc["~"] = F("DtBoard/" BOARD_IDENTIFIER "/mcbt/mode");
+  doc["uniq_id"] = F(BOARD_IDENTIFIER "-mcbt-mode");
+  doc["name"] = F("mode mcbt");
+  doc["command_topic"] = F("~/set");
+  doc["state_topic"] = F("~/state");
+
+  options = doc.createNestedArray("options");
+  options.add("Demmarage");
+  options.add("Normal");
+  options.add("Manuel");
+  options.add("Arret");
+
+  doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
+
+  serializeJson(doc, buffer_value, sizeof(buffer_value));
+  strlcpy_P(buffer, PSTR("homeassistant/select/" BOARD_IDENTIFIER "/mcbt-mode/config"), BUFFER_SIZE);
+  DT_mqtt_send(buffer, buffer_value);
+
   // EEPROM
   //  V1
   wdt_reset();
@@ -891,7 +933,45 @@ void mqtt_publish()
   // Poele C1
   wdt_reset();
   strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/poele/C1"), BUFFER_SIZE);
-  DT_mqtt_send(buffer, buffer_value);
+  DT_mqtt_send(buffer, DT_Poele_get_C1());
+
+  // 3 voies PCBT mode
+  wdt_reset();
+  strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/pcbt/mode/state"), BUFFER_SIZE);
+  switch (DT_3voies_PCBT_get_mode())
+  {
+  case DT_3VOIES_DEMMARAGE:
+    DT_mqtt_send(buffer, "Demmarage");
+    break;
+  case DT_3VOIES_NORMAL:
+    DT_mqtt_send(buffer, "Normal");
+    break;
+  case DT_3VOIES_MANUAL:
+    DT_mqtt_send(buffer, "Manuel");
+    break;
+  case DT_3VOIES_OFF:
+    DT_mqtt_send(buffer, "Arret");
+    break;
+  }
+
+  // 3 voies MCBT mode
+  wdt_reset();
+  strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/mcbt/mode/state"), BUFFER_SIZE);
+  switch (DT_3voies_MCBT_get_mode())
+  {
+  case DT_3VOIES_DEMMARAGE:
+    DT_mqtt_send(buffer, "Demmarage");
+    break;
+  case DT_3VOIES_NORMAL:
+    DT_mqtt_send(buffer, "Normal");
+    break;
+  case DT_3VOIES_MANUAL:
+    DT_mqtt_send(buffer, "Manuel");
+    break;
+  case DT_3VOIES_OFF:
+    DT_mqtt_send(buffer, "Arret");
+    break;
+  }
 
   // EEPROM
   //  V1
@@ -972,42 +1052,41 @@ void mqtt_publish()
   // KP_PCBT
   wdt_reset();
   strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/KP_PCBT/state"), BUFFER_SIZE);
-  DT_mqtt_send(buffer, eeprom_config.KP_PCBT);
+  DT_mqtt_send(buffer, DT_3voies_PCBT_get_KP());
 
   // KI_PCBT
   wdt_reset();
   strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/KI_PCBT/state"), BUFFER_SIZE);
-  DT_mqtt_send(buffer, eeprom_config.KI_PCBT);
+  DT_mqtt_send(buffer, DT_3voies_PCBT_get_KI());
 
   // KD_PCBT
   wdt_reset();
   strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/KD_PCBT/state"), BUFFER_SIZE);
-  DT_mqtt_send(buffer, eeprom_config.KD_PCBT);
+  DT_mqtt_send(buffer, DT_3voies_PCBT_get_KI());
 
   // KT_PCBT
   wdt_reset();
   strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/KT_PCBT/state"), BUFFER_SIZE);
-  DT_mqtt_send(buffer, eeprom_config.KT_PCBT);
-
+  DT_mqtt_send(buffer, DT_3voies_PCBT_get_KT());
   // KP_MCBT
   wdt_reset();
   strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/KP_MCBT/state"), BUFFER_SIZE);
-  DT_mqtt_send(buffer, eeprom_config.KP_MCBT);
+  DT_mqtt_send(buffer, DT_3voies_MCBT_get_KP());
 
   // KI_MCBT
   wdt_reset();
   strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/KI_MCBT/state"), BUFFER_SIZE);
-  DT_mqtt_send(buffer, eeprom_config.KI_MCBT);
+  DT_mqtt_send(buffer, DT_3voies_MCBT_get_KI());
 
   // KD_MCBT
   wdt_reset();
   strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/KD_MCBT/state"), BUFFER_SIZE);
-  DT_mqtt_send(buffer, eeprom_config.KD_MCBT);
+  DT_mqtt_send(buffer, DT_3voies_MCBT_get_KD());
 
   // KT_MCBT
   wdt_reset();
   strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/KT_MCBT/state"), BUFFER_SIZE);
-  DT_mqtt_send(buffer, eeprom_config.KT_MCBT);
+  DT_mqtt_send(buffer, DT_3voies_MCBT_get_KT());
 }
 
 void mqtt_subscribe(PubSubClient &mqtt)
@@ -1029,6 +1108,10 @@ void mqtt_subscribe(PubSubClient &mqtt)
   mqtt.subscribe("DtBoard/" BOARD_IDENTIFIER "/fake_NTC/temperature_set");
   // Poele
   mqtt.subscribe("DtBoard/" BOARD_IDENTIFIER "/poele/mode/set");
+  // 3 voies PCBT mode
+  mqtt.subscribe("DtBoard/" BOARD_IDENTIFIER "/mcbt/mode/set");
+  // 3 voies MCBT mode
+  mqtt.subscribe("DtBoard/" BOARD_IDENTIFIER "/pcbt/mode/set");
 
   // EEPROM
   //  V1
@@ -1212,6 +1295,56 @@ void mqtt_receve(char *topic, uint8_t *payload, unsigned int length)
       strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/poele/mode/state"), BUFFER_SIZE);
       DT_mqtt_send(buffer, "Arret");
     }
+  }
+  else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/pcbt/mode/set") == 0) // Mode de la vannes 3 voie PCBT
+  {
+    strlcpy_P(buffer_value, PSTR("DtBoard/" BOARD_IDENTIFIER "/pcbt/mode/state"), BUFFER_SIZE);
+
+    if (strcmp(buffer, "Normal") == 0)
+    {
+      DT_3voies_PCBT_set_mode(DT_3VOIES_NORMAL);
+      DT_mqtt_send(buffer_value, buffer);
+    }
+    else if (strcmp(buffer, "Demmarage") == 0)
+    {
+      DT_3voies_PCBT_set_mode(DT_3VOIES_DEMMARAGE);
+      DT_mqtt_send(buffer_value, buffer);
+    }
+    else if (strcmp(buffer, "Manuel") == 0)
+    {
+      DT_3voies_PCBT_set_mode(DT_3VOIES_MANUAL);
+      DT_mqtt_send(buffer_value, buffer);
+    }
+    else if (strcmp(buffer, "Arret") == 0)
+    {
+      DT_3voies_PCBT_set_mode(DT_3VOIES_OFF);
+      DT_mqtt_send(buffer_value, buffer);
+    }
+  }
+  else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/mcbt/mode/set") == 0) // Mode de la vannes 3 voie MCBT
+  {
+    strlcpy_P(buffer_value, PSTR("DtBoard/" BOARD_IDENTIFIER "/mcbt/mode/state"), BUFFER_SIZE);
+
+    if (strcmp(buffer, "Normal") == 0)
+    {
+      DT_3voies_MCBT_set_mode(DT_3VOIES_NORMAL);
+      DT_mqtt_send(buffer_value, buffer);
+    }
+    else if (strcmp(buffer, "Demmarage") == 0)
+    {
+      DT_3voies_MCBT_set_mode(DT_3VOIES_DEMMARAGE);
+      DT_mqtt_send(buffer_value, buffer);
+    }
+    else if (strcmp(buffer, "Manuel") == 0)
+    {
+      DT_3voies_MCBT_set_mode(DT_3VOIES_MANUAL);
+      DT_mqtt_send(buffer_value, buffer);
+    }
+    else if (strcmp(buffer, "Arret") == 0)
+    {
+      DT_3voies_MCBT_set_mode(DT_3VOIES_OFF);
+      DT_mqtt_send(buffer_value, buffer);
+    }
   }                                                                   // EEPROM
   else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/V1/set") == 0) // V1
   {
@@ -1362,9 +1495,9 @@ void mqtt_receve(char *topic, uint8_t *payload, unsigned int length)
     DeserializationError error = deserializeJson(doc, buffer, length);
     if (!error)
     {
-      eeprom_config.KP_PCBT = doc.as<float>();
+      DT_3voies_PCBT_set_KP(doc.as<float>());
       strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/KP_PCBT/state"), BUFFER_SIZE);
-      DT_mqtt_send(buffer, eeprom_config.KP_PCBT);
+      DT_mqtt_send(buffer, DT_3voies_PCBT_get_KP());
     }
   }
   else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/KI_PCBT/set") == 0) // KI_PCBT
@@ -1372,9 +1505,9 @@ void mqtt_receve(char *topic, uint8_t *payload, unsigned int length)
     DeserializationError error = deserializeJson(doc, buffer, length);
     if (!error)
     {
-      eeprom_config.KI_PCBT = doc.as<float>();
+      DT_3voies_PCBT_set_KI(doc.as<float>());
       strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/KI_PCBT/state"), BUFFER_SIZE);
-      DT_mqtt_send(buffer, eeprom_config.KI_PCBT);
+      DT_mqtt_send(buffer, DT_3voies_PCBT_get_KI());
     }
   }
   else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/KD_PCBT/set") == 0) // KD_PCBT
@@ -1382,9 +1515,9 @@ void mqtt_receve(char *topic, uint8_t *payload, unsigned int length)
     DeserializationError error = deserializeJson(doc, buffer, length);
     if (!error)
     {
-      eeprom_config.KD_PCBT = doc.as<float>();
+      DT_3voies_PCBT_set_KD(doc.as<float>());
       strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/KD_PCBT/state"), BUFFER_SIZE);
-      DT_mqtt_send(buffer, eeprom_config.KD_PCBT);
+      DT_mqtt_send(buffer, DT_3voies_PCBT_get_KD());
     }
   }
   else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/KT_PCBT/set") == 0) // KT_PCBT
@@ -1392,9 +1525,9 @@ void mqtt_receve(char *topic, uint8_t *payload, unsigned int length)
     DeserializationError error = deserializeJson(doc, buffer, length);
     if (!error)
     {
-      eeprom_config.KT_PCBT = doc.as<uint32_t>();
+      DT_3voies_PCBT_set_KT(doc.as<uint32_t>());
       strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/KT_PCBT/state"), BUFFER_SIZE);
-      DT_mqtt_send(buffer, eeprom_config.KT_PCBT);
+      DT_mqtt_send(buffer, DT_3voies_PCBT_get_KT());
     }
   }
   else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/KP_MCBT/set") == 0) // KP_MCBT
@@ -1402,9 +1535,9 @@ void mqtt_receve(char *topic, uint8_t *payload, unsigned int length)
     DeserializationError error = deserializeJson(doc, buffer, length);
     if (!error)
     {
-      eeprom_config.KP_MCBT = doc.as<float>();
+      DT_3voies_MCBT_set_KP(doc.as<float>());
       strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/KP_MCBT/state"), BUFFER_SIZE);
-      DT_mqtt_send(buffer, eeprom_config.KP_MCBT);
+      DT_mqtt_send(buffer, DT_3voies_MCBT_get_KP());
     }
   }
   else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/KI_MCBT/set") == 0) // KI_MCBT
@@ -1412,9 +1545,10 @@ void mqtt_receve(char *topic, uint8_t *payload, unsigned int length)
     DeserializationError error = deserializeJson(doc, buffer, length);
     if (!error)
     {
-      eeprom_config.KI_MCBT = doc.as<float>();
+
+      DT_3voies_MCBT_set_KI(doc.as<float>());
       strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/KI_MCBT/state"), BUFFER_SIZE);
-      DT_mqtt_send(buffer, eeprom_config.KI_MCBT);
+      DT_mqtt_send(buffer, DT_3voies_MCBT_get_KI());
     }
   }
   else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/KD_MCBT/set") == 0) // KD_MCBT
@@ -1422,9 +1556,9 @@ void mqtt_receve(char *topic, uint8_t *payload, unsigned int length)
     DeserializationError error = deserializeJson(doc, buffer, length);
     if (!error)
     {
-      eeprom_config.KD_MCBT = doc.as<float>();
+      DT_3voies_MCBT_set_KD(doc.as<float>());
       strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/KD_MCBT/state"), BUFFER_SIZE);
-      DT_mqtt_send(buffer, eeprom_config.KD_MCBT);
+      DT_mqtt_send(buffer, DT_3voies_MCBT_get_KD());
     }
   }
   else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/KT_MCBT/set") == 0) // KT_MCBT
@@ -1432,9 +1566,9 @@ void mqtt_receve(char *topic, uint8_t *payload, unsigned int length)
     DeserializationError error = deserializeJson(doc, buffer, length);
     if (!error)
     {
-      eeprom_config.KT_MCBT = doc.as<uint32_t>();
+      DT_3voies_MCBT_set_KT(doc.as<uint32_t>());
       strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/KT_MCBT/state"), BUFFER_SIZE);
-      DT_mqtt_send(buffer, eeprom_config.KT_MCBT);
+      DT_mqtt_send(buffer, DT_3voies_MCBT_get_KT());
     }
   }
   else if (strcmp(topic, "homeassistant/status") == 0) // Home Assistant Online / Offline

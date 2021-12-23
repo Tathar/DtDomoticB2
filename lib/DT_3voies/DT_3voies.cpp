@@ -34,7 +34,7 @@ uint8_t temperature_etape_mcbt = 0;
 uint32_t temp_lecture_temp_pcbt = 0;
 uint32_t temp_lecture_temp_mcbt = 0;
 
-void (*_callback)(const float C2, const float C3);
+void (*_callback_3_voies)(const float C2, const float C3);
 
 float scale(float in, float in_min, float in_max, float out_min, float out_max)
 {
@@ -255,9 +255,9 @@ void DT_3voies_loop()
     if (now - old_now > 1000)
     {
         old_now = now;
-        if ((_callback != nullptr) && ((old_C2 != mem_config.C2) || (old_C3 != mem_config.C3)))
+        if ((_callback_3_voies != nullptr) && ((old_C2 != mem_config.C2) || (old_C3 != mem_config.C3)))
         {
-            _callback(mem_config.C2, mem_config.C2);
+            _callback_3_voies(mem_config.C2, mem_config.C2);
             old_C2 = mem_config.C2;
             old_C3 = mem_config.C3;
         }
@@ -434,17 +434,17 @@ float DT_3voies_MCBT_get_KD()
     return eeprom_config.KD_MCBT;
 }
 
-uint32_t DT_3voies_PCBT_set_KT()
+uint32_t DT_3voies_PCBT_get_KT()
 {
     return eeprom_config.KT_PCBT;
 }
 
-uint32_t DT_3voies_CBT_set_KT()
+uint32_t DT_3voies_MCBT_get_KT()
 {
     return eeprom_config.KT_MCBT;
 }
 
 void DT_3voies_set_callback(void (*callback)(const float C2, const float C3))
 {
-    _callback = callback;
+    _callback_3_voies = callback;
 }

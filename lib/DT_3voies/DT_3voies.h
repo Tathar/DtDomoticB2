@@ -7,7 +7,7 @@ enum DT_3voies_mode
     DT_3VOIES_OFF,
     DT_3VOIES_DEMMARAGE,
     DT_3VOIES_NORMAL,
-    DT_3VOIES_MANUEL
+    DT_3VOIES_MANUAL
 };
 
 void DT_3voies_init();
@@ -30,12 +30,12 @@ void DT_3voies_MCBT_set_KT(uint32_t kt);
 float DT_3voies_PCBT_get_KP();
 float DT_3voies_PCBT_get_KD();
 float DT_3voies_PCBT_get_KI();
-uint32_t DT_3voies_PCBT_set_KT();
+uint32_t DT_3voies_PCBT_get_KT();
 
 float DT_3voies_MCBT_get_KP();
 float DT_3voies_MCBT_get_KI();
 float DT_3voies_MCBT_get_KD();
-uint32_t DT_3voies_CBT_set_KT();
+uint32_t DT_3voies_MCBT_get_KT();
 
 void DT_3voies_set_callback(void (*callback)(const float C2, const float C3));
 

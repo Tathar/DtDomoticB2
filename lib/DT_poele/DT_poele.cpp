@@ -222,3 +222,8 @@ void DT_Poele_set_C1(const float c1)
 {
     C1 = c1;
 }
+
+float DT_Poele_get_C1()
+{
+    return C1;
+}
