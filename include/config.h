@@ -7,7 +7,7 @@
 #define STRINGIFY(x) #x
 #define TO_C_STR(x) STRINGIFY(x)
 
-#define SAVE_EEPROM 600000 // sauvegarde des données dans l eeprom toute les x ms
+#define SAVE_EEPROM 10000 // sauvegarde des données dans l eeprom toute les x ms
 
 #define BOARD_MANUFACTURER "DOUET Touch Familly"
 #define BOARD_MODEL "DTBoard02"
@@ -90,13 +90,13 @@
 #define PT100_3_VOIES_PCBT 6
 #define PT100_3_VOIES_MCBT 7
 
-#define CIRCULATEUR_PCBT 1
-#define VANNE_PCBT_HOT 2
-#define VANNE_PCBT_COLD 3
+#define CIRCULATEUR_PCBT 2
+#define VANNE_PCBT_HOT 3
+#define VANNE_PCBT_COLD 4
 
-#define CIRCULATEUR_MCBT 4
-#define VANNE_MCBT_HOT 5
-#define VANNE_MCBT_COLD 6
+#define CIRCULATEUR_MCBT 5
+#define VANNE_MCBT_HOT 6
+#define VANNE_MCBT_COLD 7
 
 // Planchée chauffant
 #define MAX_TMP_PLANCHE 27 // en °C
