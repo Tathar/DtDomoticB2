@@ -419,8 +419,8 @@ void homeassistant(void)
   doc["name"] = F("consigne Jacuzzi (C4)");
   doc["stat_t"] = F("~/state");
   doc["command_topic"] = F("~/set");
-  // doc["dev_cla"] = F("temperature");
-  // doc["unit_of_meas"] = F("°C");
+  doc["dev_cla"] = F("temperature");
+  doc["unit_of_meas"] = F("°C");
   doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
 
   serializeJson(doc, buffer_value, sizeof(buffer_value));
@@ -1452,16 +1452,16 @@ void mqtt_receve(char *topic, uint8_t *payload, unsigned int length)
       DT_mqtt_send(buffer, u8t_value);
     }
   }
-  // else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/C4/set") == 0) // C4
-  // {
-  //   DeserializationError error = deserializeJson(doc, buffer, length);
-  //   if (!error)
-  //   {
-  //     eeprom_config.C4 = doc.as<float>();
-  //     strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/C4/state"), BUFFER_SIZE);
-  //      DT_mqtt_send(buffer, eeprom_config.C4);
-  //   }
-  // }
+   else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/C4/set") == 0) // C4
+   {
+    DeserializationError error = deserializeJson(doc, buffer, length);
+     if (!error)
+     {
+       eeprom_config.C4 = doc.as<float>();
+      strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/C4/state"), BUFFER_SIZE);
+       DT_mqtt_send(buffer, eeprom_config.C4);
+    }
+   }
   else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/C5/set") == 0) // C5
   {
     if (sscanf(buffer, "%" SCNu8, &u8t_value) == 1)
