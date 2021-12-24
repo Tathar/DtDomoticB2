@@ -38,7 +38,7 @@
 #define SOURCE_IP1 192
 #define SOURCE_IP2 168
 #define SOURCE_IP3 1
-#define SOURCE_IP4 201
+#define SOURCE_IP4 4
 // dns server
 #define DNS1 192
 #define DNS2 168
@@ -55,10 +55,10 @@
 #define MASK3 255
 #define MASK4 0
 
-#define MQTT_IP1 90
-#define MQTT_IP2 78
-#define MQTT_IP3 191
-#define MQTT_IP4 235
+#define MQTT_IP1 192
+#define MQTT_IP2 168
+#define MQTT_IP3 1
+#define MQTT_IP4 2
 
 #define MQTT_CLIENT_ID "Board1"
 #define MQTT_USER "DtBoard"
