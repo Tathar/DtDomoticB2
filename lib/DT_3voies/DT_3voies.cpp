@@ -215,6 +215,11 @@ void DT_3voies_loop()
         DT_relay(CIRCULATEUR_PCBT, true);      // demmarage du circulateur
         pid_pcbt.SetMode(QuickPID::AUTOMATIC); // demmarage de la vanne 3 voie
     }
+    else if ((eeprom_config.mode_3voies_PCBT == DT_3VOIES_OFF))
+    {
+        DT_relay(CIRCULATEUR_PCBT, false);  // arret du circulateur
+        pid_pcbt.SetMode(QuickPID::MANUAL); // arret de la vanne 3 voie
+    }
 
     if ((eeprom_config.mode_3voies_MCBT != DT_3VOIES_DEMMARAGE) && (mem_config.C3 < eeprom_config.C_MCBT_MIN - DBMAC))
     {
@@ -225,6 +230,11 @@ void DT_3voies_loop()
     {
         DT_relay(CIRCULATEUR_MCBT, true);      // demmarage du circulateur
         pid_mcbt.SetMode(QuickPID::AUTOMATIC); // demmarage de la vanne 3 voie
+    }
+    else if ((eeprom_config.mode_3voies_MCBT == DT_3VOIES_OFF))
+    {
+        DT_relay(CIRCULATEUR_MCBT, false);  // arret du circulateur
+        pid_mcbt.SetMode(QuickPID::MANUAL); // arret de la vanne 3 voie
     }
 
     // calcule du PID
@@ -404,6 +414,18 @@ void DT_3voies_MCBT_set_KT(uint32_t kt)
     pid_mcbt.SetOutputLimits(eeprom_config.KT_MCBT * -1, eeprom_config.KT_MCBT);
 }
 
+//set consigne temp PCBT
+void DT_3voies_set_C2(float c2)
+{
+    mem_config.C2 = c2;
+}
+
+//set consigne temp MCBT
+void DT_3voies_set_C3(float c3)
+{
+    mem_config.C3 = c3;
+}
+
 float DT_3voies_PCBT_get_KP()
 {
     return eeprom_config.KP_PCBT;
@@ -447,4 +469,16 @@ uint32_t DT_3voies_MCBT_get_KT()
 void DT_3voies_set_callback(void (*callback)(const float C2, const float C3))
 {
     _callback_3_voies = callback;
+}
+
+//get consigne temp PCBT
+float DT_3voies_get_C2()
+{
+    return mem_config.C2;
+}
+
+//get consigne temp MCBT
+float DT_3voies_get_C3()
+{
+    return mem_config.C3;
 }
