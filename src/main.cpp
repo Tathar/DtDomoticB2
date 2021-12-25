@@ -1304,8 +1304,6 @@ void mqtt_receve(char *topic, uint8_t *payload, unsigned int length)
     uint8_t temperature = 0;
     if (sscanf(buffer, "%" SCNu8, &temperature) == 1)
     {
-      Serial.print("fake_NTC = ");
-      Serial.println(temperature);
       DT_fake_ntc_set(temperature);
     }
   }

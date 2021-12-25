@@ -33,6 +33,34 @@ uint8_t fake_ntc_value = 0;
 uint8_t fake_ntc_new_value;
 void (*fake_ntc_callback)(const uint8_t value);
 
+void _fake_ntc_set(uint8_t value)
+{
+    if (value <= 100 && fake_ntc_value != value)
+    {
+        uint8_t r1 = pgm_read_byte(NTC_R1 + value);
+        uint8_t r2 = pgm_read_byte(NTC_R2 + value);
+        digitalWrite(FAKE_NTC_CS, LOW);
+        delay(10);
+        SPI.transfer(FAKE_NTC_R1_ADDRESS);
+        SPI.transfer(r1);
+        digitalWrite(FAKE_NTC_CS, HIGH);
+        delay(10);
+        digitalWrite(FAKE_NTC_CS, LOW);
+        delay(10);
+        SPI.transfer(FAKE_NTC_R2_ADDRESS);
+        SPI.transfer(r2);
+        digitalWrite(FAKE_NTC_CS, HIGH);
+        delay(10);
+        fake_ntc_value = value;
+        Serial.print("fake_NTC = ");
+        Serial.println(fake_ntc_value);
+        if (fake_ntc_callback != nullptr)
+        {
+            fake_ntc_callback(value);
+        }
+    }
+}
+
 void DT_fake_ntc_init(uint8_t value)
 {
     fake_ntc_callback = nullptr;
@@ -51,11 +79,11 @@ void DT_fake_ntc_loop()
         old = now;
         if (fake_ntc_value < fake_ntc_new_value)
         {
-            DT_fake_ntc_set((uint8_t)(fake_ntc_value + 1));
+            _fake_ntc_set((uint8_t)(fake_ntc_value + 1));
         }
         else if (fake_ntc_value > fake_ntc_new_value)
         {
-            DT_fake_ntc_set((uint8_t)(fake_ntc_value - 1));
+            _fake_ntc_set((uint8_t)(fake_ntc_value - 1));
         }
     }
 }
@@ -64,26 +92,8 @@ void DT_fake_ntc_set(uint8_t value)
 {
     if (value <= 100 && fake_ntc_value != value)
     {
-        uint8_t r1 = pgm_read_byte(NTC_R1 + value);
-        uint8_t r2 = pgm_read_byte(NTC_R2 + value);
-        digitalWrite(FAKE_NTC_CS, LOW);
-        delay(1);
-        SPI.transfer(FAKE_NTC_R1_ADDRESS);
-        SPI.transfer(r1);
-        digitalWrite(FAKE_NTC_CS, HIGH);
-        delay(1);
-        digitalWrite(FAKE_NTC_CS, LOW);
-        delay(1);
-        SPI.transfer(FAKE_NTC_R2_ADDRESS);
-        SPI.transfer(r2);
-        digitalWrite(FAKE_NTC_CS, HIGH);
-        delay(1);
-        fake_ntc_value = value;
+        _fake_ntc_set(value);
         fake_ntc_new_value = value;
-        if (fake_ntc_callback != nullptr)
-        {
-            fake_ntc_callback(value);
-        }
     }
 }
 

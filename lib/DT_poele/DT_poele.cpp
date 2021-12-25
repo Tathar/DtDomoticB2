@@ -190,9 +190,9 @@ void DT_Poele_loop()
         if (T4 < MIN_T4)
             T4 = MIN_T4;
 
-        if (eeprom_config.poele_mode != DT_POELE_MANUAL)
+        if (eeprom_config.poele_mode != DT_POELE_MANUAL && DT_fake_ntc_get() != T4)
         {
-            DT_fake_ntc_slow_set(T4);
+            DT_fake_ntc_set(T4);
         }
 
         if (poele_callback != nullptr && old_C1 != C1)
