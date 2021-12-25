@@ -33,6 +33,26 @@ long int lastReconnectAttempt = 0;
 
 void homeassistant(void)
 {
+  // heartbeat
+  wdt_reset();
+  doc.clear();
+  doc["~"] = F("DtBoard/" BOARD_IDENTIFIER "/");
+  doc["uniq_id"] = F(BOARD_IDENTIFIER "-heartbeat");
+  doc["name"] = F("heartbeat");
+  doc["stat_t"] = F("~/heartbeat");
+  doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
+  // JsonObject connection = doc["device"].createNestedArray("connection").createNestedObject();
+  // sprintf(buffer_value, "%X:%X:%X:%X:%X:%X", MAC1, MAC2, MAC3, MAC4, MAC5, MAC6);
+  // connection["mac"] = buffer_value;
+  doc["dev"]["mf"] = F(BOARD_MANUFACTURER); // manufacturer
+  doc["dev"]["mdl"] = F(BOARD_MODEL);       // model
+  doc["dev"]["name"] = F(BOARD_NAME);       // name
+  doc["dev"]["sw"] = F(BOARD_SW_VERSION);   // software version
+  serializeJson(doc, buffer_value, sizeof(buffer_value));
+  Serial.println(buffer_value);
+  strlcpy_P(buffer, PSTR("homeassistant/sensor/" BOARD_IDENTIFIER "/heartbeat/config"), BUFFER_SIZE);
+  DT_mqtt_send(buffer, buffer_value);
+
   wdt_reset();
   // relay
   for (uint8_t num = 0; num < RELAY_NUM; ++num)
@@ -48,16 +68,8 @@ void homeassistant(void)
     sprintf(buffer_value, "~/relay-%02d/set", num + 1);
     doc["command_topic"] = buffer_value;
     sprintf(buffer_value, "~/relay-%02d/state", num + 1);
-    doc["stat_t"] = buffer_value; // state topic
-
+    doc["stat_t"] = buffer_value;            // state topic
     doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
-    // JsonObject connection = doc["device"].createNestedArray("connection").createNestedObject();
-    // sprintf(buffer_value, "%X:%X:%X:%X:%X:%X", MAC1, MAC2, MAC3, MAC4, MAC5, MAC6);
-    // connection["mac"] = buffer_value;
-    doc["dev"]["mf"] = F(BOARD_MANUFACTURER); // manufacturer
-    doc["dev"]["mdl"] = F(BOARD_MODEL);       // model
-    doc["dev"]["name"] = F(BOARD_NAME);       // name
-    doc["dev"]["sw"] = F(BOARD_SW_VERSION);   // software version
 
     Serial.println(buffer_value);
     serializeJson(doc, buffer_value, sizeof(buffer_value));
@@ -1450,16 +1462,16 @@ void mqtt_receve(char *topic, uint8_t *payload, unsigned int length)
       DT_mqtt_send(buffer, u8t_value);
     }
   }
-   else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/C4/set") == 0) // C4
-   {
+  else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/C4/set") == 0) // C4
+  {
     DeserializationError error = deserializeJson(doc, buffer, length);
-     if (!error)
-     {
-       eeprom_config.C4 = doc.as<float>();
+    if (!error)
+    {
+      eeprom_config.C4 = doc.as<float>();
       strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/C4/state"), BUFFER_SIZE);
-       DT_mqtt_send(buffer, eeprom_config.C4);
+      DT_mqtt_send(buffer, eeprom_config.C4);
     }
-   }
+  }
   else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/C5/set") == 0) // C5
   {
     if (sscanf(buffer, "%" SCNu8, &u8t_value) == 1)
@@ -1783,6 +1795,37 @@ void loop()
       }
     }*/
   }
+
+  static uint32_t heartbeat_time = 0;
+  static bool heartbeat_status = false;
+  if (now - heartbeat_time > 1000) // Backup data in eeprom
+  {
+    heartbeat_time = now;
+    if (heartbeat_status == false)
+      heartbeat_status = true;
+    else
+      heartbeat_status = false;
+
+    strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/heartbeat"), BUFFER_SIZE);
+    DT_mqtt_send(buffer, heartbeat_status);
+  }
+
+  doc.clear();
+  doc["~"] = F("DtBoard/" BOARD_IDENTIFIER "/");
+  doc["uniq_id"] = F(BOARD_IDENTIFIER "-heartbeat");
+  doc["name"] = F("heartbeat");
+  doc["stat_t"] = F("~/heartbeat");
+  doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
+  // JsonObject connection = doc["device"].createNestedArray("connection").createNestedObject();
+  // sprintf(buffer_value, "%X:%X:%X:%X:%X:%X", MAC1, MAC2, MAC3, MAC4, MAC5, MAC6);
+  // connection["mac"] = buffer_value;
+  doc["dev"]["mf"] = F(BOARD_MANUFACTURER); // manufacturer
+  doc["dev"]["mdl"] = F(BOARD_MODEL);       // model
+  doc["dev"]["name"] = F(BOARD_NAME);       // name
+  doc["dev"]["sw"] = F(BOARD_SW_VERSION);   // software version
+  serializeJson(doc, buffer_value, sizeof(buffer_value));
+  Serial.println(buffer_value);
+  strlcpy_P(buffer, PSTR("homeassistant/sensor/" BOARD_IDENTIFIER "/heartbeat/config"), BUFFER_SIZE);
 
   static uint32_t save_eeprom = 0;
   if (now - save_eeprom > SAVE_EEPROM) // Backup data in eeprom
