@@ -20,7 +20,7 @@ uint32_t temp_default_pt100 = 0;
 
 void DT_Poele_init()
 {
-    DT_relay(RELAY_EV1, true);
+    DT_relay(RELAY_EV1, false);
     C1 = 0;
 }
 
@@ -37,7 +37,7 @@ void DT_Poele_loop()
         if (eeprom_config.poele_mode == DT_POELE_NORMAL)
         {
             // mode ECS + Chauffage
-            DT_relay(RELAY_EV1, true);
+            DT_relay(RELAY_EV1, false);
             // calcule consigne balon
             C1 = max(mem_config.C2, mem_config.C3);
             C1 = max(C1, eeprom_config.C4);
