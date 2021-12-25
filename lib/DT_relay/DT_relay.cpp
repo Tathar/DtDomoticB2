@@ -1,6 +1,7 @@
 #include <DT_relay.h>
 #include "Arduino.h"
 #include <Adafruit_MCP23X08.h>
+#include <config.h>
 
 uint32_t num_delay[RELAY_NUM];
 void (*_callback)(const uint8_t num, const bool action);
@@ -50,6 +51,24 @@ void DT_relay(uint8_t num, bool state)
     bool revert = pgm_read_byte(RELAY_REVERT + (num - 1));
 
     bool old_state = DT_relay_get(num);
+
+    //interverouillage
+    if (num = VANNE_PCBT_HOT && state == true && DT_relay_get(VANNE_PCBT_COLD) == true)
+    {
+        return;
+    }
+    else if (num = VANNE_PCBT_COLD && state == true && DT_relay_get(VANNE_PCBT_HOT) == true)
+    {
+        return;
+    }
+    if (num = VANNE_MCBT_HOT && state == true && DT_relay_get(VANNE_MCBT_COLD) == true)
+    {
+        return;
+    }
+    else if (num = VANNE_MCBT_COLD && state == true && DT_relay_get(VANNE_MCBT_HOT) == true)
+    {
+        return;
+    }
 
     if (pin >= 100)
     {
