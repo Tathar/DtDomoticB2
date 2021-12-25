@@ -36,7 +36,7 @@ void homeassistant(void)
   // heartbeat
   wdt_reset();
   doc.clear();
-  doc["~"] = F("DtBoard/" BOARD_IDENTIFIER "/");
+  doc["~"] = F("DtBoard/" BOARD_IDENTIFIER);
   doc["uniq_id"] = F(BOARD_IDENTIFIER "-heartbeat");
   doc["name"] = F("heartbeat");
   doc["stat_t"] = F("~/heartbeat");
@@ -1809,23 +1809,6 @@ void loop()
     strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/heartbeat"), BUFFER_SIZE);
     DT_mqtt_send(buffer, heartbeat_status);
   }
-
-  doc.clear();
-  doc["~"] = F("DtBoard/" BOARD_IDENTIFIER "/");
-  doc["uniq_id"] = F(BOARD_IDENTIFIER "-heartbeat");
-  doc["name"] = F("heartbeat");
-  doc["stat_t"] = F("~/heartbeat");
-  doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
-  // JsonObject connection = doc["device"].createNestedArray("connection").createNestedObject();
-  // sprintf(buffer_value, "%X:%X:%X:%X:%X:%X", MAC1, MAC2, MAC3, MAC4, MAC5, MAC6);
-  // connection["mac"] = buffer_value;
-  doc["dev"]["mf"] = F(BOARD_MANUFACTURER); // manufacturer
-  doc["dev"]["mdl"] = F(BOARD_MODEL);       // model
-  doc["dev"]["name"] = F(BOARD_NAME);       // name
-  doc["dev"]["sw"] = F(BOARD_SW_VERSION);   // software version
-  serializeJson(doc, buffer_value, sizeof(buffer_value));
-  Serial.println(buffer_value);
-  strlcpy_P(buffer, PSTR("homeassistant/sensor/" BOARD_IDENTIFIER "/heartbeat/config"), BUFFER_SIZE);
 
   static uint32_t save_eeprom = 0;
   if (now - save_eeprom > SAVE_EEPROM) // Backup data in eeprom
