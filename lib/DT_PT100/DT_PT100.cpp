@@ -6,7 +6,7 @@
 #define MIN_DEFAULT_PT100 -100 // si la temperature est inferieur, on considere que la PT100 est en default
 #define MAX_DEFAULT_PT100 200  // si la temperature est superieur, on considere que la PT100 est en default
 
-Adafruit_MAX31865 *temp[TEMP_NUM];
+Adafruit_MAX31865 max31865 = Adafruit_MAX31865(23);
 
 float old_temp[TEMP_NUM];
 void (*pt100_callback)(const uint8_t num, const float temp);
@@ -15,8 +15,11 @@ float _temp_get(int num)
 {
     // Serial.print("Temperature N°");
     // Serial.print(num + 1);
+    uint8_t pin = pgm_read_byte(TEMP_ARRAY + num);
+    max31865 = Adafruit_MAX31865(pin);
+    max31865.begin(MAX31865_3WIRE);
 
-    uint8_t fault = temp[num]->readFault();
+    uint8_t fault = max31865.readFault();
 
     if (fault)
     {
@@ -49,12 +52,12 @@ float _temp_get(int num)
         // {
         //     Serial.println("Under/Over voltage");
         // }
-        temp[num]->clearFault();
+        max31865.clearFault();
         return TEMP_DEFAULT_PT100;
     }
     else
     {
-        float tmp = temp[num]->temperature(100, TEMP_RREF);
+        float tmp = max31865.temperature(100, TEMP_RREF);
         // sprintf(buffer, "with %%p:  x    = %p\n", &capteur);
         // Serial.print(buffer);
 
@@ -74,26 +77,26 @@ float _temp_get(int num)
 
 void DT_pt100_init()
 {
-    Serial.print("alocation memoire = ");
+    // Serial.print("alocation memoire = ");
     // temp = (Adafruit_MAX31865 **)malloc(sizeof(Adafruit_MAX31865 *) * TEMP_NUM);
-    Serial.println(sizeof(Adafruit_MAX31865) * TEMP_NUM);
-    Serial.println("set callback an nullptr");
+    // Serial.println(sizeof(Adafruit_MAX31865) * TEMP_NUM);
+    // Serial.println("set callback an nullptr");
     pt100_callback = nullptr;
     for (uint8_t num = 0; num < TEMP_NUM; ++num)
     {
 
         // Serial.print("pgm read pin = ");
         uint8_t pin = pgm_read_byte(TEMP_ARRAY + num);
-        Serial.println(pin);
+        // Serial.println(pin);
         // Serial.println("creation object");
-        temp[num] = new Adafruit_MAX31865(pin);
+        // temp[num] = new Adafruit_MAX31865(pin);
         // Serial.println("old_temp = 0");
         old_temp[num] = 0;
         // uint8_t pin = pgm_read_byte(TEMP_ARRAY + num);
         pinMode(pin, OUTPUT);
         digitalWrite(pin, HIGH);
         // Serial.println("adafruit.begin()");
-        temp[num]->begin(MAX31865_3WIRE);
+        // temp[num]->begin(MAX31865_3WIRE);
         // Serial.println("fin begin");
     }
 }
