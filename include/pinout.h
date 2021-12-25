@@ -20,7 +20,7 @@ const bool INPUT_REVERT[INPUT_NUM] PROGMEM = {false, false, false, false, false,
 // sonde de temperature pt100
 #define TEMP_RREF 430.0
 #define TEMP_NUM 20
-const uint8_t TEMP_ARRAY[TEMP_NUM] PROGMEM = {23, 22, 25, 24, 27, 26, 29, 28, 31, 30, 33, 30, 35, 34, 37, 36, 39, 38, 41, 40};
+const uint8_t TEMP_ARRAY[TEMP_NUM] PROGMEM = {23, 22, 25, 24, 27, 26, 29, 28, 31, 32, 33, 30, 35, 34, 37, 36, 39, 38, 41, 40};
 
 // sonde de temperature bme280
 #define BME280_NUM 2

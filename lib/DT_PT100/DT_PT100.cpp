@@ -6,7 +6,27 @@
 #define MIN_DEFAULT_PT100 -100 // si la temperature est inferieur, on considere que la PT100 est en default
 #define MAX_DEFAULT_PT100 200  // si la temperature est superieur, on considere que la PT100 est en default
 
-Adafruit_MAX31865 *temp[TEMP_NUM];
+// Adafruit_MAX31865 *temp[TEMP_NUM];
+Adafruit_MAX31865 max31865[TEMP_NUM] = {Adafruit_MAX31865(23),
+                                        Adafruit_MAX31865(22),
+                                        Adafruit_MAX31865(25),
+                                        Adafruit_MAX31865(24),
+                                        Adafruit_MAX31865(27),
+                                        Adafruit_MAX31865(26),
+                                        Adafruit_MAX31865(29),
+                                        Adafruit_MAX31865(28),
+                                        Adafruit_MAX31865(31),
+                                        Adafruit_MAX31865(32),
+                                        Adafruit_MAX31865(33),
+                                        Adafruit_MAX31865(30),
+                                        Adafruit_MAX31865(35),
+                                        Adafruit_MAX31865(34),
+                                        Adafruit_MAX31865(37),
+                                        Adafruit_MAX31865(36),
+                                        Adafruit_MAX31865(39),
+                                        Adafruit_MAX31865(38),
+                                        Adafruit_MAX31865(41),
+                                        Adafruit_MAX31865(40)};
 
 float old_temp[TEMP_NUM];
 void (*pt100_callback)(const uint8_t num, const float temp);
@@ -16,7 +36,7 @@ float _temp_get(int num)
     // Serial.print("Temperature N°");
     // Serial.print(num + 1);
 
-    uint8_t fault = temp[num]->readFault();
+    uint8_t fault = max31865[num].readFault();
 
     if (fault)
     {
@@ -49,12 +69,12 @@ float _temp_get(int num)
         // {
         //     Serial.println("Under/Over voltage");
         // }
-        temp[num]->clearFault();
+        max31865[num].clearFault();
         return TEMP_DEFAULT_PT100;
     }
     else
     {
-        float tmp = temp[num]->temperature(100, TEMP_RREF);
+        float tmp = max31865[num].temperature(100, TEMP_RREF);
         // sprintf(buffer, "with %%p:  x    = %p\n", &capteur);
         // Serial.print(buffer);
 
@@ -86,14 +106,14 @@ void DT_pt100_init()
         uint8_t pin = pgm_read_byte(TEMP_ARRAY + num);
         Serial.println(pin);
         // Serial.println("creation object");
-        temp[num] = new Adafruit_MAX31865(pin);
+        // temp[num] = new Adafruit_MAX31865(pin);
         // Serial.println("old_temp = 0");
         old_temp[num] = 0;
         // uint8_t pin = pgm_read_byte(TEMP_ARRAY + num);
         pinMode(pin, OUTPUT);
         digitalWrite(pin, HIGH);
         // Serial.println("adafruit.begin()");
-        temp[num]->begin(MAX31865_3WIRE);
+        max31865[num].begin(MAX31865_3WIRE);
         // Serial.println("fin begin");
     }
 }
