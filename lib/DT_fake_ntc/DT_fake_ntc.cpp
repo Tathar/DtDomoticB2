@@ -2,6 +2,7 @@
 #include "Arduino.h"
 #include <pinout.h>
 #include <SPI.h>
+#include <avr/wdt.h> //watchdog
 
 const uint8_t NTC_R1[] PROGMEM = {
     145, 112, 91, 88, 109, 84, 94, 70, 98, 82,
@@ -30,7 +31,7 @@ const uint8_t NTC_R2[] PROGMEM = {
     16};
 
 uint8_t fake_ntc_value = 0;
-uint8_t fake_ntc_new_value = 0;
+// uint8_t fake_ntc_new_value = 0;
 void (*fake_ntc_callback)(const uint8_t value);
 
 void _fake_ntc_set(uint8_t value)
@@ -38,22 +39,30 @@ void _fake_ntc_set(uint8_t value)
     if (value >= 0 && value <= 100 && fake_ntc_value != value)
     {
         fake_ntc_value = value;
-        uint8_t r1 = pgm_read_byte(NTC_R1 + value);
-        uint8_t r2 = pgm_read_byte(NTC_R2 + value);
+        uint8_t r1 = pgm_read_byte(NTC_R1 + fake_ntc_value);
+        uint8_t r2 = pgm_read_byte(NTC_R2 + fake_ntc_value);
         digitalWrite(FAKE_NTC_CS, LOW);
+        wdt_reset();
         delay(10);
         SPI.transfer(FAKE_NTC_R1_ADDRESS);
         SPI.transfer(r1);
         digitalWrite(FAKE_NTC_CS, HIGH);
+        wdt_reset();
         delay(10);
         digitalWrite(FAKE_NTC_CS, LOW);
+        wdt_reset();
         delay(10);
         SPI.transfer(FAKE_NTC_R2_ADDRESS);
         SPI.transfer(r2);
         digitalWrite(FAKE_NTC_CS, HIGH);
+        wdt_reset();
         delay(10);
         Serial.print("fake_NTC = ");
         Serial.println(fake_ntc_value);
+        Serial.print("r1 = ");
+        Serial.println(r1);
+        Serial.print("r2 = ");
+        Serial.println(r2);
         if (fake_ntc_callback != nullptr)
         {
             fake_ntc_callback(value);
@@ -69,7 +78,7 @@ void DT_fake_ntc_init(uint8_t value)
     SPI.begin();
     DT_fake_ntc_set(value);
 }
-
+/*
 void DT_fake_ntc_loop()
 {
     static uint32_t old = 0;
@@ -87,17 +96,17 @@ void DT_fake_ntc_loop()
         }
     }
 }
-
+*/
 void DT_fake_ntc_set(uint8_t value)
 {
-    fake_ntc_new_value = value;
+    // fake_ntc_new_value = value;
     _fake_ntc_set(value);
 }
 
-void DT_fake_ntc_slow_set(uint8_t value)
-{
-    fake_ntc_new_value = value;
-}
+// void DT_fake_ntc_slow_set(uint8_t value)
+// {
+//     fake_ntc_new_value = value;
+// }
 
 uint8_t DT_fake_ntc_get()
 {

@@ -197,8 +197,8 @@ void DT_Poele_loop()
 
         if (eeprom_config.poele_mode != DT_POELE_MANUAL)
         {
-            Serial.print("poele t4 =");
-            Serial.println((uint8_t)T4);
+            // Serial.print("poele t4 =");
+            // Serial.println((uint8_t)T4);
             DT_fake_ntc_set((uint8_t)T4);
         }
 
