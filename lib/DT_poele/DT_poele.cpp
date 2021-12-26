@@ -75,20 +75,20 @@ void DT_Poele_loop()
             {
                 temp_default_pt100 = now;
             }
-            // Serial.print("C1 = ");
-            // Serial.println(C1);
-            // Serial.print("C2 = ");
-            // Serial.println(mem_config.C2);
-            // Serial.print("C3 = ");
-            // Serial.println(mem_config.C3);
-            // Serial.print("C4 = ");
-            // Serial.println(eeprom_config.C4);
-            // Serial.print("V1 = ");
-            // Serial.println(eeprom_config.V1);
-            // Serial.print("V2 = ");
-            // Serial.println(eeprom_config.V2);
-            // Serial.print("T4 = ");
-            // Serial.println(T4);
+            ////auto Serial.print("C1 = ");
+            ////auto Serial.println(C1);
+            ////auto Serial.print("C2 = ");
+            ////auto Serial.println(mem_config.C2);
+            ////auto Serial.print("C3 = ");
+            ////auto Serial.println(mem_config.C3);
+            ////auto Serial.print("C4 = ");
+            ////auto Serial.println(eeprom_config.C4);
+            ////auto Serial.print("V1 = ");
+            ////auto Serial.println(eeprom_config.V1);
+            ////auto Serial.print("V2 = ");
+            ////auto Serial.println(eeprom_config.V2);
+            ////auto Serial.print("T4 = ");
+            ////auto Serial.println(T4);
         }
         else if (eeprom_config.poele_mode == DT_POELE_SILENCE)
         {
@@ -207,8 +207,8 @@ void DT_Poele_loop()
 
         if (eeprom_config.poele_mode != DT_POELE_MANUAL)
         {
-            // Serial.print("poele t4 =");
-            // Serial.println((uint8_t)T4);
+            ////auto Serial.print("poele t4 =");
+            ////auto Serial.println((uint8_t)T4);
             DT_fake_ntc_set((uint8_t)T4);
         }
 

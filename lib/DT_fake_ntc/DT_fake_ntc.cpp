@@ -67,12 +67,12 @@ void _fake_ntc_set(uint8_t value)
         digitalWrite(FAKE_NTC_CS, HIGH);
         wdt_reset();
         delay(10);
-        Serial.print("fake_NTC = ");
-        Serial.println(fake_ntc_value);
-        Serial.print("r1 = ");
-        Serial.println(r1);
-        Serial.print("r2 = ");
-        Serial.println(r2);
+       //auto Serial.print("fake_NTC = ");
+       //auto Serial.println(fake_ntc_value);
+       //auto Serial.print("r1 = ");
+       //auto Serial.println(r1);
+       //auto Serial.print("r2 = ");
+       //auto Serial.println(r2);
     }
 }
 

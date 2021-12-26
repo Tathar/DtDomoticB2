@@ -33,41 +33,41 @@ void (*pt100_callback)(const uint8_t num, const float temp);
 
 float _temp_get(int num)
 {
-    // Serial.print("Temperature N°");
-    // Serial.print(num + 1);
+    ////auto Serial.print("Temperature N°");
+    ////auto Serial.print(num + 1);
 
     uint8_t fault = max31865[num].readFault();
 
     if (fault)
     {
 
-        // Serial.print(" Fault 0x");
-        // Serial.println(fault, HEX);
+        ////auto Serial.print(" Fault 0x");
+        ////auto Serial.println(fault, HEX);
         // sprintf(buffer, "with %%p:  x    = %p\n", &capteur);
-        // Serial.print(buffer);
+        ////auto Serial.print(buffer);
         // if (fault & MAX31865_FAULT_HIGHTHRESH)
         // {
-        //     Serial.println("RTD High Threshold");
+        //    //auto Serial.println("RTD High Threshold");
         // }
         // if (fault & MAX31865_FAULT_LOWTHRESH)
         // {
-        //     Serial.println("RTD Low Threshold");
+        //    //auto Serial.println("RTD Low Threshold");
         // }
         // if (fault & MAX31865_FAULT_REFINLOW)
         // {
-        //     Serial.println("REFIN- > 0.85 x Bias");
+        //    //auto Serial.println("REFIN- > 0.85 x Bias");
         // }
         // if (fault & MAX31865_FAULT_REFINHIGH)
         // {
-        //     Serial.println("REFIN- < 0.85 x Bias - FORCE- open");
+        //    //auto Serial.println("REFIN- < 0.85 x Bias - FORCE- open");
         // }
         // if (fault & MAX31865_FAULT_RTDINLOW)
         // {
-        //     Serial.println("RTDIN- < 0.85 x Bias - FORCE- open");
+        //    //auto Serial.println("RTDIN- < 0.85 x Bias - FORCE- open");
         // }
         // if (fault & MAX31865_FAULT_OVUV)
         // {
-        //     Serial.println("Under/Over voltage");
+        //    //auto Serial.println("Under/Over voltage");
         // }
         max31865[num].clearFault();
         return TEMP_DEFAULT_PT100;
@@ -76,17 +76,17 @@ float _temp_get(int num)
     {
         float tmp = max31865[num].temperature(100, TEMP_RREF);
         // sprintf(buffer, "with %%p:  x    = %p\n", &capteur);
-        // Serial.print(buffer);
+        ////auto Serial.print(buffer);
 
-        // Serial.print(" return ");
+        ////auto Serial.print(" return ");
         if (tmp < MIN_DEFAULT_PT100 || tmp > MAX_DEFAULT_PT100)
         {
-            // Serial.print(TEMP_DEFAULT_PT100);
-            // Serial.println("°C");
+            ////auto Serial.print(TEMP_DEFAULT_PT100);
+            ////auto Serial.println("°C");
             return TEMP_DEFAULT_PT100;
         }
-        // Serial.print(tmp);
-        // Serial.println("°C");
+        ////auto Serial.print(tmp);
+        ////auto Serial.println("°C");
         int32_t digit = tmp * 100;
         return digit / 100.0;
     }
@@ -94,27 +94,27 @@ float _temp_get(int num)
 
 void DT_pt100_init()
 {
-    Serial.print("alocation memoire = ");
+   //auto Serial.print("alocation memoire = ");
     // temp = (Adafruit_MAX31865 **)malloc(sizeof(Adafruit_MAX31865 *) * TEMP_NUM);
-    Serial.println(sizeof(Adafruit_MAX31865) * TEMP_NUM);
-    Serial.println("set callback an nullptr");
+   //auto Serial.println(sizeof(Adafruit_MAX31865) * TEMP_NUM);
+   //auto Serial.println("set callback an nullptr");
     pt100_callback = nullptr;
     for (uint8_t num = 0; num < TEMP_NUM; ++num)
     {
 
-        // Serial.print("pgm read pin = ");
+        ////auto Serial.print("pgm read pin = ");
         uint8_t pin = pgm_read_byte(TEMP_ARRAY + num);
-        Serial.println(pin);
-        // Serial.println("creation object");
+       //auto Serial.println(pin);
+        ////auto Serial.println("creation object");
         // temp[num] = new Adafruit_MAX31865(pin);
-        // Serial.println("old_temp = 0");
+        ////auto Serial.println("old_temp = 0");
         old_temp[num] = 0;
         // uint8_t pin = pgm_read_byte(TEMP_ARRAY + num);
         pinMode(pin, OUTPUT);
         digitalWrite(pin, HIGH);
-        // Serial.println("adafruit.begin()");
+        ////auto Serial.println("adafruit.begin()");
         max31865[num].begin(MAX31865_3WIRE);
-        // Serial.println("fin begin");
+        ////auto Serial.println("fin begin");
     }
 }
 

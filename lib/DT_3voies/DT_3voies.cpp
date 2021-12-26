@@ -233,7 +233,7 @@ void DT_3voies_loop()
         uint8_t num_pt100 = pgm_read_byte(PT100_PLANCHEE + num);
         if ((DT_pt100_get(num_pt100) != TEMP_DEFAULT_PT100) && (DT_pt100_get(num_pt100) > MAX_TMP_PLANCHE + 1))
         {
-            Serial.println("temp planché max");
+           //auto Serial.println("temp planché max");
             DT_relay(CIRCULATEUR_PCBT, false); // arret du circulateur
             return;                            // arret de la fonction
         }

@@ -18,7 +18,7 @@ void DT_relay_init()
         if (!mcp[mcp_num].begin_I2C(i2c))
         {
             {
-                Serial.println("MCP23008 Init Error.");
+               //auto Serial.println("MCP23008 Init Error.");
             }
         }
     }

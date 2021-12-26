@@ -27,19 +27,19 @@ void DT_BME280_init()
         // Wire.beginTransmission(I2C_MULTIPLEXER_ADDRESS); //change I2C channel
         // Wire.write(1 << (i2c_number - 1));
         // Wire.endTransmission();
-        Serial.println(address, HEX);
-        Serial.println(i2c_number);
+       //auto Serial.println(address, HEX);
+       //auto Serial.println(i2c_number);
         unsigned status = bme280[num].begin(address);
 
         if (!status)
         {
-            Serial.println("Could not find a valid BME280 sensor, check wiring, address, sensor ID!");
-            Serial.print("SensorID was: 0x");
-            Serial.println(bme280[num].sensorID(), 16);
-            Serial.print("        ID of 0xFF probably means a bad address, a BMP 180 or BMP 085\n");
-            Serial.print("   ID of 0x56-0x58 represents a BMP 280,\n");
-            Serial.print("        ID of 0x60 represents a BME 280.\n");
-            Serial.print("        ID of 0x61 represents a BME 680.\n");
+           //auto Serial.println("Could not find a valid BME280 sensor, check wiring, address, sensor ID!");
+           //auto Serial.print("SensorID was: 0x");
+           //auto Serial.println(bme280[num].sensorID(), 16);
+           //auto Serial.print("        ID of 0xFF probably means a bad address, a BMP 180 or BMP 085\n");
+           //auto Serial.print("   ID of 0x56-0x58 represents a BMP 280,\n");
+           //auto Serial.print("        ID of 0x60 represents a BME 280.\n");
+           //auto Serial.print("        ID of 0x61 represents a BME 680.\n");
             bme280_active[num] = false;
         }
         else

@@ -85,7 +85,7 @@ void init_ethernet()
 
 void DT_mqtt_init()
 {
-    Serial.println("start network");
+   //auto Serial.println("start network");
     pinMode(NETWORK_RESET, OUTPUT);
     digitalWrite(NETWORK_RESET, HIGH);
     mqtt.setServer(server, 1883);
@@ -108,7 +108,7 @@ void DT_mqtt_loop()
             reset_time = now;
         else if (reset_time != 0 && !reset && now - reset_time > NETWORK_RESET_TIME)
         {
-            Serial.println("reset network board");
+           //auto Serial.println("reset network board");
             digitalWrite(NETWORK_RESET, LOW);
             last_reconnection_time = now;
             reset = true;
@@ -118,7 +118,7 @@ void DT_mqtt_loop()
             last_reconnection_time = now;
             if (reset)
             {
-                Serial.println("restart network");
+               //auto Serial.println("restart network");
                 digitalWrite(NETWORK_RESET, HIGH);
                 delay(2);
                 wdt_reset();
@@ -129,7 +129,7 @@ void DT_mqtt_loop()
             }
             // Attempt to reconnect
             // String clientId = "Board01";
-            Serial.println("start MQTT conection");
+           //auto Serial.println("start MQTT conection");
             // if (mqtt.connect(clientId.c_str(), "DtBoard", "1MotdePasse"))
 
             wdt_reset();
@@ -140,14 +140,14 @@ void DT_mqtt_loop()
                 if (_mqtt_subscribe != nullptr)
                     _mqtt_subscribe(mqtt);
                 reset_time = 0; // desactivation du compteur de reset
-                Serial.println("MQTT connected");
+               //auto Serial.println("MQTT connected");
             }
             else
             { // si echec affichage erreur
                 wdt_reset();
-                Serial.print("ECHEC, rc=");
-                Serial.print(mqtt.state());
-                Serial.println(" nouvelle tentative dans 5 secondes");
+               //auto Serial.print("ECHEC, rc=");
+               //auto Serial.print(mqtt.state());
+               //auto Serial.println(" nouvelle tentative dans 5 secondes");
             }
         }
 

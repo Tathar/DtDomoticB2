@@ -828,7 +828,7 @@ void relay_callback(const uint8_t num, const bool action)
 {
   wdt_reset();
   sprintf_P(buffer, PSTR("relais numero %d dans l etat %d"), num, (int)action);
-  Serial.println(buffer);
+ //auto Serial.println(buffer);
   sprintf_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/relay-%02d/state"), num);
   if (action)
     DT_mqtt_send(buffer, "ON");
@@ -840,7 +840,7 @@ void input_callback(const uint8_t num, const uint8_t action)
 {
   wdt_reset();
   sprintf_P(buffer, PSTR("entrée numero %d dans l etat %d"), num, (int)action);
-  Serial.println(buffer);
+ //auto Serial.println(buffer);
   sprintf_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/input-%02d/state"), num);
   if (action == HIGH)
     DT_mqtt_send(buffer, "ON");
@@ -1326,8 +1326,8 @@ void mqtt_subscribe(PubSubClient &mqtt)
 void mqtt_receve(char *topic, uint8_t *payload, unsigned int length)
 {
   wdt_reset();
-  Serial.print("receve topic ");
-  Serial.println(topic);
+ //auto Serial.print("receve topic ");
+ //auto Serial.println(topic);
 
   // Copy the payload to the new buffer
   if (length < BUFFER_SIZE)
@@ -1335,8 +1335,8 @@ void mqtt_receve(char *topic, uint8_t *payload, unsigned int length)
     memcpy(buffer, payload, length);
     buffer[length] = '\0';
 
-    Serial.print("buffer = ");
-    Serial.println(buffer);
+   //auto Serial.print("buffer = ");
+   //auto Serial.println(buffer);
   }
   else
     return;
@@ -1345,8 +1345,8 @@ void mqtt_receve(char *topic, uint8_t *payload, unsigned int length)
   uint8_t u8t_value = 0;
   if (sscanf_P(topic, PSTR("DtBoard/" BOARD_IDENTIFIER "/relay-%02d/set"), &num) == 1) // relais
   {
-    Serial.print("sscanf = ");
-    Serial.println(num);
+   //auto Serial.print("sscanf = ");
+   //auto Serial.println(num);
     if (strcmp(buffer, "ON") == 0)
       DT_relay(num, true);
     else if (strcmp(buffer, "OFF") == 0)
@@ -1694,69 +1694,69 @@ void mqtt_receve(char *topic, uint8_t *payload, unsigned int length)
 
 void setup()
 {
-  Serial.begin(9600);
+  //auto Serial.begin(9600);
 
-  Serial.println("starting board version " BOARD_SW_VERSION);
+ //auto Serial.println("starting board version " BOARD_SW_VERSION);
 
-  Serial.println("Load eeprom");
+ //auto Serial.println("Load eeprom");
   chargeEEPROM();
 
-  Serial.println("starting mqtt");
+ //auto Serial.println("starting mqtt");
   DT_mqtt_init();
   DT_mqtt_set_subscribe_callback(mqtt_subscribe);
   DT_mqtt_set_receve_callback(mqtt_receve);
 
-  Serial.println("starting relay");
+ //auto Serial.println("starting relay");
   DT_relay_init();
   DT_relay_set_callback(relay_callback);
 
-  Serial.println("starting input");
+ //auto Serial.println("starting input");
   DT_input_init();
   DT_input_set_callback(input_callback);
 
-  Serial.println("starting PT100");
+ //auto Serial.println("starting PT100");
   DT_pt100_init();
   DT_pt100_set_callback(pt100_callback);
 
-  Serial.println("starting BME280");
+ //auto Serial.println("starting BME280");
   DT_BME280_init();
   DT_BME280_set_callback_temperature(bme280_callback_temperature);
   DT_BME280_set_callback_humidity(bme280_callback_humidity);
   DT_BME280_set_callback_pressure(bme280_callback_pressure);
 
-  Serial.println("starting BCCS811");
+ //auto Serial.println("starting BCCS811");
   DT_CCS811_init();
   DT_CCS811_set_callback_co2(ccs811_callback_co2);
   DT_CCS811_set_callback_cov(ccs811_callback_cov);
 
-  Serial.println("starting fake_NTC");
+ //auto Serial.println("starting fake_NTC");
   DT_fake_ntc_init();
   DT_fake_ntc_callback(fake_ntc_callback);
 
-  Serial.println("starting Poele");
+ //auto Serial.println("starting Poele");
   DT_Poele_init();
   DT_Poele_set_C1_callback(poele_C1_callback);
   DT_Poele_set_mode_callback(poele_mode_callback);
   DT_Poele_T4_callback(poele_t4_callback);
 
-  Serial.println("starting 3 voies");
+ //auto Serial.println("starting 3 voies");
   DT_3voies_init();
   DT_3voies_set_callback(dt3voies_callback);
 
   // client.setServer(server, 1883);
   // client.setCallback(callback);
 
-  // Serial.println("start network");
+  ////auto Serial.println("start network");
   // Ethernet.init(53);
   // Ethernet.begin(mac, ip);
   // Ethernet.begin(mac);
   // delay(1500);
 
-  // Serial.println("network started");
+  ////auto Serial.println("network started");
 
   // while (CCS811.begin() != 0)
   // {
-  //   Serial.println("failed to init chip, please check if the chip connection is fine");
+  //  //auto Serial.println("failed to init chip, please check if the chip connection is fine");
   //   delay(1000);
   // }
 
@@ -1764,11 +1764,11 @@ void setup()
 
   // if (!ccs811.begin())
   // {
-  //   Serial.println("Failed to start sensor! Please check your wiring.");
+  //  //auto Serial.println("Failed to start sensor! Please check your wiring.");
   // }
 
   wdt_enable(WATCHDOG_TIME);
-  Serial.println("Board started");
+ //auto Serial.println("Board started");
 }
 
 void loop()
@@ -1812,14 +1812,14 @@ void loop()
     {
       if (!ccs811.readData())
       {
-        Serial.print("CO2: ");
-        Serial.print(ccs811.geteCO2());
-        Serial.print("ppm, TVOC: ");
-        Serial.println(ccs811.getTVOC());
+       //auto Serial.print("CO2: ");
+       //auto Serial.print(ccs811.geteCO2());
+       //auto Serial.print("ppm, TVOC: ");
+       //auto Serial.println(ccs811.getTVOC());
       }
       else
       {
-        Serial.println("ccs811 ERROR!");
+       //auto Serial.println("ccs811 ERROR!");
       }
     }*/
   }

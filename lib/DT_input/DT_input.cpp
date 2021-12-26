@@ -34,8 +34,8 @@ void DT_input_loop()
         uint8_t pin = pgm_read_byte(INPUT_ARRAY + num);
         bool revert = pgm_read_byte(INPUT_REVERT + num);
 
-        // Serial.println(pin);
-        // Serial.println(revert);
+        ////auto Serial.println(pin);
+        ////auto Serial.println(revert);
         uint8_t pin_stats = digitalRead(pin);
 
         if (revert)

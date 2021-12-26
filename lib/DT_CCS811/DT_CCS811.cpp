@@ -25,13 +25,13 @@ void DT_CCS811_init()
         Wire.write(1 << (i2c_number - 1));
         Wire.endTransmission();
 
-        Serial.println(address, HEX);
-        Serial.println(i2c_number);
+       //auto Serial.println(address, HEX);
+       //auto Serial.println(i2c_number);
         unsigned status = ccs811[num].begin(address);
 
         if (!status)
         {
-            Serial.println("failed to init chip, please check if the chip connection is fine");
+           //auto Serial.println("failed to init chip, please check if the chip connection is fine");
             ccs811_active[num] = false;
         }
         else
@@ -83,7 +83,7 @@ void DT_CCS811_loop()
                     }
                     else
                     {
-                        Serial.println("ccs811 ERROR!");
+                       //auto Serial.println("ccs811 ERROR!");
                     }
                 }
             }
