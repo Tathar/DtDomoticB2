@@ -41,6 +41,7 @@ void _fake_ntc_set(uint8_t value)
         value = 70;
         if (fake_ntc_callback != nullptr)
         {
+            fake_ntc_callback(value-1);
             fake_ntc_callback(value);
         }
     }
