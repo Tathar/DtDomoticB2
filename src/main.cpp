@@ -1790,7 +1790,7 @@ void loop()
   DT_pt100_loop();
   DT_Poele_loop();
   DT_3voies_loop();
-  DT_fake_ntc_loop();
+//  DT_fake_ntc_loop();
 
   // adjust CCS811
   static uint32_t ccs811_environmental = 0;

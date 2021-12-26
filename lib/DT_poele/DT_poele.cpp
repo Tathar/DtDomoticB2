@@ -195,9 +195,11 @@ void DT_Poele_loop()
         if (T4 < MIN_T4)
             T4 = MIN_T4;
 
-        if (eeprom_config.poele_mode != DT_POELE_MANUAL && DT_fake_ntc_get() != T4)
+        if (eeprom_config.poele_mode != DT_POELE_MANUAL )
         {
-            DT_fake_ntc_set(T4);
+            Serial.print("poele t4 =");
+            Serial.println((uint8_t) T4);
+            DT_fake_ntc_set((uint8_t)T4);
         }
 
         if (poele_C1_callback != nullptr && old_C1 != C1)

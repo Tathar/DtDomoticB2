@@ -30,13 +30,14 @@ const uint8_t NTC_R2[] PROGMEM = {
     16};
 
 uint8_t fake_ntc_value = 0;
-uint8_t fake_ntc_new_value;
+uint8_t fake_ntc_new_value = 0;
 void (*fake_ntc_callback)(const uint8_t value);
 
 void _fake_ntc_set(uint8_t value)
 {
-    if (value > 0 && value <= 100 && fake_ntc_value != value)
+    if (value >= 0 && value <= 100 && fake_ntc_value != value)
     {
+        fake_ntc_value = value;
         uint8_t r1 = pgm_read_byte(NTC_R1 + value);
         uint8_t r2 = pgm_read_byte(NTC_R2 + value);
         digitalWrite(FAKE_NTC_CS, LOW);
@@ -51,7 +52,6 @@ void _fake_ntc_set(uint8_t value)
         SPI.transfer(r2);
         digitalWrite(FAKE_NTC_CS, HIGH);
         delay(10);
-        fake_ntc_value = value;
         Serial.print("fake_NTC = ");
         Serial.println(fake_ntc_value);
         if (fake_ntc_callback != nullptr)
@@ -90,8 +90,8 @@ void DT_fake_ntc_loop()
 
 void DT_fake_ntc_set(uint8_t value)
 {
-    _fake_ntc_set(value);
     fake_ntc_new_value = value;
+    _fake_ntc_set(value);
 }
 
 void DT_fake_ntc_slow_set(uint8_t value)
