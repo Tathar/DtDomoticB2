@@ -147,7 +147,7 @@ void DT_3voies_loop()
     {
         Serial.print("C2 = ");
         mem_config.C2 = scale(DT_pt100_get(PT100_EXT), -10, 10, eeprom_config.C8, eeprom_config.C9);
-        Serial.print(mem_config.C2);
+        Serial.println(mem_config.C2);
     }
 
     if (eeprom_config.mode_3voies_MCBT == DT_3VOIES_DEMMARAGE)
@@ -185,17 +185,6 @@ void DT_3voies_loop()
     if (mem_config.C3 > TMP_EAU_MCBT_MAX)
         mem_config.C3 = TMP_EAU_MCBT_MAX;
 
-    // test de la temperature du planche
-    for (uint8_t num = 0; num < NUM_PLANCHE; ++num)
-    {
-        uint8_t num_pt100 = pgm_read_byte(PT100_PLANCHEE + num);
-        if ((DT_pt100_get(num_pt100) != TEMP_DEFAULT_PT100) && (DT_pt100_get(num_pt100) > MAX_TMP_PLANCHE + 1))
-        {
-            DT_relay(CIRCULATEUR_PCBT, false); // arret du circulateur
-            return;                            // arret de la fonction
-        }
-    }
-
     // temperature de l'eau
     if (DT_pt100_get(PT100_3_VOIES_PCBT) < 0)
     {
@@ -208,18 +197,21 @@ void DT_3voies_loop()
     }
 
     // consigne minimum pour fonctionnement des circulateur
-    if ((eeprom_config.mode_3voies_PCBT != DT_3VOIES_DEMMARAGE) && (mem_config.C2 < eeprom_config.C_PCBT_MIN - DBMAC))
+    if ((eeprom_config.mode_3voies_PCBT != DT_3VOIES_DEMMARAGE) && (mem_config.C2 < (eeprom_config.C_PCBT_MIN - DBMAC)))
     {
+        Serial.println("relay off -");
         DT_relay(CIRCULATEUR_PCBT, false);  // arret du circulateur
         pid_pcbt.SetMode(QuickPID::MANUAL); // arret de la vanne 3 voie
     }
-    else if ((eeprom_config.mode_3voies_PCBT != DT_3VOIES_OFF) && (mem_config.C2 > eeprom_config.C_PCBT_MIN + DBMAC))
+    else if ((eeprom_config.mode_3voies_PCBT != DT_3VOIES_OFF) && (mem_config.C2 > (eeprom_config.C_PCBT_MIN + DBMAC)))
     {
+        Serial.println("relay on");
         DT_relay(CIRCULATEUR_PCBT, true);      // demmarage du circulateur
         pid_pcbt.SetMode(QuickPID::AUTOMATIC); // demmarage de la vanne 3 voie
     }
     else if ((eeprom_config.mode_3voies_PCBT == DT_3VOIES_OFF))
     {
+        Serial.println("relay off Arret");
         DT_relay(CIRCULATEUR_PCBT, false);  // arret du circulateur
         pid_pcbt.SetMode(QuickPID::MANUAL); // arret de la vanne 3 voie
     }
@@ -229,7 +221,7 @@ void DT_3voies_loop()
         DT_relay(CIRCULATEUR_MCBT, false);  // arret du circulateur
         pid_mcbt.SetMode(QuickPID::MANUAL); // arret de la vanne 3 voie
     }
-    else if ((eeprom_config.mode_3voies_MCBT != DT_3VOIES_OFF) && (mem_config.C3 > eeprom_config.C_MCBT_MIN + DBMAC))
+    else if ((eeprom_config.mode_3voies_MCBT != DT_3VOIES_OFF) && (mem_config.C3 < eeprom_config.C_MCBT_MIN + DBMAC))
     {
         DT_relay(CIRCULATEUR_MCBT, true);      // demmarage du circulateur
         pid_mcbt.SetMode(QuickPID::AUTOMATIC); // demmarage de la vanne 3 voie
@@ -238,6 +230,18 @@ void DT_3voies_loop()
     {
         DT_relay(CIRCULATEUR_MCBT, false);  // arret du circulateur
         pid_mcbt.SetMode(QuickPID::MANUAL); // arret de la vanne 3 voie
+    }
+
+    // test de la temperature du planche
+    for (uint8_t num = 0; num < NUM_PLANCHE; ++num)
+    {
+        uint8_t num_pt100 = pgm_read_byte(PT100_PLANCHEE + num);
+        if ((DT_pt100_get(num_pt100) != TEMP_DEFAULT_PT100) && (DT_pt100_get(num_pt100) > MAX_TMP_PLANCHE + 1))
+        {
+            Serial.println("temp planché max");
+            DT_relay(CIRCULATEUR_PCBT, false); // arret du circulateur
+            return;                            // arret de la fonction
+        }
     }
 
     // calcule du PID
