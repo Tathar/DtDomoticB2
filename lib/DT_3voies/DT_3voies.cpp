@@ -44,6 +44,7 @@ float scale(float in, float in_min, float in_max, float out_min, float out_max)
 void DT_3voies_init()
 {
 
+    _callback_3_voies = nullptr;
     // calcule des consignes de temperature
     if (eeprom_config.mode_3voies_PCBT == DT_3VOIES_DEMMARAGE)
     {
@@ -144,7 +145,9 @@ void DT_3voies_loop()
     }
     else if (eeprom_config.mode_3voies_PCBT == DT_3VOIES_NORMAL)
     {
+        Serial.print("C2 = ");
         mem_config.C2 = scale(DT_pt100_get(PT100_EXT), -10, 10, eeprom_config.C8, eeprom_config.C9);
+        Serial.print(mem_config.C2);
     }
 
     if (eeprom_config.mode_3voies_MCBT == DT_3VOIES_DEMMARAGE)
