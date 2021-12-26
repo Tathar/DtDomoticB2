@@ -797,19 +797,33 @@ void homeassistant(void)
   strlcpy_P(buffer, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/KT_MCBT/config"), BUFFER_SIZE);
   DT_mqtt_send(buffer, buffer_value);
 
-  //load 1m
+  //load 1s
   wdt_reset();
   doc.clear();
   doc["~"] = F("DtBoard/" BOARD_IDENTIFIER "/");
-  doc["uniq_id"] = F(BOARD_IDENTIFIER "-load_1m");
-  doc["name"] = F("Load 1m");
-  doc["stat_t"] = F("~/load_1m");
+  doc["uniq_id"] = F(BOARD_IDENTIFIER "-load_1s");
+  doc["name"] = F("Load 1s");
+  doc["stat_t"] = F("~/load_1s");
   // doc["dev_cla"] = F("temperature");
   // doc["unit_of_meas"] = F("°C");
   doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
   serializeJson(doc, buffer_value, sizeof(buffer_value));
   //Serial.println(buffer_value);
-  strlcpy_P(buffer, PSTR("homeassistant/sensor/" BOARD_IDENTIFIER "/load_1m/config"), BUFFER_SIZE);
+  strlcpy_P(buffer, PSTR("homeassistant/sensor/" BOARD_IDENTIFIER "/load_1s/config"), BUFFER_SIZE);
+
+  // //load 1m
+  // wdt_reset();
+  // doc.clear();
+  // doc["~"] = F("DtBoard/" BOARD_IDENTIFIER "/");
+  // doc["uniq_id"] = F(BOARD_IDENTIFIER "-load_1m");
+  // doc["name"] = F("Load 1m");
+  // doc["stat_t"] = F("~/load_1m");
+  // // doc["dev_cla"] = F("temperature");
+  // // doc["unit_of_meas"] = F("°C");
+  // doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
+  // serializeJson(doc, buffer_value, sizeof(buffer_value));
+  // //Serial.println(buffer_value);
+  // strlcpy_P(buffer, PSTR("homeassistant/sensor/" BOARD_IDENTIFIER "/load_1m/config"), BUFFER_SIZE);
 }
 
 // Relay Callback
@@ -1839,15 +1853,29 @@ void loop()
     sauvegardeEEPROM();
   }
 
-  static uint32_t load_count = 0;
-  static uint32_t load_time = 0;
-  load_count += 1;
-  if (now - load_time >= 60000)
+  static uint32_t load_1s_count = 0;
+  static uint32_t load_1s_time = 0;
+  load_1s_count += 1;
+  if (now - load_1s_time >= 1000)
   {
-    float load = 3000.0 / load_count;
-    load_count = load / 100;
-    strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/load_1m"), BUFFER_SIZE);
-    DT_mqtt_send(buffer, (float)(load_count * 100.0));
-    load_count = 0;
+    float load = ((now - load_1s_time) / 20) / load_1s_count;
+    load_1s_count = load / 100;
+    strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/load_1s"), BUFFER_SIZE);
+    DT_mqtt_send(buffer, (float)(load_1s_count * 100.0));
+    load_1s_count = 0;
+    load_1s_time = now;
   }
+
+  // static uint32_t load_1m_count = 0;
+  // static uint32_t load_1m_time = 0;
+  // load_1m_count += 1;
+  // if (now - load_1m_time >= 60000)
+  // {
+  //   float load = ((now - load_1m_time) / 20) / load_1m_count;
+  //   load_1m_count = load / 100;
+  //   strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/load_1m"), BUFFER_SIZE);
+  //   DT_mqtt_send(buffer, (float)(load_1m_count * 100.0));
+  //   load_1m_count = 0;
+  //   load_1m_time = now;
+  // }
 }
