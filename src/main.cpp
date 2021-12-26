@@ -894,7 +894,7 @@ void fake_ntc_callback(uint8_t value)
   DT_mqtt_send(buffer, buffer_value);
 }
 
-void poele_callback(const uint8_t C1)
+void poele_C1_callback(const uint8_t C1)
 {
   wdt_reset();
   JsonVariant variant = doc.to<JsonVariant>();
@@ -902,6 +902,37 @@ void poele_callback(const uint8_t C1)
   serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
   strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/poele/C1"), BUFFER_SIZE);
   DT_mqtt_send(buffer, buffer_value);
+}
+
+void poele_mode_callback(const DT_Poele_mode mode)
+{
+  // mode poele
+  wdt_reset();
+  strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/poele/mode/state"), BUFFER_SIZE);
+  switch (mode)
+  {
+  case DT_POELE_SILENCE:
+    DT_mqtt_send(buffer, "Silence");
+    break;
+  case DT_POELE_SECOURS:
+    DT_mqtt_send(buffer, "Secours");
+    break;
+  case DT_POELE_NORMAL:
+    DT_mqtt_send(buffer, "Normal");
+    break;
+  case DT_POELE_ECS:
+    DT_mqtt_send(buffer, "ECS");
+    break;
+  case DT_POELE_BOOST:
+    DT_mqtt_send(buffer, "Boost");
+    break;
+  case DT_POELE_MANUAL:
+    DT_mqtt_send(buffer, "Manuel");
+    break;
+  case DT_POELE_OFF:
+    DT_mqtt_send(buffer, "Arret");
+    break;
+  }
 }
 
 void mqtt_publish()
@@ -946,41 +977,7 @@ void mqtt_publish()
 
   // mode poele
   wdt_reset();
-  if (DT_Poele_get_mode() == DT_POELE_SILENCE)
-  {
-    strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/poele/mode/state"), BUFFER_SIZE);
-    DT_mqtt_send(buffer, "Silence");
-  }
-  else if (DT_Poele_get_mode() == DT_POELE_SECOURS)
-  {
-    strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/poele/mode/state"), BUFFER_SIZE);
-    DT_mqtt_send(buffer, "Secours");
-  }
-  else if (DT_Poele_get_mode() == DT_POELE_NORMAL)
-  {
-    strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/poele/mode/state"), BUFFER_SIZE);
-    DT_mqtt_send(buffer, "Normal");
-  }
-  else if (DT_Poele_get_mode() == DT_POELE_ECS)
-  {
-    strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/poele/mode/state"), BUFFER_SIZE);
-    DT_mqtt_send(buffer, "ECS");
-  }
-  else if (DT_Poele_get_mode() == DT_POELE_BOOST)
-  {
-    strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/poele/mode/state"), BUFFER_SIZE);
-    DT_mqtt_send(buffer, "Boost");
-  }
-  else if (DT_Poele_get_mode() == DT_POELE_MANUAL)
-  {
-    strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/poele/mode/state"), BUFFER_SIZE);
-    DT_mqtt_send(buffer, "Manuel");
-  }
-  else if (DT_Poele_get_mode() == DT_POELE_OFF)
-  {
-    strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/poele/mode/state"), BUFFER_SIZE);
-    DT_mqtt_send(buffer, "Arret");
-  }
+  poele_mode_callback(DT_Poele_get_mode());
 
   // Poele C1
   wdt_reset();
@@ -1324,45 +1321,30 @@ void mqtt_receve(char *topic, uint8_t *payload, unsigned int length)
     if (strcmp(buffer, "Silence") == 0)
     {
       DT_Poele_set_mode(DT_POELE_SILENCE);
-      strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/poele/mode/state"), BUFFER_SIZE);
-      DT_mqtt_send(buffer, "Silence");
     }
-
     else if (strcmp(buffer, "Secours") == 0)
     {
       DT_Poele_set_mode(DT_POELE_SECOURS);
-      strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/poele/mode/state"), BUFFER_SIZE);
-      DT_mqtt_send(buffer, "Secours");
     }
     else if (strcmp(buffer, "Normal") == 0)
     {
       DT_Poele_set_mode(DT_POELE_NORMAL);
-      strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/poele/mode/state"), BUFFER_SIZE);
-      DT_mqtt_send(buffer, "Normal");
     }
     else if (strcmp(buffer, "ECS") == 0)
     {
       DT_Poele_set_mode(DT_POELE_ECS);
-      strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/poele/mode/state"), BUFFER_SIZE);
-      DT_mqtt_send(buffer, "ECS");
     }
     else if (strcmp(buffer, "Boost") == 0)
     {
       DT_Poele_set_mode(DT_POELE_BOOST);
-      strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/poele/mode/state"), BUFFER_SIZE);
-      DT_mqtt_send(buffer, "Boost");
     }
     else if (strcmp(buffer, "Manuel") == 0)
     {
       DT_Poele_set_mode(DT_POELE_MANUAL);
-      strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/poele/mode/state"), BUFFER_SIZE);
-      DT_mqtt_send(buffer, "Manuel");
     }
     else if (strcmp(buffer, "Arret") == 0)
     {
       DT_Poele_set_mode(DT_POELE_OFF);
-      strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/poele/mode/state"), BUFFER_SIZE);
-      DT_mqtt_send(buffer, "Arret");
     }
   }
   else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/pcbt/mode/set") == 0) // Mode de la vannes 3 voie PCBT
@@ -1713,7 +1695,8 @@ void setup()
 
   Serial.println("starting Poele");
   DT_Poele_init();
-  DT_Poele_set_callback(poele_callback);
+  DT_Poele_set_C1_callback(poele_C1_callback);
+  DT_Poele_set_mode_callback(poele_mode_callback);
 
   // client.setServer(server, 1883);
   // client.setCallback(callback);
