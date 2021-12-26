@@ -10,6 +10,7 @@
 
 void (*poele_mode_callback)(const DT_Poele_mode mode);
 void (*poele_C1_callback)(const uint8_t C1);
+void (*poele_T4_callback)(const float t4);
 
 // bool ev1; // 0(Circuit ballon tampon + Ballon ECS) / 1(Circuit Ballon ECS)
 float T4; // Temperature envoyé au poêle
@@ -23,6 +24,9 @@ void DT_Poele_init()
 {
     DT_relay(RELAY_EV1, false);
     C1 = 0;
+    poele_mode_callback = nullptr;
+    poele_C1_callback = nullptr;
+    poele_T4_callback = nullptr;
 }
 
 void DT_Poele_loop()
@@ -200,6 +204,13 @@ void DT_Poele_loop()
         {
             poele_C1_callback(C1);
         }
+
+        static float old_T4 = 0;
+        if (poele_T4_callback != nullptr && old_T4 != T4)
+        {
+            old_T4 = T4;
+            poele_T4_callback(T4);
+        }
     }
 }
 
@@ -237,4 +248,14 @@ void DT_Poele_set_C1(const float c1)
 float DT_Poele_get_C1()
 {
     return C1;
+}
+
+float DT_Poele_get_T4(void)
+{
+    return T4;
+}
+
+void DT_Poele_T4_callback(void (*callback)(const float t4))
+{
+    poele_T4_callback = callback;
 }

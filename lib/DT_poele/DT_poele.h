@@ -23,4 +23,7 @@ void DT_Poele_set_C1_callback(void (*callback)(const uint8_t C1));
 void DT_Poele_set_C1(const float c1);
 float DT_Poele_get_C1();
 
+float DT_Poele_get_T4(void);
+void DT_Poele_T4_callback(void (*callback)(const float t4));
+
 #endif

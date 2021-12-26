@@ -289,6 +289,21 @@ void homeassistant(void)
   strlcpy_P(buffer, PSTR("homeassistant/sensor/" BOARD_IDENTIFIER "/poele-c1/config"), BUFFER_SIZE);
   DT_mqtt_send(buffer, buffer_value);
 
+  // Poele T1
+  wdt_reset();
+  doc.clear();
+  doc["~"] = F("DtBoard/" BOARD_IDENTIFIER "/poele");
+  doc["uniq_id"] = F(BOARD_IDENTIFIER "-poele-T4");
+  doc["name"] = F("Poele T4");
+  doc["stat_t"] = F("~/T4");
+  doc["dev_cla"] = F("temperature");
+  doc["unit_of_meas"] = F("°C");
+  doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
+  serializeJson(doc, buffer_value, sizeof(buffer_value));
+  Serial.println(buffer_value);
+  strlcpy_P(buffer, PSTR("homeassistant/sensor/" BOARD_IDENTIFIER "/poele-t4/config"), BUFFER_SIZE);
+  DT_mqtt_send(buffer, buffer_value);
+
   // 3 voies PCBT mode
   wdt_reset(); // clear watchdog
   doc.clear();
@@ -960,6 +975,16 @@ void poele_mode_callback(const DT_Poele_mode mode)
   }
 }
 
+void poele_t4_callback(const float t4)
+{
+  wdt_reset();
+  JsonVariant variant = doc.to<JsonVariant>();
+  variant.set(t4);
+  serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
+  strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/poele/T4"), BUFFER_SIZE);
+  DT_mqtt_send(buffer, buffer_value);
+}
+
 void mqtt_publish()
 {
   wdt_reset();
@@ -1008,6 +1033,10 @@ void mqtt_publish()
   wdt_reset();
   strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/poele/C1"), BUFFER_SIZE);
   DT_mqtt_send(buffer, DT_Poele_get_C1());
+
+  // Poele T4
+  wdt_reset();
+  poele_t4_callback(DT_Poele_get_T4());
 
   // 3 voies PCBT mode
   wdt_reset();
@@ -1722,6 +1751,7 @@ void setup()
   DT_Poele_init();
   DT_Poele_set_C1_callback(poele_C1_callback);
   DT_Poele_set_mode_callback(poele_mode_callback);
+  DT_Poele_T4_callback(poele_t4_callback);
 
   // client.setServer(server, 1883);
   // client.setCallback(callback);
