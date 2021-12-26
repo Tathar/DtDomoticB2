@@ -36,6 +36,11 @@ void (*fake_ntc_callback)(const uint8_t value);
 
 void _fake_ntc_set(uint8_t value)
 {
+    if (value > 70)
+    {
+        value = 70;
+    }
+    
     if (value >= 0 && value <= 100 && fake_ntc_value != value)
     {
         fake_ntc_value = value;
