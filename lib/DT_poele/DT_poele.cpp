@@ -88,13 +88,13 @@ void DT_Poele_loop()
         else if (eeprom_config.poele_mode == DT_POELE_SILENCE)
         {
             // mode ECS + Chauffage
-            DT_relay(RELAY_EV1, true);
+            DT_relay(RELAY_EV1, false);
             T4 = eeprom_config.C7;
         }
         else if (eeprom_config.poele_mode == DT_POELE_SECOURS)
         {
             // mode ECS + Chauffage
-            DT_relay(RELAY_EV1, true);
+            DT_relay(RELAY_EV1, false);
             // temperature envoyer au poele
 
             if (DT_pt100_get(PT100_H_BALON) > 0 && DT_pt100_get(PT100_B_BALON) > 0)
@@ -124,7 +124,7 @@ void DT_Poele_loop()
         else if (eeprom_config.poele_mode == DT_POELE_ECS)
         {
             // mode ECS uniquement
-            DT_relay(RELAY_EV1, false);
+            DT_relay(RELAY_EV1, true);
             // temperature envoyer au poele
             float _min = 0;
 
@@ -147,7 +147,7 @@ void DT_Poele_loop()
         else if (eeprom_config.poele_mode == DT_POELE_BOOST)
         {
             // mode ECS uniquement
-            DT_relay(RELAY_EV1, true);
+            DT_relay(RELAY_EV1, false);
             // temperature envoyer au poele
             if (DT_pt100_get(PT100_H_BALON) > 0 && DT_pt100_get(PT100_B_BALON) > 0)
             {
