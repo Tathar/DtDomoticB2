@@ -145,9 +145,7 @@ void DT_3voies_loop()
     }
     else if (eeprom_config.mode_3voies_PCBT == DT_3VOIES_NORMAL)
     {
-        Serial.print("C2 = ");
         mem_config.C2 = scale(DT_pt100_get(PT100_EXT), -10, 10, eeprom_config.C8, eeprom_config.C9);
-        Serial.println(mem_config.C2);
     }
 
     if (eeprom_config.mode_3voies_MCBT == DT_3VOIES_DEMMARAGE)
@@ -199,19 +197,16 @@ void DT_3voies_loop()
     // consigne minimum pour fonctionnement des circulateur
     if ((eeprom_config.mode_3voies_PCBT != DT_3VOIES_DEMMARAGE) && (mem_config.C2 < (eeprom_config.C_PCBT_MIN - DBMAC)))
     {
-        Serial.println("relay off -");
         DT_relay(CIRCULATEUR_PCBT, false);  // arret du circulateur
         pid_pcbt.SetMode(QuickPID::MANUAL); // arret de la vanne 3 voie
     }
     else if ((eeprom_config.mode_3voies_PCBT != DT_3VOIES_OFF) && (mem_config.C2 > (eeprom_config.C_PCBT_MIN + DBMAC)))
     {
-        Serial.println("relay on");
         DT_relay(CIRCULATEUR_PCBT, true);      // demmarage du circulateur
         pid_pcbt.SetMode(QuickPID::AUTOMATIC); // demmarage de la vanne 3 voie
     }
     else if ((eeprom_config.mode_3voies_PCBT == DT_3VOIES_OFF))
     {
-        Serial.println("relay off Arret");
         DT_relay(CIRCULATEUR_PCBT, false);  // arret du circulateur
         pid_pcbt.SetMode(QuickPID::MANUAL); // arret de la vanne 3 voie
     }
@@ -255,6 +250,14 @@ void DT_3voies_loop()
         {
             DT_relay(VANNE_PCBT_COLD, (uint32_t)(Output_PCBT * -1)); // activation de la vanne
         }
+        Serial.print("KP = ");
+        Serial.println(pid_pcbt.GetPterm());
+        Serial.print("KI = ");
+        Serial.println(pid_pcbt.GetIterm());
+        Serial.print("KD = ");
+        Serial.println(pid_pcbt.GetDterm());
+        Serial.print("out = ");
+        Serial.println(Output_PCBT);
     }
 
     if (pid_mcbt.Compute())
