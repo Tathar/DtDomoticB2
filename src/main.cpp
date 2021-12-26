@@ -857,8 +857,8 @@ void pt100_callback(const uint8_t num, const float temp)
   JsonVariant variant = doc.to<JsonVariant>();
   variant.set(temp);
   serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
-  Serial.print(buffer);
-  Serial.print(" -> ");
+  //Serial.print(buffer);
+  //Serial.print(" -> ");
   //Serial.println(buffer_value);
   DT_mqtt_send(buffer, buffer_value);
 }
