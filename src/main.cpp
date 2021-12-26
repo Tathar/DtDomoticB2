@@ -321,6 +321,7 @@ void homeassistant(void)
   doc["min"] = 0;
   doc["max"] = TEMPERATURE_DEFAULT_POELE;
   doc["step"] = 0.01;
+  doc["mode"] = F("box");
   doc["dev_cla"] = F("temperature");
   doc["unit_of_meas"] = F("°C");
   doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
@@ -362,6 +363,7 @@ void homeassistant(void)
   doc["min"] = 0;
   doc["max"] = TEMPERATURE_DEFAULT_POELE;
   doc["step"] = 0.01;
+  doc["mode"] = F("box");
   doc["dev_cla"] = F("temperature");
   doc["unit_of_meas"] = F("°C");
   doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
@@ -380,6 +382,7 @@ void homeassistant(void)
   doc["name"] = F("parametre poêle (V1)");
   doc["stat_t"] = F("~/state");
   doc["command_topic"] = F("~/set");
+  doc["mode"] = F("box");
   doc["dev_cla"] = F("temperature");
   doc["unit_of_meas"] = F("°C");
   doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
@@ -397,6 +400,7 @@ void homeassistant(void)
   doc["name"] = F("Reserve chaleur Ballon (V2)");
   doc["stat_t"] = F("~/state");
   doc["command_topic"] = F("~/set");
+  doc["mode"] = F("box");
   doc["dev_cla"] = F("temperature");
   doc["unit_of_meas"] = F("°C");
   doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
@@ -414,6 +418,7 @@ void homeassistant(void)
   doc["name"] = F("Temp Demi plage Morte (V3)");
   doc["stat_t"] = F("~/state");
   doc["command_topic"] = F("~/set");
+  doc["mode"] = F("box");
   // doc["dev_cla"] = F("temperature");
   // doc["unit_of_meas"] = F("°C");
   doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
@@ -431,6 +436,7 @@ void homeassistant(void)
   doc["name"] = F("consigne Jacuzzi (C4)");
   doc["stat_t"] = F("~/state");
   doc["command_topic"] = F("~/set");
+  doc["mode"] = F("box");
   doc["dev_cla"] = F("temperature");
   doc["unit_of_meas"] = F("°C");
   doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
@@ -448,6 +454,7 @@ void homeassistant(void)
   doc["name"] = F("consigne ECS1 & ECS2 (C5)");
   doc["stat_t"] = F("~/state");
   doc["command_topic"] = F("~/set");
+  doc["mode"] = F("box");
   // doc["dev_cla"] = F("temperature");
   // doc["unit_of_meas"] = F("°C");
   doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
@@ -465,6 +472,7 @@ void homeassistant(void)
   doc["name"] = F("consigne mode boost (C6)");
   doc["stat_t"] = F("~/state");
   doc["command_topic"] = F("~/set");
+  doc["mode"] = F("box");
   // doc["dev_cla"] = F("temperature");
   // doc["unit_of_meas"] = F("°C");
   doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
@@ -482,6 +490,7 @@ void homeassistant(void)
   doc["name"] = F("consigne Mode Silence (C7)");
   doc["stat_t"] = F("~/state");
   doc["command_topic"] = F("~/set");
+  doc["mode"] = F("box");
   // doc["dev_cla"] = F("temperature");
   // doc["unit_of_meas"] = F("°C");
   doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
@@ -499,6 +508,7 @@ void homeassistant(void)
   doc["name"] = F("consigne Temp PCBT a -10°C (C8)");
   doc["stat_t"] = F("~/state");
   doc["command_topic"] = F("~/set");
+  doc["mode"] = F("box");
   // doc["dev_cla"] = F("temperature");
   // doc["unit_of_meas"] = F("°C");
   doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
@@ -516,6 +526,7 @@ void homeassistant(void)
   doc["name"] = F("consigne Temp PCBT a +10°C (C9)");
   doc["stat_t"] = F("~/state");
   doc["command_topic"] = F("~/set");
+  doc["mode"] = F("box");
   // doc["dev_cla"] = F("temperature");
   // doc["unit_of_meas"] = F("°C");
   doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
@@ -533,6 +544,7 @@ void homeassistant(void)
   doc["name"] = F("consigne Temp MCBT a -10°C (C10)");
   doc["stat_t"] = F("~/state");
   doc["command_topic"] = F("~/set");
+  doc["mode"] = F("box");
   // doc["dev_cla"] = F("temperature");
   // doc["unit_of_meas"] = F("°C");
   doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
@@ -550,6 +562,7 @@ void homeassistant(void)
   doc["name"] = F("consigne Temp MCBT a +10°C (C11)");
   doc["stat_t"] = F("~/state");
   doc["command_topic"] = F("~/set");
+  doc["mode"] = F("box");
   // doc["dev_cla"] = F("temperature");
   // doc["unit_of_meas"] = F("°C");
   doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
@@ -567,6 +580,7 @@ void homeassistant(void)
   doc["name"] = F("consigne Temp PCBT minimum (C_PCBT_MIN)");
   doc["stat_t"] = F("~/state");
   doc["command_topic"] = F("~/set");
+  doc["mode"] = F("box");
   // doc["dev_cla"] = F("temperature");
   // doc["unit_of_meas"] = F("°C");
   doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
@@ -584,6 +598,7 @@ void homeassistant(void)
   doc["name"] = F("consigne Temp PCBT maximum (C_PCBT_MAX)");
   doc["stat_t"] = F("~/state");
   doc["command_topic"] = F("~/set");
+  doc["mode"] = F("box");
   // doc["dev_cla"] = F("temperature");
   // doc["unit_of_meas"] = F("°C");
   doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
@@ -601,6 +616,7 @@ void homeassistant(void)
   doc["name"] = F("consigne Temp MCBT minimum (C_MCBT_MIN)");
   doc["stat_t"] = F("~/state");
   doc["command_topic"] = F("~/set");
+  doc["mode"] = F("box");
   // doc["dev_cla"] = F("temperature");
   // doc["unit_of_meas"] = F("°C");
   doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
@@ -618,6 +634,7 @@ void homeassistant(void)
   doc["name"] = F("consigne Temp MCBT maximum (C_MCBT_MAX)");
   doc["stat_t"] = F("~/state");
   doc["command_topic"] = F("~/set");
+  doc["mode"] = F("box");
   // doc["dev_cla"] = F("temperature");
   // doc["unit_of_meas"] = F("°C");
   doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
@@ -638,6 +655,7 @@ void homeassistant(void)
   doc["min"] = 0;
   doc["max"] = 1000;
   doc["step"] = 0.01;
+  doc["mode"] = F("box");
   // doc["dev_cla"] = F("temperature");
   // doc["unit_of_meas"] = F("°C");
   doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
@@ -658,6 +676,7 @@ void homeassistant(void)
   doc["min"] = 0;
   doc["max"] = 1000;
   doc["step"] = 0.01;
+  doc["mode"] = F("box");
   // doc["dev_cla"] = F("temperature");
   // doc["unit_of_meas"] = F("°C");
   doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
@@ -678,6 +697,7 @@ void homeassistant(void)
   doc["min"] = 0;
   doc["max"] = 1000;
   doc["step"] = 0.01;
+  doc["mode"] = F("box");
   // doc["dev_cla"] = F("temperature");
   // doc["unit_of_meas"] = F("°C");
   doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
@@ -697,6 +717,7 @@ void homeassistant(void)
   doc["command_topic"] = F("~/set");
   doc["min"] = 0;
   doc["max"] = 60000;
+  doc["mode"] = F("box");
   // doc["step"] = 0.01;
   // doc["dev_cla"] = F("temperature");
   // doc["unit_of_meas"] = F("°C");
@@ -718,6 +739,7 @@ void homeassistant(void)
   doc["min"] = 0;
   doc["max"] = 1000;
   doc["step"] = 0.01;
+  doc["mode"] = F("box");
   // doc["dev_cla"] = F("temperature");
   // doc["unit_of_meas"] = F("°C");
   doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
@@ -738,6 +760,7 @@ void homeassistant(void)
   doc["min"] = 0;
   doc["max"] = 1000;
   doc["step"] = 0.01;
+  doc["mode"] = F("box");
   // doc["dev_cla"] = F("temperature");
   // doc["unit_of_meas"] = F("°C");
   doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
@@ -758,6 +781,7 @@ void homeassistant(void)
   doc["min"] = 0;
   doc["max"] = 1000;
   doc["step"] = 0.01;
+  doc["mode"] = F("box");
   // doc["dev_cla"] = F("temperature");
   // doc["unit_of_meas"] = F("°C");
   doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
@@ -777,6 +801,7 @@ void homeassistant(void)
   doc["command_topic"] = F("~/set");
   doc["min"] = 0;
   doc["max"] = 60000;
+  doc["mode"] = F("box");
   // doc["step"] = 0.01;
   // doc["dev_cla"] = F("temperature");
   // doc["unit_of_meas"] = F("°C");
