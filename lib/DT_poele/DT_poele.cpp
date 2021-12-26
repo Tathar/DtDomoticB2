@@ -136,19 +136,19 @@ void DT_Poele_loop()
             {
                 C1 = min(DT_pt100_get(PT100_ECS1), DT_pt100_get(PT100_ECS2));
                 temp_default_pt100 = 0;
-                T4 = eeprom_config.V1 - eeprom_config.V2 + C1 - eeprom_config.C5;
+                T4 = eeprom_config.V1 + C1 - eeprom_config.C5;
             }
             else if (DT_pt100_get(PT100_ECS1) > 0)
             {
                 C1 = DT_pt100_get(PT100_ECS1);
                 temp_default_pt100 = 0;
-                T4 = eeprom_config.V1 - eeprom_config.V2 + C1 - eeprom_config.C5;
+                T4 = eeprom_config.V1 + C1 - eeprom_config.C5;
             }
             else if (DT_pt100_get(PT100_ECS2) > 0)
             {
                 C1 = DT_pt100_get(PT100_ECS2);
                 temp_default_pt100 = 0;
-                T4 = eeprom_config.V1 - eeprom_config.V2 + C1 - eeprom_config.C5;
+                T4 = eeprom_config.V1 + C1 - eeprom_config.C5;
             }
             else if (temp_default_pt100 != 0 && now - temp_default_pt100 >= TEMP_DEFAULT_PT100_POELE)
             {
