@@ -42,7 +42,7 @@ void homeassistant(void)
   doc["stat_t"] = F("~/heartbeat");
   doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
   // JsonObject connection = doc["device"].createNestedArray("connection").createNestedObject();
-  // sprintf(buffer_value, "%X:%X:%X:%X:%X:%X", MAC1, MAC2, MAC3, MAC4, MAC5, MAC6);
+  // sprintf_P(buffer_value, "%X:%X:%X:%X:%X:%X", MAC1, MAC2, MAC3, MAC4,PSTR( MAC5), MAC6);
   // connection["mac"] = buffer_value;
   doc["dev"]["mf"] = F(BOARD_MANUFACTURER); // manufacturer
   doc["dev"]["mdl"] = F(BOARD_MODEL);       // model
@@ -59,15 +59,15 @@ void homeassistant(void)
   {
     wdt_reset();
     doc.clear();
-    sprintf(buffer, "homeassistant/switch/" BOARD_IDENTIFIER "/relay-%02d/config", num + 1);
+    sprintf_P(buffer, PSTR("homeassistant/switch/" BOARD_IDENTIFIER "/relay-%02d/config"), num + 1);
     doc["~"] = F("DtBoard/" BOARD_IDENTIFIER);
-    sprintf(buffer_value, BOARD_IDENTIFIER "-relay-%02d", num + 1);
+    sprintf_P(buffer_value, PSTR(BOARD_IDENTIFIER "-relay-%02d"), num + 1);
     doc["uniq_id"] = buffer_value; // unique_id
-    sprintf(buffer_value, "relay-%02d", num + 1);
+    sprintf_P(buffer_value, PSTR("relay-%02d"), num + 1);
     doc["name"] = buffer_value; // name
-    sprintf(buffer_value, "~/relay-%02d/set", num + 1);
+    sprintf_P(buffer_value, PSTR("~/relay-%02d/set"), num + 1);
     doc["command_topic"] = buffer_value;
-    sprintf(buffer_value, "~/relay-%02d/state", num + 1);
+    sprintf_P(buffer_value, PSTR("~/relay-%02d/state"), num + 1);
     doc["stat_t"] = buffer_value;            // state topic
     doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
 
@@ -81,13 +81,13 @@ void homeassistant(void)
   {
     wdt_reset();
     doc.clear();
-    sprintf(buffer, "homeassistant/binary_sensor/" BOARD_IDENTIFIER "/input-%02d/config", num + 1);
+    sprintf_P(buffer, PSTR("homeassistant/binary_sensor/" BOARD_IDENTIFIER "/input-%02d/config"), num + 1);
     doc["~"] = F("DtBoard/" BOARD_IDENTIFIER);
-    sprintf(buffer_value, BOARD_IDENTIFIER "-input-%02d", num + 1);
+    sprintf_P(buffer_value, PSTR(BOARD_IDENTIFIER "-input-%02d"), num + 1);
     doc["uniq_id"] = buffer_value; // unique_id
-    sprintf(buffer_value, "input-%02d", num + 1);
+    sprintf_P(buffer_value, PSTR("input-%02d"), num + 1);
     doc["name"] = buffer_value; // name
-    sprintf(buffer_value, "~/input-%02d/state", num + 1);
+    sprintf_P(buffer_value, PSTR("~/input-%02d/state"), num + 1);
     doc["stat_t"] = buffer_value; // state topic
 
     doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
@@ -102,13 +102,13 @@ void homeassistant(void)
   {
     wdt_reset();
     doc.clear();
-    sprintf(buffer, "homeassistant/sensor/" BOARD_IDENTIFIER "/pt100-%02d/config", num + 1);
+    sprintf_P(buffer, PSTR("homeassistant/sensor/" BOARD_IDENTIFIER "/pt100-%02d/config"), num + 1);
     doc["~"] = F("DtBoard/" BOARD_IDENTIFIER);
-    sprintf(buffer_value, BOARD_IDENTIFIER "-pt100-%02d", num + 1);
+    sprintf_P(buffer_value, PSTR(BOARD_IDENTIFIER "-pt100-%02d"), num + 1);
     doc["uniq_id"] = buffer_value;
-    sprintf(buffer_value, "pt100-%02d", num + 1);
+    sprintf_P(buffer_value, PSTR("pt100-%02d"), num + 1);
     doc["name"] = buffer_value;
-    sprintf(buffer_value, "~/pt100-%02d/temperature", num + 1);
+    sprintf_P(buffer_value, PSTR("~/pt100-%02d/temperature"), num + 1);
     doc["stat_t"] = buffer_value;
     doc["dev_cla"] = F("temperature");
     doc["unit_of_meas"] = F("°C");
@@ -123,13 +123,13 @@ void homeassistant(void)
   {
     wdt_reset();
     doc.clear();
-    sprintf(buffer, "homeassistant/sensor/" BOARD_IDENTIFIER "/bme280-temperature-%02d/config", num + 1);
+    sprintf_P(buffer, PSTR("homeassistant/sensor/" BOARD_IDENTIFIER "/bme280-temperature-%02d/config"), num + 1);
     doc["~"] = F("DtBoard/" BOARD_IDENTIFIER);
-    sprintf(buffer_value, BOARD_IDENTIFIER "-bme280-temperature-%02d", num + 1);
+    sprintf_P(buffer_value, PSTR(BOARD_IDENTIFIER "-bme280-temperature-%02d"), num + 1);
     doc["uniq_id"] = buffer_value;
-    sprintf(buffer_value, "BME280-%02d", num + 1);
+    sprintf_P(buffer_value, PSTR("BME280-%02d"), num + 1);
     doc["name"] = buffer_value;
-    sprintf(buffer_value, "~/bme280-%02d/temperature", num + 1);
+    sprintf_P(buffer_value, PSTR("~/bme280-%02d/temperature"), num + 1);
     doc["stat_t"] = buffer_value;
     doc["dev_cla"] = F("temperature");
     doc["unit_of_meas"] = F("°C");
@@ -146,13 +146,13 @@ void homeassistant(void)
   {
     wdt_reset();
     doc.clear();
-    sprintf(buffer, "homeassistant/sensor/" BOARD_IDENTIFIER "/bme280-humidity-%02d/config", num + 1);
+    sprintf_P(buffer, PSTR("homeassistant/sensor/" BOARD_IDENTIFIER "/bme280-humidity-%02d/config"), num + 1);
     doc["~"] = F("DtBoard/" BOARD_IDENTIFIER);
-    sprintf(buffer_value, BOARD_IDENTIFIER "-bme280-humidity-%02d", num + 1);
+    sprintf_P(buffer_value, PSTR(BOARD_IDENTIFIER "-bme280-humidity-%02d"), num + 1);
     doc["uniq_id"] = buffer_value;
-    sprintf(buffer_value, "BME280-%02d", num + 1);
+    sprintf_P(buffer_value, PSTR("BME280-%02d"), num + 1);
     doc["name"] = buffer_value;
-    sprintf(buffer_value, "~/bme280-%02d/humidity", num + 1);
+    sprintf_P(buffer_value, PSTR("~/bme280-%02d/humidity"), num + 1);
     doc["stat_t"] = buffer_value;
     doc["dev_cla"] = F("humidity");
     doc["unit_of_meas"] = F("%");
@@ -169,13 +169,13 @@ void homeassistant(void)
   {
     wdt_reset();
     doc.clear();
-    sprintf(buffer, "homeassistant/sensor/" BOARD_IDENTIFIER "/bme280-pressure-%02d/config", num + 1);
+    sprintf_P(buffer, PSTR("homeassistant/sensor/" BOARD_IDENTIFIER "/bme280-pressure-%02d/config"), num + 1);
     doc["~"] = F("DtBoard/" BOARD_IDENTIFIER);
-    sprintf(buffer_value, BOARD_IDENTIFIER "-bme280-pressure-%02d", num + 1);
+    sprintf_P(buffer_value, PSTR(BOARD_IDENTIFIER "-bme280-pressure-%02d"), num + 1);
     doc["uniq_id"] = buffer_value;
-    sprintf(buffer_value, "BME280-%02d", num + 1);
+    sprintf_P(buffer_value, PSTR("BME280-%02d"), num + 1);
     doc["name"] = buffer_value;
-    sprintf(buffer_value, "~/bme280-%02d/pressure", num + 1);
+    sprintf_P(buffer_value, PSTR("~/bme280-%02d/pressure"), num + 1);
     doc["stat_t"] = buffer_value;
     doc["dev_cla"] = F("pressure");
     doc["unit_of_meas"] = F("Pa");
@@ -192,13 +192,13 @@ void homeassistant(void)
   {
     wdt_reset(); // clear watchdog
     doc.clear();
-    sprintf(buffer, "homeassistant/sensor/" BOARD_IDENTIFIER "/ccs811-co2-%02d/config", num + 1);
+    sprintf_P(buffer, PSTR("homeassistant/sensor/" BOARD_IDENTIFIER "/ccs811-co2-%02d/config"), num + 1);
     doc["~"] = F("DtBoard/" BOARD_IDENTIFIER);
-    sprintf(buffer_value, BOARD_IDENTIFIER "-ccs811-co2-%02d", num + 1);
+    sprintf_P(buffer_value, PSTR(BOARD_IDENTIFIER "-ccs811-co2-%02d"), num + 1);
     doc["uniq_id"] = buffer_value;
-    sprintf(buffer_value, "ccs811-%02d", num + 1);
+    sprintf_P(buffer_value, PSTR("ccs811-%02d"), num + 1);
     doc["name"] = buffer_value;
-    sprintf(buffer_value, "~/ccs811-%02d/co2", num + 1);
+    sprintf_P(buffer_value, PSTR("~/ccs811-%02d/co2"), num + 1);
     doc["stat_t"] = buffer_value;
     doc["dev_cla"] = F("carbon_dioxide");
     doc["unit_of_meas"] = F("CO2");
@@ -215,13 +215,13 @@ void homeassistant(void)
   {
     wdt_reset(); // clear watchdog
     doc.clear();
-    sprintf(buffer, "homeassistant/sensor/" BOARD_IDENTIFIER "/ccs811-cov-%02d/config", num + 1);
+    sprintf_P(buffer, PSTR("homeassistant/sensor/" BOARD_IDENTIFIER "/ccs811-cov-%02d/config"), num + 1);
     doc["~"] = F("DtBoard/" BOARD_IDENTIFIER);
-    sprintf(buffer_value, BOARD_IDENTIFIER "-ccs811-cov-%02d", num + 1);
+    sprintf_P(buffer_value, PSTR(BOARD_IDENTIFIER "-ccs811-cov-%02d"), num + 1);
     doc["uniq_id"] = buffer_value;
-    sprintf(buffer_value, "ccs811-%02d", num + 1);
+    sprintf_P(buffer_value, PSTR("ccs811-%02d"), num + 1);
     doc["name"] = buffer_value;
-    sprintf(buffer_value, "~/ccs811-%02d/cov", num + 1);
+    sprintf_P(buffer_value, PSTR("~/ccs811-%02d/cov"), num + 1);
     doc["stat_t"] = buffer_value;
     doc["dev_cla"] = F("pm10");
     doc["unit_of_meas"] = F("ppm");
@@ -827,9 +827,9 @@ void homeassistant(void)
 void relay_callback(const uint8_t num, const bool action)
 {
   wdt_reset();
-  sprintf(buffer, "relais numero %d dans l etat %d", num, (int)action);
+  sprintf_P(buffer, PSTR("relais numero %d dans l etat %d"), num, (int)action);
   Serial.println(buffer);
-  sprintf(buffer, "DtBoard/" BOARD_IDENTIFIER "/relay-%02d/state", num);
+  sprintf_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/relay-%02d/state"), num);
   if (action)
     DT_mqtt_send(buffer, "ON");
   else
@@ -839,9 +839,9 @@ void relay_callback(const uint8_t num, const bool action)
 void input_callback(const uint8_t num, const uint8_t action)
 {
   wdt_reset();
-  sprintf(buffer, "entrée numero %d dans l etat %d", num, (int)action);
+  sprintf_P(buffer, PSTR("entrée numero %d dans l etat %d"), num, (int)action);
   Serial.println(buffer);
-  sprintf(buffer, "DtBoard/" BOARD_IDENTIFIER "/input-%02d/state", num);
+  sprintf_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/input-%02d/state"), num);
   if (action == HIGH)
     DT_mqtt_send(buffer, "ON");
   else
@@ -853,7 +853,7 @@ void pt100_callback(const uint8_t num, const float temp)
   wdt_reset();
   //Serial.print("PT100_CALLBACK ");
 
-  sprintf(buffer, "DtBoard/" BOARD_IDENTIFIER "/pt100-%02d/temperature", num);
+  sprintf_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/pt100-%02d/temperature"), num);
   JsonVariant variant = doc.to<JsonVariant>();
   variant.set(temp);
   serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
@@ -867,7 +867,7 @@ void bme280_callback_temperature(const uint8_t num, const float temperature)
 {
   wdt_reset();
 
-  sprintf(buffer, "DtBoard/" BOARD_IDENTIFIER "/bme280-%02d/temperature", num);
+  sprintf_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/bme280-%02d/temperature"), num);
   JsonVariant variant = doc.to<JsonVariant>();
   variant.set(temperature);
   serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
@@ -878,7 +878,7 @@ void bme280_callback_humidity(const uint8_t num, const float humidity)
 {
   wdt_reset();
 
-  sprintf(buffer, "DtBoard/" BOARD_IDENTIFIER "/bme280-%02d/humidity", num);
+  sprintf_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/bme280-%02d/humidity"), num);
   JsonVariant variant = doc.to<JsonVariant>();
   variant.set(humidity);
   serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
@@ -889,7 +889,7 @@ void bme280_callback_pressure(const uint8_t num, const float pressure)
 {
   wdt_reset();
 
-  sprintf(buffer, "DtBoard/" BOARD_IDENTIFIER "/bme280-%02d/pressure", num);
+  sprintf_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/bme280-%02d/pressure"), num);
   JsonVariant variant = doc.to<JsonVariant>();
   variant.set(pressure);
   serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
@@ -900,7 +900,7 @@ void ccs811_callback_co2(const uint8_t num, const float co2)
 {
   wdt_reset();
 
-  sprintf(buffer, "DtBoard/" BOARD_IDENTIFIER "/ccs811-%02d/co2", num);
+  sprintf_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/ccs811-%02d/co2"), num);
   JsonVariant variant = doc.to<JsonVariant>();
   variant.set(co2);
   serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
@@ -910,8 +910,7 @@ void ccs811_callback_co2(const uint8_t num, const float co2)
 void ccs811_callback_cov(const uint8_t num, const float cov)
 {
   wdt_reset();
-
-  sprintf(buffer, "DtBoard/" BOARD_IDENTIFIER "/ccs811-%02d/cov", num);
+  sprintf_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/ccs811-%02d/cov"), num);
   JsonVariant variant = doc.to<JsonVariant>();
   variant.set(cov);
   serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
@@ -1007,29 +1006,20 @@ void mqtt_publish()
   for (uint8_t num = 0; num < RELAY_NUM; ++num)
   {
     wdt_reset();
-    sprintf(buffer, "DtBoard/" BOARD_IDENTIFIER "/relay-%02d/state", num + 1);
-    if (DT_relay_get(num + 1))
-      DT_mqtt_send(buffer, "ON");
-    else
-      DT_mqtt_send(buffer, "OFF");
+    relay_callback(num + 1, DT_relay_get(num + 1));
   }
 
   for (uint8_t num = 0; num < INPUT_NUM; ++num)
   {
     wdt_reset();
-    sprintf(buffer, "DtBoard/" BOARD_IDENTIFIER "/input-%02d/state", num + 1);
-    if (DT_input_get(num + 1) == HIGH)
-      DT_mqtt_send(buffer, "ON");
-    else
-      DT_mqtt_send(buffer, "OFF");
+    input_callback(num + 1, DT_input_get(num + 1));
   }
 
   // PT100
   for (uint8_t num = 0; num < TEMP_NUM; ++num)
   {
     wdt_reset();
-    sprintf(buffer, "DtBoard/" BOARD_IDENTIFIER "/pt100-%02d/temperature", num + 1);
-    DT_mqtt_send(buffer, DT_pt100_get(num + 1));
+    pt100_callback(num + 1, DT_pt100_get(num + 1));
   }
 
   // Fake NTC
@@ -1218,7 +1208,7 @@ void mqtt_subscribe(PubSubClient &mqtt)
   for (uint8_t num = 0; num < RELAY_NUM; ++num)
   {
     wdt_reset();
-    sprintf(buffer, "DtBoard/" BOARD_IDENTIFIER "/relay-%02d/set", num + 1);
+    sprintf_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/relay-%02d/set"), num + 1);
     mqtt.subscribe(buffer);
   }
 
@@ -1353,7 +1343,7 @@ void mqtt_receve(char *topic, uint8_t *payload, unsigned int length)
 
   int num = 0;
   uint8_t u8t_value = 0;
-  if (sscanf(topic, "DtBoard/" BOARD_IDENTIFIER "/relay-%02d/set", &num) == 1) // relais
+  if (sscanf_P(topic, PSTR("DtBoard/" BOARD_IDENTIFIER "/relay-%02d/set"), &num) == 1) // relais
   {
     Serial.print("sscanf = ");
     Serial.println(num);
@@ -1365,7 +1355,7 @@ void mqtt_receve(char *topic, uint8_t *payload, unsigned int length)
   else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/fake_NTC/temperature_set") == 0) // Fake NTC
   {
     uint8_t temperature = 0;
-    if (sscanf(buffer, "%" SCNu8, &temperature) == 1)
+    if (sscanf_P(buffer, PSTR("%" SCNu8), &temperature) == 1)
     {
       DT_fake_ntc_set(temperature);
     }
@@ -1469,7 +1459,7 @@ void mqtt_receve(char *topic, uint8_t *payload, unsigned int length)
   }                                                                   // identifiers                                                                   // EEPROM
   else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/V1/set") == 0) // V1
   {
-    if (sscanf(buffer, "%" SCNu8, &u8t_value) == 1)
+    if (sscanf_P(buffer, PSTR("%" SCNu8), &u8t_value) == 1)
     {
       eeprom_config.V1 = u8t_value;
       strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/V1/state"), BUFFER_SIZE);
@@ -1478,23 +1468,23 @@ void mqtt_receve(char *topic, uint8_t *payload, unsigned int length)
   }
   else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/V2/set") == 0) // V2
   {
-    if (sscanf(buffer, "%" SCNu8, &u8t_value) == 1)
+    if (sscanf_P(buffer, PSTR("%" SCNu8), &u8t_value) == 1)
     {
       eeprom_config.V2 = u8t_value;
       strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/V2/state"), BUFFER_SIZE);
       DT_mqtt_send(buffer, u8t_value);
     }
   }
-  else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/V3/set") == 0) // V3
+  else if (strcmp_P(topic, "DtBoard/" BOARD_IDENTIFIER "/V3/set") == 0) // V3
   {
-    if (sscanf(buffer, "%" SCNu8, &u8t_value) == 1)
+    if (sscanf_P(buffer, PSTR("%" SCNu8), &u8t_value) == 1)
     {
       eeprom_config.V3 = u8t_value;
       strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/V3/state"), BUFFER_SIZE);
       DT_mqtt_send(buffer, u8t_value);
     }
   }
-  else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/C4/set") == 0) // C4
+  else if (strcmp_P(topic, PSTR("DtBoard/" BOARD_IDENTIFIER "/C4/set")) == 0) // C4
   {
     DeserializationError error = deserializeJson(doc, buffer, length);
     if (!error)
@@ -1506,7 +1496,7 @@ void mqtt_receve(char *topic, uint8_t *payload, unsigned int length)
   }
   else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/C5/set") == 0) // C5
   {
-    if (sscanf(buffer, "%" SCNu8, &u8t_value) == 1)
+    if (sscanf_P(buffer, PSTR("%" SCNu8), &u8t_value) == 1)
     {
       eeprom_config.C5 = u8t_value;
       strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/C5/state"), BUFFER_SIZE);
@@ -1515,7 +1505,7 @@ void mqtt_receve(char *topic, uint8_t *payload, unsigned int length)
   }
   else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/C6/set") == 0) // C6
   {
-    if (sscanf(buffer, "%" SCNu8, &u8t_value) == 1)
+    if (sscanf_P(buffer, PSTR("%" SCNu8), &u8t_value) == 1)
     {
       eeprom_config.C6 = u8t_value;
       strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/C6/state"), BUFFER_SIZE);
@@ -1524,7 +1514,7 @@ void mqtt_receve(char *topic, uint8_t *payload, unsigned int length)
   }
   else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/C7/set") == 0) // C7
   {
-    if (sscanf(buffer, "%" SCNu8, &u8t_value) == 1)
+    if (sscanf_P(buffer, PSTR("%" SCNu8), &u8t_value) == 1)
     {
       eeprom_config.C7 = u8t_value;
       strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/C7/state"), BUFFER_SIZE);
