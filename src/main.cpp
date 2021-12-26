@@ -980,6 +980,23 @@ void poele_t4_callback(const float t4)
   DT_mqtt_send(buffer, buffer_value);
 }
 
+void dt3voies_callback(const float C2, const float C3)
+{
+  wdt_reset();
+  JsonVariant variant = doc.to<JsonVariant>();
+  variant.set(C2);
+  serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
+  strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/C2/state"), BUFFER_SIZE);
+  DT_mqtt_send(buffer, buffer_value);
+
+  wdt_reset();
+  variant = doc.to<JsonVariant>();
+  variant.set(C3);
+  serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
+  strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/C3/state"), BUFFER_SIZE);
+  DT_mqtt_send(buffer, buffer_value);
+}
+
 void mqtt_publish()
 {
   wdt_reset();
@@ -1052,11 +1069,6 @@ void mqtt_publish()
     break;
   }
 
-  //consigne vanne 3 voies PCBT
-  wdt_reset();
-  strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/C2"), BUFFER_SIZE);
-  DT_mqtt_send(buffer, DT_3voies_get_C2());
-
   // 3 voies MCBT mode
   wdt_reset();
   strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/mcbt/mode/state"), BUFFER_SIZE);
@@ -1076,10 +1088,8 @@ void mqtt_publish()
     break;
   }
 
-  //consigne vanne 3 voies MCBT
-  wdt_reset();
-  strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/C3"), BUFFER_SIZE);
-  DT_mqtt_send(buffer, DT_3voies_get_C3());
+  //consigne vanne 3 voies PCBT & MCBT
+  dt3voies_callback(DT_3voies_get_C2(), DT_3voies_get_C3());
 
   // EEPROM
   //  V1
@@ -1224,11 +1234,6 @@ void mqtt_subscribe(PubSubClient &mqtt)
   mqtt.subscribe("DtBoard/" BOARD_IDENTIFIER "/pcbt/mode/set");
   // 3 voies MCBT consigne
   mqtt.subscribe("DtBoard/" BOARD_IDENTIFIER "/C3/set");
-
-  serializeJson(doc, buffer_value, sizeof(buffer_value));
-  //Serial.println(buffer_value);
-  strlcpy_P(buffer, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/C3/config"), BUFFER_SIZE);
-  DT_mqtt_send(buffer, buffer_value);
 
   // EEPROM
   //  V1
@@ -1427,8 +1432,6 @@ void mqtt_receve(char *topic, uint8_t *payload, unsigned int length)
     if (!error)
     {
       DT_3voies_set_C2(doc.as<float>());
-      strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/C2/state"), BUFFER_SIZE);
-      DT_mqtt_send(buffer, DT_3voies_get_C2());
     }
   }
   else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/mcbt/mode/set") == 0) // Mode de la vannes 3 voie MCBT
@@ -1462,8 +1465,6 @@ void mqtt_receve(char *topic, uint8_t *payload, unsigned int length)
     if (!error)
     {
       DT_3voies_set_C3(doc.as<float>());
-      strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/C3/state"), BUFFER_SIZE);
-      DT_mqtt_send(buffer, DT_3voies_get_C3());
     }
   }                                                                   // identifiers                                                                   // EEPROM
   else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/V1/set") == 0) // V1
@@ -1748,6 +1749,10 @@ void setup()
   DT_Poele_set_mode_callback(poele_mode_callback);
   DT_Poele_T4_callback(poele_t4_callback);
 
+  Serial.println("starting 3 voies");
+  DT_3voies_init();
+  DT_3voies_set_callback(dt3voies_callback);
+
   // client.setServer(server, 1883);
   // client.setCallback(callback);
 
@@ -1790,7 +1795,7 @@ void loop()
   DT_pt100_loop();
   DT_Poele_loop();
   DT_3voies_loop();
-//  DT_fake_ntc_loop();
+  //  DT_fake_ntc_loop();
 
   // adjust CCS811
   static uint32_t ccs811_environmental = 0;

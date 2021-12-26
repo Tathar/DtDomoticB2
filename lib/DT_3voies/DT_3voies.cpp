@@ -267,7 +267,7 @@ void DT_3voies_loop()
         old_now = now;
         if ((_callback_3_voies != nullptr) && ((old_C2 != mem_config.C2) || (old_C3 != mem_config.C3)))
         {
-            _callback_3_voies(mem_config.C2, mem_config.C2);
+            _callback_3_voies(mem_config.C2, mem_config.C3);
             old_C2 = mem_config.C2;
             old_C3 = mem_config.C3;
         }
