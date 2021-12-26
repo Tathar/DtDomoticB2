@@ -851,7 +851,7 @@ void input_callback(const uint8_t num, const uint8_t action)
 void pt100_callback(const uint8_t num, const float temp)
 {
   wdt_reset();
-  Serial.print("PT100_CALLBACK ");
+  //Serial.print("PT100_CALLBACK ");
 
   sprintf(buffer, "DtBoard/" BOARD_IDENTIFIER "/pt100-%02d/temperature", num);
   JsonVariant variant = doc.to<JsonVariant>();
