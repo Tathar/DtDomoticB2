@@ -383,11 +383,6 @@ void homeassistant(void)
   doc["unit_of_meas"] = F("°C");
   doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
 
-  serializeJson(doc, buffer_value, sizeof(buffer_value));
-  Serial.println(buffer_value);
-  strlcpy_P(buffer, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/C3/config"), BUFFER_SIZE);
-  DT_mqtt_send(buffer, buffer_value);
-
   // EEPROM
   //  V1
   wdt_reset();
