@@ -107,12 +107,12 @@ void DT_Poele_loop()
                 T4 = ((DT_pt100_get(PT100_H_BALON) + DT_pt100_get(PT100_B_BALON)) / 2);
                 temp_default_pt100 = 0;
             }
-            if (DT_pt100_get(PT100_H_BALON) > 0)
+            else if (DT_pt100_get(PT100_H_BALON) > 0)
             {
                 T4 = DT_pt100_get(PT100_H_BALON);
                 temp_default_pt100 = 0;
             }
-            if (DT_pt100_get(PT100_B_BALON) > 0)
+            else if (DT_pt100_get(PT100_B_BALON) > 0)
             {
                 T4 = DT_pt100_get(PT100_B_BALON);
                 temp_default_pt100 = 0;
@@ -195,10 +195,10 @@ void DT_Poele_loop()
         if (T4 < MIN_T4)
             T4 = MIN_T4;
 
-        if (eeprom_config.poele_mode != DT_POELE_MANUAL )
+        if (eeprom_config.poele_mode != DT_POELE_MANUAL)
         {
             Serial.print("poele t4 =");
-            Serial.println((uint8_t) T4);
+            Serial.println((uint8_t)T4);
             DT_fake_ntc_set((uint8_t)T4);
         }
 
