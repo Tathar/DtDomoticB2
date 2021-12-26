@@ -231,7 +231,7 @@ void DT_3voies_loop()
         DT_relay(CIRCULATEUR_MCBT, false);  // arret du circulateur
         pid_mcbt.SetMode(QuickPID::MANUAL); // arret de la vanne 3 voie
     }
-
+/*
     // test de la temperature du planche
     for (uint8_t num = 0; num < NUM_PLANCHE; ++num)
     {
@@ -243,7 +243,7 @@ void DT_3voies_loop()
             return;                            // arret de la fonction
         }
     }
-
+*/
     // calcule du PID
     if (pid_pcbt.Compute())
     {
