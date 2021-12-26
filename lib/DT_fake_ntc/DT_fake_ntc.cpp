@@ -35,7 +35,7 @@ void (*fake_ntc_callback)(const uint8_t value);
 
 void _fake_ntc_set(uint8_t value)
 {
-    if (value <= 100 && fake_ntc_value != value)
+    if (value > 0 && value <= 100 && fake_ntc_value != value)
     {
         uint8_t r1 = pgm_read_byte(NTC_R1 + value);
         uint8_t r2 = pgm_read_byte(NTC_R2 + value);
@@ -90,19 +90,13 @@ void DT_fake_ntc_loop()
 
 void DT_fake_ntc_set(uint8_t value)
 {
-    if (value <= 100 && fake_ntc_value != value)
-    {
-        _fake_ntc_set(value);
-        fake_ntc_new_value = value;
-    }
+    _fake_ntc_set(value);
+    fake_ntc_new_value = value;
 }
 
 void DT_fake_ntc_slow_set(uint8_t value)
 {
-    if (value <= 100 && fake_ntc_value != value)
-    {
-        fake_ntc_new_value = value;
-    }
+    fake_ntc_new_value = value;
 }
 
 uint8_t DT_fake_ntc_get()
