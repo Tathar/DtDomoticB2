@@ -39,8 +39,12 @@ void _fake_ntc_set(uint8_t value)
     if (value > 70)
     {
         value = 70;
+        if (fake_ntc_callback != nullptr)
+        {
+            fake_ntc_callback(value);
+        }
     }
-    
+
     if (value >= 0 && value <= 100 && fake_ntc_value != value)
     {
         fake_ntc_value = value;
@@ -68,10 +72,6 @@ void _fake_ntc_set(uint8_t value)
         Serial.println(r1);
         Serial.print("r2 = ");
         Serial.println(r2);
-        if (fake_ntc_callback != nullptr)
-        {
-            fake_ntc_callback(value);
-        }
     }
 }
 
