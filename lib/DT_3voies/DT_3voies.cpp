@@ -81,8 +81,8 @@ void DT_3voies_init()
     pid_mcbt.SetTunings(eeprom_config.KP_MCBT, eeprom_config.KI_MCBT, eeprom_config.KD_MCBT);
 
     // min, max
-    pid_pcbt.SetOutputLimits(eeprom_config.KT_PCBT * -1, eeprom_config.KT_PCBT);
-    pid_mcbt.SetOutputLimits(eeprom_config.KT_MCBT * -1, eeprom_config.KT_MCBT);
+    pid_pcbt.SetOutputLimits((float) eeprom_config.KT_PCBT * -1.0, eeprom_config.KT_PCBT);
+    pid_mcbt.SetOutputLimits((float)eeprom_config.KT_MCBT * -1.0, eeprom_config.KT_MCBT);
 
     // loop time (KT)
     pid_pcbt.SetSampleTimeUs(eeprom_config.KT_PCBT * 1000);
@@ -250,14 +250,14 @@ void DT_3voies_loop()
         {
             DT_relay(VANNE_PCBT_COLD, (uint32_t)(Output_PCBT * -1)); // activation de la vanne
         }
-        Serial.print("KP = ");
-        Serial.println(pid_pcbt.GetPterm());
-        Serial.print("KI = ");
-        Serial.println(pid_pcbt.GetIterm());
-        Serial.print("KD = ");
-        Serial.println(pid_pcbt.GetDterm());
-        Serial.print("out = ");
-        Serial.println(Output_PCBT);
+        //Serial.print("KP = ");
+        //Serial.println(pid_pcbt.GetPterm());
+        //Serial.print("KI = ");
+        //Serial.println(pid_pcbt.GetIterm());
+        //Serial.print("KD = ");
+        //Serial.println(pid_pcbt.GetDterm());
+        //Serial.print("out = ");
+        //Serial.println(Output_PCBT);
     }
 
     if (pid_mcbt.Compute())
@@ -411,7 +411,7 @@ void DT_3voies_PCBT_set_KT(uint32_t kt)
     // set loop time (KT)
     pid_pcbt.SetSampleTimeUs(eeprom_config.KT_PCBT * 1000);
     // min, max
-    pid_pcbt.SetOutputLimits(eeprom_config.KT_PCBT * -1, eeprom_config.KT_PCBT);
+    pid_pcbt.SetOutputLimits((float)eeprom_config.KT_PCBT * -1.0, eeprom_config.KT_PCBT);
 }
 
 void DT_3voies_MCBT_set_KT(uint32_t kt)
@@ -421,7 +421,7 @@ void DT_3voies_MCBT_set_KT(uint32_t kt)
     // set loop time (KT)
     pid_mcbt.SetSampleTimeUs(eeprom_config.KT_MCBT * 1000);
     // min, max
-    pid_mcbt.SetOutputLimits(eeprom_config.KT_MCBT * -1, eeprom_config.KT_MCBT);
+    pid_mcbt.SetOutputLimits((float)eeprom_config.KT_MCBT * -1.0, eeprom_config.KT_MCBT);
 }
 
 //set consigne temp PCBT
