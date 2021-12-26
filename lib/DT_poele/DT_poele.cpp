@@ -131,12 +131,24 @@ void DT_Poele_loop()
             // mode ECS uniquement
             DT_relay(RELAY_EV1, true);
             // temperature envoyer au poele
-            float _min = 0;
 
             if (DT_pt100_get(PT100_ECS1) > 0 && DT_pt100_get(PT100_ECS2) > 0)
             {
-                _min = min(DT_pt100_get(PT100_ECS1), DT_pt100_get(PT100_ECS2));
+                C1 = min(DT_pt100_get(PT100_ECS1), DT_pt100_get(PT100_ECS2));
                 temp_default_pt100 = 0;
+                T4 = eeprom_config.V1 - eeprom_config.V2 + C1 - eeprom_config.C5;
+            }
+            else if (DT_pt100_get(PT100_ECS1) > 0)
+            {
+                C1 = DT_pt100_get(PT100_ECS1);
+                temp_default_pt100 = 0;
+                T4 = eeprom_config.V1 - eeprom_config.V2 + C1 - eeprom_config.C5;
+            }
+            else if (DT_pt100_get(PT100_ECS2) > 0)
+            {
+                C1 = DT_pt100_get(PT100_ECS2);
+                temp_default_pt100 = 0;
+                T4 = eeprom_config.V1 - eeprom_config.V2 + C1 - eeprom_config.C5;
             }
             else if (temp_default_pt100 != 0 && now - temp_default_pt100 >= TEMP_DEFAULT_PT100_POELE)
             {
@@ -146,8 +158,6 @@ void DT_Poele_loop()
             {
                 temp_default_pt100 = now;
             }
-
-            T4 = eeprom_config.V1 - eeprom_config.V2 + _min - eeprom_config.C5;
         }
         else if (eeprom_config.poele_mode == DT_POELE_BOOST)
         {
