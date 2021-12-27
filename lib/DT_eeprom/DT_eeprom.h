@@ -10,7 +10,7 @@
 #include "../lib/DT_poele/DT_poele.h"
 #include "../lib/DT_3voies/DT_3voies.h"
 
-static const uint8_t STRUCT_MAGIC = 42;
+static const uint8_t STRUCT_MAGIC = 1;
 static const uint8_t STRUCT_VERSION = 1;
 
 // declaration de la structure de configuration

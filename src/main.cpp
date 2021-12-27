@@ -1406,27 +1406,30 @@ void mqtt_receve(char *topic, uint8_t *payload, unsigned int length)
   }
   else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/pcbt/mode/set") == 0) // Mode de la vannes 3 voie PCBT
   {
-    strlcpy_P(buffer_value, PSTR("DtBoard/" BOARD_IDENTIFIER "/pcbt/mode/state"), BUFFER_SIZE);
 
     if (strcmp(buffer, "Normal") == 0)
     {
       DT_3voies_PCBT_set_mode(DT_3VOIES_NORMAL);
-      DT_mqtt_send(buffer_value, buffer);
+      strlcpy_P(buffer_value, PSTR("DtBoard/" BOARD_IDENTIFIER "/pcbt/mode/state"), BUFFER_SIZE);
+      DT_mqtt_send(buffer_value, "Normal");
     }
     else if (strcmp(buffer, "Demmarage") == 0)
     {
       DT_3voies_PCBT_set_mode(DT_3VOIES_DEMMARAGE);
-      DT_mqtt_send(buffer_value, buffer);
+      strlcpy_P(buffer_value, PSTR("DtBoard/" BOARD_IDENTIFIER "/pcbt/mode/state"), BUFFER_SIZE);
+      DT_mqtt_send(buffer_value, "Demmarage");
     }
     else if (strcmp(buffer, "Manuel") == 0)
     {
       DT_3voies_PCBT_set_mode(DT_3VOIES_MANUAL);
-      DT_mqtt_send(buffer_value, buffer);
+      strlcpy_P(buffer_value, PSTR("DtBoard/" BOARD_IDENTIFIER "/pcbt/mode/state"), BUFFER_SIZE);
+      DT_mqtt_send(buffer_value, "Manuel");
     }
     else if (strcmp(buffer, "Arret") == 0)
     {
       DT_3voies_PCBT_set_mode(DT_3VOIES_OFF);
-      DT_mqtt_send(buffer_value, buffer);
+      strlcpy_P(buffer_value, PSTR("DtBoard/" BOARD_IDENTIFIER "/pcbt/mode/state"), BUFFER_SIZE);
+      DT_mqtt_send(buffer_value, "Arret");
     }
   }
   else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/C2/set") == 0) // Mode de la vannes 3 voie MCBT
@@ -1439,27 +1442,29 @@ void mqtt_receve(char *topic, uint8_t *payload, unsigned int length)
   }
   else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/mcbt/mode/set") == 0) // Mode de la vannes 3 voie MCBT
   {
-    strlcpy_P(buffer_value, PSTR("DtBoard/" BOARD_IDENTIFIER "/mcbt/mode/state"), BUFFER_SIZE);
-
     if (strcmp(buffer, "Normal") == 0)
     {
       DT_3voies_MCBT_set_mode(DT_3VOIES_NORMAL);
-      DT_mqtt_send(buffer_value, buffer);
+      strlcpy_P(buffer_value, PSTR("DtBoard/" BOARD_IDENTIFIER "/mcbt/mode/state"), BUFFER_SIZE);
+      DT_mqtt_send(buffer_value, "Normal");
     }
     else if (strcmp(buffer, "Demmarage") == 0)
     {
       DT_3voies_MCBT_set_mode(DT_3VOIES_DEMMARAGE);
-      DT_mqtt_send(buffer_value, buffer);
+      strlcpy_P(buffer_value, PSTR("DtBoard/" BOARD_IDENTIFIER "/mcbt/mode/state"), BUFFER_SIZE);
+      DT_mqtt_send(buffer_value,"Demmarage");
     }
     else if (strcmp(buffer, "Manuel") == 0)
     {
       DT_3voies_MCBT_set_mode(DT_3VOIES_MANUAL);
-      DT_mqtt_send(buffer_value, buffer);
+      strlcpy_P(buffer_value, PSTR("DtBoard/" BOARD_IDENTIFIER "/mcbt/mode/state"), BUFFER_SIZE);
+      DT_mqtt_send(buffer_value,"Demmarage");
     }
     else if (strcmp(buffer, "Arret") == 0)
     {
       DT_3voies_MCBT_set_mode(DT_3VOIES_OFF);
-      DT_mqtt_send(buffer_value, buffer);
+      strlcpy_P(buffer_value, PSTR("DtBoard/" BOARD_IDENTIFIER "/mcbt/mode/state"), BUFFER_SIZE);
+      DT_mqtt_send(buffer_value, "Arret");
     }
   }
   else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/C3/set") == 0) // Mode de la vannes 3 voie MCBT
@@ -1488,15 +1493,18 @@ void mqtt_receve(char *topic, uint8_t *payload, unsigned int length)
       DT_mqtt_send(buffer, u8t_value);
     }
   }
-  else if (strcmp_P(topic, "DtBoard/" BOARD_IDENTIFIER "/V3/set") == 0) // V3
+  else if (strcmp_P(topic, PSTR("DtBoard/" BOARD_IDENTIFIER "/V3/set")) == 0) // V3
   {
+    Serial.print("set V3 = ");
     DeserializationError error = deserializeJson(doc, buffer, length);
     if (!error)
     {
       eeprom_config.V3 = doc.as<float>();
-      strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/C4/state"), BUFFER_SIZE);
+      Serial.print( eeprom_config.V3);
+      strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/V3/state"), BUFFER_SIZE);
       DT_mqtt_send(buffer, eeprom_config.V3);
     }
+    Serial.println(" ");
   }
   else if (strcmp_P(topic, PSTR("DtBoard/" BOARD_IDENTIFIER "/C4/set")) == 0) // C4
   {
