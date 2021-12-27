@@ -184,12 +184,12 @@ void DT_3voies_loop()
         mem_config.C3 = TMP_EAU_MCBT_MAX;
 
     // temperature de l'eau
-    if (DT_pt100_get(PT100_3_VOIES_PCBT) < 0)
+    if (DT_pt100_get(PT100_3_VOIES_PCBT) > 0)
     {
         Input_PCBT = DT_pt100_get(PT100_3_VOIES_PCBT);
     }
 
-    if (DT_pt100_get(PT100_3_VOIES_MCBT) < 0)
+    if (DT_pt100_get(PT100_3_VOIES_MCBT) > 0)
     {
         Input_MCBT = DT_pt100_get(PT100_3_VOIES_MCBT);
     }
