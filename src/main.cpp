@@ -1719,7 +1719,7 @@ void setup()
 
   // auto Serial.println("starting relay");
   DT_relay_init();
-  //DT_relay_set_callback(relay_callback);
+  DT_relay_set_callback(relay_callback);
 
   // auto Serial.println("starting input");
   DT_input_init();
