@@ -81,8 +81,8 @@ void DT_3voies_init()
     pid_mcbt.SetTunings(eeprom_config.KP_MCBT, eeprom_config.KI_MCBT, eeprom_config.KD_MCBT);
 
     // min, max
-    pid_pcbt.SetOutputLimits((float) eeprom_config.KT_PCBT * -1.0, eeprom_config.KT_PCBT);
-    pid_mcbt.SetOutputLimits((float)eeprom_config.KT_MCBT * -1.0, eeprom_config.KT_MCBT);
+    pid_pcbt.SetOutputLimits((float)((float)eeprom_config.KT_PCBT * -1.0), eeprom_config.KT_PCBT);
+    pid_mcbt.SetOutputLimits((float)((float)eeprom_config.KT_MCBT * -1.0), eeprom_config.KT_MCBT);
 
     // loop time (KT)
     pid_pcbt.SetSampleTimeUs(eeprom_config.KT_PCBT * 1000);
@@ -226,19 +226,19 @@ void DT_3voies_loop()
         DT_relay(CIRCULATEUR_MCBT, false);  // arret du circulateur
         pid_mcbt.SetMode(QuickPID::MANUAL); // arret de la vanne 3 voie
     }
-/*
-    // test de la temperature du planche
-    for (uint8_t num = 0; num < NUM_PLANCHE; ++num)
-    {
-        uint8_t num_pt100 = pgm_read_byte(PT100_PLANCHEE + num);
-        if ((DT_pt100_get(num_pt100) != TEMP_DEFAULT_PT100) && (DT_pt100_get(num_pt100) > MAX_TMP_PLANCHE + 1))
+    /*
+        // test de la temperature du planche
+        for (uint8_t num = 0; num < NUM_PLANCHE; ++num)
         {
-           //auto Serial.println("temp planché max");
-            DT_relay(CIRCULATEUR_PCBT, false); // arret du circulateur
-            return;                            // arret de la fonction
+            uint8_t num_pt100 = pgm_read_byte(PT100_PLANCHEE + num);
+            if ((DT_pt100_get(num_pt100) != TEMP_DEFAULT_PT100) && (DT_pt100_get(num_pt100) > MAX_TMP_PLANCHE + 1))
+            {
+               //auto Serial.println("temp planché max");
+                DT_relay(CIRCULATEUR_PCBT, false); // arret du circulateur
+                return;                            // arret de la fonction
+            }
         }
-    }
-*/
+    */
     // calcule du PID
     if (pid_pcbt.Compute())
     {
@@ -250,14 +250,14 @@ void DT_3voies_loop()
         {
             DT_relay(VANNE_PCBT_COLD, (uint32_t)(Output_PCBT * -1)); // activation de la vanne
         }
-        //Serial.print("KP = ");
-        //Serial.println(pid_pcbt.GetPterm());
-        //Serial.print("KI = ");
-        //Serial.println(pid_pcbt.GetIterm());
-        //Serial.print("KD = ");
-        //Serial.println(pid_pcbt.GetDterm());
-        //Serial.print("out = ");
-        //Serial.println(Output_PCBT);
+        Serial.print("KP = ");
+        Serial.println(pid_pcbt.GetPterm());
+        Serial.print("KI = ");
+        Serial.println(pid_pcbt.GetIterm());
+        Serial.print("KD = ");
+        Serial.println(pid_pcbt.GetDterm());
+        Serial.print("out = ");
+        Serial.println(Output_PCBT);
     }
 
     if (pid_mcbt.Compute())
@@ -411,7 +411,7 @@ void DT_3voies_PCBT_set_KT(uint32_t kt)
     // set loop time (KT)
     pid_pcbt.SetSampleTimeUs(eeprom_config.KT_PCBT * 1000);
     // min, max
-    pid_pcbt.SetOutputLimits((float)eeprom_config.KT_PCBT * -1.0, eeprom_config.KT_PCBT);
+    pid_pcbt.SetOutputLimits((float)((float)eeprom_config.KT_PCBT * -1.0), (float)eeprom_config.KT_PCBT);
 }
 
 void DT_3voies_MCBT_set_KT(uint32_t kt)
@@ -421,16 +421,16 @@ void DT_3voies_MCBT_set_KT(uint32_t kt)
     // set loop time (KT)
     pid_mcbt.SetSampleTimeUs(eeprom_config.KT_MCBT * 1000);
     // min, max
-    pid_mcbt.SetOutputLimits((float)eeprom_config.KT_MCBT * -1.0, eeprom_config.KT_MCBT);
+    pid_mcbt.SetOutputLimits((float)((float)eeprom_config.KT_MCBT * -1.0), (float)eeprom_config.KT_MCBT);
 }
 
-//set consigne temp PCBT
+// set consigne temp PCBT
 void DT_3voies_set_C2(float c2)
 {
     mem_config.C2 = c2;
 }
 
-//set consigne temp MCBT
+// set consigne temp MCBT
 void DT_3voies_set_C3(float c3)
 {
     mem_config.C3 = c3;
@@ -481,13 +481,13 @@ void DT_3voies_set_callback(void (*callback)(const float C2, const float C3))
     _callback_3_voies = callback;
 }
 
-//get consigne temp PCBT
+// get consigne temp PCBT
 float DT_3voies_get_C2()
 {
     return mem_config.C2;
 }
 
-//get consigne temp MCBT
+// get consigne temp MCBT
 float DT_3voies_get_C3()
 {
     return mem_config.C3;
