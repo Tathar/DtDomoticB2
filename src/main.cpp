@@ -49,7 +49,7 @@ void homeassistant(void)
   doc["dev"]["name"] = F(BOARD_NAME);       // name
   doc["dev"]["sw"] = F(BOARD_SW_VERSION);   // software version
   serializeJson(doc, buffer_value, sizeof(buffer_value));
-  //Serial.println(buffer_value);
+  // Serial.println(buffer_value);
   strlcpy_P(buffer, PSTR("homeassistant/sensor/" BOARD_IDENTIFIER "/heartbeat/config"), BUFFER_SIZE);
   DT_mqtt_send(buffer, buffer_value);
 
@@ -71,7 +71,7 @@ void homeassistant(void)
     doc["stat_t"] = buffer_value;            // state topic
     doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
 
-    //Serial.println(buffer_value);
+    // Serial.println(buffer_value);
     serializeJson(doc, buffer_value, sizeof(buffer_value));
     DT_mqtt_send(buffer, buffer_value);
   }
@@ -92,7 +92,7 @@ void homeassistant(void)
 
     doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
 
-    //Serial.println(buffer_value);
+    // Serial.println(buffer_value);
     serializeJson(doc, buffer_value, sizeof(buffer_value));
     DT_mqtt_send(buffer, buffer_value);
   }
@@ -115,7 +115,7 @@ void homeassistant(void)
     doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
 
     serializeJson(doc, buffer_value, sizeof(buffer_value));
-    //Serial.println(buffer_value);
+    // Serial.println(buffer_value);
     DT_mqtt_send(buffer, buffer_value);
   }
   // BME280 temperature
@@ -137,7 +137,7 @@ void homeassistant(void)
     doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
 
     serializeJson(doc, buffer_value, sizeof(buffer_value));
-    //Serial.println(buffer_value);
+    // Serial.println(buffer_value);
     DT_mqtt_send(buffer, buffer_value);
   }
 
@@ -160,7 +160,7 @@ void homeassistant(void)
     doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
 
     serializeJson(doc, buffer_value, sizeof(buffer_value));
-    //Serial.println(buffer_value);
+    // Serial.println(buffer_value);
     DT_mqtt_send(buffer, buffer_value);
   }
 
@@ -183,7 +183,7 @@ void homeassistant(void)
     doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
 
     serializeJson(doc, buffer_value, sizeof(buffer_value));
-    //Serial.println(buffer_value);
+    // Serial.println(buffer_value);
     DT_mqtt_send(buffer, buffer_value);
   }
 
@@ -206,7 +206,7 @@ void homeassistant(void)
     doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
 
     serializeJson(doc, buffer_value, sizeof(buffer_value));
-    //Serial.println(buffer_value);
+    // Serial.println(buffer_value);
     DT_mqtt_send(buffer, buffer_value);
   }
 
@@ -229,7 +229,7 @@ void homeassistant(void)
     doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
 
     serializeJson(doc, buffer_value, sizeof(buffer_value));
-    //Serial.println(buffer_value);
+    // Serial.println(buffer_value);
     DT_mqtt_send(buffer, buffer_value);
   }
 
@@ -246,7 +246,7 @@ void homeassistant(void)
   doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
 
   serializeJson(doc, buffer_value, sizeof(buffer_value));
-  //Serial.println(buffer_value);
+  // Serial.println(buffer_value);
   strlcpy_P(buffer, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/fake_NTC/config"), BUFFER_SIZE);
   DT_mqtt_send(buffer, buffer_value);
 
@@ -285,7 +285,7 @@ void homeassistant(void)
   doc["unit_of_meas"] = F("°C");
   doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
   serializeJson(doc, buffer_value, sizeof(buffer_value));
-  //Serial.println(buffer_value);
+  // Serial.println(buffer_value);
   strlcpy_P(buffer, PSTR("homeassistant/sensor/" BOARD_IDENTIFIER "/poele-c1/config"), BUFFER_SIZE);
   DT_mqtt_send(buffer, buffer_value);
 
@@ -300,7 +300,7 @@ void homeassistant(void)
   doc["unit_of_meas"] = F("°C");
   doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
   serializeJson(doc, buffer_value, sizeof(buffer_value));
-  //Serial.println(buffer_value);
+  // Serial.println(buffer_value);
   strlcpy_P(buffer, PSTR("homeassistant/sensor/" BOARD_IDENTIFIER "/poele-t4/config"), BUFFER_SIZE);
   DT_mqtt_send(buffer, buffer_value);
 
@@ -325,7 +325,7 @@ void homeassistant(void)
   strlcpy_P(buffer, PSTR("homeassistant/select/" BOARD_IDENTIFIER "/pcbt-mode/config"), BUFFER_SIZE);
   DT_mqtt_send(buffer, buffer_value);
 
-  //consigne vanne 3 voies PCBT
+  // consigne vanne 3 voies PCBT
   wdt_reset();
   doc.clear();
   doc["~"] = F("DtBoard/" BOARD_IDENTIFIER "/C2");
@@ -341,7 +341,7 @@ void homeassistant(void)
   doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
 
   serializeJson(doc, buffer_value, sizeof(buffer_value));
-  //Serial.println(buffer_value);
+  // Serial.println(buffer_value);
   strlcpy_P(buffer, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/C2/config"), BUFFER_SIZE);
   DT_mqtt_send(buffer, buffer_value);
 
@@ -366,7 +366,7 @@ void homeassistant(void)
   strlcpy_P(buffer, PSTR("homeassistant/select/" BOARD_IDENTIFIER "/mcbt-mode/config"), BUFFER_SIZE);
   DT_mqtt_send(buffer, buffer_value);
 
-  //consigne vanne 3 voies MCBT
+  // consigne vanne 3 voies MCBT
   wdt_reset();
   doc.clear();
   doc["~"] = F("DtBoard/" BOARD_IDENTIFIER "/C3");
@@ -395,7 +395,7 @@ void homeassistant(void)
   doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
 
   serializeJson(doc, buffer_value, sizeof(buffer_value));
-  //Serial.println(buffer_value);
+  // Serial.println(buffer_value);
   strlcpy_P(buffer, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/V1/config"), BUFFER_SIZE);
   DT_mqtt_send(buffer, buffer_value);
 
@@ -412,7 +412,7 @@ void homeassistant(void)
   doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
 
   serializeJson(doc, buffer_value, sizeof(buffer_value));
-  //Serial.println(buffer_value);
+  // Serial.println(buffer_value);
   strlcpy_P(buffer, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/V2/config"), BUFFER_SIZE);
   DT_mqtt_send(buffer, buffer_value);
 
@@ -429,7 +429,7 @@ void homeassistant(void)
   doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
 
   serializeJson(doc, buffer_value, sizeof(buffer_value));
-  //Serial.println(buffer_value);
+  // Serial.println(buffer_value);
   strlcpy_P(buffer, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/V3/config"), BUFFER_SIZE);
   DT_mqtt_send(buffer, buffer_value);
 
@@ -446,7 +446,7 @@ void homeassistant(void)
   doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
 
   serializeJson(doc, buffer_value, sizeof(buffer_value));
-  //Serial.println(buffer_value);
+  // Serial.println(buffer_value);
   strlcpy_P(buffer, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/C4/config"), BUFFER_SIZE);
   DT_mqtt_send(buffer, buffer_value);
 
@@ -463,7 +463,7 @@ void homeassistant(void)
   doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
 
   serializeJson(doc, buffer_value, sizeof(buffer_value));
-  //Serial.println(buffer_value);
+  // Serial.println(buffer_value);
   strlcpy_P(buffer, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/C5/config"), BUFFER_SIZE);
   DT_mqtt_send(buffer, buffer_value);
 
@@ -480,7 +480,7 @@ void homeassistant(void)
   doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
 
   serializeJson(doc, buffer_value, sizeof(buffer_value));
-  //Serial.println(buffer_value);
+  // Serial.println(buffer_value);
   strlcpy_P(buffer, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/C6/config"), BUFFER_SIZE);
   DT_mqtt_send(buffer, buffer_value);
 
@@ -497,7 +497,7 @@ void homeassistant(void)
   doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
 
   serializeJson(doc, buffer_value, sizeof(buffer_value));
-  //Serial.println(buffer_value);
+  // Serial.println(buffer_value);
   strlcpy_P(buffer, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/C7/config"), BUFFER_SIZE);
   DT_mqtt_send(buffer, buffer_value);
 
@@ -514,7 +514,7 @@ void homeassistant(void)
   doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
 
   serializeJson(doc, buffer_value, sizeof(buffer_value));
-  //Serial.println(buffer_value);
+  // Serial.println(buffer_value);
   strlcpy_P(buffer, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/C8/config"), BUFFER_SIZE);
   DT_mqtt_send(buffer, buffer_value);
 
@@ -531,7 +531,7 @@ void homeassistant(void)
   doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
 
   serializeJson(doc, buffer_value, sizeof(buffer_value));
-  //Serial.println(buffer_value);
+  // Serial.println(buffer_value);
   strlcpy_P(buffer, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/C9/config"), BUFFER_SIZE);
   DT_mqtt_send(buffer, buffer_value);
 
@@ -548,7 +548,7 @@ void homeassistant(void)
   doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
 
   serializeJson(doc, buffer_value, sizeof(buffer_value));
-  //Serial.println(buffer_value);
+  // Serial.println(buffer_value);
   strlcpy_P(buffer, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/C10/config"), BUFFER_SIZE);
   DT_mqtt_send(buffer, buffer_value);
 
@@ -565,7 +565,7 @@ void homeassistant(void)
   doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
 
   serializeJson(doc, buffer_value, sizeof(buffer_value));
-  //Serial.println(buffer_value);
+  // Serial.println(buffer_value);
   strlcpy_P(buffer, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/C11/config"), BUFFER_SIZE);
   DT_mqtt_send(buffer, buffer_value);
 
@@ -582,7 +582,7 @@ void homeassistant(void)
   doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
 
   serializeJson(doc, buffer_value, sizeof(buffer_value));
-  //Serial.println(buffer_value);
+  // Serial.println(buffer_value);
   strlcpy_P(buffer, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/C_PCBT_MIN/config"), BUFFER_SIZE);
   DT_mqtt_send(buffer, buffer_value);
 
@@ -599,7 +599,7 @@ void homeassistant(void)
   doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
 
   serializeJson(doc, buffer_value, sizeof(buffer_value));
-  //Serial.println(buffer_value);
+  // Serial.println(buffer_value);
   strlcpy_P(buffer, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/C_PCBT_MAX/config"), BUFFER_SIZE);
   DT_mqtt_send(buffer, buffer_value);
 
@@ -616,7 +616,7 @@ void homeassistant(void)
   doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
 
   serializeJson(doc, buffer_value, sizeof(buffer_value));
-  //Serial.println(buffer_value);
+  // Serial.println(buffer_value);
   strlcpy_P(buffer, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/C_MCBT_MIN/config"), BUFFER_SIZE);
   DT_mqtt_send(buffer, buffer_value);
 
@@ -633,7 +633,7 @@ void homeassistant(void)
   doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
 
   serializeJson(doc, buffer_value, sizeof(buffer_value));
-  //Serial.println(buffer_value);
+  // Serial.println(buffer_value);
   strlcpy_P(buffer, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/C_MCBT_MAX/config"), BUFFER_SIZE);
   DT_mqtt_send(buffer, buffer_value);
 
@@ -653,7 +653,7 @@ void homeassistant(void)
   doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
 
   serializeJson(doc, buffer_value, sizeof(buffer_value));
-  //Serial.println(buffer_value);
+  // Serial.println(buffer_value);
   strlcpy_P(buffer, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/KP_PCBT/config"), BUFFER_SIZE);
   DT_mqtt_send(buffer, buffer_value);
 
@@ -673,7 +673,7 @@ void homeassistant(void)
   doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
 
   serializeJson(doc, buffer_value, sizeof(buffer_value));
-  //Serial.println(buffer_value);
+  // Serial.println(buffer_value);
   strlcpy_P(buffer, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/KI_PCBT/config"), BUFFER_SIZE);
   DT_mqtt_send(buffer, buffer_value);
 
@@ -693,7 +693,7 @@ void homeassistant(void)
   doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
 
   serializeJson(doc, buffer_value, sizeof(buffer_value));
-  //Serial.println(buffer_value);
+  // Serial.println(buffer_value);
   strlcpy_P(buffer, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/KD_PCBT/config"), BUFFER_SIZE);
   DT_mqtt_send(buffer, buffer_value);
 
@@ -713,7 +713,7 @@ void homeassistant(void)
   doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
 
   serializeJson(doc, buffer_value, sizeof(buffer_value));
-  //Serial.println(buffer_value);
+  // Serial.println(buffer_value);
   strlcpy_P(buffer, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/KT_PCBT/config"), BUFFER_SIZE);
   DT_mqtt_send(buffer, buffer_value);
 
@@ -733,7 +733,7 @@ void homeassistant(void)
   doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
 
   serializeJson(doc, buffer_value, sizeof(buffer_value));
-  //Serial.println(buffer_value);
+  // Serial.println(buffer_value);
   strlcpy_P(buffer, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/KP_MCBT/config"), BUFFER_SIZE);
   DT_mqtt_send(buffer, buffer_value);
 
@@ -753,7 +753,7 @@ void homeassistant(void)
   doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
 
   serializeJson(doc, buffer_value, sizeof(buffer_value));
-  //Serial.println(buffer_value);
+  // Serial.println(buffer_value);
   strlcpy_P(buffer, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/KI_MCBT/config"), BUFFER_SIZE);
   DT_mqtt_send(buffer, buffer_value);
 
@@ -773,7 +773,7 @@ void homeassistant(void)
   doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
 
   serializeJson(doc, buffer_value, sizeof(buffer_value));
-  //Serial.println(buffer_value);
+  // Serial.println(buffer_value);
   strlcpy_P(buffer, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/KD_MCBT/config"), BUFFER_SIZE);
   DT_mqtt_send(buffer, buffer_value);
 
@@ -793,11 +793,11 @@ void homeassistant(void)
   doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
 
   serializeJson(doc, buffer_value, sizeof(buffer_value));
-  //Serial.println(buffer_value);
+  // Serial.println(buffer_value);
   strlcpy_P(buffer, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/KT_MCBT/config"), BUFFER_SIZE);
   DT_mqtt_send(buffer, buffer_value);
 
-  //load 1s
+  // load 1s
   wdt_reset();
   doc.clear();
   doc["~"] = F("DtBoard/" BOARD_IDENTIFIER "/");
@@ -808,10 +808,10 @@ void homeassistant(void)
   // doc["unit_of_meas"] = F("°C");
   doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
   serializeJson(doc, buffer_value, sizeof(buffer_value));
-  //Serial.println(buffer_value);
+  // Serial.println(buffer_value);
   strlcpy_P(buffer, PSTR("homeassistant/sensor/" BOARD_IDENTIFIER "/load_1s/config"), BUFFER_SIZE);
 
-  //load 1m
+  // load 1m
   wdt_reset();
   doc.clear();
   doc["~"] = F("DtBoard/" BOARD_IDENTIFIER "/");
@@ -822,7 +822,7 @@ void homeassistant(void)
   // doc["unit_of_meas"] = F("°C");
   doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
   serializeJson(doc, buffer_value, sizeof(buffer_value));
-  //Serial.println(buffer_value);
+  // Serial.println(buffer_value);
   strlcpy_P(buffer, PSTR("homeassistant/sensor/" BOARD_IDENTIFIER "/load_1m/config"), BUFFER_SIZE);
 }
 
@@ -831,7 +831,7 @@ void relay_callback(const uint8_t num, const bool action)
 {
   wdt_reset();
   sprintf_P(buffer, PSTR("relais numero %d dans l etat %d"), num, (int)action);
-  //auto Serial.println(buffer);
+  // auto Serial.println(buffer);
   sprintf_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/relay-%02d/state"), num);
   if (action)
     DT_mqtt_send(buffer, "ON");
@@ -843,7 +843,7 @@ void input_callback(const uint8_t num, const uint8_t action)
 {
   wdt_reset();
   sprintf_P(buffer, PSTR("entrée numero %d dans l etat %d"), num, (int)action);
-  //auto Serial.println(buffer);
+  // auto Serial.println(buffer);
   sprintf_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/input-%02d/state"), num);
   if (action == HIGH)
     DT_mqtt_send(buffer, "ON");
@@ -854,15 +854,15 @@ void input_callback(const uint8_t num, const uint8_t action)
 void pt100_callback(const uint8_t num, const float temp)
 {
   wdt_reset();
-  //Serial.print("PT100_CALLBACK ");
+  // Serial.print("PT100_CALLBACK ");
 
   sprintf_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/pt100-%02d/temperature"), num);
   JsonVariant variant = doc.to<JsonVariant>();
   variant.set(temp);
   serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
-  //Serial.print(buffer);
-  //Serial.print(" -> ");
-  //Serial.println(buffer_value);
+  // Serial.print(buffer);
+  // Serial.print(" -> ");
+  // Serial.println(buffer_value);
   DT_mqtt_send(buffer, buffer_value);
 }
 
@@ -1086,7 +1086,7 @@ void mqtt_publish()
     break;
   }
 
-  //consigne vanne 3 voies PCBT & MCBT
+  // consigne vanne 3 voies PCBT & MCBT
   dt3voies_callback(DT_3voies_get_C2(), DT_3voies_get_C3());
 
   // EEPROM
@@ -1334,8 +1334,8 @@ void mqtt_subscribe(PubSubClient &mqtt)
 void mqtt_receve(char *topic, uint8_t *payload, unsigned int length)
 {
   wdt_reset();
-  //auto Serial.print("receve topic ");
-  //auto Serial.println(topic);
+  // auto Serial.print("receve topic ");
+  // auto Serial.println(topic);
 
   // Copy the payload to the new buffer
   if (length < BUFFER_SIZE)
@@ -1343,8 +1343,8 @@ void mqtt_receve(char *topic, uint8_t *payload, unsigned int length)
     memcpy(buffer, payload, length);
     buffer[length] = '\0';
 
-    //auto Serial.print("buffer = ");
-    //auto Serial.println(buffer);
+    // auto Serial.print("buffer = ");
+    // auto Serial.println(buffer);
   }
   else
     return;
@@ -1353,8 +1353,8 @@ void mqtt_receve(char *topic, uint8_t *payload, unsigned int length)
   uint8_t u8t_value = 0;
   if (sscanf_P(topic, PSTR("DtBoard/" BOARD_IDENTIFIER "/relay-%02d/set"), &num) == 1) // relais
   {
-    //auto Serial.print("sscanf = ");
-    //auto Serial.println(num);
+    // auto Serial.print("sscanf = ");
+    // auto Serial.println(num);
     if (strcmp(buffer, "ON") == 0)
       DT_relay(num, true);
     else if (strcmp(buffer, "OFF") == 0)
@@ -1702,52 +1702,53 @@ void mqtt_receve(char *topic, uint8_t *payload, unsigned int length)
 
 void setup()
 {
-  //auto Serial.begin(9600);
+  // Serial.begin(9600);
+  Serial.begin(57600);
 
-  //auto Serial.println("starting board version " BOARD_SW_VERSION);
+  // auto Serial.println("starting board version " BOARD_SW_VERSION);
 
-  //auto Serial.println("Load eeprom");
+  // auto Serial.println("Load eeprom");
   chargeEEPROM();
 
-  //auto Serial.println("starting mqtt");
+  // auto Serial.println("starting mqtt");
   DT_mqtt_init();
   DT_mqtt_set_subscribe_callback(mqtt_subscribe);
   DT_mqtt_set_receve_callback(mqtt_receve);
 
-  //auto Serial.println("starting relay");
+  // auto Serial.println("starting relay");
   DT_relay_init();
   DT_relay_set_callback(relay_callback);
 
-  //auto Serial.println("starting input");
+  // auto Serial.println("starting input");
   DT_input_init();
   DT_input_set_callback(input_callback);
 
-  //auto Serial.println("starting PT100");
+  // auto Serial.println("starting PT100");
   DT_pt100_init();
   DT_pt100_set_callback(pt100_callback);
 
-  //auto Serial.println("starting BME280");
+  // auto Serial.println("starting BME280");
   DT_BME280_init();
   DT_BME280_set_callback_temperature(bme280_callback_temperature);
   DT_BME280_set_callback_humidity(bme280_callback_humidity);
   DT_BME280_set_callback_pressure(bme280_callback_pressure);
 
-  //auto Serial.println("starting BCCS811");
+  // auto Serial.println("starting BCCS811");
   DT_CCS811_init();
   DT_CCS811_set_callback_co2(ccs811_callback_co2);
   DT_CCS811_set_callback_cov(ccs811_callback_cov);
 
-  //auto Serial.println("starting fake_NTC");
+  // auto Serial.println("starting fake_NTC");
   DT_fake_ntc_init();
   DT_fake_ntc_callback(fake_ntc_callback);
 
-  //auto Serial.println("starting Poele");
+  // auto Serial.println("starting Poele");
   DT_Poele_init();
   DT_Poele_set_C1_callback(poele_C1_callback);
   DT_Poele_set_mode_callback(poele_mode_callback);
   DT_Poele_T4_callback(poele_t4_callback);
 
-  //auto Serial.println("starting 3 voies");
+  // auto Serial.println("starting 3 voies");
   DT_3voies_init();
   DT_3voies_set_callback(dt3voies_callback);
 
@@ -1776,7 +1777,7 @@ void setup()
   // }
 
   wdt_enable(WATCHDOG_TIME);
-  //auto Serial.println("Board started");
+  // auto Serial.println("Board started");
 }
 
 void loop()
