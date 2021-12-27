@@ -195,12 +195,12 @@ void DT_3voies_loop()
     }
 
     // consigne minimum pour fonctionnement des circulateur
-    if ((eeprom_config.mode_3voies_PCBT != DT_3VOIES_DEMMARAGE) && (mem_config.C2 < (eeprom_config.C_PCBT_MIN - DBMAC)))
+    if ((eeprom_config.mode_3voies_PCBT != DT_3VOIES_DEMMARAGE) && (mem_config.C2 < (eeprom_config.C_PCBT_MIN - eeprom_config.V3)))
     {
         DT_relay(CIRCULATEUR_PCBT, false);  // arret du circulateur
         pid_pcbt.SetMode(QuickPID::MANUAL); // arret de la vanne 3 voie
     }
-    else if ((eeprom_config.mode_3voies_PCBT != DT_3VOIES_OFF) && (mem_config.C2 > (eeprom_config.C_PCBT_MIN + DBMAC)))
+    else if ((eeprom_config.mode_3voies_PCBT != DT_3VOIES_OFF) && (mem_config.C2 > (eeprom_config.C_PCBT_MIN + eeprom_config.V3)))
     {
         DT_relay(CIRCULATEUR_PCBT, true);      // demmarage du circulateur
         pid_pcbt.SetMode(QuickPID::AUTOMATIC); // demmarage de la vanne 3 voie
@@ -211,12 +211,12 @@ void DT_3voies_loop()
         pid_pcbt.SetMode(QuickPID::MANUAL); // arret de la vanne 3 voie
     }
 
-    if ((eeprom_config.mode_3voies_MCBT != DT_3VOIES_DEMMARAGE) && (mem_config.C3 < eeprom_config.C_MCBT_MIN - DBMAC))
+    if ((eeprom_config.mode_3voies_MCBT != DT_3VOIES_DEMMARAGE) && (mem_config.C3 < eeprom_config.C_MCBT_MIN - eeprom_config.V3))
     {
         DT_relay(CIRCULATEUR_MCBT, false);  // arret du circulateur
         pid_mcbt.SetMode(QuickPID::MANUAL); // arret de la vanne 3 voie
     }
-    else if ((eeprom_config.mode_3voies_MCBT != DT_3VOIES_OFF) && (mem_config.C3 < eeprom_config.C_MCBT_MIN + DBMAC))
+    else if ((eeprom_config.mode_3voies_MCBT != DT_3VOIES_OFF) && (mem_config.C3 < eeprom_config.C_MCBT_MIN + eeprom_config.V3))
     {
         DT_relay(CIRCULATEUR_MCBT, true);      // demmarage du circulateur
         pid_mcbt.SetMode(QuickPID::AUTOMATIC); // demmarage de la vanne 3 voie
@@ -226,6 +226,27 @@ void DT_3voies_loop()
         DT_relay(CIRCULATEUR_MCBT, false);  // arret du circulateur
         pid_mcbt.SetMode(QuickPID::MANUAL); // arret de la vanne 3 voie
     }
+
+    // Plage Morte PCBT
+    if (Input_PCBT >= mem_config.C2 && (Input_PCBT - mem_config.C2) < eeprom_config.V3)
+    {
+        pid_mcbt.SetMode(QuickPID::MANUAL); // arret de la vanne 3 voie
+    }
+    else if (mem_config.C2 > Input_PCBT && (mem_config.C2 - Input_PCBT) < eeprom_config.V3)
+    {
+        pid_mcbt.SetMode(QuickPID::MANUAL); // arret de la vanne 3 voie
+    }
+
+    // Plage Morte MCBT
+    if (Input_MCBT >= mem_config.C3 && (Input_MCBT - mem_config.C3) < eeprom_config.V3)
+    {
+        pid_mcbt.SetMode(QuickPID::MANUAL); // arret de la vanne 3 voie
+    }
+    else if (mem_config.C3 > Input_MCBT && (mem_config.C3 - Input_MCBT) < eeprom_config.V3)
+    {
+        pid_mcbt.SetMode(QuickPID::MANUAL); // arret de la vanne 3 voie
+    }
+
     /*
         // test de la temperature du planche
         for (uint8_t num = 0; num < NUM_PLANCHE; ++num)

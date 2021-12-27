@@ -31,7 +31,7 @@ struct Eeprom_Config
 
     uint8_t V1; // Variable paramètre poêle (60°C)
     uint8_t V2; // Variable Reserve chaleur Ballon (20°C)
-    uint8_t V3; // Variable Temp Demi plage Morte
+    float V3;   // Variable Temp Demi plage Morte
     // float C2;   // consigne Temp PCBT
     // float C3;   // consigne MCBT
     float C4;         // consigne Jacuzzi
