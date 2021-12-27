@@ -7,7 +7,7 @@
 #define MAX_DEFAULT_PT100 200  // si la temperature est superieur, on considere que la PT100 est en default
 
 // Adafruit_MAX31865 *temp[TEMP_NUM];
-Adafruit_MAX31865 max31865[TEMP_NUM] = {Adafruit_MAX31865(23),
+Adafruit_MAX31865 max31865[20] = {Adafruit_MAX31865(23),
                                         Adafruit_MAX31865(22),
                                         Adafruit_MAX31865(25),
                                         Adafruit_MAX31865(24),

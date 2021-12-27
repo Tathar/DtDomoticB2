@@ -22,7 +22,7 @@
 #define BUFFER_VALUE_SIZE 512
 
 // watchdog
-#define WATCHDOG_TIME WDTO_8S
+#define WATCHDOG_TIME WDTO_1S
 
 // network
 #define MAC1 0xDE
