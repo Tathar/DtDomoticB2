@@ -720,6 +720,84 @@ void homeassistant(void)
   strlcpy_P(buffer, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/KT_PCBT/config"), BUFFER_SIZE);
   DT_mqtt_send(buffer, buffer_value);
 
+  // PID PCBT Action
+  wdt_reset(); // clear watchdog
+  doc.clear();
+  doc["~"] = F("DtBoard/" BOARD_IDENTIFIER "/pcbt/pid_action");
+  doc["uniq_id"] = F(BOARD_IDENTIFIER "-pcbt-pid_action");
+  doc["name"] = F("pcbt pid action ");
+  doc["command_topic"] = F("~/set");
+  doc["state_topic"] = F("~/state");
+
+  options = doc.createNestedArray("options");
+  options.add("direct");
+  options.add("reverse");
+
+  doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
+
+  serializeJson(doc, buffer_value, sizeof(buffer_value));
+  strlcpy_P(buffer, PSTR("homeassistant/select/" BOARD_IDENTIFIER "/pcbt-pid_action/config"), BUFFER_SIZE);
+  DT_mqtt_send(buffer, buffer_value);
+
+  // PID PCBT pMode
+  wdt_reset(); // clear watchdog
+  doc.clear();
+  doc["~"] = F("DtBoard/" BOARD_IDENTIFIER "/pcbt/pid_pmode");
+  doc["uniq_id"] = F(BOARD_IDENTIFIER "-pcbt-pid_pmode");
+  doc["name"] = F("pcbt pid pmode");
+  doc["command_topic"] = F("~/set");
+  doc["state_topic"] = F("~/state");
+
+  options = doc.createNestedArray("options");
+  options.add("pOnError");
+  options.add("pOnMeas");
+  options.add("pOnErrorMeas");
+
+  doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
+
+  serializeJson(doc, buffer_value, sizeof(buffer_value));
+  strlcpy_P(buffer, PSTR("homeassistant/select/" BOARD_IDENTIFIER "/pcbt-pid-pmode/config"), BUFFER_SIZE);
+  DT_mqtt_send(buffer, buffer_value);
+
+  // PID PCBT dMode
+  wdt_reset(); // clear watchdog
+  doc.clear();
+  doc["~"] = F("DtBoard/" BOARD_IDENTIFIER "/pcbt/pid_dmode");
+  doc["uniq_id"] = F(BOARD_IDENTIFIER "-pcbt-pid_dmode");
+  doc["name"] = F("pcbt pid dmode");
+  doc["command_topic"] = F("~/set");
+  doc["state_topic"] = F("~/state");
+
+  options = doc.createNestedArray("options");
+  options.add("dOnError");
+  options.add("dOnMeas");
+
+  doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
+
+  serializeJson(doc, buffer_value, sizeof(buffer_value));
+  strlcpy_P(buffer, PSTR("homeassistant/select/" BOARD_IDENTIFIER "/pcbt-pid-dmode/config"), BUFFER_SIZE);
+  DT_mqtt_send(buffer, buffer_value);
+
+  // PID PCBT dMode
+  wdt_reset(); // clear watchdog
+  doc.clear();
+  doc["~"] = F("DtBoard/" BOARD_IDENTIFIER "/pcbt/pid_iawmode");
+  doc["uniq_id"] = F(BOARD_IDENTIFIER "-pcbt-pid_iawmode");
+  doc["name"] = F("pcbt pid iawmode");
+  doc["command_topic"] = F("~/set");
+  doc["state_topic"] = F("~/state");
+
+  options = doc.createNestedArray("options");
+  options.add("iAwCondition");
+  options.add("iAwClamp");
+  options.add("iAwOff");
+
+  doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
+
+  serializeJson(doc, buffer_value, sizeof(buffer_value));
+  strlcpy_P(buffer, PSTR("homeassistant/select/" BOARD_IDENTIFIER "/pcbt-pid-iawmode/config"), BUFFER_SIZE);
+  DT_mqtt_send(buffer, buffer_value);
+
   // KP_MCBT
   wdt_reset();
   doc.clear();
@@ -799,22 +877,85 @@ void homeassistant(void)
   // Serial.println(buffer_value);
   strlcpy_P(buffer, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/KT_MCBT/config"), BUFFER_SIZE);
   DT_mqtt_send(buffer, buffer_value);
-  /*
-    // load 1s
-    wdt_reset();
-    doc.clear();
-    doc["~"] = F("DtBoard/" BOARD_IDENTIFIER);
-    doc["uniq_id"] = F(BOARD_IDENTIFIER "-load_1s");
-    doc["name"] = F("Load 1s");
-    doc["stat_t"] = F("~/load_1s");
-    // doc["dev_cla"] = F("temperature");
-    // doc["unit_of_meas"] = F("°C");
-    doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
-    serializeJson(doc, buffer_value, sizeof(buffer_value));
-    // Serial.println(buffer_value);
-    strlcpy_P(buffer, PSTR("homeassistant/sensor/" BOARD_IDENTIFIER "/load_1s/config"), BUFFER_SIZE);
-    DT_mqtt_send(buffer, buffer_value);
-  */
+
+  // PID PCBT Action
+  wdt_reset(); // clear watchdog
+  doc.clear();
+  doc["~"] = F("DtBoard/" BOARD_IDENTIFIER "/mcbt/pid_action");
+  doc["uniq_id"] = F(BOARD_IDENTIFIER "-mcbt-pid_action");
+  doc["name"] = F("mcbt pid action ");
+  doc["command_topic"] = F("~/set");
+  doc["state_topic"] = F("~/state");
+
+  options = doc.createNestedArray("options");
+  options.add("direct");
+  options.add("reverse");
+
+  doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
+
+  serializeJson(doc, buffer_value, sizeof(buffer_value));
+  strlcpy_P(buffer, PSTR("homeassistant/select/" BOARD_IDENTIFIER "/mcbt-pid_action/config"), BUFFER_SIZE);
+  DT_mqtt_send(buffer, buffer_value);
+
+  // PID PCBT pMode
+  wdt_reset(); // clear watchdog
+  doc.clear();
+  doc["~"] = F("DtBoard/" BOARD_IDENTIFIER "/mcbt/pid_pmode");
+  doc["uniq_id"] = F(BOARD_IDENTIFIER "-mcbt-pid_pmode");
+  doc["name"] = F("mcbt pid pmode");
+  doc["command_topic"] = F("~/set");
+  doc["state_topic"] = F("~/state");
+
+  options = doc.createNestedArray("options");
+  options.add("pOnError");
+  options.add("pOnMeas");
+  options.add("pOnErrorMeas");
+
+  doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
+
+  serializeJson(doc, buffer_value, sizeof(buffer_value));
+  strlcpy_P(buffer, PSTR("homeassistant/select/" BOARD_IDENTIFIER "/mcbt-pid-pmode/config"), BUFFER_SIZE);
+  DT_mqtt_send(buffer, buffer_value);
+
+  // PID PCBT dMode
+  wdt_reset(); // clear watchdog
+  doc.clear();
+  doc["~"] = F("DtBoard/" BOARD_IDENTIFIER "/mcbt/pid_dmode");
+  doc["uniq_id"] = F(BOARD_IDENTIFIER "-mcbt-pid_dmode");
+  doc["name"] = F("mcbt pid dmode");
+  doc["command_topic"] = F("~/set");
+  doc["state_topic"] = F("~/state");
+
+  options = doc.createNestedArray("options");
+  options.add("dOnError");
+  options.add("dOnMeas");
+
+  doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
+
+  serializeJson(doc, buffer_value, sizeof(buffer_value));
+  strlcpy_P(buffer, PSTR("homeassistant/select/" BOARD_IDENTIFIER "/mcbt-pid-dmode/config"), BUFFER_SIZE);
+  DT_mqtt_send(buffer, buffer_value);
+
+  // PID PCBT dMode
+  wdt_reset(); // clear watchdog
+  doc.clear();
+  doc["~"] = F("DtBoard/" BOARD_IDENTIFIER "/mcbt/pid_iawmode");
+  doc["uniq_id"] = F(BOARD_IDENTIFIER "-mcbt-pid_iawmode");
+  doc["name"] = F("mcbt pid iawmode");
+  doc["command_topic"] = F("~/set");
+  doc["state_topic"] = F("~/state");
+
+  options = doc.createNestedArray("options");
+  options.add("iAwCondition");
+  options.add("iAwClamp");
+  options.add("iAwOff");
+
+  doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
+
+  serializeJson(doc, buffer_value, sizeof(buffer_value));
+  strlcpy_P(buffer, PSTR("homeassistant/select/" BOARD_IDENTIFIER "/mcbt-pid-iawmode/config"), BUFFER_SIZE);
+  DT_mqtt_send(buffer, buffer_value);
+
   // load 1m
   wdt_reset();
   doc.clear();
@@ -1208,6 +1349,122 @@ void mqtt_publish()
   wdt_reset();
   strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/KT_MCBT/state"), BUFFER_SIZE);
   DT_mqtt_send(buffer, DT_3voies_MCBT_get_KT());
+
+  // PID PCBT Action
+  wdt_reset(); // clear watchdog
+  strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/pcbt/pid_action/state"), BUFFER_SIZE);
+  switch (eeprom_config.pid_pcbt.action)
+  {
+  case QuickPID::Action::direct:
+    DT_mqtt_send(buffer, "direct");
+    break;
+  case QuickPID::Action::reverse:
+    DT_mqtt_send(buffer, "reverse");
+    break;
+  }
+
+  // PID PCBT pMode
+  wdt_reset(); // clear watchdog
+  strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/pcbt/pid_pmode/state"), BUFFER_SIZE);
+  switch (eeprom_config.pid_pcbt.pmode)
+  {
+  case QuickPID::pMode::pOnError:
+    DT_mqtt_send(buffer, "pOnError");
+    break;
+  case QuickPID::pMode::pOnMeas:
+    DT_mqtt_send(buffer, "pOnMeas");
+    break;
+  case QuickPID::pMode::pOnErrorMeas:
+    DT_mqtt_send(buffer, "pOnErrorMeas");
+    break;
+  }
+
+  // PID PCBT dMode
+  wdt_reset(); // clear watchdog
+  strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/pcbt/pid_dmode/state"), BUFFER_SIZE);
+  switch (eeprom_config.pid_pcbt.dmode)
+  {
+  case QuickPID::dMode::dOnError:
+    DT_mqtt_send(buffer, "dOnError");
+    break;
+  case QuickPID::dMode::dOnMeas:
+    DT_mqtt_send(buffer, "dOnMeas");
+    break;
+  }
+
+  // PID PCBT iAwMode
+  wdt_reset(); // clear watchdog
+  strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/pcbt/pid_iawmode/state"), BUFFER_SIZE);
+  switch (eeprom_config.pid_pcbt.iawmode)
+  {
+  case QuickPID::iAwMode::iAwCondition:
+    DT_mqtt_send(buffer, "iAwCondition");
+    break;
+  case QuickPID::iAwMode::iAwClamp:
+    DT_mqtt_send(buffer, "iAwClamp");
+    break;
+  case QuickPID::iAwMode::iAwOff:
+    DT_mqtt_send(buffer, "iAwOff");
+    break;
+  }
+
+  // PID MCBT Action
+  wdt_reset(); // clear watchdog
+  strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/mcbt/pid_action/state"), BUFFER_SIZE);
+  switch (eeprom_config.pid_mcbt.action)
+  {
+  case QuickPID::Action::direct:
+    DT_mqtt_send(buffer, "direct");
+    break;
+  case QuickPID::Action::reverse:
+    DT_mqtt_send(buffer, "reverse");
+    break;
+  }
+
+  // PID MCBT pMode
+  wdt_reset(); // clear watchdog
+  strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/mcbt/pid_pmode/state"), BUFFER_SIZE);
+  switch (eeprom_config.pid_mcbt.pmode)
+  {
+  case QuickPID::pMode::pOnError:
+    DT_mqtt_send(buffer, "pOnError");
+    break;
+  case QuickPID::pMode::pOnMeas:
+    DT_mqtt_send(buffer, "pOnMeas");
+    break;
+  case QuickPID::pMode::pOnErrorMeas:
+    DT_mqtt_send(buffer, "pOnErrorMeas");
+    break;
+  }
+
+  // PID MCBT dMode
+  wdt_reset(); // clear watchdog
+  strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/mcbt/pid_dmode/state"), BUFFER_SIZE);
+  switch (eeprom_config.pid_mcbt.dmode)
+  {
+  case QuickPID::dMode::dOnError:
+    DT_mqtt_send(buffer, "dOnError");
+    break;
+  case QuickPID::dMode::dOnMeas:
+    DT_mqtt_send(buffer, "dOnMeas");
+    break;
+  }
+
+  // PID MCBT iAwMode
+  wdt_reset(); // clear watchdog
+  strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/mcbt/pid_iawmode/state"), BUFFER_SIZE);
+  switch (eeprom_config.pid_mcbt.iawmode)
+  {
+  case QuickPID::iAwMode::iAwCondition:
+    DT_mqtt_send(buffer, "iAwCondition");
+    break;
+  case QuickPID::iAwMode::iAwClamp:
+    DT_mqtt_send(buffer, "iAwClamp");
+    break;
+  case QuickPID::iAwMode::iAwOff:
+    DT_mqtt_send(buffer, "iAwOff");
+    break;
+  }
 }
 
 void mqtt_subscribe(PubSubClient &mqtt)
@@ -1331,6 +1588,20 @@ void mqtt_subscribe(PubSubClient &mqtt)
   wdt_reset();
   mqtt.subscribe("DtBoard/" BOARD_IDENTIFIER "/KT_MCBT/set");
 
+  // PID PCBT
+  wdt_reset();
+  mqtt.subscribe("DtBoard/" BOARD_IDENTIFIER "/pcbt/pid_action/set");
+  mqtt.subscribe("DtBoard/" BOARD_IDENTIFIER "/pcbt/pid_pmode/set");
+  mqtt.subscribe("DtBoard/" BOARD_IDENTIFIER "/pcbt/pid_dmode/set");
+  mqtt.subscribe("DtBoard/" BOARD_IDENTIFIER "/pcbt/pid_iawmode/set");
+
+  // PID MCBT
+  wdt_reset();
+  mqtt.subscribe("DtBoard/" BOARD_IDENTIFIER "/mcbt/pid_action/set");
+  mqtt.subscribe("DtBoard/" BOARD_IDENTIFIER "/mcbt/pid_pmode/set");
+  mqtt.subscribe("DtBoard/" BOARD_IDENTIFIER "/mcbt/pid_dmode/set");
+  mqtt.subscribe("DtBoard/" BOARD_IDENTIFIER "/mcbt/pid_iawmode/set");
+
   mqtt.subscribe("homeassistant/status");
   mqtt_publish();
   homeassistant();
@@ -1452,13 +1723,13 @@ void mqtt_receve(char *topic, uint8_t *payload, unsigned int length)
     {
       DT_3voies_MCBT_set_mode(DT_3VOIES_DEMMARAGE);
       strlcpy_P(buffer_value, PSTR("DtBoard/" BOARD_IDENTIFIER "/mcbt/mode/state"), BUFFER_SIZE);
-      DT_mqtt_send(buffer_value,"Demmarage");
+      DT_mqtt_send(buffer_value, "Demmarage");
     }
     else if (strcmp(buffer, "Manuel") == 0)
     {
       DT_3voies_MCBT_set_mode(DT_3VOIES_MANUAL);
       strlcpy_P(buffer_value, PSTR("DtBoard/" BOARD_IDENTIFIER "/mcbt/mode/state"), BUFFER_SIZE);
-      DT_mqtt_send(buffer_value,"Demmarage");
+      DT_mqtt_send(buffer_value, "Demmarage");
     }
     else if (strcmp(buffer, "Arret") == 0)
     {
@@ -1500,7 +1771,7 @@ void mqtt_receve(char *topic, uint8_t *payload, unsigned int length)
     if (!error)
     {
       eeprom_config.V3 = doc.as<float>();
-      Serial.print( eeprom_config.V3);
+      Serial.print(eeprom_config.V3);
       strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/V3/state"), BUFFER_SIZE);
       DT_mqtt_send(buffer, eeprom_config.V3);
     }
@@ -1702,6 +1973,150 @@ void mqtt_receve(char *topic, uint8_t *payload, unsigned int length)
       DT_3voies_MCBT_set_KT(doc.as<uint32_t>());
       strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/KT_MCBT/state"), BUFFER_SIZE);
       DT_mqtt_send(buffer, DT_3voies_MCBT_get_KT());
+    }
+  }
+  else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/pcbt/pid_action/set") == 0) // PCBT Action
+  {
+    if (strcmp(buffer, "direct") == 0)
+    {
+      DT_3voies_PCBT_set_action(QuickPID::Action::direct);
+      strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/pcbt/pid_action/state"), BUFFER_SIZE);
+      DT_mqtt_send(buffer, "direct");
+    }
+    if (strcmp(buffer, "reverse") == 0)
+    {
+      DT_3voies_PCBT_set_action(QuickPID::Action::reverse);
+      strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/pcbt/pid_action/state"), BUFFER_SIZE);
+      DT_mqtt_send(buffer, "reverse");
+    }
+  }
+  else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/pcbt/pid_pmode/set") == 0) // PCBT pMode
+  {
+    if (strcmp(buffer, "pOnError") == 0)
+    {
+      DT_3voies_PCBT_set_pmode(QuickPID::pMode::pOnError);
+      strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/pcbt/pid_pmode/state"), BUFFER_SIZE);
+      DT_mqtt_send(buffer, "pOnError");
+    }
+    if (strcmp(buffer, "pOnErrorMeas") == 0)
+    {
+      DT_3voies_PCBT_set_pmode(QuickPID::pMode::pOnErrorMeas);
+      strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/pcbt/pid_pmode/state"), BUFFER_SIZE);
+      DT_mqtt_send(buffer, "pOnErrorMeas");
+    }
+    if (strcmp(buffer, "pOnMeas") == 0)
+    {
+      DT_3voies_PCBT_set_pmode(QuickPID::pMode::pOnMeas);
+      strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/pcbt/pid_pmode/state"), BUFFER_SIZE);
+      DT_mqtt_send(buffer, "pOnMeas");
+    }
+  }
+  else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/pcbt/pid_dmode/set") == 0) // PCBT dMode
+  {
+    if (strcmp(buffer, "dOnError") == 0)
+    {
+      DT_3voies_PCBT_set_dmode(QuickPID::dMode::dOnError);
+      strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/pcbt/pid_dmode/state"), BUFFER_SIZE);
+      DT_mqtt_send(buffer, "dOnError");
+    }
+    if (strcmp(buffer, "dOnMeas") == 0)
+    {
+      DT_3voies_PCBT_set_dmode(QuickPID::dMode::dOnMeas);
+      strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/pcbt/pid_dmode/state"), BUFFER_SIZE);
+      DT_mqtt_send(buffer, "dOnMeas");
+    }
+  }
+  else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/pcbt/pid_iawmode/set") == 0) // PCBT iawmode
+  {
+    if (strcmp(buffer, "iAwClamp") == 0)
+    {
+      DT_3voies_PCBT_set_iawmode(QuickPID::iAwMode::iAwClamp);
+      strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/pcbt/pid_iawmode/state"), BUFFER_SIZE);
+      DT_mqtt_send(buffer, "iAwClamp");
+    }
+    if (strcmp(buffer, "iAwCondition") == 0)
+    {
+      DT_3voies_PCBT_set_iawmode(QuickPID::iAwMode::iAwCondition);
+      strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/pcbt/pid_iawmode/state"), BUFFER_SIZE);
+      DT_mqtt_send(buffer, "iAwCondition");
+    }
+    if (strcmp(buffer, "iAwOff") == 0)
+    {
+      DT_3voies_PCBT_set_iawmode(QuickPID::iAwMode::iAwOff);
+      strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/pcbt/pid_iawmode/state"), BUFFER_SIZE);
+      DT_mqtt_send(buffer, "iAwOff");
+    }
+  }
+  else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/mcbt/pid_action/set") == 0) // MCBT Action
+  {
+    if (strcmp(buffer, "direct") == 0)
+    {
+      DT_3voies_PCBT_set_action(QuickPID::Action::direct);
+      strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/mcbt/pid_action/state"), BUFFER_SIZE);
+      DT_mqtt_send(buffer, "direct");
+    }
+    if (strcmp(buffer, "reverse") == 0)
+    {
+      DT_3voies_PCBT_set_action(QuickPID::Action::reverse);
+      strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/mcbt/pid_action/state"), BUFFER_SIZE);
+      DT_mqtt_send(buffer, "reverse");
+    }
+  }
+  else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/mcbt/pid_pmode/set") == 0) // MCBT pMode
+  {
+    if (strcmp(buffer, "pOnError") == 0)
+    {
+      DT_3voies_PCBT_set_pmode(QuickPID::pMode::pOnError);
+      strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/mcbt/pid_pmode/state"), BUFFER_SIZE);
+      DT_mqtt_send(buffer, "pOnError");
+    }
+    if (strcmp(buffer, "pOnErrorMeas") == 0)
+    {
+      DT_3voies_PCBT_set_pmode(QuickPID::pMode::pOnErrorMeas);
+      strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/mcbt/pid_pmode/state"), BUFFER_SIZE);
+      DT_mqtt_send(buffer, "pOnErrorMeas");
+    }
+    if (strcmp(buffer, "pOnMeas") == 0)
+    {
+      DT_3voies_PCBT_set_pmode(QuickPID::pMode::pOnMeas);
+      strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/mcbt/pid_pmode/state"), BUFFER_SIZE);
+      DT_mqtt_send(buffer, "pOnMeas");
+    }
+  }
+  else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/mcbt/pid_dmode/set") == 0) // MCBT dMode
+  {
+    if (strcmp(buffer, "dOnError") == 0)
+    {
+      DT_3voies_PCBT_set_dmode(QuickPID::dMode::dOnError);
+      strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/mcbt/pid_dmode/state"), BUFFER_SIZE);
+      DT_mqtt_send(buffer, "dOnError");
+    }
+    if (strcmp(buffer, "dOnMeas") == 0)
+    {
+      DT_3voies_PCBT_set_dmode(QuickPID::dMode::dOnMeas);
+      strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/mcbt/pid_dmode/state"), BUFFER_SIZE);
+      DT_mqtt_send(buffer, "dOnMeas");
+    }
+  }
+  else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/mcbt/pid_iawmode/set") == 0) // MCBT iawmode
+  {
+    if (strcmp(buffer, "iAwClamp") == 0)
+    {
+      DT_3voies_PCBT_set_iawmode(QuickPID::iAwMode::iAwClamp);
+      strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/mcbt/pid_iawmode/state"), BUFFER_SIZE);
+      DT_mqtt_send(buffer, "iAwClamp");
+    }
+    if (strcmp(buffer, "iAwCondition") == 0)
+    {
+      DT_3voies_PCBT_set_iawmode(QuickPID::iAwMode::iAwCondition);
+      strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/mcbt/pid_iawmode/state"), BUFFER_SIZE);
+      DT_mqtt_send(buffer, "iAwCondition");
+    }
+    if (strcmp(buffer, "iAwOff") == 0)
+    {
+      DT_3voies_PCBT_set_iawmode(QuickPID::iAwMode::iAwOff);
+      strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/mcbt/pid_iawmode/state"), BUFFER_SIZE);
+      DT_mqtt_send(buffer, "iAwOff");
     }
   }
   else if (strcmp(topic, "homeassistant/status") == 0) // Home Assistant Online / Offline

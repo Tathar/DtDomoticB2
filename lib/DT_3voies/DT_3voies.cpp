@@ -447,14 +447,56 @@ void DT_3voies_PCBT_set_action(QuickPID::Action action)
 {
     eeprom_config.pid_pcbt.action = action;
     // sauvegardeEEPROM();
-    pid_pcbt.SetControllerDirection((QuickPID::Action)action);
+    pid_pcbt.SetControllerDirection(action);
 }
 
 void DT_3voies_MCBT_set_action(QuickPID::Action action)
 {
     eeprom_config.pid_mcbt.action = action;
     // sauvegardeEEPROM();
-    pid_mcbt.SetControllerDirection((QuickPID::Action)action);
+    pid_mcbt.SetControllerDirection(action);
+}
+
+void DT_3voies_PCBT_set_pmode(QuickPID::pMode pMode)
+{
+    eeprom_config.pid_pcbt.pmode = pMode;
+    // sauvegardeEEPROM();
+    pid_pcbt.SetProportionalMode(pMode);
+}
+
+void DT_3voies_MCBT_set_pmode(QuickPID::pMode pMode)
+{
+    eeprom_config.pid_mcbt.pmode = pMode;
+    // sauvegardeEEPROM();
+    pid_mcbt.SetProportionalMode(pMode);
+}
+
+void DT_3voies_PCBT_set_dmode(QuickPID::dMode dMode)
+{
+    eeprom_config.pid_pcbt.dmode = dMode;
+    // sauvegardeEEPROM();
+    pid_pcbt.SetDerivativeMode(dMode);
+}
+
+void DT_3voies_MCBT_set_dmode(QuickPID::dMode dMode)
+{
+    eeprom_config.pid_mcbt.dmode = dMode;
+    // sauvegardeEEPROM();
+    pid_mcbt.SetDerivativeMode(dMode);
+}
+
+void DT_3voies_PCBT_set_iawmode(QuickPID::iAwMode iAwMode)
+{
+    eeprom_config.pid_pcbt.iawmode = iAwMode;
+    // sauvegardeEEPROM();
+    pid_pcbt.SetAntiWindupMode(iAwMode);
+}
+
+void DT_3voies_MCBT_set_iawmode(QuickPID::iAwMode iAwMode)
+{
+    eeprom_config.pid_mcbt.iawmode = iAwMode;
+    // sauvegardeEEPROM();
+    pid_mcbt.SetAntiWindupMode(iAwMode);
 }
 
 // void DT_3voies_PCBT_set_action(Action action)

@@ -69,7 +69,7 @@ void chargeEEPROM()
                 eeprom_config.pid_pcbt.KP = 1000;
                 eeprom_config.pid_pcbt.KI = 0;
                 eeprom_config.pid_pcbt.KD = 0;
-                eeprom_config.pid_pcbt.KP = 1000;
+                eeprom_config.pid_pcbt.KP = 10000;
                 eeprom_config.pid_pcbt.action = QuickPID::Action::direct;
                 eeprom_config.pid_pcbt.pmode = QuickPID::pMode::pOnError;
                 eeprom_config.pid_pcbt.dmode = QuickPID::dMode::dOnError;
@@ -78,7 +78,7 @@ void chargeEEPROM()
                 eeprom_config.pid_mcbt.KP = 1000;
                 eeprom_config.pid_mcbt.KI = 0;
                 eeprom_config.pid_mcbt.KD = 0;
-                eeprom_config.pid_mcbt.KP = 1000;
+                eeprom_config.pid_mcbt.KP = 10000;
                 eeprom_config.pid_mcbt.action = QuickPID::Action::direct;
                 eeprom_config.pid_mcbt.pmode = QuickPID::pMode::pOnError;
                 eeprom_config.pid_mcbt.dmode = QuickPID::dMode::dOnError;
