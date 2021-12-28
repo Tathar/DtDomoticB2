@@ -22,8 +22,8 @@ float Input_PCBT, Output_PCBT;
 float Input_MCBT, Output_MCBT;
 // Specify the links and initial tuning parameters
 
-QuickPID pid_pcbt = QuickPID(&Input_PCBT, &Output_PCBT, &mem_config.C2, 500, 0, 0, QuickPID::DIRECT);
-QuickPID pid_mcbt = QuickPID(&Input_MCBT, &Output_MCBT, &mem_config.C3, 500, 0, 0, QuickPID::DIRECT);
+QuickPID pid_pcbt = QuickPID(&Input_PCBT, &Output_PCBT, &mem_config.C2);
+QuickPID pid_mcbt = QuickPID(&Input_MCBT, &Output_MCBT, &mem_config.C3);
 
 uint32_t temp_etape_pcbt = 0;
 uint32_t temp_etape_mcbt = 0;
@@ -96,24 +96,24 @@ void DT_3voies_init()
     if (eeprom_config.mode_3voies_PCBT == DT_3VOIES_OFF)
     {
         DT_relay(CIRCULATEUR_PCBT, false);
-        pid_pcbt.SetMode(QuickPID::MANUAL);
+        pid_pcbt.SetMode(QuickPID::Control::manual);
     }
     else
     {
         DT_relay(CIRCULATEUR_PCBT, true);
-        pid_pcbt.SetMode(QuickPID::AUTOMATIC);
+        pid_pcbt.SetMode(QuickPID::Control::automatic);
     }
 
     // turn the PID on
     if (eeprom_config.mode_3voies_MCBT == DT_3VOIES_OFF)
     {
         DT_relay(CIRCULATEUR_MCBT, false);
-        pid_mcbt.SetMode(QuickPID::MANUAL);
+        pid_mcbt.SetMode(QuickPID::Control::manual);
     }
     else
     {
         DT_relay(CIRCULATEUR_MCBT, true);
-        pid_mcbt.SetMode(QuickPID::AUTOMATIC);
+        pid_mcbt.SetMode(QuickPID::Control::automatic);
     }
 }
 
@@ -194,56 +194,56 @@ void DT_3voies_loop()
         Input_MCBT = DT_pt100_get(PT100_3_VOIES_MCBT);
     }
     // consigne minimum pour fonctionnement des circulateur
-    if ((eeprom_config.mode_3voies_PCBT != DT_3VOIES_DEMMARAGE) && (mem_config.C2 < (eeprom_config.C_PCBT_MIN- eeprom_config.V3)))
+    if ((eeprom_config.mode_3voies_PCBT != DT_3VOIES_DEMMARAGE) && (mem_config.C2 < (eeprom_config.C_PCBT_MIN - eeprom_config.V3)))
     {
-        DT_relay(CIRCULATEUR_PCBT, false);  // arret du circulateur
-        pid_pcbt.SetMode(QuickPID::MANUAL); // arret de la vanne 3 voie
+        DT_relay(CIRCULATEUR_PCBT, false);           // arret du circulateur
+        pid_pcbt.SetMode(QuickPID::Control::manual); // arret de la vanne 3 voie
     }
     else if ((eeprom_config.mode_3voies_PCBT != DT_3VOIES_OFF) && (mem_config.C2 > (eeprom_config.C_PCBT_MIN + eeprom_config.V3)))
     {
-        DT_relay(CIRCULATEUR_PCBT, true);      // demmarage du circulateur
-        pid_pcbt.SetMode(QuickPID::AUTOMATIC); // demmarage de la vanne 3 voie
+        DT_relay(CIRCULATEUR_PCBT, true);                // demmarage du circulateur
+        pid_pcbt.SetMode(QuickPID::Control::automatic); // demmarage de la vanne 3
     }
     else if ((eeprom_config.mode_3voies_PCBT == DT_3VOIES_OFF))
     {
-        DT_relay(CIRCULATEUR_PCBT, false);  // arret du circulateur
-        pid_pcbt.SetMode(QuickPID::MANUAL); // arret de la vanne 3 voie
+        DT_relay(CIRCULATEUR_PCBT, false);           // arret du circulateur
+        pid_pcbt.SetMode(QuickPID::Control::manual); // arret de la vanne 3 voie
     }
 
     if ((eeprom_config.mode_3voies_MCBT != DT_3VOIES_DEMMARAGE) && (mem_config.C3 < (eeprom_config.C_MCBT_MIN - eeprom_config.V3)))
     {
-        DT_relay(CIRCULATEUR_MCBT, false);  // arret du circulateur
-        pid_mcbt.SetMode(QuickPID::MANUAL); // arret de la vanne 3 voie
+        DT_relay(CIRCULATEUR_MCBT, false);           // arret du circulateur
+        pid_mcbt.SetMode(QuickPID::Control::manual); // arret de la vanne 3 voie
     }
     else if ((eeprom_config.mode_3voies_MCBT != DT_3VOIES_OFF) && (mem_config.C3 < (eeprom_config.C_MCBT_MIN + eeprom_config.V3)))
     {
-        DT_relay(CIRCULATEUR_MCBT, true);      // demmarage du circulateur
-        pid_mcbt.SetMode(QuickPID::AUTOMATIC); // demmarage de la vanne 3 voie
+        DT_relay(CIRCULATEUR_MCBT, true);                // demmarage du circulateur
+        pid_mcbt.SetMode(QuickPID::Control::automatic); // demmarage de la vanne 3 voie
     }
     else if ((eeprom_config.mode_3voies_MCBT == DT_3VOIES_OFF))
     {
-        DT_relay(CIRCULATEUR_MCBT, false);  // arret du circulateur
-        pid_mcbt.SetMode(QuickPID::MANUAL); // arret de la vanne 3 voie
+        DT_relay(CIRCULATEUR_MCBT, false);           // arret du circulateur
+        pid_mcbt.SetMode(QuickPID::Control::manual); // arret de la vanne 3 voie
     }
 
     // Plage Morte PCBT
     if (Input_PCBT >= mem_config.C2 && (Input_PCBT - mem_config.C2) < eeprom_config.V3)
     {
-        pid_pcbt.SetMode(QuickPID::MANUAL); // arret de la vanne 3 voie
+        pid_pcbt.SetMode(QuickPID::Control::manual); // arret de la vanne 3 voie
     }
     else if (mem_config.C2 > Input_PCBT && (mem_config.C2 - Input_PCBT) < eeprom_config.V3)
     {
-        pid_pcbt.SetMode(QuickPID::MANUAL); // arret de la vanne 3 voie
+        pid_pcbt.SetMode(QuickPID::Control::manual); // arret de la vanne 3 voie
     }
 
     // Plage Morte MCBT
     if (Input_MCBT >= mem_config.C3 && (Input_MCBT - mem_config.C3) < eeprom_config.V3)
     {
-        pid_mcbt.SetMode(QuickPID::MANUAL); // arret de la vanne 3 voie
+        pid_mcbt.SetMode(QuickPID::Control::manual); // arret de la vanne 3 voie
     }
     else if (mem_config.C3 > Input_MCBT && (mem_config.C3 - Input_MCBT) < eeprom_config.V3)
     {
-        pid_mcbt.SetMode(QuickPID::MANUAL); // arret de la vanne 3 voie
+        pid_mcbt.SetMode(QuickPID::Control::manual); // arret de la vanne 3 voie
     }
 
     /*
@@ -311,12 +311,12 @@ void DT_3voies_PCBT_set_mode(DT_3voies_mode mode)
     if (eeprom_config.mode_3voies_PCBT == DT_3VOIES_OFF)
     {
         DT_relay(CIRCULATEUR_PCBT, false);
-        pid_pcbt.SetMode(QuickPID::MANUAL);
+        pid_pcbt.SetMode(QuickPID::Control::manual);
     }
     else
     {
         DT_relay(CIRCULATEUR_PCBT, true);
-        pid_pcbt.SetMode(QuickPID::AUTOMATIC);
+        pid_pcbt.SetMode(QuickPID::Control::automatic);
     }
 
     if (eeprom_config.mode_3voies_PCBT == DT_3VOIES_DEMMARAGE)
@@ -342,12 +342,12 @@ void DT_3voies_MCBT_set_mode(DT_3voies_mode mode)
     if (eeprom_config.mode_3voies_MCBT == DT_3VOIES_OFF)
     {
         DT_relay(CIRCULATEUR_MCBT, false);
-        pid_mcbt.SetMode(QuickPID::MANUAL);
+        pid_mcbt.SetMode(QuickPID::Control::manual);
     }
     else
     {
         DT_relay(CIRCULATEUR_MCBT, true);
-        pid_mcbt.SetMode(QuickPID::AUTOMATIC);
+        pid_mcbt.SetMode(QuickPID::Control::automatic);
     }
 
     if (eeprom_config.mode_3voies_MCBT == DT_3VOIES_DEMMARAGE)
