@@ -6,7 +6,6 @@
 #include <DT_eeprom.h>
 
 #include <config.h>
-#include <QuickPID.h>
 
 // T1 = Temp Ballon					T2 = Temp ECS							T3 = Temp ECS2
 // T5 = Temp Extérieur					T6 = Temp Vanne 3V PCBT					T7 = Temp Vanne 3V MCBT				T8 = Temp Vanne 3V Jacuzzi
@@ -77,16 +76,16 @@ void DT_3voies_init()
     }
 
     // KP, KI, KD
-    pid_pcbt.SetTunings(eeprom_config.KP_PCBT, eeprom_config.KI_PCBT, eeprom_config.KD_PCBT);
-    pid_mcbt.SetTunings(eeprom_config.KP_MCBT, eeprom_config.KI_MCBT, eeprom_config.KD_MCBT);
+    pid_pcbt.SetTunings(eeprom_config.pid_pcbt.KP, eeprom_config.pid_pcbt.KI, eeprom_config.pid_pcbt.KD);
+    pid_mcbt.SetTunings(eeprom_config.pid_mcbt.KP, eeprom_config.pid_mcbt.KI, eeprom_config.pid_mcbt.KD);
 
     // min, max
-    pid_pcbt.SetOutputLimits((float)((float)eeprom_config.KT_PCBT * -1.0), eeprom_config.KT_PCBT);
-    pid_mcbt.SetOutputLimits((float)((float)eeprom_config.KT_MCBT * -1.0), eeprom_config.KT_MCBT);
+    pid_pcbt.SetOutputLimits((float)((float)eeprom_config.pid_pcbt.KT * -1.0), eeprom_config.pid_pcbt.KT);
+    pid_mcbt.SetOutputLimits((float)((float)eeprom_config.pid_mcbt.KT * -1.0), eeprom_config.pid_mcbt.KT);
 
     // loop time (KT)
-    pid_pcbt.SetSampleTimeUs(eeprom_config.KT_PCBT * 1000);
-    pid_mcbt.SetSampleTimeUs(eeprom_config.KT_MCBT * 1000);
+    pid_pcbt.SetSampleTimeUs(eeprom_config.pid_pcbt.KT * 1000);
+    pid_mcbt.SetSampleTimeUs(eeprom_config.pid_mcbt.KT * 1000);
 
     // temperature de l'eau
     Input_PCBT = DT_pt100_get(PT100_3_VOIES_PCBT);
@@ -201,7 +200,7 @@ void DT_3voies_loop()
     }
     else if ((eeprom_config.mode_3voies_PCBT != DT_3VOIES_OFF) && (mem_config.C2 > (eeprom_config.C_PCBT_MIN + eeprom_config.V3)))
     {
-        DT_relay(CIRCULATEUR_PCBT, true);                // demmarage du circulateur
+        DT_relay(CIRCULATEUR_PCBT, true);               // demmarage du circulateur
         pid_pcbt.SetMode(QuickPID::Control::automatic); // demmarage de la vanne 3
     }
     else if ((eeprom_config.mode_3voies_PCBT == DT_3VOIES_OFF))
@@ -217,7 +216,7 @@ void DT_3voies_loop()
     }
     else if ((eeprom_config.mode_3voies_MCBT != DT_3VOIES_OFF) && (mem_config.C3 < (eeprom_config.C_MCBT_MIN + eeprom_config.V3)))
     {
-        DT_relay(CIRCULATEUR_MCBT, true);                // demmarage du circulateur
+        DT_relay(CIRCULATEUR_MCBT, true);               // demmarage du circulateur
         pid_mcbt.SetMode(QuickPID::Control::automatic); // demmarage de la vanne 3 voie
     }
     else if ((eeprom_config.mode_3voies_MCBT == DT_3VOIES_OFF))
@@ -378,71 +377,99 @@ DT_3voies_mode DT_3voies_MCBT_get_mode(void)
 
 void DT_3voies_PCBT_set_KP(float kp)
 {
-    eeprom_config.KP_PCBT = kp;
+    eeprom_config.pid_pcbt.KP = kp;
     // sauvegardeEEPROM();
     // set KP, KI, KD
-    pid_pcbt.SetTunings(eeprom_config.KP_PCBT, eeprom_config.KI_PCBT, eeprom_config.KD_PCBT);
+    pid_pcbt.SetTunings(eeprom_config.pid_pcbt.KP, eeprom_config.pid_pcbt.KI, eeprom_config.pid_pcbt.KD);
 }
 
 void DT_3voies_MCBT_set_KP(float kp)
 {
-    eeprom_config.KP_MCBT = kp;
+    eeprom_config.pid_mcbt.KP = kp;
     // sauvegardeEEPROM();
     // set KP, KI, KD
-    pid_mcbt.SetTunings(eeprom_config.KP_MCBT, eeprom_config.KI_MCBT, eeprom_config.KD_MCBT);
+    pid_mcbt.SetTunings(eeprom_config.pid_mcbt.KP, eeprom_config.pid_mcbt.KI, eeprom_config.pid_mcbt.KD);
 }
 
 void DT_3voies_PCBT_set_KI(float ki)
 {
-    eeprom_config.KI_PCBT = ki;
+    eeprom_config.pid_pcbt.KI = ki;
     // sauvegardeEEPROM();
     // set KP, KI, KD
-    pid_pcbt.SetTunings(eeprom_config.KP_PCBT, eeprom_config.KI_PCBT, eeprom_config.KD_PCBT);
+    pid_pcbt.SetTunings(eeprom_config.pid_pcbt.KP, eeprom_config.pid_pcbt.KI, eeprom_config.pid_pcbt.KD);
 }
 
 void DT_3voies_MCBT_set_KI(float ki)
 {
-    eeprom_config.KI_MCBT = ki;
+    eeprom_config.pid_mcbt.KI = ki;
     // sauvegardeEEPROM();
     // set KP, KI, KD
-    pid_mcbt.SetTunings(eeprom_config.KP_MCBT, eeprom_config.KI_MCBT, eeprom_config.KD_MCBT);
+    pid_mcbt.SetTunings(eeprom_config.pid_mcbt.KP, eeprom_config.pid_mcbt.KI, eeprom_config.pid_mcbt.KD);
 }
 
 void DT_3voies_PCBT_set_KD(float kd)
 {
-    eeprom_config.KD_PCBT = kd;
+    eeprom_config.pid_pcbt.KD = kd;
     // sauvegardeEEPROM();
     // set KP, KI, KD
-    pid_pcbt.SetTunings(eeprom_config.KP_PCBT, eeprom_config.KI_PCBT, eeprom_config.KD_PCBT);
+    pid_pcbt.SetTunings(eeprom_config.pid_pcbt.KP, eeprom_config.pid_pcbt.KI, eeprom_config.pid_pcbt.KD);
 }
 
 void DT_3voies_MCBT_set_KD(float kd)
 {
-    eeprom_config.KD_MCBT = kd;
+    eeprom_config.pid_mcbt.KD = kd;
     // sauvegardeEEPROM();
     // set KP, KI, KD
-    pid_mcbt.SetTunings(eeprom_config.KP_MCBT, eeprom_config.KI_MCBT, eeprom_config.KD_MCBT);
+    pid_mcbt.SetTunings(eeprom_config.pid_mcbt.KP, eeprom_config.pid_mcbt.KI, eeprom_config.pid_mcbt.KD);
 }
 
 void DT_3voies_PCBT_set_KT(uint32_t kt)
 {
-    eeprom_config.KT_PCBT = kt;
+    eeprom_config.pid_pcbt.KT = kt;
     // sauvegardeEEPROM();
     // set loop time (KT)
-    pid_pcbt.SetSampleTimeUs(eeprom_config.KT_PCBT * 1000);
+    pid_pcbt.SetSampleTimeUs(eeprom_config.pid_pcbt.KT * 1000);
     // min, max
-    pid_pcbt.SetOutputLimits((float)((float)eeprom_config.KT_PCBT * -1.0), (float)eeprom_config.KT_PCBT);
+    pid_pcbt.SetOutputLimits((float)((float)eeprom_config.pid_pcbt.KT * -1.0), (float)eeprom_config.pid_pcbt.KT);
 }
 
 void DT_3voies_MCBT_set_KT(uint32_t kt)
 {
-    eeprom_config.KT_MCBT = kt;
+    eeprom_config.pid_mcbt.KT = kt;
     // sauvegardeEEPROM();
     // set loop time (KT)
-    pid_mcbt.SetSampleTimeUs(eeprom_config.KT_MCBT * 1000);
+    pid_mcbt.SetSampleTimeUs(eeprom_config.pid_mcbt.KT * 1000);
     // min, max
-    pid_mcbt.SetOutputLimits((float)((float)eeprom_config.KT_MCBT * -1.0), (float)eeprom_config.KT_MCBT);
+    pid_mcbt.SetOutputLimits((float)((float)eeprom_config.pid_mcbt.KT * -1.0), (float)eeprom_config.pid_mcbt.KT);
 }
+
+void DT_3voies_PCBT_set_action(QuickPID::Action action)
+{
+    eeprom_config.pid_pcbt.action = action;
+    // sauvegardeEEPROM();
+    pid_pcbt.SetControllerDirection((QuickPID::Action)action);
+}
+
+void DT_3voies_MCBT_set_action(QuickPID::Action action)
+{
+    eeprom_config.pid_mcbt.action = action;
+    // sauvegardeEEPROM();
+    pid_mcbt.SetControllerDirection((QuickPID::Action)action);
+}
+
+// void DT_3voies_PCBT_set_action(Action action)
+// {
+//     eeprom_config.pid_pcbt.action = action;
+//     // sauvegardeEEPROM();
+//     pid_pcbt.SetControllerDirection((QuickPID::Action)action);
+// }
+
+// void DT_3voies_MCBT_set_action(Action action)
+// {
+//     eeprom_config.pid_mcbt.action = action;
+//     // sauvegardeEEPROM();
+//     pid_mcbt.SetControllerDirection((QuickPID::Action)action);
+// }
 
 // set consigne temp PCBT
 void DT_3voies_set_C2(float c2)
@@ -458,42 +485,42 @@ void DT_3voies_set_C3(float c3)
 
 float DT_3voies_PCBT_get_KP()
 {
-    return eeprom_config.KP_PCBT;
+    return eeprom_config.pid_pcbt.KP;
 }
 
 float DT_3voies_MCBT_get_KP()
 {
-    return eeprom_config.KP_MCBT;
+    return eeprom_config.pid_mcbt.KP;
 }
 
 float DT_3voies_PCBT_get_KI()
 {
-    return eeprom_config.KI_PCBT;
+    return eeprom_config.pid_pcbt.KI;
 }
 
 float DT_3voies_MCBT_get_KI()
 {
-    return eeprom_config.KI_MCBT;
+    return eeprom_config.pid_mcbt.KI;
 }
 
 float DT_3voies_PCBT_get_KD()
 {
-    return eeprom_config.KD_PCBT;
+    return eeprom_config.pid_pcbt.KD;
 }
 
 float DT_3voies_MCBT_get_KD()
 {
-    return eeprom_config.KD_MCBT;
+    return eeprom_config.pid_mcbt.KD;
 }
 
 uint32_t DT_3voies_PCBT_get_KT()
 {
-    return eeprom_config.KT_PCBT;
+    return eeprom_config.pid_pcbt.KT;
 }
 
 uint32_t DT_3voies_MCBT_get_KT()
 {
-    return eeprom_config.KT_MCBT;
+    return eeprom_config.pid_mcbt.KT;
 }
 
 void DT_3voies_set_callback(void (*callback)(const float C2, const float C3))

@@ -1,6 +1,7 @@
 #ifndef DT_3VOIES
 #define DT_3VOIES
 #include <Arduino.h>
+#include <QuickPID.h>
 
 enum DT_3voies_mode
 {
@@ -40,6 +41,9 @@ float DT_3voies_MCBT_get_KI();
 float DT_3voies_MCBT_get_KD();
 uint32_t DT_3voies_MCBT_get_KT();
 float DT_3voies_get_C3(); //get consigne temp MCBT
+
+void DT_3voies_PCBT_set_action(QuickPID::Action action);
+void DT_3voies_MCBT_set_action(QuickPID::Action action);
 
 void DT_3voies_set_callback(void (*callback)(const float C2, const float C3));
 

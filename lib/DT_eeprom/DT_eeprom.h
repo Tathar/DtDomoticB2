@@ -10,8 +10,22 @@
 #include "../lib/DT_poele/DT_poele.h"
 #include "../lib/DT_3voies/DT_3voies.h"
 
+#include <QuickPID.h>
+
 static const uint8_t STRUCT_MAGIC = 1;
 static const uint8_t STRUCT_VERSION = 1;
+
+struct Pid
+{
+    float KP;    // pid KP
+    float KI;    // pid KI
+    float KD;    // pid KD
+    uint32_t KT; // pid interval (en ms)
+    QuickPID::Action action;
+    QuickPID::pMode pmode;
+    QuickPID::dMode dmode;
+    QuickPID::iAwMode iawmode;
+};
 
 // declaration de la structure de configuration
 struct Mem_Config
@@ -19,7 +33,6 @@ struct Mem_Config
     float C2; // consigne Temp PCBT
     float C3; // consigne MCBT
 };
-
 struct Eeprom_Config
 {
     uint8_t magic;
@@ -47,15 +60,17 @@ struct Eeprom_Config
     float C_MCBT_MIN; // consigne Temp MCBT minimum
     float C_MCBT_MAX; // consigne Temp MCBT maximum
 
-    float KP_PCBT;    // pid KP PCBT
-    float KI_PCBT;    // pid KI PCBT
-    float KD_PCBT;    // pid KD PCBT
-    uint32_t KT_PCBT; // pid interval PCBT (en ms)
+    // float KP_PCBT;    // pid KP PCBT
+    // float KI_PCBT;    // pid KI PCBT
+    // float KD_PCBT;    // pid KD PCBT
+    // uint32_t KT_PCBT; // pid interval PCBT (en ms)
+    Pid pid_pcbt;
 
-    float KP_MCBT;    // pid KP MCBT
-    float KI_MCBT;    // pid KI MCBT
-    float KD_MCBT;    // pid KD MCBT
-    uint32_t KT_MCBT; // pid interval MCBT (en ms)
+    // float KP_MCBT;    // pid KP MCBT
+    // float KI_MCBT;    // pid KI MCBT
+    // float KD_MCBT;    // pid KD MCBT
+    // uint32_t KT_MCBT; // pid interval MCBT (en ms)
+    Pid pid_mcbt;
 };
 
 // structure de configuration

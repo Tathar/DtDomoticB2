@@ -4,6 +4,7 @@
 #include <DT_relay.h>
 #include <DT_fake_ntc.h>
 
+#include <QuickPID.h>
 #include <DT_eeprom.h>
 
 #include <config.h>
