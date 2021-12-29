@@ -7,7 +7,7 @@
 #define RELAY_MIN_TIME 10
 #define RELAY_NUM 32
 const uint8_t RELAY_ARRAY[RELAY_NUM] PROGMEM = {13, 12, 11, 8, 7, 6, 5, 3, 2, 44, 45, 46, 10, 9, 4, 47, 100, 101, 102, 103, 104, 105, 106, 107, 200, 201, 202, 203, 204, 205, 206, 207};
-const bool RELAY_REVERT[RELAY_NUM] PROGMEM = {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false};
+const bool RELAY_REVERT[RELAY_NUM] PROGMEM = {false, false, false, false, false, false, false, false, false, false, false, true, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false};
 
 #define MCP_NUM 2
 const uint8_t MCP_ADDRESS[MCP_NUM] PROGMEM = {0x40, 0x42};
