@@ -55,6 +55,10 @@ void DT_3voies_init()
         else
             temp_etape_pcbt = D2MS;
     }
+    else if (eeprom_config.mode_3voies_PCBT == DT_3VOIES_OFF)
+    {
+        mem_config.C2 = 0;
+    }
     else
     {
         mem_config.C2 = scale(DT_pt100_get(PT100_EXT), -10, 10, eeprom_config.C8, eeprom_config.C9);
@@ -69,6 +73,10 @@ void DT_3voies_init()
             temp_etape_mcbt = D2MS * 3;
         else
             temp_etape_mcbt = D2MS;
+    }
+    else if (eeprom_config.mode_3voies_MCBT == DT_3VOIES_OFF)
+    {
+        mem_config.C3 = 0;
     }
     else
     {
@@ -142,6 +150,10 @@ void DT_3voies_loop()
 
         mem_config.C2 = temperature_etape_pcbt;
     }
+    else if (eeprom_config.mode_3voies_PCBT == DT_3VOIES_OFF)
+    {
+        mem_config.C2 = 0;
+    }
     else if (eeprom_config.mode_3voies_PCBT == DT_3VOIES_NORMAL)
     {
         mem_config.C2 = scale(DT_pt100_get(PT100_EXT), -10, 10, eeprom_config.C8, eeprom_config.C9);
@@ -163,6 +175,10 @@ void DT_3voies_loop()
                 temp_etape_mcbt = D2MS;
         }
         mem_config.C3 = temperature_etape_mcbt;
+    }
+    else if (eeprom_config.mode_3voies_MCBT == DT_3VOIES_OFF)
+    {
+        mem_config.C3 = 0;
     }
     else if (eeprom_config.mode_3voies_MCBT == DT_3VOIES_NORMAL)
     {
@@ -192,6 +208,7 @@ void DT_3voies_loop()
     {
         Input_MCBT = DT_pt100_get(PT100_3_VOIES_MCBT);
     }
+
     // consigne minimum pour fonctionnement des circulateur
     if ((eeprom_config.mode_3voies_PCBT != DT_3VOIES_DEMMARAGE) && (mem_config.C2 < (eeprom_config.C_PCBT_MIN - eeprom_config.V3)))
     {
@@ -258,6 +275,7 @@ void DT_3voies_loop()
             }
         }
     */
+
     // calcule du PID
     if (pid_pcbt.Compute())
     {
