@@ -36,16 +36,6 @@ void (*fake_ntc_callback)(const uint8_t value);
 
 void _fake_ntc_set(uint8_t value)
 {
-    if (value > 70)
-    {
-        value = 70;
-        if (fake_ntc_callback != nullptr)
-        {
-            fake_ntc_callback(value-1);
-            fake_ntc_callback(value);
-        }
-    }
-
     if (value >= 0 && value <= 100 && fake_ntc_value != value)
     {
         fake_ntc_value = value;
@@ -67,12 +57,14 @@ void _fake_ntc_set(uint8_t value)
         digitalWrite(FAKE_NTC_CS, HIGH);
         wdt_reset();
         delay(10);
-       //auto Serial.print("fake_NTC = ");
-       //auto Serial.println(fake_ntc_value);
-       //auto Serial.print("r1 = ");
-       //auto Serial.println(r1);
-       //auto Serial.print("r2 = ");
-       //auto Serial.println(r2);
+
+        fake_ntc_callback(value);
+        //auto Serial.print("fake_NTC = ");
+        //auto Serial.println(fake_ntc_value);
+        //auto Serial.print("r1 = ");
+        //auto Serial.println(r1);
+        //auto Serial.print("r2 = ");
+        //auto Serial.println(r2);
     }
 }
 
@@ -105,6 +97,14 @@ void DT_fake_ntc_loop()
 */
 void DT_fake_ntc_set(uint8_t value)
 {
+    if (value > 70)
+    {
+        value = 70;
+        if (fake_ntc_callback != nullptr)
+        {
+            fake_ntc_callback(value - 1);
+        }
+    }
     // fake_ntc_new_value = value;
     _fake_ntc_set(value);
 }
