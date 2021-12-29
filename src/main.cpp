@@ -2303,10 +2303,11 @@ void loop()
   load_1s_count += 1;
   if (now - load_1s_time >= 1000)
   {
-    float load = ((now - load_1s_time) / 20) / load_1s_count;
-    load_1s_count = load / 100;
+    float load = ((now - load_1s_time) / 20.0) / load_1s_count;
+    
+    load_1s_count = load * 100;
     strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/load_1s"), BUFFER_SIZE);
-    DT_mqtt_send(buffer, (float)(load_1s_count * 100.0));
+    DT_mqtt_send(buffer, (float)(load_1s_count / 100.0));
     load_1s_count = 0;
     load_1s_time = now;
   }
