@@ -328,7 +328,7 @@ void homeassistant(void)
   // consigne vanne 3 voies PCBT
   wdt_reset();
   doc.clear();
-  doc["~"] = F("DtBoard/" BOARD_IDENTIFIER "/C2");
+  doc["~"] = F("DtBoard/" BOARD_IDENTIFIER "/pcbt/C2");
   doc["uniq_id"] = F(BOARD_IDENTIFIER "-C2");
   doc["name"] = F("consigne PCBT (C2)");
   doc["stat_t"] = F("~/state");
@@ -369,7 +369,7 @@ void homeassistant(void)
   // consigne vanne 3 voies MCBT
   wdt_reset();
   doc.clear();
-  doc["~"] = F("DtBoard/" BOARD_IDENTIFIER "/C3");
+  doc["~"] = F("DtBoard/" BOARD_IDENTIFIER "/mcbt/C3");
   doc["uniq_id"] = F(BOARD_IDENTIFIER "-C3");
   doc["name"] = F("consigne MCBT (C3)");
   doc["stat_t"] = F("~/state");
@@ -507,7 +507,7 @@ void homeassistant(void)
   // C8
   wdt_reset();
   doc.clear();
-  doc["~"] = F("DtBoard/" BOARD_IDENTIFIER "/C8");
+  doc["~"] = F("DtBoard/" BOARD_IDENTIFIER "/pcbt/C8");
   doc["uniq_id"] = F(BOARD_IDENTIFIER "-C8");
   doc["name"] = F("consigne Temp PCBT a -10°C (C8)");
   doc["stat_t"] = F("~/state");
@@ -524,7 +524,7 @@ void homeassistant(void)
   // C9
   wdt_reset();
   doc.clear();
-  doc["~"] = F("DtBoard/" BOARD_IDENTIFIER "/C9");
+  doc["~"] = F("DtBoard/" BOARD_IDENTIFIER "/pcbt/C9");
   doc["uniq_id"] = F(BOARD_IDENTIFIER "-C9");
   doc["name"] = F("consigne Temp PCBT a +10°C (C9)");
   doc["stat_t"] = F("~/state");
@@ -541,7 +541,7 @@ void homeassistant(void)
   // C10
   wdt_reset();
   doc.clear();
-  doc["~"] = F("DtBoard/" BOARD_IDENTIFIER "/C10");
+  doc["~"] = F("DtBoard/" BOARD_IDENTIFIER "/mcbt/C10");
   doc["uniq_id"] = F(BOARD_IDENTIFIER "-C10");
   doc["name"] = F("consigne Temp MCBT a -10°C (C10)");
   doc["stat_t"] = F("~/state");
@@ -558,7 +558,7 @@ void homeassistant(void)
   // C11
   wdt_reset();
   doc.clear();
-  doc["~"] = F("DtBoard/" BOARD_IDENTIFIER "/C11");
+  doc["~"] = F("DtBoard/" BOARD_IDENTIFIER "/mcbt/C11");
   doc["uniq_id"] = F(BOARD_IDENTIFIER "-C11");
   doc["name"] = F("consigne Temp MCBT a +10°C (C11)");
   doc["stat_t"] = F("~/state");
@@ -575,7 +575,7 @@ void homeassistant(void)
   // C_PCBT_MIN
   wdt_reset();
   doc.clear();
-  doc["~"] = F("DtBoard/" BOARD_IDENTIFIER "/C_PCBT_MIN");
+  doc["~"] = F("DtBoard/" BOARD_IDENTIFIER "/pcbt/min_temp");
   doc["uniq_id"] = F(BOARD_IDENTIFIER "-C_PCBT_MIN");
   doc["name"] = F("consigne Temp PCBT minimum (C_PCBT_MIN)");
   doc["stat_t"] = F("~/state");
@@ -592,7 +592,7 @@ void homeassistant(void)
   // C_PCBT_MAX
   wdt_reset();
   doc.clear();
-  doc["~"] = F("DtBoard/" BOARD_IDENTIFIER "/C_PCBT_MAX");
+  doc["~"] = F("DtBoard/" BOARD_IDENTIFIER "/pcbt/max_temp");
   doc["uniq_id"] = F(BOARD_IDENTIFIER "-C_PCBT_MAX");
   doc["name"] = F("consigne Temp PCBT maximum (C_PCBT_MAX)");
   doc["stat_t"] = F("~/state");
@@ -609,7 +609,7 @@ void homeassistant(void)
   // C_MCBT_MIN
   wdt_reset();
   doc.clear();
-  doc["~"] = F("DtBoard/" BOARD_IDENTIFIER "/C_MCBT_MIN");
+  doc["~"] = F("DtBoard/" BOARD_IDENTIFIER "/mcbt/min_temp");
   doc["uniq_id"] = F(BOARD_IDENTIFIER "-C_MCBT_MIN");
   doc["name"] = F("consigne Temp MCBT minimum (C_MCBT_MIN)");
   doc["stat_t"] = F("~/state");
@@ -626,7 +626,7 @@ void homeassistant(void)
   // C_MCBT_MAX
   wdt_reset();
   doc.clear();
-  doc["~"] = F("DtBoard/" BOARD_IDENTIFIER "/C_MCBT_MAX");
+  doc["~"] = F("DtBoard/" BOARD_IDENTIFIER "/mcbt/max_temp");
   doc["uniq_id"] = F(BOARD_IDENTIFIER "-C_MCBT_MAX");
   doc["name"] = F("consigne Temp MCBT maximum (C_MCBT_MAX)");
   doc["stat_t"] = F("~/state");
@@ -643,7 +643,7 @@ void homeassistant(void)
   // KP_PCBT
   wdt_reset();
   doc.clear();
-  doc["~"] = F("DtBoard/" BOARD_IDENTIFIER "/KP_PCBT");
+  doc["~"] = F("DtBoard/" BOARD_IDENTIFIER "/pcbt/KP");
   doc["uniq_id"] = F(BOARD_IDENTIFIER "-KP_PCBT");
   doc["name"] = F("pid KP PCBT (KP_PCBT)");
   doc["stat_t"] = F("~/state");
@@ -663,7 +663,7 @@ void homeassistant(void)
   // KI_PCBT
   wdt_reset();
   doc.clear();
-  doc["~"] = F("DtBoard/" BOARD_IDENTIFIER "/KI_PCBT");
+  doc["~"] = F("DtBoard/" BOARD_IDENTIFIER "/pcbt/KI");
   doc["uniq_id"] = F(BOARD_IDENTIFIER "-KI_PCBT");
   doc["name"] = F("pid KI PCBT (KI_PCBT)");
   doc["stat_t"] = F("~/state");
@@ -683,7 +683,7 @@ void homeassistant(void)
   // KD_PCBT
   wdt_reset();
   doc.clear();
-  doc["~"] = F("DtBoard/" BOARD_IDENTIFIER "/KD_PCBT");
+  doc["~"] = F("DtBoard/" BOARD_IDENTIFIER "/pcbt/KD");
   doc["uniq_id"] = F(BOARD_IDENTIFIER "-KD_PCBT");
   doc["name"] = F("pid KD PCBT (KD_PCBT)");
   doc["stat_t"] = F("~/state");
@@ -703,7 +703,7 @@ void homeassistant(void)
   // KT_PCBT
   wdt_reset();
   doc.clear();
-  doc["~"] = F("DtBoard/" BOARD_IDENTIFIER "/KT_PCBT");
+  doc["~"] = F("DtBoard/" BOARD_IDENTIFIER "/pcbt/KT");
   doc["uniq_id"] = F(BOARD_IDENTIFIER "-KT_PCBT");
   doc["name"] = F("pid interval PCBT (en ms) (KT_PCBT)");
   doc["stat_t"] = F("~/state");
@@ -801,7 +801,7 @@ void homeassistant(void)
   // KP_MCBT
   wdt_reset();
   doc.clear();
-  doc["~"] = F("DtBoard/" BOARD_IDENTIFIER "/KP_MCBT");
+  doc["~"] = F("DtBoard/" BOARD_IDENTIFIER "/mcbt/KP");
   doc["uniq_id"] = F(BOARD_IDENTIFIER "-KP_MCBT");
   doc["name"] = F("pid KP MCBT (KP_MCBT)");
   doc["stat_t"] = F("~/state");
@@ -821,7 +821,7 @@ void homeassistant(void)
   // KI_MCBT
   wdt_reset();
   doc.clear();
-  doc["~"] = F("DtBoard/" BOARD_IDENTIFIER "/KI_MCBT");
+  doc["~"] = F("DtBoard/" BOARD_IDENTIFIER "/mcbt/KI");
   doc["uniq_id"] = F(BOARD_IDENTIFIER "-KI_MCBT");
   doc["name"] = F("pid KI MCBT (KI_MCBT)");
   doc["stat_t"] = F("~/state");
@@ -841,7 +841,7 @@ void homeassistant(void)
   // KD_MCBT
   wdt_reset();
   doc.clear();
-  doc["~"] = F("DtBoard/" BOARD_IDENTIFIER "/KD_MCBT");
+  doc["~"] = F("DtBoard/" BOARD_IDENTIFIER "/mcbt/KD");
   doc["uniq_id"] = F(BOARD_IDENTIFIER "-KD_MCBT");
   doc["name"] = F("pid KD MCBT (KD_MCBT)");
   doc["stat_t"] = F("~/state");
@@ -861,7 +861,7 @@ void homeassistant(void)
   // KT_MCBT
   wdt_reset();
   doc.clear();
-  doc["~"] = F("DtBoard/" BOARD_IDENTIFIER "/KT_MCBT");
+  doc["~"] = F("DtBoard/" BOARD_IDENTIFIER "/mcbt/KT");
   doc["uniq_id"] = F(BOARD_IDENTIFIER "-KT_MCBT");
   doc["name"] = F("pid interval MCBT (en ms) (KT_MCBT)");
   doc["stat_t"] = F("~/state");
@@ -1137,7 +1137,7 @@ void dt3voies_callback(const float C2, const float C3)
   int32_t digit = C2 * 100;
   variant.set((float)digit / 100.0);
   serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
-  strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/C2/state"), BUFFER_SIZE);
+  strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/pcbt/C2/state"), BUFFER_SIZE);
   DT_mqtt_send(buffer, buffer_value);
 
   wdt_reset();
@@ -1146,7 +1146,7 @@ void dt3voies_callback(const float C2, const float C3)
   variant.set((float)digit / 100.0);
   variant.set(C3);
   serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
-  strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/C3/state"), BUFFER_SIZE);
+  strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/mcbt/C3/state"), BUFFER_SIZE);
   DT_mqtt_send(buffer, buffer_value);
 }
 
@@ -1273,81 +1273,81 @@ void mqtt_publish()
 
   // C8
   wdt_reset();
-  strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/C8/state"), BUFFER_SIZE);
+  strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/pcbt/C8/state"), BUFFER_SIZE);
   DT_mqtt_send(buffer, eeprom_config.C8);
 
   // C9
   wdt_reset();
-  strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/C9/state"), BUFFER_SIZE);
+  strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/pcbt/C9/state"), BUFFER_SIZE);
   DT_mqtt_send(buffer, eeprom_config.C9);
 
   // C10
   wdt_reset();
-  strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/C10/state"), BUFFER_SIZE);
+  strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/mcbt/C10/state"), BUFFER_SIZE);
   DT_mqtt_send(buffer, eeprom_config.C10);
 
   // C11
   wdt_reset();
-  strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/C11/state"), BUFFER_SIZE);
+  strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/mcbt/C11/state"), BUFFER_SIZE);
   DT_mqtt_send(buffer, eeprom_config.C11);
 
   // C_PCBT_MIN
   wdt_reset();
-  strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/C_PCBT_MIN/state"), BUFFER_SIZE);
+  strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/pcbt/min_temp/state"), BUFFER_SIZE);
   DT_mqtt_send(buffer, eeprom_config.C_PCBT_MIN);
 
   // C_PCBT_MAX
   wdt_reset();
-  strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/C_PCBT_MAX/state"), BUFFER_SIZE);
+  strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/pcbt/max_temp/state"), BUFFER_SIZE);
   DT_mqtt_send(buffer, eeprom_config.C_PCBT_MAX);
 
   // C_MCBT_MIN
   wdt_reset();
-  strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/C_MCBT_MIN/state"), BUFFER_SIZE);
+  strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/mcbt/min_temp/state"), BUFFER_SIZE);
   DT_mqtt_send(buffer, eeprom_config.C_MCBT_MIN);
 
   // C_MCBT_MAX
   wdt_reset();
-  strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/C_MCBT_MAX/state"), BUFFER_SIZE);
+  strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/mcbt/max_temp/state"), BUFFER_SIZE);
   DT_mqtt_send(buffer, eeprom_config.C_MCBT_MAX);
 
   // KP_PCBT
   wdt_reset();
-  strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/KP_PCBT/state"), BUFFER_SIZE);
+  strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/pcbt/KP/state"), BUFFER_SIZE);
   DT_mqtt_send(buffer, DT_3voies_PCBT_get_KP());
 
   // KI_PCBT
   wdt_reset();
-  strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/KI_PCBT/state"), BUFFER_SIZE);
+  strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/pcbt/KI/state"), BUFFER_SIZE);
   DT_mqtt_send(buffer, DT_3voies_PCBT_get_KI());
 
   // KD_PCBT
   wdt_reset();
-  strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/KD_PCBT/state"), BUFFER_SIZE);
+  strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/pcbt/KD/state"), BUFFER_SIZE);
   DT_mqtt_send(buffer, DT_3voies_PCBT_get_KI());
 
   // KT_PCBT
   wdt_reset();
-  strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/KT_PCBT/state"), BUFFER_SIZE);
+  strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/pcbt/KT/state"), BUFFER_SIZE);
   DT_mqtt_send(buffer, DT_3voies_PCBT_get_KT());
   // KP_MCBT
   wdt_reset();
-  strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/KP_MCBT/state"), BUFFER_SIZE);
+  strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/mcbt/KP/state"), BUFFER_SIZE);
   DT_mqtt_send(buffer, DT_3voies_MCBT_get_KP());
 
   // KI_MCBT
   wdt_reset();
-  strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/KI_MCBT/state"), BUFFER_SIZE);
+  strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/mcbt/KI/state"), BUFFER_SIZE);
   DT_mqtt_send(buffer, DT_3voies_MCBT_get_KI());
 
   // KD_MCBT
   wdt_reset();
-  strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/KD_MCBT/state"), BUFFER_SIZE);
+  strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/mcbt/KD/state"), BUFFER_SIZE);
   DT_mqtt_send(buffer, DT_3voies_MCBT_get_KD());
 
   // KT_MCBT
   wdt_reset();
-  strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/KT_MCBT/state"), BUFFER_SIZE);
+  strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/mcbt/KT/state"), BUFFER_SIZE);
   DT_mqtt_send(buffer, DT_3voies_MCBT_get_KT());
 
   // PID PCBT Action
@@ -1489,11 +1489,11 @@ void mqtt_subscribe(PubSubClient &mqtt)
   // 3 voies PCBT mode
   mqtt.subscribe("DtBoard/" BOARD_IDENTIFIER "/mcbt/mode/set");
   // 3 voies PCBT consigne
-  mqtt.subscribe("DtBoard/" BOARD_IDENTIFIER "/C2/set");
+  mqtt.subscribe("DtBoard/" BOARD_IDENTIFIER "/pcbt/C2/set");
   // 3 voies MCBT mode
   mqtt.subscribe("DtBoard/" BOARD_IDENTIFIER "/pcbt/mode/set");
   // 3 voies MCBT consigne
-  mqtt.subscribe("DtBoard/" BOARD_IDENTIFIER "/C3/set");
+  mqtt.subscribe("DtBoard/" BOARD_IDENTIFIER "/mcbt/C3/set");
 
   // EEPROM
   //  V1
@@ -1526,67 +1526,67 @@ void mqtt_subscribe(PubSubClient &mqtt)
 
   // C8
   wdt_reset();
-  mqtt.subscribe("DtBoard/" BOARD_IDENTIFIER "/C8/set");
+  mqtt.subscribe("DtBoard/" BOARD_IDENTIFIER "/pcbt/C8/set");
 
   // C9
   wdt_reset();
-  mqtt.subscribe("DtBoard/" BOARD_IDENTIFIER "/C9/set");
+  mqtt.subscribe("DtBoard/" BOARD_IDENTIFIER "/pcbt/C9/set");
 
   // C10
   wdt_reset();
-  mqtt.subscribe("DtBoard/" BOARD_IDENTIFIER "/C10/set");
+  mqtt.subscribe("DtBoard/" BOARD_IDENTIFIER "/mcbt/C10/set");
 
   // C11
   wdt_reset();
-  mqtt.subscribe("DtBoard/" BOARD_IDENTIFIER "/C11/set");
+  mqtt.subscribe("DtBoard/" BOARD_IDENTIFIER "/mcbt/C11/set");
 
   // C_PCBT_MIN
   wdt_reset();
-  mqtt.subscribe("DtBoard/" BOARD_IDENTIFIER "/C_PCBT_MIN/set");
+  mqtt.subscribe("DtBoard/" BOARD_IDENTIFIER "/pcbt/min_temp/set");
 
   // C_PCBT_MAX
   wdt_reset();
-  mqtt.subscribe("DtBoard/" BOARD_IDENTIFIER "/C_PCBT_MAX/set");
+  mqtt.subscribe("DtBoard/" BOARD_IDENTIFIER "/pcbt/max_temp/set");
 
   // C_MCBT_MIN
   wdt_reset();
-  mqtt.subscribe("DtBoard/" BOARD_IDENTIFIER "/C_MCBT_MIN/set");
+  mqtt.subscribe("DtBoard/" BOARD_IDENTIFIER "/mcbt/min_temp/set");
 
   // C_MCBT_MAX
   wdt_reset();
-  mqtt.subscribe("DtBoard/" BOARD_IDENTIFIER "/C_MCBT_MAX/set");
+  mqtt.subscribe("DtBoard/" BOARD_IDENTIFIER "/mcbt/max_temp/set");
 
   // KP_PCBT
   wdt_reset();
-  mqtt.subscribe("DtBoard/" BOARD_IDENTIFIER "/KP_PCBT/set");
+  mqtt.subscribe("DtBoard/" BOARD_IDENTIFIER "/pcbt/KP/set");
 
   // KI_PCBT
   wdt_reset();
-  mqtt.subscribe("DtBoard/" BOARD_IDENTIFIER "/KI_PCBT/set");
+  mqtt.subscribe("DtBoard/" BOARD_IDENTIFIER "/pcbt/KI/set");
 
   // KD_PCBT
   wdt_reset();
-  mqtt.subscribe("DtBoard/" BOARD_IDENTIFIER "/KD_PCBT/set");
+  mqtt.subscribe("DtBoard/" BOARD_IDENTIFIER "/pcbt/KD/set");
 
   // KT_PCBT
   wdt_reset();
-  mqtt.subscribe("DtBoard/" BOARD_IDENTIFIER "/KT_PCBT/set");
+  mqtt.subscribe("DtBoard/" BOARD_IDENTIFIER "/pcbt/KT/set");
 
   // KP_MCBT
   wdt_reset();
-  mqtt.subscribe("DtBoard/" BOARD_IDENTIFIER "/KP_MCBT/set");
+  mqtt.subscribe("DtBoard/" BOARD_IDENTIFIER "/mcbt/KP/set");
 
   // KI_MCBT
   wdt_reset();
-  mqtt.subscribe("DtBoard/" BOARD_IDENTIFIER "/KI_MCBT/set");
+  mqtt.subscribe("DtBoard/" BOARD_IDENTIFIER "/mcbt/KI/set");
 
   // KD_MCBT
   wdt_reset();
-  mqtt.subscribe("DtBoard/" BOARD_IDENTIFIER "/KD_MCBT/set");
+  mqtt.subscribe("DtBoard/" BOARD_IDENTIFIER "/mcbt/KD/set");
 
   // KT_MCBT
   wdt_reset();
-  mqtt.subscribe("DtBoard/" BOARD_IDENTIFIER "/KT_MCBT/set");
+  mqtt.subscribe("DtBoard/" BOARD_IDENTIFIER "/mcbt/KT/set");
 
   // PID PCBT
   wdt_reset();
@@ -1703,7 +1703,7 @@ void mqtt_receve(char *topic, uint8_t *payload, unsigned int length)
       DT_mqtt_send(buffer_value, "Arret");
     }
   }
-  else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/C2/set") == 0) // Mode de la vannes 3 voie MCBT
+  else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/pcbt/C2/set") == 0) // Mode de la vannes 3 voie MCBT
   {
     DeserializationError error = deserializeJson(doc, buffer, length);
     if (!error)
@@ -1738,7 +1738,7 @@ void mqtt_receve(char *topic, uint8_t *payload, unsigned int length)
       DT_mqtt_send(buffer_value, "Arret");
     }
   }
-  else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/C3/set") == 0) // Mode de la vannes 3 voie MCBT
+  else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/mcbt/C3/set") == 0) // Mode de la vannes 3 voie MCBT
   {
     DeserializationError error = deserializeJson(doc, buffer, length);
     if (!error)
@@ -1814,164 +1814,164 @@ void mqtt_receve(char *topic, uint8_t *payload, unsigned int length)
       DT_mqtt_send(buffer, u8t_value);
     }
   }
-  else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/C8/set") == 0) // C8
+  else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/pcbt/C8/set") == 0) // C8
   {
     DeserializationError error = deserializeJson(doc, buffer, length);
     if (!error)
     {
       eeprom_config.C8 = doc.as<float>();
-      strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/C8/state"), BUFFER_SIZE);
+      strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/pcbt/C8/state"), BUFFER_SIZE);
       DT_mqtt_send(buffer, eeprom_config.C8);
     }
   }
-  else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/C9/set") == 0) // C9
+  else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/pcbt/C9/set") == 0) // C9
   {
     DeserializationError error = deserializeJson(doc, buffer, length);
     if (!error)
     {
       eeprom_config.C9 = doc.as<float>();
-      strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/C9/state"), BUFFER_SIZE);
+      strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/pcbt/C9/state"), BUFFER_SIZE);
       DT_mqtt_send(buffer, eeprom_config.C9);
     }
   }
-  else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/C10/set") == 0) // C10
+  else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/mcbt/C10/set") == 0) // C10
   {
     DeserializationError error = deserializeJson(doc, buffer, length);
     if (!error)
     {
       eeprom_config.C10 = doc.as<float>();
-      strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/C10/state"), BUFFER_SIZE);
+      strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/mcbt/C10/state"), BUFFER_SIZE);
       DT_mqtt_send(buffer, eeprom_config.C10);
     }
   }
-  else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/C11/set") == 0) // C11
+  else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/mcbt/C11/set") == 0) // C11
   {
     DeserializationError error = deserializeJson(doc, buffer, length);
     if (!error)
     {
       eeprom_config.C11 = doc.as<float>();
-      strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/C11/state"), BUFFER_SIZE);
+      strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/mcbt/C11/state"), BUFFER_SIZE);
       DT_mqtt_send(buffer, eeprom_config.C11);
     }
   }
-  else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/C_PCBT_MIN/set") == 0) // C_PCBT_MIN
+  else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/pcbt/min_temp/set") == 0) // C_PCBT_MIN
   {
     DeserializationError error = deserializeJson(doc, buffer, length);
     if (!error)
     {
       eeprom_config.C_PCBT_MIN = doc.as<float>();
-      strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/C_PCBT_MIN/state"), BUFFER_SIZE);
+      strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/pcbt/min_temp/state"), BUFFER_SIZE);
       DT_mqtt_send(buffer, eeprom_config.C_PCBT_MIN);
     }
   }
-  else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/C_PCBT_MAX/set") == 0) // C_PCBT_MAX
+  else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/pcbt/max_temp/set") == 0) // C_PCBT_MAX
   {
     DeserializationError error = deserializeJson(doc, buffer, length);
     if (!error)
     {
       eeprom_config.C_PCBT_MAX = doc.as<float>();
-      strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/C_PCBT_MAX/state"), BUFFER_SIZE);
+      strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/pcbt/max_temp/state"), BUFFER_SIZE);
       DT_mqtt_send(buffer, eeprom_config.C_PCBT_MAX);
     }
   }
-  else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/C_MCBT_MIN/set") == 0) // C_MCBT_MIN
+  else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/mcbt/min_temp/set") == 0) // C_MCBT_MIN
   {
     DeserializationError error = deserializeJson(doc, buffer, length);
     if (!error)
     {
       eeprom_config.C_MCBT_MIN = doc.as<float>();
-      strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/C_MCBT_MIN/state"), BUFFER_SIZE);
+      strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/mcbt/min_temp/state"), BUFFER_SIZE);
       DT_mqtt_send(buffer, eeprom_config.C_MCBT_MIN);
     }
   }
-  else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/C_MCBT_MAX/set") == 0) // C_MCBT_MAX
+  else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/mcbt/max_temp/set") == 0) // C_MCBT_MAX
   {
     DeserializationError error = deserializeJson(doc, buffer, length);
     if (!error)
     {
       eeprom_config.C_MCBT_MAX = doc.as<float>();
-      strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/C_MCBT_MAX/state"), BUFFER_SIZE);
+      strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/mcbt/max_temp/state"), BUFFER_SIZE);
       DT_mqtt_send(buffer, eeprom_config.C_MCBT_MAX);
     }
   }
-  else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/KP_PCBT/set") == 0) // KP_PCBT
+  else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/pcbt/KP/set") == 0) // KP_PCBT
   {
     DeserializationError error = deserializeJson(doc, buffer, length);
     if (!error)
     {
       DT_3voies_PCBT_set_KP(doc.as<float>());
-      strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/KP_PCBT/state"), BUFFER_SIZE);
+      strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/pcbt/KP/state"), BUFFER_SIZE);
       DT_mqtt_send(buffer, DT_3voies_PCBT_get_KP());
     }
   }
-  else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/KI_PCBT/set") == 0) // KI_PCBT
+  else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/pcbt/KI/set") == 0) // KI_PCBT
   {
     DeserializationError error = deserializeJson(doc, buffer, length);
     if (!error)
     {
       DT_3voies_PCBT_set_KI(doc.as<float>());
-      strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/KI_PCBT/state"), BUFFER_SIZE);
+      strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/pcbt/KI/state"), BUFFER_SIZE);
       DT_mqtt_send(buffer, DT_3voies_PCBT_get_KI());
     }
   }
-  else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/KD_PCBT/set") == 0) // KD_PCBT
+  else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/pcbt/KD/set") == 0) // KD_PCBT
   {
     DeserializationError error = deserializeJson(doc, buffer, length);
     if (!error)
     {
       DT_3voies_PCBT_set_KD(doc.as<float>());
-      strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/KD_PCBT/state"), BUFFER_SIZE);
+      strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/pcbt/KD/state"), BUFFER_SIZE);
       DT_mqtt_send(buffer, DT_3voies_PCBT_get_KD());
     }
   }
-  else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/KT_PCBT/set") == 0) // KT_PCBT
+  else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/pcbt/KT/set") == 0) // KT_PCBT
   {
     DeserializationError error = deserializeJson(doc, buffer, length);
     if (!error)
     {
       DT_3voies_PCBT_set_KT(doc.as<uint32_t>());
-      strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/KT_PCBT/state"), BUFFER_SIZE);
+      strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/pcbt/KT/state"), BUFFER_SIZE);
       DT_mqtt_send(buffer, DT_3voies_PCBT_get_KT());
     }
   }
-  else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/KP_MCBT/set") == 0) // KP_MCBT
+  else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/mcbt/KP/set") == 0) // KP_MCBT
   {
     DeserializationError error = deserializeJson(doc, buffer, length);
     if (!error)
     {
       DT_3voies_MCBT_set_KP(doc.as<float>());
-      strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/KP_MCBT/state"), BUFFER_SIZE);
+      strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/mcbt/KP/state"), BUFFER_SIZE);
       DT_mqtt_send(buffer, DT_3voies_MCBT_get_KP());
     }
   }
-  else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/KI_MCBT/set") == 0) // KI_MCBT
+  else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/mcbt/KI/set") == 0) // KI_MCBT
   {
     DeserializationError error = deserializeJson(doc, buffer, length);
     if (!error)
     {
 
       DT_3voies_MCBT_set_KI(doc.as<float>());
-      strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/KI_MCBT/state"), BUFFER_SIZE);
+      strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/mcbt/KI/state"), BUFFER_SIZE);
       DT_mqtt_send(buffer, DT_3voies_MCBT_get_KI());
     }
   }
-  else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/KD_MCBT/set") == 0) // KD_MCBT
+  else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/mcbt/KD/set") == 0) // KD_MCBT
   {
     DeserializationError error = deserializeJson(doc, buffer, length);
     if (!error)
     {
       DT_3voies_MCBT_set_KD(doc.as<float>());
-      strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/KD_MCBT/state"), BUFFER_SIZE);
+      strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/mcbt/KD/state"), BUFFER_SIZE);
       DT_mqtt_send(buffer, DT_3voies_MCBT_get_KD());
     }
   }
-  else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/KT_MCBT/set") == 0) // KT_MCBT
+  else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/mcbt/KT/set") == 0) // KT_MCBT
   {
     DeserializationError error = deserializeJson(doc, buffer, length);
     if (!error)
     {
       DT_3voies_MCBT_set_KT(doc.as<uint32_t>());
-      strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/KT_MCBT/state"), BUFFER_SIZE);
+      strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/mcbt/KT/state"), BUFFER_SIZE);
       DT_mqtt_send(buffer, DT_3voies_MCBT_get_KT());
     }
   }
