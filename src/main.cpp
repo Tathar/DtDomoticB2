@@ -379,7 +379,12 @@ void homeassistant(void)
   doc["step"] = 0.01;
   doc["dev_cla"] = F("temperature");
   doc["unit_of_meas"] = F("°C");
+
   doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
+
+  serializeJson(doc, buffer_value, sizeof(buffer_value));
+  strlcpy_P(buffer, PSTR("homeassistant/select/" BOARD_IDENTIFIER "/C3/config"), BUFFER_SIZE);
+  DT_mqtt_send(buffer, buffer_value);
 
   // EEPROM
   //  V1
@@ -1159,7 +1164,6 @@ void dt3voies_callback(const float C2, const float C3)
   variant = doc.to<JsonVariant>();
   digit = C3 * 100;
   variant.set((float)digit / 100.0);
-  variant.set(C3);
   serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
   strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/mcbt/C3/state"), BUFFER_SIZE);
   DT_mqtt_send(buffer, buffer_value);
@@ -2304,7 +2308,7 @@ void loop()
   if (now - load_1s_time >= 1000)
   {
     float load = ((now - load_1s_time) / 20.0) / load_1s_count;
-    
+
     load_1s_count = load * 100;
     strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/load_1s"), BUFFER_SIZE);
     DT_mqtt_send(buffer, (float)(load_1s_count / 100.0));
