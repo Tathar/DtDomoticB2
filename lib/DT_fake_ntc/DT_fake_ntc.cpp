@@ -58,7 +58,11 @@ void _fake_ntc_set(uint8_t value)
         wdt_reset();
         delay(10);
 
-        fake_ntc_callback(value);
+        
+        if (fake_ntc_callback != nullptr)
+        {
+            fake_ntc_callback(value);
+        }
         //auto Serial.print("fake_NTC = ");
         //auto Serial.println(fake_ntc_value);
         //auto Serial.print("r1 = ");
