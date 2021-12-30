@@ -383,7 +383,8 @@ void homeassistant(void)
   doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
 
   serializeJson(doc, buffer_value, sizeof(buffer_value));
-  strlcpy_P(buffer, PSTR("homeassistant/select/" BOARD_IDENTIFIER "/C3/config"), BUFFER_SIZE);
+  // Serial.println(buffer_value);
+  strlcpy_P(buffer, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/C3/config"), BUFFER_SIZE);
   DT_mqtt_send(buffer, buffer_value);
 
   // EEPROM
@@ -1748,7 +1749,7 @@ void mqtt_receve(char *topic, uint8_t *payload, unsigned int length)
     {
       DT_3voies_MCBT_set_mode(DT_3VOIES_MANUAL);
       strlcpy_P(buffer_value, PSTR("DtBoard/" BOARD_IDENTIFIER "/mcbt/mode/state"), BUFFER_SIZE);
-      DT_mqtt_send(buffer_value, "Demmarage");
+      DT_mqtt_send(buffer_value, "Manuel");
     }
     else if (strcmp(buffer, "Arret") == 0)
     {
