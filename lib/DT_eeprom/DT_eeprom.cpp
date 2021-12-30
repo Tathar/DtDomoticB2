@@ -61,7 +61,7 @@ void chargeEEPROM()
                 // eeprom_config.KT_MCBT = 1000; // pid interval MCBT (en ms)
         }
 
-        // Valeurs par défaut struct_version == 1
+        // Valeurs par défaut struct_version == 2
         if (eeprom_config.struct_version < 2 || erreur)
         {
                 eeprom_config.struct_version = 2;
@@ -69,7 +69,7 @@ void chargeEEPROM()
                 eeprom_config.pid_pcbt.KP = 1000;
                 eeprom_config.pid_pcbt.KI = 0;
                 eeprom_config.pid_pcbt.KD = 0;
-                eeprom_config.pid_pcbt.KP = 10000;
+                eeprom_config.pid_pcbt.KT = 10000;
                 eeprom_config.pid_pcbt.action = QuickPID::Action::direct;
                 eeprom_config.pid_pcbt.pmode = QuickPID::pMode::pOnError;
                 eeprom_config.pid_pcbt.dmode = QuickPID::dMode::dOnError;
@@ -78,7 +78,7 @@ void chargeEEPROM()
                 eeprom_config.pid_mcbt.KP = 1000;
                 eeprom_config.pid_mcbt.KI = 0;
                 eeprom_config.pid_mcbt.KD = 0;
-                eeprom_config.pid_mcbt.KP = 10000;
+                eeprom_config.pid_mcbt.KT = 10000;
                 eeprom_config.pid_mcbt.action = QuickPID::Action::direct;
                 eeprom_config.pid_mcbt.pmode = QuickPID::pMode::pOnError;
                 eeprom_config.pid_mcbt.dmode = QuickPID::dMode::dOnError;
