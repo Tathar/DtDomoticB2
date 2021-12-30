@@ -25,10 +25,13 @@ void chargeEEPROM()
 
         // Détection d'une mémoire non initialisée
         byte erreur = eeprom_config.magic != STRUCT_MAGIC;
+        if (erreur)
+                Serial.println("EEPROM error");
 
         // Valeurs par défaut struct_version == 1
         if (eeprom_config.struct_version < 1 || erreur)
         {
+                Serial.println("EEPROM version < 1");
                 eeprom_config.struct_version = 1;
                 // TODO: mqtt home assistant
                 eeprom_config.poele_mode = DT_POELE_OFF;
@@ -62,8 +65,9 @@ void chargeEEPROM()
         }
 
         // Valeurs par défaut struct_version == 2
-        if (eeprom_config.struct_version < 2 || erreur)
+        if (eeprom_config.struct_version < 1 || erreur)
         {
+                Serial.println("EEPROM version < 2");
                 eeprom_config.struct_version = 2;
                 // TODO: mqtt home assistant
                 eeprom_config.pid_pcbt.KP = 1000;
