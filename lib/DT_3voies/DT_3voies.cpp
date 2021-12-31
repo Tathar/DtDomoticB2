@@ -290,15 +290,15 @@ void DT_3voies_loop()
         if (Output_PCBT > 0)
         {
             float ratio = (DT_pt100_get(PT100_B_BALON) - Input_PCBT) / 8;
-            ratio = 4;
-            Serial.print("ratio = ");
-            Serial.println(ratio);
-            if (ratio != 0)
+            ratio = 6;
+            if (ratio <= 1)
             {
                 DT_relay(VANNE_PCBT_HOT, (uint32_t)Output_PCBT); // activation de la vanne
             }
             else
             {
+            Serial.print("ratio = ");
+            Serial.println(ratio);
                 DT_relay(VANNE_PCBT_HOT, (uint32_t)(Output_PCBT / ratio)); // activation de la vanne
             }
         }
