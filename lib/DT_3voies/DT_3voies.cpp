@@ -279,14 +279,6 @@ void DT_3voies_loop()
     // calcule du PID
     if (pid_pcbt.Compute())
     {
-        if (Output_PCBT > 0)
-        {
-            DT_relay(VANNE_PCBT_HOT, (uint32_t)Output_PCBT); // activation de la vanne
-        }
-        else
-        {
-            DT_relay(VANNE_PCBT_COLD, (uint32_t)(Output_PCBT * -1)); // activation de la vanne
-        }
         Serial.print("KP = ");
         Serial.println(pid_pcbt.GetPterm());
         Serial.print("KI = ");
@@ -295,6 +287,24 @@ void DT_3voies_loop()
         Serial.println(pid_pcbt.GetDterm());
         Serial.print("out = ");
         Serial.println(Output_PCBT);
+        if (Output_PCBT > 0)
+        {
+            float ratio = (DT_pt100_get(PT100_B_BALON) - Input_PCBT) / 8;
+            Serial.print("ratio = ");
+            Serial.println(ratio);
+            if (ratio != 0)
+            {
+                DT_relay(VANNE_PCBT_HOT, (uint32_t)Output_PCBT); // activation de la vanne
+            }
+            else
+            {
+                DT_relay(VANNE_PCBT_HOT, (uint32_t)(Output_PCBT / ratio)); // activation de la vanne
+            }
+        }
+        else
+        {
+            DT_relay(VANNE_PCBT_COLD, (uint32_t)(Output_PCBT * -1)); // activation de la vanne
+        }
     }
 
     if (pid_mcbt.Compute())
