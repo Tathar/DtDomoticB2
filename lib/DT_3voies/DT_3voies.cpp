@@ -290,6 +290,7 @@ void DT_3voies_loop()
         if (Output_PCBT > 0)
         {
             float ratio = (DT_pt100_get(PT100_B_BALON) - Input_PCBT) / 8;
+            ratio = 4;
             Serial.print("ratio = ");
             Serial.println(ratio);
             if (ratio != 0)
