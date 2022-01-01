@@ -599,13 +599,13 @@ void DT_3voies_set_callback(void (*callback)(const float C2, const float C3))
     _callback_3_voies = callback;
 }
 
-void DT_3voies_mcbt_set_callback_pid(void (*callback_pcbt_pid)(const float P, const float I, const float D, const float Out))
-{
-    _callback_pcbt_pid = callback_pcbt_pid;
-}
-void DT_3voies_pcbt_set_callback_pid(void (*callback_mcbt_pid)(const float P, const float I, const float D, const float Out))
+void DT_3voies_mcbt_set_callback_pid(void (*callback_mcbt_pid)(const float P, const float I, const float D, const float Out))
 {
     _callback_mcbt_pid = callback_mcbt_pid;
+}
+void DT_3voies_pcbt_set_callback_pid(void (*callback_pcbt_pid)(const float P, const float I, const float D, const float Out))
+{
+    _callback_pcbt_pid = callback_pcbt_pid;
 }
 
 // get consigne temp PCBT
