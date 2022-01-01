@@ -1013,7 +1013,7 @@ void homeassistant(void)
   doc["~"] = F("DtBoard/" BOARD_IDENTIFIER "/pcbt");
   doc["uniq_id"] = F(BOARD_IDENTIFIER "-pcbt-out");
   doc["name"] = F("PCBT out");
-  doc["stat_t"] = F("~/out");
+  doc["stat_t"] = F("~/OUT");
   // doc["dev_cla"] = F("temperature");
   // doc["unit_of_meas"] = F("°C");
   doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
