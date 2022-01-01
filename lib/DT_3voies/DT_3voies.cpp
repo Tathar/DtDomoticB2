@@ -35,6 +35,9 @@ uint32_t temp_lecture_temp_mcbt = 0;
 
 void (*_callback_3_voies)(const float C2, const float C3);
 
+void (*_callback_pcbt_pid)(const float P, const float I, const float D, const float Out);
+void (*_callback_mcbt_pid)(const float P, const float I, const float D, const float Out);
+
 float scale(float in, float in_min, float in_max, float out_min, float out_max)
 {
     return ((((in - in_min) / (in_max - in_min)) * (out_max - out_min)) + out_min);
@@ -44,6 +47,8 @@ void DT_3voies_init()
 {
 
     _callback_3_voies = nullptr;
+    _callback_pcbt_pid = nullptr;
+    _callback_mcbt_pid = nullptr;
     // calcule des consignes de temperature
     if (eeprom_config.mode_3voies_PCBT == DT_3VOIES_DEMMARAGE)
     {
@@ -279,14 +284,8 @@ void DT_3voies_loop()
     // calcule du PID
     if (pid_pcbt.Compute())
     {
-        Serial.print("KP = ");
-        Serial.println(pid_pcbt.GetPterm());
-        Serial.print("KI = ");
-        Serial.println(pid_pcbt.GetIterm());
-        Serial.print("KD = ");
-        Serial.println(pid_pcbt.GetDterm());
-        Serial.print("out = ");
-        Serial.println(Output_PCBT);
+
+        _callback_pcbt_pid(pid_pcbt.GetPterm(), pid_pcbt.GetIterm(), pid_pcbt.GetDterm(), Output_PCBT);
         if (Output_PCBT > 0)
         {
             float ratio = (DT_pt100_get(PT100_B_BALON) - Input_PCBT) / 8;
@@ -297,8 +296,8 @@ void DT_3voies_loop()
             }
             else
             {
-            Serial.print("ratio = ");
-            Serial.println(ratio);
+                Serial.print("ratio = ");
+                Serial.println(ratio);
                 DT_relay(VANNE_PCBT_HOT, (uint32_t)(Output_PCBT / ratio)); // activation de la vanne
             }
         }
@@ -310,6 +309,8 @@ void DT_3voies_loop()
 
     if (pid_mcbt.Compute())
     {
+
+        _callback_mcbt_pid(pid_mcbt.GetPterm(), pid_mcbt.GetIterm(), pid_mcbt.GetDterm(), Output_MCBT);
         if (Output_MCBT >= 0)
         {
             DT_relay(VANNE_MCBT_HOT, (uint32_t)Output_MCBT); // activation de la vanne
@@ -597,6 +598,15 @@ uint32_t DT_3voies_MCBT_get_KT()
 void DT_3voies_set_callback(void (*callback)(const float C2, const float C3))
 {
     _callback_3_voies = callback;
+}
+
+void DT_3voies_mcbt_set_callback_pid(void (*callback_pcbt_pid)(const float P, const float I, const float D, const float Out))
+{
+    _callback_pcbt_pid = callback_pcbt_pid;
+}
+void DT_3voies_pcbt_set_callback_pid(void (*callback_mcbt_pid)(const float P, const float I, const float D, const float Out))
+{
+    _callback_mcbt_pid = callback_mcbt_pid;
 }
 
 // get consigne temp PCBT
