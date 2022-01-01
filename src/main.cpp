@@ -1253,7 +1253,7 @@ void dt3voies_callback_pid_pcbt(const float P, const float I, const float D, con
   digit = D * 100;
   variant.set((float)digit / 100.0);
   serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
-  strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/pcbtI/D"), BUFFER_SIZE);
+  strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/pcbt/D"), BUFFER_SIZE);
   DT_mqtt_send(buffer, buffer_value);
 
   wdt_reset();
