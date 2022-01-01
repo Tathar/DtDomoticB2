@@ -974,7 +974,7 @@ void homeassistant(void)
   doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
   serializeJson(doc, buffer_value, sizeof(buffer_value));
   // Serial.println(buffer_value);
-  strlcpy_P(buffer, PSTR("homeassistant/sensor/" BOARD_IDENTIFIER "/mcbt-pid-p/config"), BUFFER_SIZE);
+  strlcpy_P(buffer, PSTR("homeassistant/sensor/" BOARD_IDENTIFIER "/pcbt-pid-p/config"), BUFFER_SIZE);
   DT_mqtt_send(buffer, buffer_value);
 
   // PID PCBT I
@@ -989,7 +989,7 @@ void homeassistant(void)
   doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
   serializeJson(doc, buffer_value, sizeof(buffer_value));
   // Serial.println(buffer_value);
-  strlcpy_P(buffer, PSTR("homeassistant/sensor/" BOARD_IDENTIFIER "/mcbt-pid-i/config"), BUFFER_SIZE);
+  strlcpy_P(buffer, PSTR("homeassistant/sensor/" BOARD_IDENTIFIER "/pcbt-pid-i/config"), BUFFER_SIZE);
   DT_mqtt_send(buffer, buffer_value);
 
   // PID PCBT D
@@ -1004,7 +1004,7 @@ void homeassistant(void)
   doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
   serializeJson(doc, buffer_value, sizeof(buffer_value));
   // Serial.println(buffer_value);
-  strlcpy_P(buffer, PSTR("homeassistant/sensor/" BOARD_IDENTIFIER "/mcbt-pid-d/config"), BUFFER_SIZE);
+  strlcpy_P(buffer, PSTR("homeassistant/sensor/" BOARD_IDENTIFIER "/pcbt-pid-d/config"), BUFFER_SIZE);
   DT_mqtt_send(buffer, buffer_value);
 
   // PID PCBT OUT
@@ -1019,7 +1019,7 @@ void homeassistant(void)
   doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
   serializeJson(doc, buffer_value, sizeof(buffer_value));
   // Serial.println(buffer_value);
-  strlcpy_P(buffer, PSTR("homeassistant/sensor/" BOARD_IDENTIFIER "/mcbt-pid-out/config"), BUFFER_SIZE);
+  strlcpy_P(buffer, PSTR("homeassistant/sensor/" BOARD_IDENTIFIER "/pcbt-pid-out/config"), BUFFER_SIZE);
   DT_mqtt_send(buffer, buffer_value);
 
   // load 1s

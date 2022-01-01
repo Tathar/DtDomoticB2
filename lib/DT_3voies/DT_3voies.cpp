@@ -284,8 +284,8 @@ void DT_3voies_loop()
     // calcule du PID
     if (pid_pcbt.Compute())
     {
-
-        _callback_pcbt_pid(pid_pcbt.GetPterm(), pid_pcbt.GetIterm(), pid_pcbt.GetDterm(), Output_PCBT);
+        if (_callback_pcbt_pid != nullptr)
+            _callback_pcbt_pid(pid_pcbt.GetPterm(), pid_pcbt.GetIterm(), pid_pcbt.GetDterm(), Output_PCBT);
         if (Output_PCBT > 0)
         {
             // float ratio = (DT_pt100_get(PT100_B_BALON) - Input_PCBT) / 8;
@@ -308,7 +308,8 @@ void DT_3voies_loop()
     if (pid_mcbt.Compute())
     {
 
-        _callback_mcbt_pid(pid_mcbt.GetPterm(), pid_mcbt.GetIterm(), pid_mcbt.GetDterm(), Output_MCBT);
+        if (_callback_pcbt_pid != nullptr)
+            _callback_mcbt_pid(pid_mcbt.GetPterm(), pid_mcbt.GetIterm(), pid_mcbt.GetDterm(), Output_MCBT);
         if (Output_MCBT > 0)
         {
             DT_relay(VANNE_MCBT_HOT, (uint32_t)(Output_MCBT / 2)); // activation de la vanne
