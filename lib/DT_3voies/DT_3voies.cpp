@@ -17,8 +17,11 @@
 #define temp_long_1 25 // en °C
 #define temp_long_2 35 // en °C
 
+#define LISSAGE 5
 float Input_PCBT, Output_PCBT;
 float Input_MCBT, Output_MCBT;
+float lissage_PCBT[LISSAGE], lissage_MCBT[LISSAGE];
+uint8_t num_lissage_PCBT, num_lissage_MCBT;
 // Specify the links and initial tuning parameters
 
 QuickPID pid_pcbt = QuickPID(&Input_PCBT, &Output_PCBT, &mem_config.C2);
@@ -49,6 +52,9 @@ void DT_3voies_init()
     _callback_3_voies = nullptr;
     _callback_pcbt_pid = nullptr;
     _callback_mcbt_pid = nullptr;
+
+    num_lissage_PCBT = 0;
+    num_lissage_MCBT = 0;
     // calcule des consignes de temperature
     if (eeprom_config.mode_3voies_PCBT == DT_3VOIES_DEMMARAGE)
     {
@@ -131,143 +137,158 @@ void DT_3voies_init()
 
 void DT_3voies_loop()
 {
+    static uint32_t elapse = 0;
     uint32_t now = millis();
-    static uint32_t old_now = 0;
-    static float old_C2 = 0;
-    static float old_C3 = 0;
-
-    // calcule des consignes de temperature
-    if (eeprom_config.mode_3voies_PCBT == DT_3VOIES_DEMMARAGE)
+    if (now - elapse >= 1000)
     {
-        if (now - temp_start_pcbt > temp_etape_pcbt)
+        elapse = now;
+        static uint32_t old_now = 0;
+        static float old_C2 = 0;
+        static float old_C3 = 0;
+
+        // calcule des consignes de temperature
+        if (eeprom_config.mode_3voies_PCBT == DT_3VOIES_DEMMARAGE)
         {
-            temperature_etape_pcbt += 1;
-            temp_start_pcbt = now;
-            if (temperature_etape_pcbt > temp_long_2)
+            if (now - temp_start_pcbt > temp_etape_pcbt)
             {
-                DT_3voies_PCBT_set_mode(DT_3VOIES_NORMAL);
+                temperature_etape_pcbt += 1;
+                temp_start_pcbt = now;
+                if (temperature_etape_pcbt > temp_long_2)
+                {
+                    DT_3voies_PCBT_set_mode(DT_3VOIES_NORMAL);
+                }
+                else if (temperature_etape_pcbt == temp_long_1 || temperature_etape_pcbt == temp_long_2)
+                    temp_etape_pcbt = D2MS * 3;
+                else
+                    temp_etape_pcbt = D2MS;
             }
-            else if (temperature_etape_pcbt == temp_long_1 || temperature_etape_pcbt == temp_long_2)
-                temp_etape_pcbt = D2MS * 3;
-            else
-                temp_etape_pcbt = D2MS;
+
+            mem_config.C2 = temperature_etape_pcbt;
+        }
+        else if (eeprom_config.mode_3voies_PCBT == DT_3VOIES_OFF)
+        {
+            mem_config.C2 = 0;
+        }
+        else if (eeprom_config.mode_3voies_PCBT == DT_3VOIES_NORMAL)
+        {
+            mem_config.C2 = scale(DT_pt100_get(PT100_EXT), -10, 10, eeprom_config.C8, eeprom_config.C9);
         }
 
-        mem_config.C2 = temperature_etape_pcbt;
-    }
-    else if (eeprom_config.mode_3voies_PCBT == DT_3VOIES_OFF)
-    {
-        mem_config.C2 = 0;
-    }
-    else if (eeprom_config.mode_3voies_PCBT == DT_3VOIES_NORMAL)
-    {
-        mem_config.C2 = scale(DT_pt100_get(PT100_EXT), -10, 10, eeprom_config.C8, eeprom_config.C9);
-    }
-
-    if (eeprom_config.mode_3voies_MCBT == DT_3VOIES_DEMMARAGE)
-    {
-        if (now - temp_start_mcbt > temp_etape_mcbt)
+        if (eeprom_config.mode_3voies_MCBT == DT_3VOIES_DEMMARAGE)
         {
-            temperature_etape_mcbt += 1;
-            temp_start_mcbt = now;
-            if (temperature_etape_mcbt > temp_long_2)
+            if (now - temp_start_mcbt > temp_etape_mcbt)
             {
-                DT_3voies_MCBT_set_mode(DT_3VOIES_NORMAL);
+                temperature_etape_mcbt += 1;
+                temp_start_mcbt = now;
+                if (temperature_etape_mcbt > temp_long_2)
+                {
+                    DT_3voies_MCBT_set_mode(DT_3VOIES_NORMAL);
+                }
+                else if (temperature_etape_mcbt == temp_long_1 || temperature_etape_mcbt == temp_long_2)
+                    temp_etape_mcbt = D2MS * 3;
+                else
+                    temp_etape_mcbt = D2MS;
             }
-            else if (temperature_etape_mcbt == temp_long_1 || temperature_etape_mcbt == temp_long_2)
-                temp_etape_mcbt = D2MS * 3;
-            else
-                temp_etape_mcbt = D2MS;
+            mem_config.C3 = temperature_etape_mcbt;
         }
-        mem_config.C3 = temperature_etape_mcbt;
-    }
-    else if (eeprom_config.mode_3voies_MCBT == DT_3VOIES_OFF)
-    {
-        mem_config.C3 = 0;
-    }
-    else if (eeprom_config.mode_3voies_MCBT == DT_3VOIES_NORMAL)
-    {
-        mem_config.C3 = scale(DT_pt100_get(PT100_EXT), -10, 10, eeprom_config.C10, eeprom_config.C11);
-    }
+        else if (eeprom_config.mode_3voies_MCBT == DT_3VOIES_OFF)
+        {
+            mem_config.C3 = 0;
+        }
+        else if (eeprom_config.mode_3voies_MCBT == DT_3VOIES_NORMAL)
+        {
+            mem_config.C3 = scale(DT_pt100_get(PT100_EXT), -10, 10, eeprom_config.C10, eeprom_config.C11);
+        }
 
-    // protection sur temperature
-    if (mem_config.C2 > eeprom_config.C_PCBT_MAX)
-        mem_config.C2 = eeprom_config.C_PCBT_MAX;
+        // protection sur temperature
+        if (mem_config.C2 > eeprom_config.C_PCBT_MAX)
+            mem_config.C2 = eeprom_config.C_PCBT_MAX;
 
-    if (mem_config.C3 > eeprom_config.C_MCBT_MAX)
-        mem_config.C3 = eeprom_config.C_MCBT_MAX;
+        if (mem_config.C3 > eeprom_config.C_MCBT_MAX)
+            mem_config.C3 = eeprom_config.C_MCBT_MAX;
 
-    if (mem_config.C2 > TMP_EAU_PCBT_MAX)
-        mem_config.C2 = TMP_EAU_PCBT_MAX;
+        if (mem_config.C2 > TMP_EAU_PCBT_MAX)
+            mem_config.C2 = TMP_EAU_PCBT_MAX;
 
-    if (mem_config.C3 > TMP_EAU_MCBT_MAX)
-        mem_config.C3 = TMP_EAU_MCBT_MAX;
+        if (mem_config.C3 > TMP_EAU_MCBT_MAX)
+            mem_config.C3 = TMP_EAU_MCBT_MAX;
 
-    // temperature de l'eau
-    if (DT_pt100_get(PT100_3_VOIES_PCBT) > 0)
-    {
-        Input_PCBT = DT_pt100_get(PT100_3_VOIES_PCBT);
-    }
+        // temperature de l'eau
+        if (DT_pt100_get(PT100_3_VOIES_PCBT) > 0)
+        {
+            lissage_PCBT[num_lissage_PCBT] = DT_pt100_get(PT100_3_VOIES_PCBT);
+            float result = 0;
+            for (uint8_t num = 0; num < LISSAGE; ++num)
+            {
+                result += lissage_PCBT[num];
+            }
+            Input_PCBT = result / 10;
 
-    if (DT_pt100_get(PT100_3_VOIES_MCBT) > 0)
-    {
-        Input_MCBT = DT_pt100_get(PT100_3_VOIES_MCBT);
-    }
+            if (num_lissage_PCBT = 9)
+                num_lissage_PCBT = 0;
+            else
+                num_lissage_PCBT++;
+        }
 
-    // consigne minimum pour fonctionnement des circulateur
-    if ((eeprom_config.mode_3voies_PCBT != DT_3VOIES_DEMMARAGE) && (mem_config.C2 < (eeprom_config.C_PCBT_MIN - eeprom_config.V3)))
-    {
-        DT_relay(CIRCULATEUR_PCBT, false);           // arret du circulateur
-        pid_pcbt.SetMode(QuickPID::Control::manual); // arret de la vanne 3 voie
-    }
-    else if ((eeprom_config.mode_3voies_PCBT != DT_3VOIES_OFF) && (mem_config.C2 > (eeprom_config.C_PCBT_MIN + eeprom_config.V3)))
-    {
-        DT_relay(CIRCULATEUR_PCBT, true);               // demmarage du circulateur
-        pid_pcbt.SetMode(QuickPID::Control::automatic); // demmarage de la vanne 3
-    }
-    else if ((eeprom_config.mode_3voies_PCBT == DT_3VOIES_OFF))
-    {
-        DT_relay(CIRCULATEUR_PCBT, false);           // arret du circulateur
-        pid_pcbt.SetMode(QuickPID::Control::manual); // arret de la vanne 3 voie
-    }
+        if (DT_pt100_get(PT100_3_VOIES_MCBT) > 0)
+        {
+            Input_MCBT = DT_pt100_get(PT100_3_VOIES_MCBT);
+        }
 
-    if ((eeprom_config.mode_3voies_MCBT != DT_3VOIES_DEMMARAGE) && (mem_config.C3 < (eeprom_config.C_MCBT_MIN - eeprom_config.V3)))
-    {
-        DT_relay(CIRCULATEUR_MCBT, false);           // arret du circulateur
-        pid_mcbt.SetMode(QuickPID::Control::manual); // arret de la vanne 3 voie
-    }
-    else if ((eeprom_config.mode_3voies_MCBT != DT_3VOIES_OFF) && (mem_config.C3 < (eeprom_config.C_MCBT_MIN + eeprom_config.V3)))
-    {
-        DT_relay(CIRCULATEUR_MCBT, true);               // demmarage du circulateur
-        pid_mcbt.SetMode(QuickPID::Control::automatic); // demmarage de la vanne 3 voie
-    }
-    else if ((eeprom_config.mode_3voies_MCBT == DT_3VOIES_OFF))
-    {
-        DT_relay(CIRCULATEUR_MCBT, false);           // arret du circulateur
-        pid_mcbt.SetMode(QuickPID::Control::manual); // arret de la vanne 3 voie
-    }
+        // consigne minimum pour fonctionnement des circulateur
+        if ((eeprom_config.mode_3voies_PCBT != DT_3VOIES_DEMMARAGE) && (mem_config.C2 < (eeprom_config.C_PCBT_MIN - eeprom_config.V3)))
+        {
+            DT_relay(CIRCULATEUR_PCBT, false);           // arret du circulateur
+            pid_pcbt.SetMode(QuickPID::Control::manual); // arret de la vanne 3 voie
+        }
+        else if ((eeprom_config.mode_3voies_PCBT != DT_3VOIES_OFF) && (mem_config.C2 > (eeprom_config.C_PCBT_MIN + eeprom_config.V3)))
+        {
+            DT_relay(CIRCULATEUR_PCBT, true);               // demmarage du circulateur
+            pid_pcbt.SetMode(QuickPID::Control::automatic); // demmarage de la vanne 3
+        }
+        else if ((eeprom_config.mode_3voies_PCBT == DT_3VOIES_OFF))
+        {
+            DT_relay(CIRCULATEUR_PCBT, false);           // arret du circulateur
+            pid_pcbt.SetMode(QuickPID::Control::manual); // arret de la vanne 3 voie
+        }
 
-    // Plage Morte PCBT
-    if (Input_PCBT >= mem_config.C2 && (Input_PCBT - mem_config.C2) < eeprom_config.V3)
-    {
-        pid_pcbt.SetMode(QuickPID::Control::manual); // arret de la vanne 3 voie
-    }
-    else if (mem_config.C2 > Input_PCBT && (mem_config.C2 - Input_PCBT) < eeprom_config.V3)
-    {
-        pid_pcbt.SetMode(QuickPID::Control::manual); // arret de la vanne 3 voie
-    }
+        if ((eeprom_config.mode_3voies_MCBT != DT_3VOIES_DEMMARAGE) && (mem_config.C3 < (eeprom_config.C_MCBT_MIN - eeprom_config.V3)))
+        {
+            DT_relay(CIRCULATEUR_MCBT, false);           // arret du circulateur
+            pid_mcbt.SetMode(QuickPID::Control::manual); // arret de la vanne 3 voie
+        }
+        else if ((eeprom_config.mode_3voies_MCBT != DT_3VOIES_OFF) && (mem_config.C3 < (eeprom_config.C_MCBT_MIN + eeprom_config.V3)))
+        {
+            DT_relay(CIRCULATEUR_MCBT, true);               // demmarage du circulateur
+            pid_mcbt.SetMode(QuickPID::Control::automatic); // demmarage de la vanne 3 voie
+        }
+        else if ((eeprom_config.mode_3voies_MCBT == DT_3VOIES_OFF))
+        {
+            DT_relay(CIRCULATEUR_MCBT, false);           // arret du circulateur
+            pid_mcbt.SetMode(QuickPID::Control::manual); // arret de la vanne 3 voie
+        }
 
-    // Plage Morte MCBT
-    if (Input_MCBT >= mem_config.C3 && (Input_MCBT - mem_config.C3) < eeprom_config.V3)
-    {
-        pid_mcbt.SetMode(QuickPID::Control::manual); // arret de la vanne 3 voie
-    }
-    else if (mem_config.C3 > Input_MCBT && (mem_config.C3 - Input_MCBT) < eeprom_config.V3)
-    {
-        pid_mcbt.SetMode(QuickPID::Control::manual); // arret de la vanne 3 voie
-    }
+        // Plage Morte PCBT
+        if (Input_PCBT >= mem_config.C2 && (Input_PCBT - mem_config.C2) < eeprom_config.V3)
+        {
+            pid_pcbt.SetMode(QuickPID::Control::manual); // arret de la vanne 3 voie
+        }
+        else if (mem_config.C2 > Input_PCBT && (mem_config.C2 - Input_PCBT) < eeprom_config.V3)
+        {
+            pid_pcbt.SetMode(QuickPID::Control::manual); // arret de la vanne 3 voie
+        }
 
-    /*
+        // Plage Morte MCBT
+        if (Input_MCBT >= mem_config.C3 && (Input_MCBT - mem_config.C3) < eeprom_config.V3)
+        {
+            pid_mcbt.SetMode(QuickPID::Control::manual); // arret de la vanne 3 voie
+        }
+        else if (mem_config.C3 > Input_MCBT && (mem_config.C3 - Input_MCBT) < eeprom_config.V3)
+        {
+            pid_mcbt.SetMode(QuickPID::Control::manual); // arret de la vanne 3 voie
+        }
+
+        /*
         // test de la temperature du planche
         for (uint8_t num = 0; num < NUM_PLANCHE; ++num)
         {
@@ -281,53 +302,54 @@ void DT_3voies_loop()
         }
     */
 
-    // calcule du PID
-    if (pid_pcbt.Compute())
-    {
-        if (_callback_pcbt_pid != nullptr)
-            _callback_pcbt_pid(pid_pcbt.GetPterm(), pid_pcbt.GetIterm(), pid_pcbt.GetDterm(), Output_PCBT);
-        if (Output_PCBT > 0)
+        // calcule du PID
+        if (pid_pcbt.Compute())
         {
-            // float ratio = (DT_pt100_get(PT100_B_BALON) - Input_PCBT) / 8;
-            // ratio = 2;
-            // if (ratio <= 1)
-            // {
-            //     DT_relay(VANNE_PCBT_HOT, (uint32_t)Output_PCBT); // activation de la vanne
-            // }
-            // else
-            // {
-            DT_relay(VANNE_PCBT_HOT, (uint32_t)(Output_PCBT / 2)); // activation de la vanne
-            // }
+            if (_callback_pcbt_pid != nullptr)
+                _callback_pcbt_pid(pid_pcbt.GetPterm(), pid_pcbt.GetIterm(), pid_pcbt.GetDterm(), Output_PCBT);
+            if (Output_PCBT > 0)
+            {
+                // float ratio = (DT_pt100_get(PT100_B_BALON) - Input_PCBT) / 8;
+                // ratio = 2;
+                // if (ratio <= 1)
+                // {
+                //     DT_relay(VANNE_PCBT_HOT, (uint32_t)Output_PCBT); // activation de la vanne
+                // }
+                // else
+                // {
+                DT_relay(VANNE_PCBT_HOT, (uint32_t)(Output_PCBT / 2)); // activation de la vanne
+                // }
+            }
+            else
+            {
+                DT_relay(VANNE_PCBT_COLD, (uint32_t)(Output_PCBT * -1)); // activation de la vanne
+            }
         }
-        else
-        {
-            DT_relay(VANNE_PCBT_COLD, (uint32_t)(Output_PCBT * -1)); // activation de la vanne
-        }
-    }
 
-    if (pid_mcbt.Compute())
-    {
+        if (pid_mcbt.Compute())
+        {
 
-        if (_callback_pcbt_pid != nullptr)
-            _callback_mcbt_pid(pid_mcbt.GetPterm(), pid_mcbt.GetIterm(), pid_mcbt.GetDterm(), Output_MCBT);
-        if (Output_MCBT > 0)
-        {
-            DT_relay(VANNE_MCBT_HOT, (uint32_t)(Output_MCBT / 2)); // activation de la vanne
+            if (_callback_pcbt_pid != nullptr)
+                _callback_mcbt_pid(pid_mcbt.GetPterm(), pid_mcbt.GetIterm(), pid_mcbt.GetDterm(), Output_MCBT);
+            if (Output_MCBT > 0)
+            {
+                DT_relay(VANNE_MCBT_HOT, (uint32_t)(Output_MCBT / 2)); // activation de la vanne
+            }
+            else
+            {
+                DT_relay(VANNE_MCBT_COLD, (uint32_t)(Output_MCBT * -1)); // activation de la vanne
+            }
         }
-        else
-        {
-            DT_relay(VANNE_MCBT_COLD, (uint32_t)(Output_MCBT * -1)); // activation de la vanne
-        }
-    }
 
-    if (now - old_now > 1000)
-    {
-        old_now = now;
-        if ((_callback_3_voies != nullptr) && ((old_C2 != mem_config.C2) || (old_C3 != mem_config.C3)))
+        if (now - old_now > 1000)
         {
-            _callback_3_voies(mem_config.C2, mem_config.C3);
-            old_C2 = mem_config.C2;
-            old_C3 = mem_config.C3;
+            old_now = now;
+            if ((_callback_3_voies != nullptr) && ((old_C2 != mem_config.C2) || (old_C3 != mem_config.C3)))
+            {
+                _callback_3_voies(mem_config.C2, mem_config.C3);
+                old_C2 = mem_config.C2;
+                old_C3 = mem_config.C3;
+            }
         }
     }
 }
