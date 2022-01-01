@@ -288,18 +288,16 @@ void DT_3voies_loop()
         _callback_pcbt_pid(pid_pcbt.GetPterm(), pid_pcbt.GetIterm(), pid_pcbt.GetDterm(), Output_PCBT);
         if (Output_PCBT > 0)
         {
-            float ratio = (DT_pt100_get(PT100_B_BALON) - Input_PCBT) / 8;
-            ratio = 6;
-            if (ratio <= 1)
-            {
-                DT_relay(VANNE_PCBT_HOT, (uint32_t)Output_PCBT); // activation de la vanne
-            }
-            else
-            {
-                Serial.print("ratio = ");
-                Serial.println(ratio);
-                DT_relay(VANNE_PCBT_HOT, (uint32_t)(Output_PCBT / ratio)); // activation de la vanne
-            }
+            // float ratio = (DT_pt100_get(PT100_B_BALON) - Input_PCBT) / 8;
+            // ratio = 2;
+            // if (ratio <= 1)
+            // {
+            //     DT_relay(VANNE_PCBT_HOT, (uint32_t)Output_PCBT); // activation de la vanne
+            // }
+            // else
+            // {
+            DT_relay(VANNE_PCBT_HOT, (uint32_t)(Output_PCBT / 2)); // activation de la vanne
+            // }
         }
         else
         {
@@ -311,9 +309,9 @@ void DT_3voies_loop()
     {
 
         _callback_mcbt_pid(pid_mcbt.GetPterm(), pid_mcbt.GetIterm(), pid_mcbt.GetDterm(), Output_MCBT);
-        if (Output_MCBT >= 0)
+        if (Output_MCBT > 0)
         {
-            DT_relay(VANNE_MCBT_HOT, (uint32_t)Output_MCBT); // activation de la vanne
+            DT_relay(VANNE_MCBT_HOT, (uint32_t)(Output_MCBT / 2)); // activation de la vanne
         }
         else
         {
