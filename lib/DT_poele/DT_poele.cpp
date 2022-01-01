@@ -58,19 +58,21 @@ void DT_Poele_loop()
                 T4 = (eeprom_config.V1 + ((DT_pt100_get(PT100_H_BALON) + DT_pt100_get(PT100_B_BALON)) / 2)) - C1;
                 temp_default_pt100 = 0;
             }
-            else if (DT_pt100_get(PT100_H_BALON) > 0)
-            {
-                T4 = (eeprom_config.V1 + DT_pt100_get(PT100_H_BALON)) - C1;
-                temp_default_pt100 = 0;
-            }
-            else if (DT_pt100_get(PT100_B_BALON) > 0)
-            {
-                T4 = (eeprom_config.V1 + DT_pt100_get(PT100_B_BALON)) - C1;
-                temp_default_pt100 = 0;
-            }
             else if (temp_default_pt100 != 0 && now - temp_default_pt100 >= TEMP_DEFAULT_PT100_POELE)
             {
-                T4 = TEMPERATURE_DEFAULT_POELE;
+
+                if (DT_pt100_get(PT100_H_BALON) > 0)
+                {
+                    T4 = (eeprom_config.V1 + DT_pt100_get(PT100_H_BALON)) - C1;
+                }
+                else if (DT_pt100_get(PT100_B_BALON) > 0)
+                {
+                    T4 = (eeprom_config.V1 + DT_pt100_get(PT100_B_BALON)) - C1;
+                }
+                else
+                {
+                    T4 = TEMPERATURE_DEFAULT_POELE;
+                }
             }
             else if (temp_default_pt100 == 0)
             {
