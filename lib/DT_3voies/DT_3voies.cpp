@@ -17,8 +17,13 @@
 #define temp_long_1 25 // en °C
 #define temp_long_2 35 // en °C
 
+#define NUM_LISSAGE 5 // en °C
+
 float Input_PCBT, Output_PCBT;
 float Input_MCBT, Output_MCBT;
+
+float lissage_pcbt[NUM_LISSAGE];
+float lissage_mcbt[NUM_LISSAGE];
 // Specify the links and initial tuning parameters
 
 QuickPID pid_pcbt = QuickPID(&Input_PCBT, &Output_PCBT, &mem_config.C2);
@@ -100,9 +105,41 @@ void DT_3voies_init()
     pid_pcbt.SetSampleTimeUs(eeprom_config.pid_pcbt.KT * 1000);
     pid_mcbt.SetSampleTimeUs(eeprom_config.pid_mcbt.KT * 1000);
 
-    // temperature de l'eau
-    Input_PCBT = DT_pt100_get(PT100_3_VOIES_PCBT);
-    Input_MCBT = DT_pt100_get(PT100_3_VOIES_MCBT);
+    // temperature de la vanne PCBT
+    if (DT_pt100_get(PT100_3_VOIES_PCBT) > 0)
+    {
+        Input_PCBT = DT_pt100_get(PT100_3_VOIES_PCBT);
+        for (uint8_t num = 0; num < NUM_LISSAGE; ++num)
+        {
+            lissage_pcbt[num] = Input_PCBT;
+        }
+    }
+    else
+    {
+        Input_PCBT = 85;
+        for (uint8_t num = 0; num < NUM_LISSAGE; ++num)
+        {
+            lissage_pcbt[num] = Input_PCBT;
+        }
+    }
+
+    // temperature de la vanne MCBT
+    if (DT_pt100_get(PT100_3_VOIES_MCBT) > 0)
+    {
+        Input_MCBT = DT_pt100_get(PT100_3_VOIES_MCBT);
+        for (uint8_t num = 0; num < NUM_LISSAGE; ++num)
+        {
+            lissage_mcbt[num] = Input_MCBT;
+        }
+    }
+    else
+    {
+        Input_MCBT = 85;
+        for (uint8_t num = 0; num < NUM_LISSAGE; ++num)
+        {
+            lissage_mcbt[num] = Input_MCBT;
+        }
+    }
 
     // turn the PID on
     if (eeprom_config.mode_3voies_PCBT == DT_3VOIES_OFF)
@@ -204,14 +241,45 @@ void DT_3voies_loop()
         mem_config.C3 = TMP_EAU_MCBT_MAX;
 
     // temperature de l'eau
-    if (DT_pt100_get(PT100_3_VOIES_PCBT) > 0)
+    static uint32_t temp_lissage = 0;
+    static uint8_t num_pcbt = 0;
+    static uint8_t num_mcbt = 0;
+    float calc_lissage = 0;
+    if (now - temp_lissage > 1000)
     {
-        Input_PCBT = DT_pt100_get(PT100_3_VOIES_PCBT);
-    }
+        temp_lissage = now;
 
-    if (DT_pt100_get(PT100_3_VOIES_MCBT) > 0)
-    {
-        Input_MCBT = DT_pt100_get(PT100_3_VOIES_MCBT);
+        if (DT_pt100_get(PT100_3_VOIES_PCBT) > 0)
+        {
+            lissage_pcbt[num_pcbt] = DT_pt100_get(PT100_3_VOIES_PCBT);
+            num_pcbt++;
+            if (num_pcbt == NUM_LISSAGE)
+            {
+                num_pcbt = 0;
+            }
+        }
+
+        for (uint8_t num = 0; num < NUM_LISSAGE; ++num)
+        {
+            calc_lissage += lissage_pcbt[num];
+        }
+        Input_PCBT = calc_lissage / NUM_LISSAGE;
+
+        if (DT_pt100_get(PT100_3_VOIES_MCBT) > 0)
+        {
+            lissage_mcbt[num_mcbt] = DT_pt100_get(PT100_3_VOIES_MCBT);
+            num_mcbt++;
+            if (num_mcbt == NUM_LISSAGE)
+            {
+                num_mcbt = 0;
+            }
+        }
+
+        for (uint8_t num = 0; num < NUM_LISSAGE; ++num)
+        {
+            calc_lissage += lissage_pcbt[num];
+        }
+        Input_MCBT = calc_lissage / NUM_LISSAGE;
     }
 
     // consigne minimum pour fonctionnement des circulateur
@@ -307,7 +375,6 @@ void DT_3voies_loop()
 
     if (pid_mcbt.Compute())
     {
-
         if (_callback_pcbt_pid != nullptr)
             _callback_mcbt_pid(pid_mcbt.GetPterm(), pid_mcbt.GetIterm(), pid_mcbt.GetDterm(), Output_MCBT);
         if (Output_MCBT > 0)
