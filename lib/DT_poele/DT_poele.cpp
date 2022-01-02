@@ -36,11 +36,11 @@ bool marche_poele_ballon(uint32_t now)
     // mise en marche du poele
     if (DT_pt100_get(PT100_H_BALON) > 0 && DT_pt100_get(PT100_B_BALON) > 0)
     {
-        if (((DT_pt100_get(PT100_H_BALON) + DT_pt100_get(PT100_B_BALON)) / 2) < (C1 + eeprom_config.C7))
+        if (((DT_pt100_get(PT100_H_BALON) + DT_pt100_get(PT100_B_BALON)) / 2) < (C1))
         {
             ret = true;
         }
-        else
+        else if (((DT_pt100_get(PT100_H_BALON) + DT_pt100_get(PT100_B_BALON)) / 2) > (C1 + eeprom_config.C7))
         {
             ret = false;
         }
@@ -49,13 +49,21 @@ bool marche_poele_ballon(uint32_t now)
     else if (temp_default_pt100 != 0 && now - temp_default_pt100 >= TEMP_DEFAULT_PT100_POELE)
     {
 
-        if (DT_pt100_get(PT100_H_BALON) > 0 && DT_pt100_get(PT100_H_BALON) < (C1 + eeprom_config.C7))
+        if (DT_pt100_get(PT100_H_BALON) > 0 && DT_pt100_get(PT100_H_BALON) < (C1))
         {
             ret = true;
         }
-        else if (DT_pt100_get(PT100_B_BALON) > 0 && DT_pt100_get(PT100_B_BALON) < (C1 + eeprom_config.C7))
+        else if (DT_pt100_get(PT100_B_BALON) > 0 && DT_pt100_get(PT100_B_BALON) < (C1))
         {
             ret = true;
+        }
+        else if (DT_pt100_get(PT100_H_BALON) > 0 && DT_pt100_get(PT100_H_BALON) > (C1 + eeprom_config.C7))
+        {
+            ret = false;
+        }
+        else if (DT_pt100_get(PT100_B_BALON) > 0 && DT_pt100_get(PT100_B_BALON) > (C1 + eeprom_config.C7))
+        {
+            ret = false;
         }
         else
         {
@@ -120,11 +128,11 @@ void DT_Poele_loop()
             {
                 // marche poele
                 C1 = eeprom_config.C5;
-                if (min(DT_pt100_get(PT100_ECS1), DT_pt100_get(PT100_ECS2)) < (C1 + eeprom_config.C7))
+                if (min(DT_pt100_get(PT100_ECS1), DT_pt100_get(PT100_ECS2)) < (C1))
                 {
                     DT_relay(MARCHE_POELE, true);
                 }
-                else
+                else if (min(DT_pt100_get(PT100_ECS1), DT_pt100_get(PT100_ECS2)) > (C1 + eeprom_config.C7))
                 {
                     DT_relay(MARCHE_POELE, false);
                 }
@@ -133,11 +141,11 @@ void DT_Poele_loop()
             else if (DT_pt100_get(PT100_ECS1) > 0)
             {
                 C1 = eeprom_config.C5;
-                if (DT_pt100_get(PT100_ECS1) < (C1 + eeprom_config.C7))
+                if (DT_pt100_get(PT100_ECS1) < (C1))
                 {
                     DT_relay(MARCHE_POELE, true);
                 }
-                else
+                else if (DT_pt100_get(PT100_ECS1) > (C1 + eeprom_config.C7))
                 {
                     DT_relay(MARCHE_POELE, false);
                 }
@@ -146,11 +154,11 @@ void DT_Poele_loop()
             else if (DT_pt100_get(PT100_ECS2) > 0)
             {
                 C1 = eeprom_config.C5;
-                if (DT_pt100_get(PT100_ECS2) < (C1 + eeprom_config.C7))
+                if (DT_pt100_get(PT100_ECS2) < (C1))
                 {
                     DT_relay(MARCHE_POELE, true);
                 }
-                else
+                else if (DT_pt100_get(PT100_ECS2) > (C1 + eeprom_config.C7))
                 {
                     DT_relay(MARCHE_POELE, false);
                 }
