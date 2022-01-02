@@ -119,4 +119,7 @@ const uint8_t RELAI_PLANCHE[NUM_PLANCHE] PROGMEM = {RELAIS_PLANCHE_SALON, RELAIS
 //EV2 ECS
 #define EV2_ECS 13
 
+//Demmarage Poele
+#define MARCHE_POELE 14
+
 #endif
