@@ -52,36 +52,26 @@ void chargeEEPROM()
                 eeprom_config.C_PCBT_MAX = TMP_EAU_PCBT_MAX; // consigne Temp PCBT maximum
                 eeprom_config.C_MCBT_MIN = 25;               // consigne Temp MCBT minimum
                 eeprom_config.C_MCBT_MAX = TMP_EAU_MCBT_MAX; // consigne Temp MCBT maximum
-
-                // eeprom_config.KP_PCBT = 500;  // pid KP MCBT
-                // eeprom_config.KI_PCBT = 0;    // pid KI MCBT
-                // eeprom_config.KD_PCBT = 0;    // pid KD MCBT
-                // eeprom_config.KT_PCBT = 1000; // pid interval MCBT (en ms)
-
-                // eeprom_config.KP_MCBT = 500;  // pid KP MCBT
-                // eeprom_config.KI_MCBT = 0;    // pid KI MCBT
-                // eeprom_config.KD_MCBT = 0;    // pid KD MCBT
-                // eeprom_config.KT_MCBT = 1000; // pid interval MCBT (en ms)
         }
 
         // Valeurs par défaut struct_version == 2
-        if (eeprom_config.struct_version < 1 || erreur)
+        if (eeprom_config.struct_version < 2 || erreur)
         {
                 Serial.println("EEPROM version < 2");
                 eeprom_config.struct_version = 2;
-                // TODO: mqtt home assistant
-                eeprom_config.pid_pcbt.KP = 1000;
-                eeprom_config.pid_pcbt.KI = 0;
-                eeprom_config.pid_pcbt.KD = 0;
+
+                eeprom_config.pid_pcbt.KP = 2000;
+                eeprom_config.pid_pcbt.KI = 4;
+                eeprom_config.pid_pcbt.KD = 4;
                 eeprom_config.pid_pcbt.KT = 10000;
                 eeprom_config.pid_pcbt.action = QuickPID::Action::direct;
                 eeprom_config.pid_pcbt.pmode = QuickPID::pMode::pOnError;
                 eeprom_config.pid_pcbt.dmode = QuickPID::dMode::dOnError;
                 eeprom_config.pid_pcbt.iawmode = QuickPID::iAwMode::iAwCondition;
 
-                eeprom_config.pid_mcbt.KP = 1000;
-                eeprom_config.pid_mcbt.KI = 0;
-                eeprom_config.pid_mcbt.KD = 0;
+                eeprom_config.pid_mcbt.KP = 2000;
+                eeprom_config.pid_mcbt.KI = 4;
+                eeprom_config.pid_mcbt.KD = 4;
                 eeprom_config.pid_mcbt.KT = 10000;
                 eeprom_config.pid_mcbt.action = QuickPID::Action::direct;
                 eeprom_config.pid_mcbt.pmode = QuickPID::pMode::pOnError;
