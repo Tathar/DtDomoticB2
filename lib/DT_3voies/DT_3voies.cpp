@@ -105,6 +105,22 @@ void DT_3voies_init()
     pid_pcbt.SetSampleTimeUs(eeprom_config.pid_pcbt.KT * 1000);
     pid_mcbt.SetSampleTimeUs(eeprom_config.pid_mcbt.KT * 1000);
 
+    // Direction
+    pid_pcbt.SetControllerDirection(eeprom_config.pid_pcbt.action);
+    pid_mcbt.SetControllerDirection(eeprom_config.pid_pcbt.action);
+
+    // pMode
+    pid_pcbt.SetProportionalMode(eeprom_config.pid_pcbt.pmode);
+    pid_mcbt.SetProportionalMode(eeprom_config.pid_mcbt.pmode);
+
+    // dMode
+    pid_pcbt.SetDerivativeMode(eeprom_config.pid_pcbt.dmode);
+    pid_mcbt.SetDerivativeMode(eeprom_config.pid_mcbt.dmode);
+
+    // Anti Windup
+    pid_pcbt.SetAntiWindupMode(eeprom_config.pid_pcbt.iawmode);
+    pid_mcbt.SetAntiWindupMode(eeprom_config.pid_mcbt.iawmode);
+
     // temperature de la vanne PCBT
     if (DT_pt100_get(PT100_3_VOIES_PCBT) > 0)
     {
@@ -543,56 +559,56 @@ void DT_3voies_PCBT_set_action(QuickPID::Action action)
 {
     eeprom_config.pid_pcbt.action = action;
     // sauvegardeEEPROM();
-    pid_pcbt.SetControllerDirection(action);
+    pid_pcbt.SetControllerDirection(eeprom_config.pid_pcbt.action);
 }
 
 void DT_3voies_MCBT_set_action(QuickPID::Action action)
 {
     eeprom_config.pid_mcbt.action = action;
     // sauvegardeEEPROM();
-    pid_mcbt.SetControllerDirection(action);
+    pid_mcbt.SetControllerDirection(eeprom_config.pid_pcbt.action);
 }
 
 void DT_3voies_PCBT_set_pmode(QuickPID::pMode pMode)
 {
     eeprom_config.pid_pcbt.pmode = pMode;
     // sauvegardeEEPROM();
-    pid_pcbt.SetProportionalMode(pMode);
+    pid_pcbt.SetProportionalMode(eeprom_config.pid_pcbt.pmode);
 }
 
 void DT_3voies_MCBT_set_pmode(QuickPID::pMode pMode)
 {
     eeprom_config.pid_mcbt.pmode = pMode;
     // sauvegardeEEPROM();
-    pid_mcbt.SetProportionalMode(pMode);
+    pid_mcbt.SetProportionalMode(eeprom_config.pid_mcbt.pmode);
 }
 
 void DT_3voies_PCBT_set_dmode(QuickPID::dMode dMode)
 {
     eeprom_config.pid_pcbt.dmode = dMode;
     // sauvegardeEEPROM();
-    pid_pcbt.SetDerivativeMode(dMode);
+    pid_pcbt.SetDerivativeMode(eeprom_config.pid_pcbt.dmode);
 }
 
 void DT_3voies_MCBT_set_dmode(QuickPID::dMode dMode)
 {
     eeprom_config.pid_mcbt.dmode = dMode;
     // sauvegardeEEPROM();
-    pid_mcbt.SetDerivativeMode(dMode);
+    pid_mcbt.SetDerivativeMode(eeprom_config.pid_mcbt.dmode);
 }
 
 void DT_3voies_PCBT_set_iawmode(QuickPID::iAwMode iAwMode)
 {
     eeprom_config.pid_pcbt.iawmode = iAwMode;
     // sauvegardeEEPROM();
-    pid_pcbt.SetAntiWindupMode(iAwMode);
+    pid_pcbt.SetAntiWindupMode(eeprom_config.pid_pcbt.iawmode);
 }
 
 void DT_3voies_MCBT_set_iawmode(QuickPID::iAwMode iAwMode)
 {
     eeprom_config.pid_mcbt.iawmode = iAwMode;
     // sauvegardeEEPROM();
-    pid_mcbt.SetAntiWindupMode(iAwMode);
+    pid_mcbt.SetAntiWindupMode(eeprom_config.pid_mcbt.iawmode);
 }
 
 // void DT_3voies_PCBT_set_action(Action action)
