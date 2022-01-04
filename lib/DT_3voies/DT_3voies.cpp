@@ -166,6 +166,7 @@ void DT_3voies_init()
     else
     {
         DT_relay(CIRCULATEUR_PCBT, true);
+        Output_PCBT = 0;
         pid_pcbt.SetMode(QuickPID::Control::automatic);
     }
 
@@ -178,8 +179,12 @@ void DT_3voies_init()
     else
     {
         DT_relay(CIRCULATEUR_MCBT, true);
+        Output_MCBT = 0;
         pid_mcbt.SetMode(QuickPID::Control::automatic);
     }
+
+    Output_PCBT = 0;
+    Output_MCBT = 0;
 }
 
 void DT_3voies_loop()
@@ -306,7 +311,8 @@ void DT_3voies_loop()
     }
     else if ((eeprom_config.mode_3voies_PCBT != DT_3VOIES_OFF) && (mem_config.C2 > (eeprom_config.C_PCBT_MIN + eeprom_config.V3)))
     {
-        DT_relay(CIRCULATEUR_PCBT, true);               // demmarage du circulateur
+        DT_relay(CIRCULATEUR_PCBT, true); // demmarage du circulateur
+        Output_PCBT = 0;
         pid_pcbt.SetMode(QuickPID::Control::automatic); // demmarage de la vanne 3
     }
     else if ((eeprom_config.mode_3voies_PCBT == DT_3VOIES_OFF))
@@ -322,7 +328,8 @@ void DT_3voies_loop()
     }
     else if ((eeprom_config.mode_3voies_MCBT != DT_3VOIES_OFF) && (mem_config.C3 < (eeprom_config.C_MCBT_MIN + eeprom_config.V3)))
     {
-        DT_relay(CIRCULATEUR_MCBT, true);               // demmarage du circulateur
+        DT_relay(CIRCULATEUR_MCBT, true); // demmarage du circulateur
+        Output_MCBT = 0;
         pid_mcbt.SetMode(QuickPID::Control::automatic); // demmarage de la vanne 3 voie
     }
     else if ((eeprom_config.mode_3voies_MCBT == DT_3VOIES_OFF))
@@ -427,6 +434,7 @@ void DT_3voies_PCBT_set_mode(DT_3voies_mode mode)
     else
     {
         DT_relay(CIRCULATEUR_PCBT, true);
+        Output_PCBT = 0;
         pid_pcbt.SetMode(QuickPID::Control::automatic);
     }
 
@@ -458,6 +466,7 @@ void DT_3voies_MCBT_set_mode(DT_3voies_mode mode)
     else
     {
         DT_relay(CIRCULATEUR_MCBT, true);
+        Output_MCBT = 0;
         pid_mcbt.SetMode(QuickPID::Control::automatic);
     }
 
