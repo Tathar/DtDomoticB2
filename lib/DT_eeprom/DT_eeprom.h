@@ -71,6 +71,9 @@ struct Eeprom_Config
     // float KD_MCBT;    // pid KD MCBT
     // uint32_t KT_MCBT; // pid interval MCBT (en ms)
     Pid pid_mcbt;
+
+    float ratio_PCBT;
+    float ratio_MCBT;
 };
 
 // structure de configuration

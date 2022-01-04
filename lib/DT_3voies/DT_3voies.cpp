@@ -387,7 +387,7 @@ void DT_3voies_loop()
             // }
             // else
             // {
-            DT_relay(VANNE_PCBT_HOT, (uint32_t)(Output_PCBT / 2)); // activation de la vanne
+            DT_relay(VANNE_PCBT_HOT, (uint32_t)(Output_PCBT / eeprom_config.ratio_PCBT)); // activation de la vanne
             // }
         }
         else
@@ -402,7 +402,7 @@ void DT_3voies_loop()
             _callback_mcbt_pid(pid_mcbt.GetPterm(), pid_mcbt.GetIterm(), pid_mcbt.GetDterm(), Output_MCBT);
         if (Output_MCBT > 0)
         {
-            DT_relay(VANNE_MCBT_HOT, (uint32_t)(Output_MCBT / 2)); // activation de la vanne
+            DT_relay(VANNE_MCBT_HOT, (uint32_t)(Output_MCBT / eeprom_config.ratio_MCBT)); // activation de la vanne
         }
         else
         {

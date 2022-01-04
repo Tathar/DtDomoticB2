@@ -79,6 +79,16 @@ void chargeEEPROM()
                 eeprom_config.pid_mcbt.iawmode = QuickPID::iAwMode::iAwCondition;
         }
 
+        // Valeurs par défaut struct_version == 3
+        if (eeprom_config.struct_version < 3 || erreur)
+        {
+                Serial.println("EEPROM version < 3");
+                eeprom_config.struct_version = 3;
+
+                eeprom_config.ratio_PCBT = 4;
+                eeprom_config.ratio_MCBT = 4;
+        }
+
         // Sauvegarde les nouvelles données
         sauvegardeEEPROM();
 };
