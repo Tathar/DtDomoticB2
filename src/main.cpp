@@ -502,6 +502,7 @@ void homeassistant(void)
   doc["name"] = F("consigne Temp PCBT a -10°C (C8)");
   doc["stat_t"] = F("~/state");
   doc["command_topic"] = F("~/set");
+  doc["step"] = 0.01;
   // doc["dev_cla"] = F("temperature");
   // doc["unit_of_meas"] = F("°C");
   doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
@@ -519,6 +520,7 @@ void homeassistant(void)
   doc["name"] = F("consigne Temp PCBT a +10°C (C9)");
   doc["stat_t"] = F("~/state");
   doc["command_topic"] = F("~/set");
+  doc["step"] = 0.01;
   // doc["dev_cla"] = F("temperature");
   // doc["unit_of_meas"] = F("°C");
   doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
@@ -536,6 +538,7 @@ void homeassistant(void)
   doc["name"] = F("consigne Temp MCBT a -10°C (C10)");
   doc["stat_t"] = F("~/state");
   doc["command_topic"] = F("~/set");
+  doc["step"] = 0.01;
   // doc["dev_cla"] = F("temperature");
   // doc["unit_of_meas"] = F("°C");
   doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
@@ -553,6 +556,7 @@ void homeassistant(void)
   doc["name"] = F("consigne Temp MCBT a +10°C (C11)");
   doc["stat_t"] = F("~/state");
   doc["command_topic"] = F("~/set");
+  doc["step"] = 0.01;
   // doc["dev_cla"] = F("temperature");
   // doc["unit_of_meas"] = F("°C");
   doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
