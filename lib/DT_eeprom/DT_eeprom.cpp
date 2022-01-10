@@ -9,6 +9,7 @@ Mem_Config mem_config;
 /** Sauvegarde en mémoire EEPROM le contenu actuel de la structure */
 void sauvegardeEEPROM()
 {
+        Serial.println("Save on EEPROM");
         // Met à jour le nombre magic et le numéro de version avant l'écriture
         //eeprom_config.magic = STRUCT_MAGIC;
         //eeprom_config.struct_version = STRUCT_VERSION;
@@ -19,7 +20,7 @@ void sauvegardeEEPROM()
 void chargeEEPROM()
 {
         // uint8_t i = 0; // for loop
-
+        bool need_save = false;
         // Lit la mémoire EEPROM
         EEPROM.get(0, eeprom_config);
 
@@ -34,6 +35,7 @@ void chargeEEPROM()
         // Valeurs par défaut struct_version == 1
         if (eeprom_config.struct_version < 1 || erreur)
         {
+                need_save = true;
                 Serial.println("EEPROM version < 1");
                 eeprom_config.struct_version = 1;
                 // TODO: mqtt home assistant
@@ -60,6 +62,7 @@ void chargeEEPROM()
         // Valeurs par défaut struct_version == 2
         if (eeprom_config.struct_version < 2 || erreur)
         {
+                need_save = true;
                 Serial.println("EEPROM version < 2");
                 eeprom_config.struct_version = 2;
 
@@ -85,6 +88,7 @@ void chargeEEPROM()
         // Valeurs par défaut struct_version == 3
         if (eeprom_config.struct_version < 3 || erreur)
         {
+                need_save = true;
                 Serial.println("EEPROM version < 3");
                 eeprom_config.struct_version = 3;
 
@@ -93,5 +97,6 @@ void chargeEEPROM()
         }
 
         // Sauvegarde les nouvelles données
-        sauvegardeEEPROM();
+        if (need_save)
+                sauvegardeEEPROM();
 };

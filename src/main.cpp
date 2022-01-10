@@ -1450,7 +1450,7 @@ void mqtt_publish()
   // KD_PCBT
   wdt_reset();
   strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/pcbt/KD/state"), BUFFER_SIZE);
-  DT_mqtt_send(buffer, DT_3voies_PCBT_get_KI());
+  DT_mqtt_send(buffer, DT_3voies_PCBT_get_KD());
 
   // KT_PCBT
   wdt_reset();

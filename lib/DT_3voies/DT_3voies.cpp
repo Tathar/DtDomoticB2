@@ -425,7 +425,6 @@ void DT_3voies_loop()
 void DT_3voies_PCBT_set_mode(DT_3voies_mode mode)
 {
     eeprom_config.mode_3voies_PCBT = mode;
-    // sauvegardeEEPROM();
     if (eeprom_config.mode_3voies_PCBT == DT_3VOIES_OFF)
     {
         DT_relay(CIRCULATEUR_PCBT, false);
@@ -452,6 +451,7 @@ void DT_3voies_PCBT_set_mode(DT_3voies_mode mode)
     {
         mem_config.C2 = scale(DT_pt100_get(PT100_EXT), -10, 10, eeprom_config.C8, eeprom_config.C9);
     }
+    sauvegardeEEPROM();
 }
 
 void DT_3voies_MCBT_set_mode(DT_3voies_mode mode)
@@ -484,6 +484,7 @@ void DT_3voies_MCBT_set_mode(DT_3voies_mode mode)
     {
         mem_config.C3 = scale(DT_pt100_get(PT100_EXT), -10, 10, eeprom_config.C10, eeprom_config.C11);
     }
+    sauvegardeEEPROM();
 }
 
 DT_3voies_mode DT_3voies_PCBT_get_mode(void)
@@ -499,7 +500,7 @@ DT_3voies_mode DT_3voies_MCBT_get_mode(void)
 void DT_3voies_PCBT_set_KP(float kp)
 {
     eeprom_config.pid_pcbt.KP = kp;
-    // sauvegardeEEPROM();
+    sauvegardeEEPROM();
     // set KP, KI, KD
     pid_pcbt.SetTunings(eeprom_config.pid_pcbt.KP, eeprom_config.pid_pcbt.KI, eeprom_config.pid_pcbt.KD);
 }
@@ -507,7 +508,7 @@ void DT_3voies_PCBT_set_KP(float kp)
 void DT_3voies_MCBT_set_KP(float kp)
 {
     eeprom_config.pid_mcbt.KP = kp;
-    // sauvegardeEEPROM();
+    sauvegardeEEPROM();
     // set KP, KI, KD
     pid_mcbt.SetTunings(eeprom_config.pid_mcbt.KP, eeprom_config.pid_mcbt.KI, eeprom_config.pid_mcbt.KD);
 }
@@ -515,7 +516,7 @@ void DT_3voies_MCBT_set_KP(float kp)
 void DT_3voies_PCBT_set_KI(float ki)
 {
     eeprom_config.pid_pcbt.KI = ki;
-    // sauvegardeEEPROM();
+    sauvegardeEEPROM();
     // set KP, KI, KD
     pid_pcbt.SetTunings(eeprom_config.pid_pcbt.KP, eeprom_config.pid_pcbt.KI, eeprom_config.pid_pcbt.KD);
 }
@@ -523,7 +524,7 @@ void DT_3voies_PCBT_set_KI(float ki)
 void DT_3voies_MCBT_set_KI(float ki)
 {
     eeprom_config.pid_mcbt.KI = ki;
-    // sauvegardeEEPROM();
+    sauvegardeEEPROM();
     // set KP, KI, KD
     pid_mcbt.SetTunings(eeprom_config.pid_mcbt.KP, eeprom_config.pid_mcbt.KI, eeprom_config.pid_mcbt.KD);
 }
@@ -531,7 +532,7 @@ void DT_3voies_MCBT_set_KI(float ki)
 void DT_3voies_PCBT_set_KD(float kd)
 {
     eeprom_config.pid_pcbt.KD = kd;
-    // sauvegardeEEPROM();
+    sauvegardeEEPROM();
     // set KP, KI, KD
     pid_pcbt.SetTunings(eeprom_config.pid_pcbt.KP, eeprom_config.pid_pcbt.KI, eeprom_config.pid_pcbt.KD);
 }
@@ -539,7 +540,7 @@ void DT_3voies_PCBT_set_KD(float kd)
 void DT_3voies_MCBT_set_KD(float kd)
 {
     eeprom_config.pid_mcbt.KD = kd;
-    // sauvegardeEEPROM();
+    sauvegardeEEPROM();
     // set KP, KI, KD
     pid_mcbt.SetTunings(eeprom_config.pid_mcbt.KP, eeprom_config.pid_mcbt.KI, eeprom_config.pid_mcbt.KD);
 }
@@ -547,7 +548,7 @@ void DT_3voies_MCBT_set_KD(float kd)
 void DT_3voies_PCBT_set_KT(uint32_t kt)
 {
     eeprom_config.pid_pcbt.KT = kt;
-    // sauvegardeEEPROM();
+    sauvegardeEEPROM();
     // set loop time (KT)
     pid_pcbt.SetSampleTimeUs(eeprom_config.pid_pcbt.KT * 1000);
     // min, max
@@ -557,7 +558,7 @@ void DT_3voies_PCBT_set_KT(uint32_t kt)
 void DT_3voies_MCBT_set_KT(uint32_t kt)
 {
     eeprom_config.pid_mcbt.KT = kt;
-    // sauvegardeEEPROM();
+    sauvegardeEEPROM();
     // set loop time (KT)
     pid_mcbt.SetSampleTimeUs(eeprom_config.pid_mcbt.KT * 1000);
     // min, max
@@ -574,49 +575,49 @@ void DT_3voies_PCBT_set_action(QuickPID::Action action)
 void DT_3voies_MCBT_set_action(QuickPID::Action action)
 {
     eeprom_config.pid_mcbt.action = action;
-    // sauvegardeEEPROM();
+    sauvegardeEEPROM();
     pid_mcbt.SetControllerDirection(eeprom_config.pid_pcbt.action);
 }
 
 void DT_3voies_PCBT_set_pmode(QuickPID::pMode pMode)
 {
     eeprom_config.pid_pcbt.pmode = pMode;
-    // sauvegardeEEPROM();
+    sauvegardeEEPROM();
     pid_pcbt.SetProportionalMode(eeprom_config.pid_pcbt.pmode);
 }
 
 void DT_3voies_MCBT_set_pmode(QuickPID::pMode pMode)
 {
     eeprom_config.pid_mcbt.pmode = pMode;
-    // sauvegardeEEPROM();
+    sauvegardeEEPROM();
     pid_mcbt.SetProportionalMode(eeprom_config.pid_mcbt.pmode);
 }
 
 void DT_3voies_PCBT_set_dmode(QuickPID::dMode dMode)
 {
     eeprom_config.pid_pcbt.dmode = dMode;
-    // sauvegardeEEPROM();
+    sauvegardeEEPROM();
     pid_pcbt.SetDerivativeMode(eeprom_config.pid_pcbt.dmode);
 }
 
 void DT_3voies_MCBT_set_dmode(QuickPID::dMode dMode)
 {
     eeprom_config.pid_mcbt.dmode = dMode;
-    // sauvegardeEEPROM();
+    sauvegardeEEPROM();
     pid_mcbt.SetDerivativeMode(eeprom_config.pid_mcbt.dmode);
 }
 
 void DT_3voies_PCBT_set_iawmode(QuickPID::iAwMode iAwMode)
 {
     eeprom_config.pid_pcbt.iawmode = iAwMode;
-    // sauvegardeEEPROM();
+    sauvegardeEEPROM();
     pid_pcbt.SetAntiWindupMode(eeprom_config.pid_pcbt.iawmode);
 }
 
 void DT_3voies_MCBT_set_iawmode(QuickPID::iAwMode iAwMode)
 {
     eeprom_config.pid_mcbt.iawmode = iAwMode;
-    // sauvegardeEEPROM();
+    sauvegardeEEPROM();
     pid_mcbt.SetAntiWindupMode(eeprom_config.pid_mcbt.iawmode);
 }
 
