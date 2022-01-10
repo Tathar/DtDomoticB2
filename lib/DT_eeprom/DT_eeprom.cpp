@@ -10,8 +10,8 @@ Mem_Config mem_config;
 void sauvegardeEEPROM()
 {
         // Met à jour le nombre magic et le numéro de version avant l'écriture
-        eeprom_config.magic = STRUCT_MAGIC;
-        eeprom_config.struct_version = STRUCT_VERSION;
+        //eeprom_config.magic = STRUCT_MAGIC;
+        //eeprom_config.struct_version = STRUCT_VERSION;
         EEPROM.put(0, eeprom_config);
 }
 
@@ -26,7 +26,10 @@ void chargeEEPROM()
         // Détection d'une mémoire non initialisée
         byte erreur = eeprom_config.magic != STRUCT_MAGIC;
         if (erreur)
+        {
                 Serial.println("EEPROM error");
+                eeprom_config.magic = STRUCT_MAGIC;
+        }
 
         // Valeurs par défaut struct_version == 1
         if (eeprom_config.struct_version < 1 || erreur)

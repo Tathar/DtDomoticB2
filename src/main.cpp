@@ -2367,7 +2367,7 @@ void setup()
   // }
 
   wdt_enable(WATCHDOG_TIME);
-  // auto Serial.println("Board started");
+  Serial.println("Board started");
 }
 
 void loop()
