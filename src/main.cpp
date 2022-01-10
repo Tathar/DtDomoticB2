@@ -1026,7 +1026,7 @@ void homeassistant(void)
   doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
   serializeJson(doc, buffer_value, sizeof(buffer_value));
   // Serial.println(buffer_value);
-  strlcpy_P(buffer, PSTR("homeassistant/sensor/" BOARD_IDENTIFIER "/ratio-pcbt/config"), BUFFER_SIZE);
+  strlcpy_P(buffer, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/ratio-pcbt/config"), BUFFER_SIZE);
   DT_mqtt_send(buffer, buffer_value);
 
   // RATIO MCBT
@@ -1045,7 +1045,7 @@ void homeassistant(void)
   doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
   serializeJson(doc, buffer_value, sizeof(buffer_value));
   // Serial.println(buffer_value);
-  strlcpy_P(buffer, PSTR("homeassistant/sensor/" BOARD_IDENTIFIER "/ratio-mcbt/config"), BUFFER_SIZE);
+  strlcpy_P(buffer, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/ratio-mcbt/config"), BUFFER_SIZE);
   DT_mqtt_send(buffer, buffer_value);
 
   // load 1s
