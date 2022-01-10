@@ -162,6 +162,9 @@ void DT_3voies_init()
     {
         DT_relay(CIRCULATEUR_PCBT, false);
         pid_pcbt.SetMode(QuickPID::Control::manual);
+        Output_PCBT = 0;
+        if (_callback_pcbt_pid != nullptr)
+            _callback_pcbt_pid(pid_pcbt.GetPterm(), pid_pcbt.GetIterm(), pid_pcbt.GetDterm(), Output_PCBT);
     }
     else
     {
@@ -175,6 +178,9 @@ void DT_3voies_init()
     {
         DT_relay(CIRCULATEUR_MCBT, false);
         pid_mcbt.SetMode(QuickPID::Control::manual);
+        Output_MCBT = 0;
+        if (_callback_mcbt_pid != nullptr)
+            _callback_mcbt_pid(pid_mcbt.GetPterm(), pid_mcbt.GetIterm(), pid_mcbt.GetDterm(), Output_MCBT);
     }
     else
     {
@@ -308,6 +314,9 @@ void DT_3voies_loop()
     {
         DT_relay(CIRCULATEUR_PCBT, false);           // arret du circulateur
         pid_pcbt.SetMode(QuickPID::Control::manual); // arret de la vanne 3 voie
+        Output_PCBT = 0;
+        if (_callback_pcbt_pid != nullptr)
+            _callback_pcbt_pid(pid_pcbt.GetPterm(), pid_pcbt.GetIterm(), pid_pcbt.GetDterm(), Output_PCBT);
     }
     else if ((eeprom_config.mode_3voies_PCBT != DT_3VOIES_OFF) && (mem_config.C2 > (eeprom_config.C_PCBT_MIN + eeprom_config.V3)))
     {
@@ -319,12 +328,18 @@ void DT_3voies_loop()
     {
         DT_relay(CIRCULATEUR_PCBT, false);           // arret du circulateur
         pid_pcbt.SetMode(QuickPID::Control::manual); // arret de la vanne 3 voie
+        Output_PCBT = 0;
+        if (_callback_pcbt_pid != nullptr)
+            _callback_pcbt_pid(pid_pcbt.GetPterm(), pid_pcbt.GetIterm(), pid_pcbt.GetDterm(), Output_PCBT);
     }
 
     if ((eeprom_config.mode_3voies_MCBT != DT_3VOIES_DEMMARAGE) && (mem_config.C3 < (eeprom_config.C_MCBT_MIN - eeprom_config.V3)))
     {
         DT_relay(CIRCULATEUR_MCBT, false);           // arret du circulateur
         pid_mcbt.SetMode(QuickPID::Control::manual); // arret de la vanne 3 voie
+        Output_MCBT = 0;
+        if (_callback_mcbt_pid != nullptr)
+            _callback_mcbt_pid(pid_mcbt.GetPterm(), pid_mcbt.GetIterm(), pid_mcbt.GetDterm(), Output_MCBT);
     }
     else if ((eeprom_config.mode_3voies_MCBT != DT_3VOIES_OFF) && (mem_config.C3 < (eeprom_config.C_MCBT_MIN + eeprom_config.V3)))
     {
@@ -336,26 +351,42 @@ void DT_3voies_loop()
     {
         DT_relay(CIRCULATEUR_MCBT, false);           // arret du circulateur
         pid_mcbt.SetMode(QuickPID::Control::manual); // arret de la vanne 3 voie
+        Output_MCBT = 0;
+        if (_callback_mcbt_pid != nullptr)
+            _callback_mcbt_pid(pid_mcbt.GetPterm(), pid_mcbt.GetIterm(), pid_mcbt.GetDterm(), Output_MCBT);
     }
 
     // Plage Morte PCBT
     if (Input_PCBT >= mem_config.C2 && (Input_PCBT - mem_config.C2) < eeprom_config.V3)
     {
         pid_pcbt.SetMode(QuickPID::Control::manual); // arret de la vanne 3 voie
+        Output_PCBT = 0;
+        if (_callback_pcbt_pid != nullptr)
+            _callback_pcbt_pid(pid_pcbt.GetPterm(), pid_pcbt.GetIterm(), pid_pcbt.GetDterm(), Output_PCBT);
+        
     }
     else if (mem_config.C2 > Input_PCBT && (mem_config.C2 - Input_PCBT) < eeprom_config.V3)
     {
         pid_pcbt.SetMode(QuickPID::Control::manual); // arret de la vanne 3 voie
+        Output_PCBT = 0;
+        if (_callback_pcbt_pid != nullptr)
+            _callback_pcbt_pid(pid_pcbt.GetPterm(), pid_pcbt.GetIterm(), pid_pcbt.GetDterm(), Output_PCBT);
     }
 
     // Plage Morte MCBT
     if (Input_MCBT >= mem_config.C3 && (Input_MCBT - mem_config.C3) < eeprom_config.V3)
     {
         pid_mcbt.SetMode(QuickPID::Control::manual); // arret de la vanne 3 voie
+        Output_MCBT = 0;
+        if (_callback_mcbt_pid != nullptr)
+            _callback_mcbt_pid(pid_mcbt.GetPterm(), pid_mcbt.GetIterm(), pid_mcbt.GetDterm(), Output_MCBT);
     }
     else if (mem_config.C3 > Input_MCBT && (mem_config.C3 - Input_MCBT) < eeprom_config.V3)
     {
         pid_mcbt.SetMode(QuickPID::Control::manual); // arret de la vanne 3 voie
+        Output_MCBT = 0;
+        if (_callback_mcbt_pid != nullptr)
+            _callback_mcbt_pid(pid_mcbt.GetPterm(), pid_mcbt.GetIterm(), pid_mcbt.GetDterm(), Output_MCBT);
     }
 
     /*
@@ -398,7 +429,7 @@ void DT_3voies_loop()
 
     if (pid_mcbt.Compute())
     {
-        if (_callback_pcbt_pid != nullptr)
+        if (_callback_mcbt_pid != nullptr)
             _callback_mcbt_pid(pid_mcbt.GetPterm(), pid_mcbt.GetIterm(), pid_mcbt.GetDterm(), Output_MCBT);
         if (Output_MCBT > 0)
         {
@@ -429,6 +460,9 @@ void DT_3voies_PCBT_set_mode(DT_3voies_mode mode)
     {
         DT_relay(CIRCULATEUR_PCBT, false);
         pid_pcbt.SetMode(QuickPID::Control::manual);
+        Output_PCBT = 0;
+        if (_callback_pcbt_pid != nullptr)
+            _callback_pcbt_pid(pid_pcbt.GetPterm(), pid_pcbt.GetIterm(), pid_pcbt.GetDterm(), Output_PCBT);
     }
     else
     {
@@ -462,6 +496,9 @@ void DT_3voies_MCBT_set_mode(DT_3voies_mode mode)
     {
         DT_relay(CIRCULATEUR_MCBT, false);
         pid_mcbt.SetMode(QuickPID::Control::manual);
+        Output_MCBT = 0;
+        if (_callback_mcbt_pid != nullptr)
+            _callback_mcbt_pid(pid_mcbt.GetPterm(), pid_mcbt.GetIterm(), pid_mcbt.GetDterm(), Output_MCBT);
     }
     else
     {
