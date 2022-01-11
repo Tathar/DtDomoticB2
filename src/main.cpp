@@ -1108,69 +1108,104 @@ void pt100_callback(const uint8_t num, const float temp)
 {
   wdt_reset();
   // Serial.print("PT100_CALLBACK ");
-
-  sprintf_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/pt100-%02d/temperature"), num);
-  JsonVariant variant = doc.to<JsonVariant>();
-  variant.set(temp);
-  serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
-  // Serial.print(buffer);
-  // Serial.print(" -> ");
-  // Serial.println(buffer_value);
-  DT_mqtt_send(buffer, buffer_value);
+  static uint32_t refresh = 0;
+  uint32_t now = millis();
+  if (now - refresh >= MQTT_REFRESH)
+  {
+    refresh = now;
+    sprintf_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/pt100-%02d/temperature"), num);
+    JsonVariant variant = doc.to<JsonVariant>();
+    variant.set(temp);
+    serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
+    // Serial.print(buffer);
+    // Serial.print(" -> ");
+    // Serial.println(buffer_value);
+    DT_mqtt_send(buffer, buffer_value);
+  }
 }
 
 void bme280_callback_temperature(const uint8_t num, const float temperature)
 {
   wdt_reset();
 
-  sprintf_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/bme280-%02d/temperature"), num);
-  JsonVariant variant = doc.to<JsonVariant>();
-  variant.set(temperature);
-  serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
-  DT_mqtt_send(buffer, buffer_value);
+  static uint32_t refresh = 0;
+  uint32_t now = millis();
+  if (now - refresh >= MQTT_REFRESH)
+  {
+    refresh = now;
+    sprintf_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/bme280-%02d/temperature"), num);
+    JsonVariant variant = doc.to<JsonVariant>();
+    variant.set(temperature);
+    serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
+    DT_mqtt_send(buffer, buffer_value);
+  }
 }
 
 void bme280_callback_humidity(const uint8_t num, const float humidity)
 {
   wdt_reset();
 
-  sprintf_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/bme280-%02d/humidity"), num);
-  JsonVariant variant = doc.to<JsonVariant>();
-  variant.set(humidity);
-  serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
-  DT_mqtt_send(buffer, buffer_value);
+  static uint32_t refresh = 0;
+  uint32_t now = millis();
+  if (now - refresh >= MQTT_REFRESH)
+  {
+    refresh = now;
+    sprintf_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/bme280-%02d/humidity"), num);
+    JsonVariant variant = doc.to<JsonVariant>();
+    variant.set(humidity);
+    serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
+    DT_mqtt_send(buffer, buffer_value);
+  }
 }
 
 void bme280_callback_pressure(const uint8_t num, const float pressure)
 {
   wdt_reset();
 
-  sprintf_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/bme280-%02d/pressure"), num);
-  JsonVariant variant = doc.to<JsonVariant>();
-  variant.set(pressure);
-  serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
-  DT_mqtt_send(buffer, buffer_value);
+  static uint32_t refresh = 0;
+  uint32_t now = millis();
+  if (now - refresh >= MQTT_REFRESH)
+  {
+    refresh = now;
+    sprintf_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/bme280-%02d/pressure"), num);
+    JsonVariant variant = doc.to<JsonVariant>();
+    variant.set(pressure);
+    serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
+    DT_mqtt_send(buffer, buffer_value);
+  }
 }
 
 void ccs811_callback_co2(const uint8_t num, const float co2)
 {
   wdt_reset();
 
-  sprintf_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/ccs811-%02d/co2"), num);
-  JsonVariant variant = doc.to<JsonVariant>();
-  variant.set(co2);
-  serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
-  DT_mqtt_send(buffer, buffer_value);
+  static uint32_t refresh = 0;
+  uint32_t now = millis();
+  if (now - refresh >= MQTT_REFRESH)
+  {
+    refresh = now;
+    sprintf_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/ccs811-%02d/co2"), num);
+    JsonVariant variant = doc.to<JsonVariant>();
+    variant.set(co2);
+    serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
+    DT_mqtt_send(buffer, buffer_value);
+  }
 }
 
 void ccs811_callback_cov(const uint8_t num, const float cov)
 {
   wdt_reset();
-  sprintf_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/ccs811-%02d/cov"), num);
-  JsonVariant variant = doc.to<JsonVariant>();
-  variant.set(cov);
-  serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
-  DT_mqtt_send(buffer, buffer_value);
+  static uint32_t refresh = 0;
+  uint32_t now = millis();
+  if (now - refresh >= MQTT_REFRESH)
+  {
+    refresh = now;
+    sprintf_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/ccs811-%02d/cov"), num);
+    JsonVariant variant = doc.to<JsonVariant>();
+    variant.set(cov);
+    serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
+    DT_mqtt_send(buffer, buffer_value);
+  }
 }
 
 // void fake_ntc_callback(uint8_t value)
@@ -1187,11 +1222,17 @@ void ccs811_callback_cov(const uint8_t num, const float cov)
 void poele_C1_callback(const uint8_t C1)
 {
   wdt_reset();
-  JsonVariant variant = doc.to<JsonVariant>();
-  variant.set(C1);
-  serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
-  strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/poele/C1"), BUFFER_SIZE);
-  DT_mqtt_send(buffer, buffer_value);
+  static uint32_t refresh = 0;
+  uint32_t now = millis();
+  if (now - refresh >= MQTT_REFRESH)
+  {
+    refresh = now;
+    JsonVariant variant = doc.to<JsonVariant>();
+    variant.set(C1);
+    serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
+    strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/poele/C1"), BUFFER_SIZE);
+    DT_mqtt_send(buffer, buffer_value);
+  }
 }
 
 void poele_mode_callback(const DT_Poele_mode mode)
@@ -1229,55 +1270,69 @@ void dt3voies_callback(const float C2, const float C3)
 {
 
   wdt_reset();
-  JsonVariant variant = doc.to<JsonVariant>();
-  int32_t digit = C2 * 100;
-  variant.set((float)digit / 100.0);
-  serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
-  strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/pcbt/C2/state"), BUFFER_SIZE);
-  DT_mqtt_send(buffer, buffer_value);
 
-  wdt_reset();
-  variant = doc.to<JsonVariant>();
-  digit = C3 * 100;
-  variant.set((float)digit / 100.0);
-  serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
-  strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/mcbt/C3/state"), BUFFER_SIZE);
-  DT_mqtt_send(buffer, buffer_value);
+  static uint32_t refresh = 0;
+  uint32_t now = millis();
+  if (now - refresh >= MQTT_REFRESH)
+  {
+    refresh = now;
+    JsonVariant variant = doc.to<JsonVariant>();
+    int32_t digit = C2 * 100;
+    variant.set((float)digit / 100.0);
+    serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
+    strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/pcbt/C2/state"), BUFFER_SIZE);
+    DT_mqtt_send(buffer, buffer_value);
+
+    wdt_reset();
+    variant = doc.to<JsonVariant>();
+    digit = C3 * 100;
+    variant.set((float)digit / 100.0);
+    serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
+    strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/mcbt/C3/state"), BUFFER_SIZE);
+    DT_mqtt_send(buffer, buffer_value);
+  }
 }
 
 void dt3voies_callback_pid_pcbt(const float P, const float I, const float D, const float OUT)
 {
   wdt_reset();
-  JsonVariant variant = doc.to<JsonVariant>();
-  int32_t digit = P * 100;
-  variant.set((float)digit / 100.0);
-  serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
-  strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/pcbt/P"), BUFFER_SIZE);
-  DT_mqtt_send(buffer, buffer_value);
 
-  wdt_reset();
-  variant = doc.to<JsonVariant>();
-  digit = I * 100;
-  variant.set((float)digit / 100.0);
-  serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
-  strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/pcbt/I"), BUFFER_SIZE);
-  DT_mqtt_send(buffer, buffer_value);
+  static uint32_t refresh = 0;
+  uint32_t now = millis();
+  if (now - refresh >= MQTT_REFRESH)
+  {
+    refresh = now;
+    JsonVariant variant = doc.to<JsonVariant>();
+    int32_t digit = P * 100;
+    variant.set((float)digit / 100.0);
+    serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
+    strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/pcbt/P"), BUFFER_SIZE);
+    DT_mqtt_send(buffer, buffer_value);
 
-  wdt_reset();
-  variant = doc.to<JsonVariant>();
-  digit = D * 100;
-  variant.set((float)digit / 100.0);
-  serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
-  strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/pcbt/D"), BUFFER_SIZE);
-  DT_mqtt_send(buffer, buffer_value);
+    wdt_reset();
+    variant = doc.to<JsonVariant>();
+    digit = I * 100;
+    variant.set((float)digit / 100.0);
+    serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
+    strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/pcbt/I"), BUFFER_SIZE);
+    DT_mqtt_send(buffer, buffer_value);
 
-  wdt_reset();
-  variant = doc.to<JsonVariant>();
-  digit = OUT * 100;
-  variant.set((float)digit / 100.0);
-  serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
-  strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/pcbt/OUT"), BUFFER_SIZE);
-  DT_mqtt_send(buffer, buffer_value);
+    wdt_reset();
+    variant = doc.to<JsonVariant>();
+    digit = D * 100;
+    variant.set((float)digit / 100.0);
+    serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
+    strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/pcbt/D"), BUFFER_SIZE);
+    DT_mqtt_send(buffer, buffer_value);
+
+    wdt_reset();
+    variant = doc.to<JsonVariant>();
+    digit = OUT * 100;
+    variant.set((float)digit / 100.0);
+    serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
+    strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/pcbt/OUT"), BUFFER_SIZE);
+    DT_mqtt_send(buffer, buffer_value);
+  }
 }
 
 void mqtt_publish()

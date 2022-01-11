@@ -8,6 +8,7 @@
 #define TO_C_STR(x) STRINGIFY(x)
 
 #define SAVE_EEPROM 600000 // sauvegarde des données dans l eeprom toute les x ms
+#define MQTT_REFRESH 10000 //temp de rafrechissement du MQTT
 
 #define BOARD_MANUFACTURER "DOUET Touch Familly"
 #define BOARD_MODEL "DTBoard02"
