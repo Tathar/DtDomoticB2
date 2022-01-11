@@ -1894,6 +1894,7 @@ void mqtt_receve(char *topic, uint8_t *payload, unsigned int length)
       eeprom_config.V1 = u8t_value;
       strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/V1/state"), BUFFER_SIZE);
       DT_mqtt_send(buffer, u8t_value);
+      sauvegardeEEPROM();
     }
   }
   else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/V2/set") == 0) // V2
@@ -1903,6 +1904,7 @@ void mqtt_receve(char *topic, uint8_t *payload, unsigned int length)
       eeprom_config.V2 = u8t_value;
       strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/V2/state"), BUFFER_SIZE);
       DT_mqtt_send(buffer, u8t_value);
+      sauvegardeEEPROM();
     }
   }
   else if (strcmp_P(topic, PSTR("DtBoard/" BOARD_IDENTIFIER "/V3/set")) == 0) // V3
@@ -1915,6 +1917,7 @@ void mqtt_receve(char *topic, uint8_t *payload, unsigned int length)
       Serial.print(eeprom_config.V3);
       strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/V3/state"), BUFFER_SIZE);
       DT_mqtt_send(buffer, eeprom_config.V3);
+      sauvegardeEEPROM();
     }
     Serial.println(" ");
   }
@@ -1926,6 +1929,7 @@ void mqtt_receve(char *topic, uint8_t *payload, unsigned int length)
       eeprom_config.C4 = doc.as<float>();
       strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/C4/state"), BUFFER_SIZE);
       DT_mqtt_send(buffer, eeprom_config.C4);
+      sauvegardeEEPROM();
     }
   }
   else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/C5/set") == 0) // C5
@@ -1935,6 +1939,7 @@ void mqtt_receve(char *topic, uint8_t *payload, unsigned int length)
       eeprom_config.C5 = u8t_value;
       strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/C5/state"), BUFFER_SIZE);
       DT_mqtt_send(buffer, u8t_value);
+      sauvegardeEEPROM();
     }
   }
   else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/C6/set") == 0) // C6
@@ -1944,6 +1949,7 @@ void mqtt_receve(char *topic, uint8_t *payload, unsigned int length)
       eeprom_config.C6 = u8t_value;
       strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/C6/state"), BUFFER_SIZE);
       DT_mqtt_send(buffer, u8t_value);
+      sauvegardeEEPROM();
     }
   }
   else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/C7/set") == 0) // C7
@@ -1953,6 +1959,7 @@ void mqtt_receve(char *topic, uint8_t *payload, unsigned int length)
       eeprom_config.C7 = u8t_value;
       strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/C7/state"), BUFFER_SIZE);
       DT_mqtt_send(buffer, u8t_value);
+      sauvegardeEEPROM();
     }
   }
   else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/pcbt/C8/set") == 0) // C8
@@ -1963,6 +1970,7 @@ void mqtt_receve(char *topic, uint8_t *payload, unsigned int length)
       eeprom_config.C8 = doc.as<float>();
       strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/pcbt/C8/state"), BUFFER_SIZE);
       DT_mqtt_send(buffer, eeprom_config.C8);
+      sauvegardeEEPROM();
     }
   }
   else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/pcbt/C9/set") == 0) // C9
@@ -1973,6 +1981,7 @@ void mqtt_receve(char *topic, uint8_t *payload, unsigned int length)
       eeprom_config.C9 = doc.as<float>();
       strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/pcbt/C9/state"), BUFFER_SIZE);
       DT_mqtt_send(buffer, eeprom_config.C9);
+      sauvegardeEEPROM();
     }
   }
   else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/mcbt/C10/set") == 0) // C10
@@ -1983,6 +1992,7 @@ void mqtt_receve(char *topic, uint8_t *payload, unsigned int length)
       eeprom_config.C10 = doc.as<float>();
       strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/mcbt/C10/state"), BUFFER_SIZE);
       DT_mqtt_send(buffer, eeprom_config.C10);
+      sauvegardeEEPROM();
     }
   }
   else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/mcbt/C11/set") == 0) // C11
@@ -1993,6 +2003,7 @@ void mqtt_receve(char *topic, uint8_t *payload, unsigned int length)
       eeprom_config.C11 = doc.as<float>();
       strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/mcbt/C11/state"), BUFFER_SIZE);
       DT_mqtt_send(buffer, eeprom_config.C11);
+      sauvegardeEEPROM();
     }
   }
   else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/pcbt/min_temp/set") == 0) // C_PCBT_MIN
@@ -2003,6 +2014,7 @@ void mqtt_receve(char *topic, uint8_t *payload, unsigned int length)
       eeprom_config.C_PCBT_MIN = doc.as<float>();
       strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/pcbt/min_temp/state"), BUFFER_SIZE);
       DT_mqtt_send(buffer, eeprom_config.C_PCBT_MIN);
+      sauvegardeEEPROM();
     }
   }
   else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/pcbt/max_temp/set") == 0) // C_PCBT_MAX
@@ -2013,6 +2025,7 @@ void mqtt_receve(char *topic, uint8_t *payload, unsigned int length)
       eeprom_config.C_PCBT_MAX = doc.as<float>();
       strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/pcbt/max_temp/state"), BUFFER_SIZE);
       DT_mqtt_send(buffer, eeprom_config.C_PCBT_MAX);
+      sauvegardeEEPROM();
     }
   }
   else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/mcbt/min_temp/set") == 0) // C_MCBT_MIN
@@ -2023,6 +2036,7 @@ void mqtt_receve(char *topic, uint8_t *payload, unsigned int length)
       eeprom_config.C_MCBT_MIN = doc.as<float>();
       strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/mcbt/min_temp/state"), BUFFER_SIZE);
       DT_mqtt_send(buffer, eeprom_config.C_MCBT_MIN);
+      sauvegardeEEPROM();
     }
   }
   else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/mcbt/max_temp/set") == 0) // C_MCBT_MAX
@@ -2033,6 +2047,7 @@ void mqtt_receve(char *topic, uint8_t *payload, unsigned int length)
       eeprom_config.C_MCBT_MAX = doc.as<float>();
       strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/mcbt/max_temp/state"), BUFFER_SIZE);
       DT_mqtt_send(buffer, eeprom_config.C_MCBT_MAX);
+      sauvegardeEEPROM();
     }
   }
   else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/pcbt/KP/set") == 0) // KP_PCBT
@@ -2268,6 +2283,7 @@ void mqtt_receve(char *topic, uint8_t *payload, unsigned int length)
       eeprom_config.ratio_PCBT = doc.as<float>();
       strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/pcbt/ratio/state"), BUFFER_SIZE);
       DT_mqtt_send(buffer, eeprom_config.ratio_PCBT);
+      sauvegardeEEPROM();
     }
   }
   else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/mcbt/ratio/set") == 0) // RATIO_PCBT
@@ -2278,6 +2294,7 @@ void mqtt_receve(char *topic, uint8_t *payload, unsigned int length)
       eeprom_config.ratio_MCBT = doc.as<float>();
       strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/mcbt/ratio/state"), BUFFER_SIZE);
       DT_mqtt_send(buffer, eeprom_config.ratio_MCBT);
+      sauvegardeEEPROM();
     }
   }
   else if (strcmp(topic, "homeassistant/status") == 0) // Home Assistant Online / Offline

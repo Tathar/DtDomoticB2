@@ -220,7 +220,7 @@ void DT_Poele_set_mode(DT_Poele_mode mode)
         if (poele_mode_callback != nullptr)
             poele_mode_callback(mode);
     }
-    // sauvegardeEEPROM();
+    sauvegardeEEPROM();
 }
 
 DT_Poele_mode DT_Poele_get_mode(void)
