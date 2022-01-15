@@ -1,5 +1,6 @@
 #include <DT_PT100.h>
 #include "Arduino.h"
+#include "config.h"
 
 #include <Adafruit_MAX31865.h>
 
@@ -29,6 +30,7 @@ Adafruit_MAX31865 max31865[20] = {Adafruit_MAX31865(23),
                                         Adafruit_MAX31865(40)};
 
 float old_temp[TEMP_NUM];
+uint32_t PT100_callback_time[TEMP_NUM];
 void (*pt100_callback)(const uint8_t num, const float temp);
 
 float _temp_get(int num)
@@ -130,8 +132,9 @@ void DT_pt100_loop()
         for (uint8_t num = 0; num < TEMP_NUM; num++)
         {
             tmp = _temp_get(num);
-            if ((pt100_callback != nullptr) && (old_temp[num] != tmp))
+            if ((pt100_callback != nullptr) && (old_temp[num] != tmp) && (now - PT100_callback_time[num] >= MQTT_REFRESH))
             {
+                PT100_callback_time[num] = now;
                 old_temp[num] = tmp;
                 pt100_callback(num + 1, tmp);
             }

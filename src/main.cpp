@@ -1108,20 +1108,14 @@ void pt100_callback(const uint8_t num, const float temp)
 {
   wdt_reset();
   // Serial.print("PT100_CALLBACK ");
-  static uint32_t refresh = 0;
-  uint32_t now = millis();
-  if (now - refresh >= MQTT_REFRESH)
-  {
-    refresh = now;
-    sprintf_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/pt100-%02d/temperature"), num);
-    JsonVariant variant = doc.to<JsonVariant>();
-    variant.set(temp);
-    serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
-    // Serial.print(buffer);
-    // Serial.print(" -> ");
-    // Serial.println(buffer_value);
-    DT_mqtt_send(buffer, buffer_value);
-  }
+  sprintf_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/pt100-%02d/temperature"), num);
+  JsonVariant variant = doc.to<JsonVariant>();
+  variant.set(temp);
+  serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
+  // Serial.print(buffer);
+  // Serial.print(" -> ");
+  // Serial.println(buffer_value);
+  DT_mqtt_send(buffer, buffer_value);
 }
 
 void bme280_callback_temperature(const uint8_t num, const float temperature)
