@@ -62,7 +62,7 @@
 #define MQTT_IP4 2
 
 #define MQTT_CLIENT_ID "Board1"
-#define MQTT_USER "DtBoard"
+#define MQTT_USER "dtboard"
 #define MQTT_PASSWORD "1MotdePasse"
 
 #define NETWORK_RESET_TIME 20000 // temp avant reset de la carte reseau en qua d'imposibilité de se connecter (en miliseconde)
