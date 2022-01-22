@@ -683,7 +683,7 @@ void homeassistant(void)
   doc["stat_t"] = F("~/state");
   doc["command_topic"] = F("~/set");
   doc["min"] = 0;
-  doc["max"] = 10000;
+  doc["max"] = 100000;
   doc["step"] = 0.01;
   // doc["dev_cla"] = F("temperature");
   // doc["unit_of_meas"] = F("°C");
@@ -841,7 +841,7 @@ void homeassistant(void)
   doc["stat_t"] = F("~/state");
   doc["command_topic"] = F("~/set");
   doc["min"] = 0;
-  doc["max"] = 100000;
+  doc["max"] = 1000000;
   doc["step"] = 0.01;
   // doc["dev_cla"] = F("temperature");
   // doc["unit_of_meas"] = F("°C");
