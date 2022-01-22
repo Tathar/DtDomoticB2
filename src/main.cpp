@@ -1010,6 +1010,66 @@ void homeassistant(void)
   strlcpy_P(buffer, PSTR("homeassistant/sensor/" BOARD_IDENTIFIER "/pcbt-pid-out/config"), BUFFER_SIZE);
   DT_mqtt_send(buffer, buffer_value);
 
+  // PID MCBT P
+  wdt_reset();
+  doc.clear();
+  doc["~"] = F("DtBoard/" BOARD_IDENTIFIER "/mcbt");
+  doc["uniq_id"] = F(BOARD_IDENTIFIER "-mcbt-P");
+  doc["name"] = F("MCBT P");
+  doc["stat_t"] = F("~/P");
+  // doc["dev_cla"] = F("temperature");
+  // doc["unit_of_meas"] = F("°C");
+  doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
+  serializeJson(doc, buffer_value, sizeof(buffer_value));
+  // Serial.println(buffer_value);
+  strlcpy_P(buffer, PSTR("homeassistant/sensor/" BOARD_IDENTIFIER "/mcbt-pid-p/config"), BUFFER_SIZE);
+  DT_mqtt_send(buffer, buffer_value);
+
+  // PID MCBT I
+  wdt_reset();
+  doc.clear();
+  doc["~"] = F("DtBoard/" BOARD_IDENTIFIER "/mcbt");
+  doc["uniq_id"] = F(BOARD_IDENTIFIER "-mcbt-I");
+  doc["name"] = F("MCBT I");
+  doc["stat_t"] = F("~/I");
+  // doc["dev_cla"] = F("temperature");
+  // doc["unit_of_meas"] = F("°C");
+  doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
+  serializeJson(doc, buffer_value, sizeof(buffer_value));
+  // Serial.println(buffer_value);
+  strlcpy_P(buffer, PSTR("homeassistant/sensor/" BOARD_IDENTIFIER "/mcbt-pid-i/config"), BUFFER_SIZE);
+  DT_mqtt_send(buffer, buffer_value);
+
+  // PID MCBT D
+  wdt_reset();
+  doc.clear();
+  doc["~"] = F("DtBoard/" BOARD_IDENTIFIER "/mcbt");
+  doc["uniq_id"] = F(BOARD_IDENTIFIER "-mcbt-D");
+  doc["name"] = F("MCBT D");
+  doc["stat_t"] = F("~/D");
+  // doc["dev_cla"] = F("temperature");
+  // doc["unit_of_meas"] = F("°C");
+  doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
+  serializeJson(doc, buffer_value, sizeof(buffer_value));
+  // Serial.println(buffer_value);
+  strlcpy_P(buffer, PSTR("homeassistant/sensor/" BOARD_IDENTIFIER "/mcbt-pid-d/config"), BUFFER_SIZE);
+  DT_mqtt_send(buffer, buffer_value);
+
+  // PID MCBT OUT
+  wdt_reset();
+  doc.clear();
+  doc["~"] = F("DtBoard/" BOARD_IDENTIFIER "/mcbt");
+  doc["uniq_id"] = F(BOARD_IDENTIFIER "-mcbt-out");
+  doc["name"] = F("MCBT out");
+  doc["stat_t"] = F("~/OUT");
+  // doc["dev_cla"] = F("temperature");
+  // doc["unit_of_meas"] = F("°C");
+  doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
+  serializeJson(doc, buffer_value, sizeof(buffer_value));
+  // Serial.println(buffer_value);
+  strlcpy_P(buffer, PSTR("homeassistant/sensor/" BOARD_IDENTIFIER "/mcbt-pid-out/config"), BUFFER_SIZE);
+  DT_mqtt_send(buffer, buffer_value);
+
   // RATIO PCBT
   wdt_reset();
   doc.clear();
@@ -1287,6 +1347,7 @@ void dt3voies_callback(const float C2, const float C3)
   }
 }
 
+//retour des valleur du PID MCBT
 void dt3voies_callback_pid_pcbt(const float P, const float I, const float D, const float OUT)
 {
   wdt_reset();
@@ -1325,6 +1386,49 @@ void dt3voies_callback_pid_pcbt(const float P, const float I, const float D, con
     variant.set((float)digit / 100.0);
     serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
     strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/pcbt/OUT"), BUFFER_SIZE);
+    DT_mqtt_send(buffer, buffer_value);
+  }
+}
+
+//retour des valleur du PID MCBT
+void dt3voies_callback_pid_mcbt(const float P, const float I, const float D, const float OUT)
+{
+  wdt_reset();
+
+  static uint32_t refresh = 0;
+  uint32_t now = millis();
+  if (now - refresh >= MQTT_REFRESH)
+  {
+    refresh = now;
+    JsonVariant variant = doc.to<JsonVariant>();
+    int32_t digit = P * 100;
+    variant.set((float)digit / 100.0);
+    serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
+    strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/mcbt/P"), BUFFER_SIZE);
+    DT_mqtt_send(buffer, buffer_value);
+
+    wdt_reset();
+    variant = doc.to<JsonVariant>();
+    digit = I * 100;
+    variant.set((float)digit / 100.0);
+    serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
+    strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/mcbt/I"), BUFFER_SIZE);
+    DT_mqtt_send(buffer, buffer_value);
+
+    wdt_reset();
+    variant = doc.to<JsonVariant>();
+    digit = D * 100;
+    variant.set((float)digit / 100.0);
+    serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
+    strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/mcbt/D"), BUFFER_SIZE);
+    DT_mqtt_send(buffer, buffer_value);
+
+    wdt_reset();
+    variant = doc.to<JsonVariant>();
+    digit = OUT * 100;
+    variant.set((float)digit / 100.0);
+    serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
+    strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/mcbt/OUT"), BUFFER_SIZE);
     DT_mqtt_send(buffer, buffer_value);
   }
 }
@@ -2407,6 +2511,7 @@ void setup()
   DT_3voies_init();
   DT_3voies_set_callback(dt3voies_callback);
   DT_3voies_pcbt_set_callback_pid(dt3voies_callback_pid_pcbt);
+  DT_3voies_mcbt_set_callback_pid(dt3voies_callback_pid_mcbt);
 
   // client.setServer(server, 1883);
   // client.setCallback(callback);
