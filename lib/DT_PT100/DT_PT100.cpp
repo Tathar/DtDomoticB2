@@ -9,25 +9,25 @@
 
 // Adafruit_MAX31865 *temp[TEMP_NUM];
 Adafruit_MAX31865 max31865[20] = {Adafruit_MAX31865(23),
-                                        Adafruit_MAX31865(22),
-                                        Adafruit_MAX31865(25),
-                                        Adafruit_MAX31865(24),
-                                        Adafruit_MAX31865(27),
-                                        Adafruit_MAX31865(26),
-                                        Adafruit_MAX31865(29),
-                                        Adafruit_MAX31865(28),
-                                        Adafruit_MAX31865(31),
-                                        Adafruit_MAX31865(32),
-                                        Adafruit_MAX31865(33),
-                                        Adafruit_MAX31865(30),
-                                        Adafruit_MAX31865(35),
-                                        Adafruit_MAX31865(34),
-                                        Adafruit_MAX31865(37),
-                                        Adafruit_MAX31865(36),
-                                        Adafruit_MAX31865(39),
-                                        Adafruit_MAX31865(38),
-                                        Adafruit_MAX31865(41),
-                                        Adafruit_MAX31865(40)};
+                                  Adafruit_MAX31865(22),
+                                  Adafruit_MAX31865(25),
+                                  Adafruit_MAX31865(24),
+                                  Adafruit_MAX31865(27),
+                                  Adafruit_MAX31865(26),
+                                  Adafruit_MAX31865(29),
+                                  Adafruit_MAX31865(28),
+                                  Adafruit_MAX31865(31),
+                                  Adafruit_MAX31865(32),
+                                  Adafruit_MAX31865(33),
+                                  Adafruit_MAX31865(30),
+                                  Adafruit_MAX31865(35),
+                                  Adafruit_MAX31865(34),
+                                  Adafruit_MAX31865(37),
+                                  Adafruit_MAX31865(36),
+                                  Adafruit_MAX31865(39),
+                                  Adafruit_MAX31865(38),
+                                  Adafruit_MAX31865(41),
+                                  Adafruit_MAX31865(40)};
 
 float old_temp[TEMP_NUM];
 uint32_t PT100_callback_time[TEMP_NUM];
@@ -96,17 +96,17 @@ float _temp_get(int num)
 
 void DT_pt100_init()
 {
-   //auto Serial.print("alocation memoire = ");
+    //auto Serial.print("alocation memoire = ");
     // temp = (Adafruit_MAX31865 **)malloc(sizeof(Adafruit_MAX31865 *) * TEMP_NUM);
-   //auto Serial.println(sizeof(Adafruit_MAX31865) * TEMP_NUM);
-   //auto Serial.println("set callback an nullptr");
+    //auto Serial.println(sizeof(Adafruit_MAX31865) * TEMP_NUM);
+    //auto Serial.println("set callback an nullptr");
     pt100_callback = nullptr;
     for (uint8_t num = 0; num < TEMP_NUM; ++num)
     {
 
         ////auto Serial.print("pgm read pin = ");
         uint8_t pin = pgm_read_byte(TEMP_ARRAY + num);
-       //auto Serial.println(pin);
+        //auto Serial.println(pin);
         ////auto Serial.println("creation object");
         // temp[num] = new Adafruit_MAX31865(pin);
         ////auto Serial.println("old_temp = 0");
@@ -144,7 +144,14 @@ void DT_pt100_loop()
 
 float DT_pt100_get(uint8_t num)
 {
-    return old_temp[num - 1];
+    if (num - 1 < TEMP_NUM)
+    {
+        return old_temp[num - 1];
+    }
+    else
+    {
+        return TEMP_DEFAULT_PT100;
+    }
 }
 
 void DT_pt100_set_callback(void (*callback)(const uint8_t num, const float temp))
