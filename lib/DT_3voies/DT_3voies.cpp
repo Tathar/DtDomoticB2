@@ -308,10 +308,6 @@ void DT_3voies_loop()
         }
         Input_MCBT = calc_lissage / NUM_LISSAGE;
     }
-    if (DT_pt100_get(PT100_3_VOIES_MCBT) > 0)
-    {
-        Input_MCBT = DT_pt100_get(PT100_3_VOIES_MCBT);
-    }
 
     // consigne minimum pour fonctionnement des circulateur
     if ((eeprom_config.mode_3voies_PCBT != DT_3VOIES_DEMMARAGE) && (mem_config.C2 < (eeprom_config.C_PCBT_MIN - eeprom_config.V3)))
@@ -345,7 +341,7 @@ void DT_3voies_loop()
         if (_callback_mcbt_pid != nullptr)
             _callback_mcbt_pid(pid_mcbt.GetPterm(), pid_mcbt.GetIterm(), pid_mcbt.GetDterm(), Output_MCBT);
     }
-    else if ((eeprom_config.mode_3voies_MCBT != DT_3VOIES_OFF) && (mem_config.C3 < (eeprom_config.C_MCBT_MIN + eeprom_config.V3)))
+    else if ((eeprom_config.mode_3voies_MCBT != DT_3VOIES_OFF) && (mem_config.C3 > (eeprom_config.C_MCBT_MIN + eeprom_config.V3)))
     {
         DT_relay(CIRCULATEUR_MCBT, true); // demmarage du circulateur
         Output_MCBT = 0;
