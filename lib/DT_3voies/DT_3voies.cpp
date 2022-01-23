@@ -304,7 +304,7 @@ void DT_3voies_loop()
 
         for (uint8_t num = 0; num < NUM_LISSAGE; ++num)
         {
-            calc_lissage += lissage_pcbt[num];
+            calc_lissage += lissage_mcbt[num];
         }
         Input_MCBT = calc_lissage / NUM_LISSAGE;
     }
@@ -363,7 +363,6 @@ void DT_3voies_loop()
         Output_PCBT = 0;
         if (_callback_pcbt_pid != nullptr)
             _callback_pcbt_pid(pid_pcbt.GetPterm(), pid_pcbt.GetIterm(), pid_pcbt.GetDterm(), Output_PCBT);
-        
     }
     else if (mem_config.C2 > Input_PCBT && (mem_config.C2 - Input_PCBT) < eeprom_config.V3)
     {
@@ -410,16 +409,7 @@ void DT_3voies_loop()
             _callback_pcbt_pid(pid_pcbt.GetPterm(), pid_pcbt.GetIterm(), pid_pcbt.GetDterm(), Output_PCBT);
         if (Output_PCBT > 0)
         {
-            // float ratio = (DT_pt100_get(PT100_B_BALON) - Input_PCBT) / 8;
-            // ratio = 2;
-            // if (ratio <= 1)
-            // {
-            //     DT_relay(VANNE_PCBT_HOT, (uint32_t)Output_PCBT); // activation de la vanne
-            // }
-            // else
-            // {
             DT_relay(VANNE_PCBT_HOT, (uint32_t)(Output_PCBT / eeprom_config.ratio_PCBT)); // activation de la vanne
-            // }
         }
         else
         {
