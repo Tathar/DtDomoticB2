@@ -301,7 +301,7 @@ void DT_3voies_loop()
                 num_mcbt = 0;
             }
         }
-
+        calc_lissage = 0;
         for (uint8_t num = 0; num < NUM_LISSAGE; ++num)
         {
             calc_lissage += lissage_mcbt[num];
