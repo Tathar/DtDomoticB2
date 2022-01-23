@@ -2610,14 +2610,14 @@ void loop()
     strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/heartbeat"), BUFFER_SIZE);
     DT_mqtt_send(buffer, heartbeat_status);
   }
-
+  /*
   static uint32_t save_eeprom = 0;
   if (now - save_eeprom > SAVE_EEPROM) // Backup data in eeprom
   {
     save_eeprom = now;
     sauvegardeEEPROM();
   }
-
+*/
   static uint32_t load_1s_count = 0;
   static uint32_t load_1s_time = 0;
   load_1s_count += 1;
