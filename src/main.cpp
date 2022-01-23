@@ -487,6 +487,9 @@ void homeassistant(void)
   doc["command_topic"] = F("~/set");
   doc["dev_cla"] = F("temperature");
   doc["unit_of_meas"] = F("°C");
+  doc["min"] = -100;
+  doc["max"] = 100;
+  doc["step"] = 1;
   doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
 
   serializeJson(doc, buffer_value, sizeof(buffer_value));

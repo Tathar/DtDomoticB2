@@ -50,7 +50,7 @@ struct Eeprom_Config
     float C4;         // consigne Jacuzzi
     uint8_t C5;       // consigne ECS1 & ECS2
     uint8_t C6;       // consigne mode boost
-    uint8_t C7;       // consigne Mode Silence
+    int8_t C7;        // Bande Morte Poele
     float C8;         // consigne Temp PCBT a -10°C
     float C9;         // consigne Temp PCBT a +10°C
     float C10;        // consigne Temp MCBT a -10°C

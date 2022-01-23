@@ -72,12 +72,13 @@
 #define MIN_T4 0                     // en °C (fake NTC)
 #define MAX_C1 85                    // en °C (consigne temperature Balon)
 #define TEMPERATURE_DEFAULT_POELE 85 // en °C (Temperature a la quelle le poele ce met en default)
-#define TEMP_DEFAULT_PT100_POELE 60000
+#define TEMPS_DEFAULT_PT100_POELE 60000
 
 #define PT100_H_BALON 1
-#define PT100_B_BALON 2
-#define PT100_ECS1 3
-#define PT100_ECS2 4
+#define PT100_M_BALON 2
+#define PT100_B_BALON 3
+#define PT100_ECS1 4
+#define PT100_ECS2 5
 
 #define RELAY_EV1 1
 
@@ -87,9 +88,9 @@
 #define TMP_EAU_MCBT_MAX 60 // valeur maximum de la consigne de temperature
 #define DBMAC 0.5           // demi bamnde morte pour l'arret des circulateur (en °C)
 
-#define PT100_EXT 5
-#define PT100_3_VOIES_PCBT 6
-#define PT100_3_VOIES_MCBT 7
+#define PT100_EXT 6
+#define PT100_3_VOIES_PCBT 7
+#define PT100_3_VOIES_MCBT 8
 
 #define CIRCULATEUR_PCBT 2
 #define VANNE_PCBT_HOT 3
@@ -102,13 +103,13 @@
 // Planchée chauffant
 #define MAX_TMP_PLANCHE 27 // en °C
 #define NUM_PLANCHE 4
-#define PT100_PLANCHE_SALON 8
+#define PT100_PLANCHE_SALON 9
 #define RELAIS_PLANCHE_SALON 8
-#define PT100_PLANCHE_CH_1 9
+#define PT100_PLANCHE_CH_1 10
 #define RELAIS_PLANCHE_CH_1 9
-#define PT100_PLANCHE_CH_2 10
+#define PT100_PLANCHE_CH_2 11
 #define RELAIS_PLANCHE_CH_2 10
-#define PT100_PLANCHE_SDB 11
+#define PT100_PLANCHE_SDB 12
 #define RELAIS_PLANCHE_SDB 11
 
 const float PT100_PLANCHEE[NUM_PLANCHE] PROGMEM = {PT100_PLANCHE_SALON, PT100_PLANCHE_CH_1, PT100_PLANCHE_CH_2, PT100_PLANCHE_SDB};

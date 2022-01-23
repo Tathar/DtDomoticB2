@@ -19,7 +19,8 @@ float C1; // consigne temp Ballon
 // T1 = Temp Ballon					T2 = Temp ECS							T3 = Temp ECS2
 // T5 = Temp Extérieur					T6 = Temp Vanne 3V PCBT					T7 = Temp Vanne 3V MCBT				T8 = Temp Vanne 3V Jacuzzi
 
-uint32_t temp_default_pt100 = 0;
+uint32_t temp_default_pt100_B = 0;
+uint32_t temp_default_pt100_ECS = 0;
 
 void DT_Poele_init()
 {
@@ -30,49 +31,40 @@ void DT_Poele_init()
     // poele_T4_callback = nullptr;
 }
 
+//decision de mise en service du poele en fonction des temperature
 bool marche_poele_ballon(uint32_t now)
 {
     static bool ret = false;
-    // mise en marche du poele
-    if (DT_pt100_get(PT100_H_BALON) > 0 && DT_pt100_get(PT100_B_BALON) > 0)
+    // mise en marche du poele en fonction de la consigne MCBT
+    if (DT_pt100_get(PT100_H_BALON) > 0)
     {
-        if (((DT_pt100_get(PT100_H_BALON) + DT_pt100_get(PT100_B_BALON)) / 2) < (C1))
+        if (DT_pt100_get(PT100_H_BALON) < (mem_config.C3 + eeprom_config.V2)) // temp haut balon  < consigne MCBT + reserve temp
         {
             ret = true;
         }
-        else if (((DT_pt100_get(PT100_H_BALON) + DT_pt100_get(PT100_B_BALON)) / 2) > (C1 + eeprom_config.C7))
-        {
-            ret = false;
-        }
-        temp_default_pt100 = 0;
     }
-    else if (temp_default_pt100 != 0 && now - temp_default_pt100 >= TEMP_DEFAULT_PT100_POELE)
-    {
 
-        if (DT_pt100_get(PT100_H_BALON) > 0 && DT_pt100_get(PT100_H_BALON) < (C1))
+    // mise en marche du poele en fonction de la consigne PCBT
+    if (DT_pt100_get(PT100_M_BALON) > 0)
+    {
+        if (DT_pt100_get(PT100_M_BALON) < (mem_config.C2 + eeprom_config.V2)) // temp milieu balon  < consigne PCBT + reserve temp
         {
             ret = true;
-        }
-        else if (DT_pt100_get(PT100_B_BALON) > 0 && DT_pt100_get(PT100_B_BALON) < (C1))
-        {
-            ret = true;
-        }
-        else if (DT_pt100_get(PT100_H_BALON) > 0 && DT_pt100_get(PT100_H_BALON) > (C1 + eeprom_config.C7))
-        {
-            ret = false;
-        }
-        else if (DT_pt100_get(PT100_B_BALON) > 0 && DT_pt100_get(PT100_B_BALON) > (C1 + eeprom_config.C7))
-        {
-            ret = false;
-        }
-        else
-        {
-            ret = false;
         }
     }
-    else if (temp_default_pt100 == 0)
+
+    // arret du poele en fonction de la temperature
+    if (DT_pt100_get(PT100_B_BALON) > 0)
     {
-        temp_default_pt100 = now;
+        if (DT_pt100_get(PT100_B_BALON) > (max(mem_config.C2, mem_config.C3) + eeprom_config.C7)) // temp bas balon > maximum consigne PCBT ou consigne MCBT  + bande morte Poele
+        {
+            ret = false;
+        }
+        temp_default_pt100_B = now;
+    }
+    else if (now - temp_default_pt100_B > TEMPS_DEFAULT_PT100_POELE)
+    {
+        ret = false;
     }
 
     return ret;
@@ -82,6 +74,8 @@ void DT_Poele_loop()
 {
     uint32_t now = millis();
     static uint32_t old = 0;
+    static bool poele = false;
+    static bool ev1 = false;
 
     if (now - old >= 1000)
     {
@@ -91,7 +85,7 @@ void DT_Poele_loop()
         if (eeprom_config.poele_mode == DT_POELE_NORMAL)
         {
             // mode ECS + Chauffage
-            DT_relay(RELAY_EV1, false);
+            ev1 = false;
             // calcule consigne balon
             C1 = max(mem_config.C2, mem_config.C3);
             C1 = max(C1, eeprom_config.C4);
@@ -101,27 +95,18 @@ void DT_Poele_loop()
                 C1 = MAX_C1;
             }
             // marche poele
-            DT_relay(MARCHE_POELE, marche_poele_ballon(now));
+            poele = marche_poele_ballon(now);
         }
         else if (eeprom_config.poele_mode == DT_POELE_ARRET)
         {
             // mode ECS + Chauffage
-            DT_relay(RELAY_EV1, false);
-            DT_relay(MARCHE_POELE, false);
+            ev1 = false;
+            poele = false;
         }
-        // else if (eeprom_config.poele_mode == DT_POELE_SECOURS)
-        // {
-        //     // mode ECS + Chauffage
-        //     DT_relay(RELAY_EV1, false);
-        //     // temperature envoyer au poele
-
-        //     // marche poele
-        //     DT_relay(MARCHE_POELE, marche_poele_ballon(now));
-        // }
         else if (eeprom_config.poele_mode == DT_POELE_ECS)
         {
             // mode ECS uniquement
-            DT_relay(RELAY_EV1, true);
+            ev1 = true;
             // temperature envoyer au poele
 
             if (DT_pt100_get(PT100_ECS1) > 0 && DT_pt100_get(PT100_ECS2) > 0)
@@ -130,85 +115,89 @@ void DT_Poele_loop()
                 C1 = eeprom_config.C5;
                 if (min(DT_pt100_get(PT100_ECS1), DT_pt100_get(PT100_ECS2)) < (C1))
                 {
-                    DT_relay(MARCHE_POELE, true);
+                    poele = true;
                 }
                 else if (min(DT_pt100_get(PT100_ECS1), DT_pt100_get(PT100_ECS2)) > (C1 + eeprom_config.C7))
                 {
-                    DT_relay(MARCHE_POELE, false);
+                    poele = false;
                 }
-                temp_default_pt100 = 0;
+                temp_default_pt100_ECS = now;
             }
             else if (DT_pt100_get(PT100_ECS1) > 0)
             {
                 C1 = eeprom_config.C5;
                 if (DT_pt100_get(PT100_ECS1) < (C1))
                 {
-                    DT_relay(MARCHE_POELE, true);
+                    poele = true;
                 }
                 else if (DT_pt100_get(PT100_ECS1) > (C1 + eeprom_config.C7))
                 {
-                    DT_relay(MARCHE_POELE, false);
+                    poele = false;
                 }
-                temp_default_pt100 = 0;
+                temp_default_pt100_ECS = now;
             }
             else if (DT_pt100_get(PT100_ECS2) > 0)
             {
                 C1 = eeprom_config.C5;
                 if (DT_pt100_get(PT100_ECS2) < (C1))
                 {
-                    DT_relay(MARCHE_POELE, true);
+                    poele = true;
                 }
                 else if (DT_pt100_get(PT100_ECS2) > (C1 + eeprom_config.C7))
                 {
-                    DT_relay(MARCHE_POELE, false);
+                    poele = false;
                 }
-                temp_default_pt100 = 0;
+                temp_default_pt100_ECS = now;
             }
-            else if (temp_default_pt100 != 0 && now - temp_default_pt100 >= TEMP_DEFAULT_PT100_POELE)
+            else if (now - temp_default_pt100_ECS >= TEMPS_DEFAULT_PT100_POELE)
             {
                 // marche poele
-                DT_relay(MARCHE_POELE, false);
-            }
-            else if (temp_default_pt100 == 0)
-            {
-                temp_default_pt100 = now;
+                poele = false;
             }
         }
         else if (eeprom_config.poele_mode == DT_POELE_BOOST)
         {
             // mode ECS uniquement
-            DT_relay(RELAY_EV1, false);
+            ev1 = false;
             // temperature envoyer au poele
             C1 = eeprom_config.C6;
-            DT_relay(MARCHE_POELE, marche_poele_ballon(now));
+            poele = marche_poele_ballon(now);
         }
 
         // securité
-        if (DT_pt100_get(PT100_B_BALON) > 85)
+        if (DT_pt100_get(PT100_H_BALON) > 85)
         {
             // temperature envoyer au poele
-            DT_relay(MARCHE_POELE, false);
+            poele = false;
         }
-        else if (DT_pt100_get(PT100_H_BALON) > 85)
+        else if (DT_pt100_get(PT100_M_BALON) > 85)
         {
             // temperature envoyer au poele
-            DT_relay(MARCHE_POELE, false);
+            poele = false;
+        }
+        else if (DT_pt100_get(PT100_B_BALON) > 85)
+        {
+            // temperature envoyer au poele
+            poele = false;
         }
         else if (DT_pt100_get(PT100_ECS1) > 85)
         {
             // temperature envoyer au poele
-            DT_relay(MARCHE_POELE, false);
+            poele = false;
         }
         else if (DT_pt100_get(PT100_ECS2) > 85)
         {
             // temperature envoyer au poele
-            DT_relay(MARCHE_POELE, false);
+            poele = false;
         }
 
         if (poele_C1_callback != nullptr && old_C1 != C1)
         {
             poele_C1_callback(C1);
         }
+
+        DT_relay(MARCHE_POELE, poele);
+        DT_relay(RELAY_EV1, ev1);
     }
 }
 
