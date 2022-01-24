@@ -70,7 +70,7 @@
 
 // Poele
 #define MIN_T4 0                     // en °C (fake NTC)
-#define MAX_C1 85                    // en °C (consigne temperature Balon)
+#define POELE_MAX_TEMPERATURE 85     // en °C (consigne temperature Balon)
 #define TEMPERATURE_DEFAULT_POELE 85 // en °C (Temperature a la quelle le poele ce met en default)
 #define TEMPS_DEFAULT_PT100_POELE 60000
 

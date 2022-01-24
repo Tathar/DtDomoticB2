@@ -42,7 +42,7 @@ struct Eeprom_Config
     DT_3voies_mode mode_3voies_PCBT;
     DT_3voies_mode mode_3voies_MCBT;
 
-    uint8_t V1; // Variable paramètre poêle (60°C)
+    uint8_t V1; // consigne poêle mode force (70°C)
     uint8_t V2; // Variable Reserve chaleur Ballon (20°C)
     float V3;   // Variable Temp Demi plage Morte
     // float C2;   // consigne Temp PCBT

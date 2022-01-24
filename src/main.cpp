@@ -260,32 +260,15 @@ void homeassistant(void)
 
   JsonArray options = doc.createNestedArray("options");
   options.add("Arret");
-  options.add("Secours");
   options.add("Normal");
   options.add("ECS");
-  options.add("Boost");
+  options.add("Forcé");
   options.add("Manuel");
-  options.add("Arret");
 
   doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
 
   serializeJson(doc, buffer_value, sizeof(buffer_value));
   strlcpy_P(buffer, PSTR("homeassistant/select/" BOARD_IDENTIFIER "/poele-mode/config"), BUFFER_SIZE);
-  DT_mqtt_send(buffer, buffer_value);
-
-  // Poele C1
-  wdt_reset();
-  doc.clear();
-  doc["~"] = F("DtBoard/" BOARD_IDENTIFIER "/poele");
-  doc["uniq_id"] = F(BOARD_IDENTIFIER "-poele-C1");
-  doc["name"] = F("Poele C1");
-  doc["stat_t"] = F("~/C1");
-  doc["dev_cla"] = F("temperature");
-  doc["unit_of_meas"] = F("°C");
-  doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
-  serializeJson(doc, buffer_value, sizeof(buffer_value));
-  // Serial.println(buffer_value);
-  strlcpy_P(buffer, PSTR("homeassistant/sensor/" BOARD_IDENTIFIER "/poele-c1/config"), BUFFER_SIZE);
   DT_mqtt_send(buffer, buffer_value);
 
   // 3 voies PCBT mode
@@ -382,6 +365,7 @@ void homeassistant(void)
   doc["command_topic"] = F("~/set");
   doc["dev_cla"] = F("temperature");
   doc["unit_of_meas"] = F("°C");
+  doc["max"] = POELE_MAX_TEMPERATURE;
   doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
 
   serializeJson(doc, buffer_value, sizeof(buffer_value));
@@ -1265,33 +1249,6 @@ void ccs811_callback_cov(const uint8_t num, const float cov)
   }
 }
 
-// void fake_ntc_callback(uint8_t value)
-// {
-//   wdt_reset();
-
-//   JsonVariant variant = doc.to<JsonVariant>();
-//   variant.set(value);
-//   serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
-//   strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/fake_NTC/temperature"), BUFFER_SIZE);
-//   DT_mqtt_send(buffer, buffer_value);
-// }
-
-void poele_C1_callback(const uint8_t C1)
-{
-  wdt_reset();
-  static uint32_t refresh = 0;
-  uint32_t now = millis();
-  if (now - refresh >= MQTT_REFRESH)
-  {
-    refresh = now;
-    JsonVariant variant = doc.to<JsonVariant>();
-    variant.set(C1);
-    serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
-    strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/poele/C1"), BUFFER_SIZE);
-    DT_mqtt_send(buffer, buffer_value);
-  }
-}
-
 void poele_mode_callback(const DT_Poele_mode mode)
 {
   // mode poele
@@ -1302,23 +1259,14 @@ void poele_mode_callback(const DT_Poele_mode mode)
   case DT_POELE_ARRET:
     DT_mqtt_send(buffer, "Arret");
     break;
-  case DT_POELE_SECOURS:
-    DT_mqtt_send(buffer, "Secours");
-    break;
   case DT_POELE_NORMAL:
     DT_mqtt_send(buffer, "Normal");
     break;
   case DT_POELE_ECS:
     DT_mqtt_send(buffer, "ECS");
     break;
-  case DT_POELE_BOOST:
-    DT_mqtt_send(buffer, "Boost");
-    break;
-  case DT_POELE_MANUAL:
-    DT_mqtt_send(buffer, "Manuel");
-    break;
-  case DT_POELE_OFF:
-    DT_mqtt_send(buffer, "Arret");
+  case DT_POELE_FORCE:
+    DT_mqtt_send(buffer, "Forcé");
     break;
   }
 }
@@ -1470,11 +1418,6 @@ void mqtt_publish()
   // mode poele
   wdt_reset();
   poele_mode_callback(DT_Poele_get_mode());
-
-  // Poele C1
-  wdt_reset();
-  strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/poele/C1"), BUFFER_SIZE);
-  DT_mqtt_send(buffer, DT_Poele_get_C1());
 
   // 3 voies PCBT mode
   wdt_reset();
@@ -1947,10 +1890,6 @@ void mqtt_receve(char *topic, uint8_t *payload, unsigned int length)
     {
       DT_Poele_set_mode(DT_POELE_ARRET);
     }
-    else if (strcmp(buffer, "Secours") == 0)
-    {
-      DT_Poele_set_mode(DT_POELE_SECOURS);
-    }
     else if (strcmp(buffer, "Normal") == 0)
     {
       DT_Poele_set_mode(DT_POELE_NORMAL);
@@ -1959,17 +1898,9 @@ void mqtt_receve(char *topic, uint8_t *payload, unsigned int length)
     {
       DT_Poele_set_mode(DT_POELE_ECS);
     }
-    else if (strcmp(buffer, "Boost") == 0)
+    else if (strcmp(buffer, "Forcé") == 0)
     {
-      DT_Poele_set_mode(DT_POELE_BOOST);
-    }
-    else if (strcmp(buffer, "Manuel") == 0)
-    {
-      DT_Poele_set_mode(DT_POELE_MANUAL);
-    }
-    else if (strcmp(buffer, "Arret") == 0)
-    {
-      DT_Poele_set_mode(DT_POELE_OFF);
+      DT_Poele_set_mode(DT_POELE_FORCE);
     }
   }
   else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/pcbt/mode/set") == 0) // Mode de la vannes 3 voie PCBT
@@ -2507,7 +2438,6 @@ void setup()
 
   // auto Serial.println("starting Poele");
   DT_Poele_init();
-  DT_Poele_set_C1_callback(poele_C1_callback);
   DT_Poele_set_mode_callback(poele_mode_callback);
 
   // auto Serial.println("starting 3 voies");

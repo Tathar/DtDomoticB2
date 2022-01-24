@@ -39,11 +39,11 @@ void chargeEEPROM()
                 Serial.println("EEPROM version < 1");
                 eeprom_config.struct_version = 1;
                 // TODO: mqtt home assistant
-                eeprom_config.poele_mode = DT_POELE_OFF;
+                eeprom_config.poele_mode = DT_POELE_ARRET;
                 eeprom_config.mode_3voies_PCBT = DT_3VOIES_OFF;
                 eeprom_config.mode_3voies_MCBT = DT_3VOIES_OFF;
 
-                eeprom_config.V1 = 60;                       // Variable paramètre poêle (60°C)
+                eeprom_config.V1 = 70;                       // consigne poêle en mode force (70°C)
                 eeprom_config.V2 = 20;                       // Variable Reserve chaleur Ballon (20°C)
                 eeprom_config.V3 = 0;                        // Variable Temp Demi plage Morte
                 eeprom_config.C4 = 80;                       // consigne Jacuzzi
