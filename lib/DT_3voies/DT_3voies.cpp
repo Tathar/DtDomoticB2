@@ -405,30 +405,35 @@ void DT_3voies_loop()
     // calcule du PID
     if (pid_pcbt.Compute())
     {
-        if (_callback_pcbt_pid != nullptr)
-            _callback_pcbt_pid(pid_pcbt.GetPterm(), pid_pcbt.GetIterm(), pid_pcbt.GetDterm(), Output_PCBT);
         if (Output_PCBT > 0)
         {
-            DT_relay(VANNE_PCBT_HOT, (uint32_t)(Output_PCBT / eeprom_config.ratio_PCBT)); // activation de la vanne
+            Output_PCBT = (Output_PCBT / eeprom_config.ratio_PCBT ) + eeprom_config.out_offset_PCBT;
+            DT_relay(VANNE_PCBT_HOT, (uint32_t)(Output_PCBT)); // activation de la vanne
         }
         else
         {
+            Output_PCBT -=  eeprom_config.out_offset_PCBT;
             DT_relay(VANNE_PCBT_COLD, (uint32_t)(Output_PCBT * -1)); // activation de la vanne
         }
+        if (_callback_pcbt_pid != nullptr)
+            _callback_pcbt_pid(pid_pcbt.GetPterm(), pid_pcbt.GetIterm(), pid_pcbt.GetDterm(), Output_PCBT);
     }
 
     if (pid_mcbt.Compute())
     {
-        if (_callback_mcbt_pid != nullptr)
-            _callback_mcbt_pid(pid_mcbt.GetPterm(), pid_mcbt.GetIterm(), pid_mcbt.GetDterm(), Output_MCBT);
         if (Output_MCBT > 0)
         {
-            DT_relay(VANNE_MCBT_HOT, (uint32_t)(Output_MCBT / eeprom_config.ratio_MCBT)); // activation de la vanne
+
+            Output_MCBT = (Output_MCBT / eeprom_config.ratio_MCBT ) + eeprom_config.out_offset_MCBT;
+            DT_relay(VANNE_MCBT_HOT, (uint32_t)(Output_MCBT)); // activation de la vanne
         }
         else
         {
+            Output_MCBT -= eeprom_config.out_offset_MCBT;
             DT_relay(VANNE_MCBT_COLD, (uint32_t)(Output_MCBT * -1)); // activation de la vanne
         }
+        if (_callback_mcbt_pid != nullptr)
+            _callback_mcbt_pid(pid_mcbt.GetPterm(), pid_mcbt.GetIterm(), pid_mcbt.GetDterm(), Output_MCBT);
     }
 
     if (now - old_now > 1000)

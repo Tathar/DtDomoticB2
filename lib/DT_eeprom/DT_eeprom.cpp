@@ -96,6 +96,19 @@ void chargeEEPROM()
                 eeprom_config.ratio_MCBT = 4;
         }
 
+        // Valeurs par défaut struct_version == 4
+        if (eeprom_config.struct_version < 4 || erreur)
+        {
+                need_save = true;
+                Serial.println("EEPROM version < 4");
+                eeprom_config.struct_version = 4;
+                
+                eeprom_config.out_offset_PCBT = 0;
+                eeprom_config.out_offset_MCBT = 0;
+        }
+
+        
+
         // Sauvegarde les nouvelles données
         if (need_save)
                 sauvegardeEEPROM();

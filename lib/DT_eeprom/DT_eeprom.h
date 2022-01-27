@@ -74,6 +74,8 @@ struct Eeprom_Config
 
     float ratio_PCBT;
     float ratio_MCBT;
+    uint16_t out_offset_PCBT;
+    uint16_t out_offset_MCBT;
 };
 
 // structure de configuration
