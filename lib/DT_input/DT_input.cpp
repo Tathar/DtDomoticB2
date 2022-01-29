@@ -11,6 +11,7 @@ void (*input_callback)(const uint8_t num, const uint8_t action);
 
 void DT_input_init()
 {
+    LOG;
     input_callback = nullptr;
 
     for (uint8_t num = 0; num < INPUT_NUM; ++num)
@@ -22,6 +23,7 @@ void DT_input_init()
 
 uint8_t DT_input_get(int num)
 {
+    LOG;
     return old_pin_stats[num - 1];
 }
 
@@ -45,6 +47,7 @@ void DT_input_loop()
         {
             if (pin_stats == HIGH && now - debounce_start_time[num] >= DEBOUNCE_TIME) // Raise UP no debounced
             {
+                LOG;
                 old_pin_stats[num] = pin_stats;
                 debounce_start_time[num] = now; // demmarage du timer de debounce
                 if (input_callback != nullptr)
@@ -55,6 +58,7 @@ void DT_input_loop()
 
             else if (pin_stats == LOW && now - debounce_start_time[num] >= DEBOUNCE_TIME) // Raise DOWN no debounced
             {
+                LOG;
                 old_pin_stats[num] = pin_stats;
                 debounce_start_time[num] = now; // demmarage du timer de debounce
                 if (input_callback != nullptr)
@@ -68,5 +72,6 @@ void DT_input_loop()
 
 void DT_input_set_callback(void (*callback)(const uint8_t num, const uint8_t action))
 {
+    LOG;
     input_callback = callback;
 }

@@ -4,6 +4,13 @@
 #include <Arduino.h>
 #include <config.h>
 
+//debug
+#define BUF_DEBUG_LEN 64
+extern char buf_debug[BUF_DEBUG_LEN];
+#define LOG                                                                        \
+    snprintf(buf_debug, BUF_DEBUG_LEN, "%lu;%d;%s", millis(), __LINE__, __func__); \
+    Serial.print(buf_debug);
+
 #define STRINGIFY(x) #x
 #define TO_C_STR(x) STRINGIFY(x)
 

@@ -19,6 +19,8 @@
 // #include <pinout.h>
 #include <config.h>
 
+char buf_debug[BUF_DEBUG_LEN];
+
 StaticJsonDocument<256> doc;
 char buffer[BUFFER_SIZE];
 char buffer_value[BUFFER_VALUE_SIZE];
@@ -33,6 +35,7 @@ long int lastReconnectAttempt = 0;
 
 void homeassistant(void)
 {
+  LOG;
   // heartbeat
   wdt_reset();
   doc.clear();
@@ -1164,6 +1167,7 @@ void homeassistant(void)
 // Relay Callback
 void relay_callback(const uint8_t num, const bool action)
 {
+  LOG;
   wdt_reset();
   sprintf_P(buffer, PSTR("relais numero %d dans l etat %d"), num, (int)action);
   // auto Serial.println(buffer);
@@ -1176,6 +1180,7 @@ void relay_callback(const uint8_t num, const bool action)
 
 void input_callback(const uint8_t num, const uint8_t action)
 {
+  LOG;
   wdt_reset();
   sprintf_P(buffer, PSTR("entrée numero %d dans l etat %d"), num, (int)action);
   // auto Serial.println(buffer);
@@ -1188,6 +1193,7 @@ void input_callback(const uint8_t num, const uint8_t action)
 
 void pt100_callback(const uint8_t num, const float temp)
 {
+  LOG;
   wdt_reset();
   // Serial.print("PT100_CALLBACK ");
   sprintf_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/pt100-%02d/temperature"), num);
@@ -1202,6 +1208,7 @@ void pt100_callback(const uint8_t num, const float temp)
 
 void bme280_callback_temperature(const uint8_t num, const float temperature)
 {
+  LOG;
   wdt_reset();
 
   static uint32_t refresh = 0;
@@ -1219,6 +1226,7 @@ void bme280_callback_temperature(const uint8_t num, const float temperature)
 
 void bme280_callback_humidity(const uint8_t num, const float humidity)
 {
+  LOG;
   wdt_reset();
 
   static uint32_t refresh = 0;
@@ -1236,6 +1244,7 @@ void bme280_callback_humidity(const uint8_t num, const float humidity)
 
 void bme280_callback_pressure(const uint8_t num, const float pressure)
 {
+  LOG;
   wdt_reset();
 
   static uint32_t refresh = 0;
@@ -1253,6 +1262,7 @@ void bme280_callback_pressure(const uint8_t num, const float pressure)
 
 void ccs811_callback_co2(const uint8_t num, const float co2)
 {
+  LOG;
   wdt_reset();
 
   static uint32_t refresh = 0;
@@ -1270,11 +1280,13 @@ void ccs811_callback_co2(const uint8_t num, const float co2)
 
 void ccs811_callback_cov(const uint8_t num, const float cov)
 {
+  LOG;
   wdt_reset();
   static uint32_t refresh = 0;
   uint32_t now = millis();
   if (now - refresh >= MQTT_REFRESH)
   {
+    LOG;
     refresh = now;
     sprintf_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/ccs811-%02d/cov"), num);
     JsonVariant variant = doc.to<JsonVariant>();
@@ -1286,6 +1298,7 @@ void ccs811_callback_cov(const uint8_t num, const float cov)
 
 void poele_mode_callback(const DT_Poele_mode mode)
 {
+  LOG;
   // mode poele
   wdt_reset();
   strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/poele/mode/state"), BUFFER_SIZE);
@@ -1309,6 +1322,7 @@ void poele_mode_callback(const DT_Poele_mode mode)
 void dt3voies_callback(const float C2, const float C3)
 {
 
+  LOG;
   wdt_reset();
 
   static uint32_t refresh = 0;
@@ -1336,6 +1350,7 @@ void dt3voies_callback(const float C2, const float C3)
 //retour des valleur du PID MCBT
 void dt3voies_callback_pid_pcbt(const float P, const float I, const float D, const float OUT)
 {
+  LOG;
   wdt_reset();
 
   static uint32_t refresh = 0;
@@ -1421,6 +1436,7 @@ void dt3voies_callback_pid_mcbt(const float P, const float I, const float D, con
 
 void mqtt_publish()
 {
+  LOG;
   wdt_reset();
 
   strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/availability"), BUFFER_SIZE);
@@ -1749,6 +1765,7 @@ void mqtt_publish()
 
 void mqtt_subscribe(PubSubClient &mqtt)
 {
+  LOG;
   wdt_reset();
   mqtt.subscribe("DtBoard/" BOARD_IDENTIFIER "/FG1/mode_set");
   mqtt.subscribe("DtBoard/" BOARD_IDENTIFIER "/FG1/temp_set");
@@ -1903,6 +1920,7 @@ void mqtt_subscribe(PubSubClient &mqtt)
 
 void mqtt_receve(char *topic, uint8_t *payload, unsigned int length)
 {
+  LOG;
   wdt_reset();
   // auto Serial.print("receve topic ");
   // auto Serial.println(topic);
@@ -2475,6 +2493,7 @@ void setup()
   // Serial.begin(9600);
   Serial.begin(57600);
 
+  LOG;
   // auto Serial.println("starting board version " BOARD_SW_VERSION);
 
   // auto Serial.println("Load eeprom");
@@ -2567,17 +2586,18 @@ void loop()
   //  DT_fake_ntc_loop();
 
   // adjust CCS811
-  static uint32_t ccs811_environmental = 0;
-  if (now - ccs811_environmental > 600000) // toute les 10 minutes
-  {
-    ccs811_environmental = now;
-    float humidity = DT_BME280_get_humidity(1);
-    float temperature = DT_BME280_get_temperature(1);
-    DT_CCS811_set_environmental_data(1, humidity, temperature);
-    humidity = DT_BME280_get_humidity(2);
-    temperature = DT_BME280_get_temperature(2);
-    DT_CCS811_set_environmental_data(2, humidity, temperature);
-  }
+  // static uint32_t ccs811_environmental = 0;
+  // if (now - ccs811_environmental > 600000) // toute les 10 minutes
+  // {
+  //   LOG;
+  //   ccs811_environmental = now;
+  //   float humidity = DT_BME280_get_humidity(1);
+  //   float temperature = DT_BME280_get_temperature(1);
+  //   DT_CCS811_set_environmental_data(1, humidity, temperature);
+  //   humidity = DT_BME280_get_humidity(2);
+  //   temperature = DT_BME280_get_temperature(2);
+  //   DT_CCS811_set_environmental_data(2, humidity, temperature);
+  // }
 
   static uint32_t old = 0;
 
@@ -2620,6 +2640,7 @@ void loop()
   static uint32_t save_eeprom = 0;
   if (now - save_eeprom > SAVE_EEPROM) // Backup data in eeprom
   {
+    LOG;
     save_eeprom = now;
     sauvegardeEEPROM();
   }

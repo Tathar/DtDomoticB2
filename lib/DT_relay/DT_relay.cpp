@@ -9,6 +9,7 @@ Adafruit_MCP23X08 mcp[2];
 
 void DT_relay_init()
 {
+    LOG;
     uint8_t i2c = 0;
     _callback = NULL;
 
@@ -18,7 +19,7 @@ void DT_relay_init()
         if (!mcp[mcp_num].begin_I2C(i2c))
         {
             {
-               //auto Serial.println("MCP23008 Init Error.");
+                //auto Serial.println("MCP23008 Init Error.");
             }
         }
     }
@@ -47,6 +48,7 @@ void DT_relay_init()
 
 void DT_relay(uint8_t num, bool state)
 {
+    LOG;
     uint8_t pin = pgm_read_byte(RELAY_ARRAY + (num - 1));
     bool revert = pgm_read_byte(RELAY_REVERT + (num - 1));
 
@@ -104,6 +106,7 @@ void DT_relay(uint8_t num, bool state)
 
 bool DT_relay_get(uint8_t num)
 {
+    LOG;
     uint8_t pin = pgm_read_byte(RELAY_ARRAY + (num - 1));
     bool revert = pgm_read_byte(RELAY_REVERT + (num - 1));
     bool ret;
@@ -123,6 +126,7 @@ bool DT_relay_get(uint8_t num)
 
 void DT_relay(uint8_t num, uint32_t time)
 {
+    LOG;
     if (time > 0)
     {
         num_delay[num - 1] = time;
@@ -152,6 +156,7 @@ void DT_relay_loop()
             }
             else if (num_delay[num] <= elapse)
             {
+                LOG;
                 num_delay[num] = 0;
                 DT_relay(num + 1, false);
             }
@@ -165,5 +170,6 @@ void DT_relay_loop()
 
 void DT_relay_set_callback(void (*callback)(const uint8_t num, const bool action))
 {
+    LOG;
     _callback = callback;
 }

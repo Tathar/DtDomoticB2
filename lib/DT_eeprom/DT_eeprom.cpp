@@ -9,6 +9,8 @@ Mem_Config mem_config;
 /** Sauvegarde en mémoire EEPROM le contenu actuel de la structure */
 void sauvegardeEEPROM()
 {
+
+        LOG;
         Serial.println("Save on EEPROM");
         // Met à jour le nombre magic et le numéro de version avant l'écriture
         //eeprom_config.magic = STRUCT_MAGIC;
@@ -19,6 +21,7 @@ void sauvegardeEEPROM()
 /** Charge le contenu de la mémoire EEPROM dans la structure */
 void chargeEEPROM()
 {
+        LOG;
         // uint8_t i = 0; // for loop
         bool need_save = false;
         // Lit la mémoire EEPROM

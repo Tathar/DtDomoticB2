@@ -1,6 +1,6 @@
 #include <DT_PT100.h>
 #include "Arduino.h"
-#include "config.h"
+#include <config.h>
 
 #include <Adafruit_MAX31865.h>
 
@@ -35,6 +35,7 @@ void (*pt100_callback)(const uint8_t num, const float temp);
 
 float _temp_get(int num)
 {
+    LOG;
     ////auto Serial.print("Temperature N°");
     ////auto Serial.print(num + 1);
 
@@ -96,6 +97,7 @@ float _temp_get(int num)
 
 void DT_pt100_init()
 {
+    LOG;
     //auto Serial.print("alocation memoire = ");
     // temp = (Adafruit_MAX31865 **)malloc(sizeof(Adafruit_MAX31865 *) * TEMP_NUM);
     //auto Serial.println(sizeof(Adafruit_MAX31865) * TEMP_NUM);
@@ -128,6 +130,7 @@ void DT_pt100_loop()
     float tmp = 0;
     if (now - old_time > 1000)
     {
+        LOG;
         old_time = now;
         for (uint8_t num = 0; num < TEMP_NUM; num++)
         {
@@ -146,15 +149,18 @@ float DT_pt100_get(uint8_t num)
 {
     if (num - 1 < TEMP_NUM)
     {
+        LOG;
         return old_temp[num - 1];
     }
     else
     {
+        LOG;
         return TEMP_DEFAULT_PT100;
     }
 }
 
 void DT_pt100_set_callback(void (*callback)(const uint8_t num, const float temp))
 {
+    LOG;
     pt100_callback = callback;
 }
