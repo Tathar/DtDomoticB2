@@ -263,7 +263,6 @@ void homeassistant(void)
   options.add("Normal");
   options.add("ECS");
   options.add("Forcé");
-  options.add("Manuel");
 
   doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
 
