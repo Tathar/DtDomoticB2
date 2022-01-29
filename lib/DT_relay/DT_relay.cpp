@@ -3,13 +3,14 @@
 #include <Adafruit_MCP23X08.h>
 #include <config.h>
 
+#include <debug.h>
 uint32_t num_delay[RELAY_NUM];
 void (*_callback)(const uint8_t num, const bool action);
 Adafruit_MCP23X08 mcp[2];
 
 void DT_relay_init()
 {
-    LOG;
+    debug(__LINE__, __func__);
     uint8_t i2c = 0;
     _callback = NULL;
 
@@ -48,7 +49,7 @@ void DT_relay_init()
 
 void DT_relay(uint8_t num, bool state)
 {
-    LOG;
+    debug(__LINE__, __func__);
     uint8_t pin = pgm_read_byte(RELAY_ARRAY + (num - 1));
     bool revert = pgm_read_byte(RELAY_REVERT + (num - 1));
 
@@ -106,7 +107,7 @@ void DT_relay(uint8_t num, bool state)
 
 bool DT_relay_get(uint8_t num)
 {
-    LOG;
+    debug(__LINE__, __func__);
     uint8_t pin = pgm_read_byte(RELAY_ARRAY + (num - 1));
     bool revert = pgm_read_byte(RELAY_REVERT + (num - 1));
     bool ret;
@@ -126,7 +127,7 @@ bool DT_relay_get(uint8_t num)
 
 void DT_relay(uint8_t num, uint32_t time)
 {
-    LOG;
+    debug(__LINE__, __func__);
     if (time > 0)
     {
         num_delay[num - 1] = time;
@@ -156,7 +157,7 @@ void DT_relay_loop()
             }
             else if (num_delay[num] <= elapse)
             {
-                LOG;
+                debug(__LINE__, __func__);
                 num_delay[num] = 0;
                 DT_relay(num + 1, false);
             }
@@ -170,6 +171,6 @@ void DT_relay_loop()
 
 void DT_relay_set_callback(void (*callback)(const uint8_t num, const bool action))
 {
-    LOG;
+    debug(__LINE__, __func__);
     _callback = callback;
 }

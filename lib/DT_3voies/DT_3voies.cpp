@@ -7,6 +7,8 @@
 
 #include <config.h>
 
+#include <debug.h>
+
 // T1 = Temp Ballon					T2 = Temp ECS							T3 = Temp ECS2
 // T5 = Temp Extérieur					T6 = Temp Vanne 3V PCBT					T7 = Temp Vanne 3V MCBT				T8 = Temp Vanne 3V Jacuzzi
 
@@ -45,13 +47,13 @@ void (*_callback_mcbt_pid)(const float P, const float I, const float D, const fl
 
 float scale(float in, float in_min, float in_max, float out_min, float out_max)
 {
-    LOG;
+    debug(__LINE__, __func__);
     return ((((in - in_min) / (in_max - in_min)) * (out_max - out_min)) + out_min);
 }
 
 void DT_3voies_init()
 {
-    LOG;
+    debug(__LINE__, __func__);
     _callback_3_voies = nullptr;
     _callback_pcbt_pid = nullptr;
     _callback_mcbt_pid = nullptr;
@@ -275,7 +277,7 @@ void DT_3voies_loop()
     float calc_lissage = 0;
     if (now - temp_lissage > 1000)
     {
-        LOG;
+        debug(__LINE__, __func__);
         temp_lissage = now;
 
         if (DT_pt100_get(PT100_3_VOIES_PCBT) > 0)
@@ -409,7 +411,7 @@ void DT_3voies_loop()
     {
         if (Output_PCBT > 0)
         {
-            LOG;
+            debug(__LINE__, __func__);
             if (eeprom_config.ratio_PCBT > 0)
             {
                 Output_PCBT /= eeprom_config.ratio_PCBT;
@@ -419,7 +421,7 @@ void DT_3voies_loop()
         }
         else
         {
-            LOG;
+            debug(__LINE__, __func__);
             if (eeprom_config.ratio_PCBT < 0)
             {
                 Output_PCBT /= (eeprom_config.ratio_PCBT * -1);
@@ -427,7 +429,7 @@ void DT_3voies_loop()
             Output_PCBT -= eeprom_config.out_offset_PCBT;
             DT_relay(VANNE_PCBT_COLD, (uint32_t)(Output_PCBT * -1)); // activation de la vanne
         }
-        LOG;
+        debug(__LINE__, __func__);
         if (_callback_pcbt_pid != nullptr)
             _callback_pcbt_pid(pid_pcbt.GetPterm(), pid_pcbt.GetIterm(), pid_pcbt.GetDterm(), Output_PCBT);
     }
@@ -436,34 +438,34 @@ void DT_3voies_loop()
     {
         if (Output_MCBT > 0)
         {
-            LOG;
+            debug(__LINE__, __func__);
             if (eeprom_config.ratio_MCBT > 0)
             {
                 Output_MCBT /= eeprom_config.ratio_MCBT;
             }
             Output_MCBT += eeprom_config.out_offset_MCBT;
-            LOG;
+            debug(__LINE__, __func__);
             DT_relay(VANNE_MCBT_HOT, (uint32_t)(Output_MCBT)); // activation de la vanne
         }
         else
         {
-            LOG;
+            debug(__LINE__, __func__);
             if (eeprom_config.ratio_MCBT < 0)
             {
                 Output_MCBT /= eeprom_config.ratio_MCBT * -1;
             }
             Output_MCBT -= eeprom_config.out_offset_MCBT;
-            LOG;
+            debug(__LINE__, __func__);
             DT_relay(VANNE_MCBT_COLD, (uint32_t)(Output_MCBT * -1)); // activation de la vanne
         }
-        LOG;
+        debug(__LINE__, __func__);
         if (_callback_mcbt_pid != nullptr)
             _callback_mcbt_pid(pid_mcbt.GetPterm(), pid_mcbt.GetIterm(), pid_mcbt.GetDterm(), Output_MCBT);
     }
 
     if (now - old_now > 1000)
     {
-        LOG;
+        debug(__LINE__, __func__);
         old_now = now;
         if ((_callback_3_voies != nullptr) && ((old_C2 != mem_config.C2) || (old_C3 != mem_config.C3)))
         {
@@ -476,7 +478,7 @@ void DT_3voies_loop()
 
 void DT_3voies_PCBT_set_mode(DT_3voies_mode mode)
 {
-    LOG;
+    debug(__LINE__, __func__);
     eeprom_config.mode_3voies_PCBT = mode;
     if (eeprom_config.mode_3voies_PCBT == DT_3VOIES_OFF)
     {
@@ -512,7 +514,7 @@ void DT_3voies_PCBT_set_mode(DT_3voies_mode mode)
 
 void DT_3voies_MCBT_set_mode(DT_3voies_mode mode)
 {
-    LOG;
+    debug(__LINE__, __func__);
     eeprom_config.mode_3voies_MCBT = mode;
     // sauvegardeEEPROM();
     if (eeprom_config.mode_3voies_MCBT == DT_3VOIES_OFF)
@@ -559,7 +561,7 @@ DT_3voies_mode DT_3voies_MCBT_get_mode(void)
 
 void DT_3voies_PCBT_set_KP(float kp)
 {
-    LOG;
+    debug(__LINE__, __func__);
     eeprom_config.pid_pcbt.KP = kp;
     sauvegardeEEPROM();
     // set KP, KI, KD
@@ -568,7 +570,7 @@ void DT_3voies_PCBT_set_KP(float kp)
 
 void DT_3voies_MCBT_set_KP(float kp)
 {
-    LOG;
+    debug(__LINE__, __func__);
     eeprom_config.pid_mcbt.KP = kp;
     sauvegardeEEPROM();
     // set KP, KI, KD
@@ -577,7 +579,7 @@ void DT_3voies_MCBT_set_KP(float kp)
 
 void DT_3voies_PCBT_set_KI(float ki)
 {
-    LOG;
+    debug(__LINE__, __func__);
     eeprom_config.pid_pcbt.KI = ki;
     sauvegardeEEPROM();
     // set KP, KI, KD
@@ -586,7 +588,7 @@ void DT_3voies_PCBT_set_KI(float ki)
 
 void DT_3voies_MCBT_set_KI(float ki)
 {
-    LOG;
+    debug(__LINE__, __func__);
     eeprom_config.pid_mcbt.KI = ki;
     sauvegardeEEPROM();
     // set KP, KI, KD
@@ -595,7 +597,7 @@ void DT_3voies_MCBT_set_KI(float ki)
 
 void DT_3voies_PCBT_set_KD(float kd)
 {
-    LOG;
+    debug(__LINE__, __func__);
     eeprom_config.pid_pcbt.KD = kd;
     sauvegardeEEPROM();
     // set KP, KI, KD
@@ -604,7 +606,7 @@ void DT_3voies_PCBT_set_KD(float kd)
 
 void DT_3voies_MCBT_set_KD(float kd)
 {
-    LOG;
+    debug(__LINE__, __func__);
     eeprom_config.pid_mcbt.KD = kd;
     sauvegardeEEPROM();
     // set KP, KI, KD
@@ -613,7 +615,7 @@ void DT_3voies_MCBT_set_KD(float kd)
 
 void DT_3voies_PCBT_set_KT(uint32_t kt)
 {
-    LOG;
+    debug(__LINE__, __func__);
     eeprom_config.pid_pcbt.KT = kt;
     sauvegardeEEPROM();
     // set loop time (KT)
@@ -624,7 +626,7 @@ void DT_3voies_PCBT_set_KT(uint32_t kt)
 
 void DT_3voies_MCBT_set_KT(uint32_t kt)
 {
-    LOG;
+    debug(__LINE__, __func__);
     eeprom_config.pid_mcbt.KT = kt;
     sauvegardeEEPROM();
     // set loop time (KT)
@@ -635,7 +637,7 @@ void DT_3voies_MCBT_set_KT(uint32_t kt)
 
 void DT_3voies_PCBT_set_action(QuickPID::Action action)
 {
-    LOG;
+    debug(__LINE__, __func__);
     eeprom_config.pid_pcbt.action = action;
     // sauvegardeEEPROM();
     pid_pcbt.SetControllerDirection(eeprom_config.pid_pcbt.action);
@@ -643,7 +645,7 @@ void DT_3voies_PCBT_set_action(QuickPID::Action action)
 
 void DT_3voies_MCBT_set_action(QuickPID::Action action)
 {
-    LOG;
+    debug(__LINE__, __func__);
     eeprom_config.pid_mcbt.action = action;
     sauvegardeEEPROM();
     pid_mcbt.SetControllerDirection(eeprom_config.pid_pcbt.action);
@@ -651,7 +653,7 @@ void DT_3voies_MCBT_set_action(QuickPID::Action action)
 
 void DT_3voies_PCBT_set_pmode(QuickPID::pMode pMode)
 {
-    LOG;
+    debug(__LINE__, __func__);
     eeprom_config.pid_pcbt.pmode = pMode;
     sauvegardeEEPROM();
     pid_pcbt.SetProportionalMode(eeprom_config.pid_pcbt.pmode);
@@ -659,7 +661,7 @@ void DT_3voies_PCBT_set_pmode(QuickPID::pMode pMode)
 
 void DT_3voies_MCBT_set_pmode(QuickPID::pMode pMode)
 {
-    LOG;
+    debug(__LINE__, __func__);
     eeprom_config.pid_mcbt.pmode = pMode;
     sauvegardeEEPROM();
     pid_mcbt.SetProportionalMode(eeprom_config.pid_mcbt.pmode);
@@ -667,7 +669,7 @@ void DT_3voies_MCBT_set_pmode(QuickPID::pMode pMode)
 
 void DT_3voies_PCBT_set_dmode(QuickPID::dMode dMode)
 {
-    LOG;
+    debug(__LINE__, __func__);
     eeprom_config.pid_pcbt.dmode = dMode;
     sauvegardeEEPROM();
     pid_pcbt.SetDerivativeMode(eeprom_config.pid_pcbt.dmode);
@@ -675,7 +677,7 @@ void DT_3voies_PCBT_set_dmode(QuickPID::dMode dMode)
 
 void DT_3voies_MCBT_set_dmode(QuickPID::dMode dMode)
 {
-    LOG;
+    debug(__LINE__, __func__);
     eeprom_config.pid_mcbt.dmode = dMode;
     sauvegardeEEPROM();
     pid_mcbt.SetDerivativeMode(eeprom_config.pid_mcbt.dmode);
@@ -683,7 +685,7 @@ void DT_3voies_MCBT_set_dmode(QuickPID::dMode dMode)
 
 void DT_3voies_PCBT_set_iawmode(QuickPID::iAwMode iAwMode)
 {
-    LOG;
+    debug(__LINE__, __func__);
     eeprom_config.pid_pcbt.iawmode = iAwMode;
     sauvegardeEEPROM();
     pid_pcbt.SetAntiWindupMode(eeprom_config.pid_pcbt.iawmode);
@@ -691,7 +693,7 @@ void DT_3voies_PCBT_set_iawmode(QuickPID::iAwMode iAwMode)
 
 void DT_3voies_MCBT_set_iawmode(QuickPID::iAwMode iAwMode)
 {
-    LOG;
+    debug(__LINE__, __func__);
     eeprom_config.pid_mcbt.iawmode = iAwMode;
     sauvegardeEEPROM();
     pid_mcbt.SetAntiWindupMode(eeprom_config.pid_mcbt.iawmode);
@@ -714,92 +716,92 @@ void DT_3voies_MCBT_set_iawmode(QuickPID::iAwMode iAwMode)
 // set consigne temp PCBT
 void DT_3voies_set_C2(float c2)
 {
-    LOG;
+    debug(__LINE__, __func__);
     mem_config.C2 = c2;
 }
 
 // set consigne temp MCBT
 void DT_3voies_set_C3(float c3)
 {
-    LOG;
+    debug(__LINE__, __func__);
     mem_config.C3 = c3;
 }
 
 float DT_3voies_PCBT_get_KP()
 {
-    LOG;
+    debug(__LINE__, __func__);
     return eeprom_config.pid_pcbt.KP;
 }
 
 float DT_3voies_MCBT_get_KP()
 {
-    LOG;
+    debug(__LINE__, __func__);
     return eeprom_config.pid_mcbt.KP;
 }
 
 float DT_3voies_PCBT_get_KI()
 {
-    LOG;
+    debug(__LINE__, __func__);
     return eeprom_config.pid_pcbt.KI;
 }
 
 float DT_3voies_MCBT_get_KI()
 {
-    LOG;
+    debug(__LINE__, __func__);
     return eeprom_config.pid_mcbt.KI;
 }
 
 float DT_3voies_PCBT_get_KD()
 {
-    LOG;
+    debug(__LINE__, __func__);
     return eeprom_config.pid_pcbt.KD;
 }
 
 float DT_3voies_MCBT_get_KD()
 {
-    LOG;
+    debug(__LINE__, __func__);
     return eeprom_config.pid_mcbt.KD;
 }
 
 uint32_t DT_3voies_PCBT_get_KT()
 {
-    LOG;
+    debug(__LINE__, __func__);
     return eeprom_config.pid_pcbt.KT;
 }
 
 uint32_t DT_3voies_MCBT_get_KT()
 {
-    LOG;
+    debug(__LINE__, __func__);
     return eeprom_config.pid_mcbt.KT;
 }
 
 void DT_3voies_set_callback(void (*callback)(const float C2, const float C3))
 {
-    LOG;
+    debug(__LINE__, __func__);
     _callback_3_voies = callback;
 }
 
 void DT_3voies_mcbt_set_callback_pid(void (*callback_mcbt_pid)(const float P, const float I, const float D, const float Out))
 {
-    LOG;
+    debug(__LINE__, __func__);
     _callback_mcbt_pid = callback_mcbt_pid;
 }
 void DT_3voies_pcbt_set_callback_pid(void (*callback_pcbt_pid)(const float P, const float I, const float D, const float Out))
 {
-    LOG;
+    debug(__LINE__, __func__);
     _callback_pcbt_pid = callback_pcbt_pid;
 }
 
 // get consigne temp PCBT
 float DT_3voies_get_C2()
 {
-    LOG;
+    debug(__LINE__, __func__);
     return mem_config.C2;
 }
 
 // get consigne temp MCBT
 float DT_3voies_get_C3()
 {
-    LOG;
+    debug(__LINE__, __func__);
     return mem_config.C3;
 }

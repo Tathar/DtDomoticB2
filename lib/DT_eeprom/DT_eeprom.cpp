@@ -2,6 +2,7 @@
 #include "config.h"
 #include <EEPROM.h>
 
+#include <debug.h>
 // declaration de la structure de configuration
 Eeprom_Config eeprom_config;
 Mem_Config mem_config;
@@ -10,7 +11,7 @@ Mem_Config mem_config;
 void sauvegardeEEPROM()
 {
 
-        LOG;
+        debug(__LINE__, __func__);
         Serial.println("Save on EEPROM");
         // Met à jour le nombre magic et le numéro de version avant l'écriture
         //eeprom_config.magic = STRUCT_MAGIC;
@@ -21,7 +22,7 @@ void sauvegardeEEPROM()
 /** Charge le contenu de la mémoire EEPROM dans la structure */
 void chargeEEPROM()
 {
-        LOG;
+        debug(__LINE__, __func__);
         // uint8_t i = 0; // for loop
         bool need_save = false;
         // Lit la mémoire EEPROM
@@ -105,12 +106,10 @@ void chargeEEPROM()
                 need_save = true;
                 Serial.println("EEPROM version < 4");
                 eeprom_config.struct_version = 4;
-                
+
                 eeprom_config.out_offset_PCBT = 0;
                 eeprom_config.out_offset_MCBT = 0;
         }
-
-        
 
         // Sauvegarde les nouvelles données
         if (need_save)

@@ -2,6 +2,7 @@
 
 #include <avr/wdt.h> //watchdog
 
+#include <debug.h>
 #define add0x2(s) 0x##s
 #define toHEX(s) add0x2(s)
 
@@ -21,25 +22,25 @@ void (*_mqtt_subscribe)(PubSubClient &mqtt);
 
 void DT_mqtt_set_update_callback(void (*mqtt_update)(PubSubClient &mqtt))
 {
-    LOG;
+    debug(__LINE__, __func__);
     _mqtt_update = mqtt_update;
 }
 
 void DT_mqtt_set_subscribe_callback(void (*mqtt_subscribe)(PubSubClient &mqtt))
 {
-    LOG;
+    debug(__LINE__, __func__);
     _mqtt_subscribe = mqtt_subscribe;
 }
 
 void DT_mqtt_set_receve_callback(void (*mqtt_receve)(char *, uint8_t *, unsigned int))
 {
-    LOG;
+    debug(__LINE__, __func__);
     mqtt.setCallback(mqtt_receve);
 }
 
 bool DT_mqtt_send(const char *tag, const float value)
 {
-    LOG;
+    debug(__LINE__, __func__);
     char buffer[32];
     dtostrf(value, 1, 2, buffer);
     return mqtt.publish(tag, buffer, strlen(buffer));
@@ -47,7 +48,7 @@ bool DT_mqtt_send(const char *tag, const float value)
 
 bool DT_mqtt_send(const char *tag, const unsigned int value)
 {
-    LOG;
+    debug(__LINE__, __func__);
     char buffer[32];
     sprintf(buffer, "%u", value);
     return mqtt.publish(tag, buffer, strlen(buffer));
@@ -55,7 +56,7 @@ bool DT_mqtt_send(const char *tag, const unsigned int value)
 
 bool DT_mqtt_send(const char *tag, const int value)
 {
-    LOG;
+    debug(__LINE__, __func__);
     char buffer[32];
     sprintf(buffer, "%i", value);
     return mqtt.publish(tag, buffer, strlen(buffer));
@@ -63,7 +64,7 @@ bool DT_mqtt_send(const char *tag, const int value)
 
 bool DT_mqtt_send(const char *tag, const uint32_t value)
 {
-    LOG;
+    debug(__LINE__, __func__);
     char buffer[32];
     sprintf(buffer, "%" PRIu32, value);
     return mqtt.publish(tag, buffer, strlen(buffer));
@@ -71,13 +72,13 @@ bool DT_mqtt_send(const char *tag, const uint32_t value)
 
 bool DT_mqtt_send(const char *tag, const char *value)
 {
-    LOG;
+    debug(__LINE__, __func__);
     return mqtt.publish(tag, value, strlen(value));
 }
 
 void init_ethernet()
 {
-    LOG;
+    debug(__LINE__, __func__);
     Ethernet.init(NETWORK_CS);
 #ifdef DHCP
     Ethernet.begin(mac, 5000);
@@ -94,7 +95,7 @@ void init_ethernet()
 
 void DT_mqtt_init()
 {
-    LOG;
+    debug(__LINE__, __func__);
     //auto Serial.println("start network");
     pinMode(NETWORK_RESET, OUTPUT);
     digitalWrite(NETWORK_RESET, HIGH);
@@ -118,7 +119,7 @@ void DT_mqtt_loop()
             reset_time = now;
         else if (reset_time != 0 && !reset && now - reset_time > NETWORK_RESET_TIME)
         {
-            LOG;
+            debug(__LINE__, __func__);
             //auto Serial.println("reset network board");
             digitalWrite(NETWORK_RESET, LOW);
             last_reconnection_time = now;
@@ -126,7 +127,7 @@ void DT_mqtt_loop()
         }
         else if (now - last_reconnection_time > 5000)
         {
-            LOG;
+            debug(__LINE__, __func__);
             last_reconnection_time = now;
             if (reset)
             {
@@ -172,7 +173,7 @@ void DT_mqtt_loop()
         static uint32_t time = 0;
         if (now - time >= MQTT_UPDATE)
         {
-            LOG;
+            debug(__LINE__, __func__);
             if (_mqtt_update != nullptr)
                 _mqtt_update(mqtt);
         }

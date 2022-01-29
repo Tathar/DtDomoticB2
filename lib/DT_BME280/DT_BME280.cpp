@@ -5,6 +5,8 @@
 // #include <Adafruit_Sensor.h>
 #include <Adafruit_BME280.h>
 
+#include <debug.h>
+
 Adafruit_BME280 bme280[BME280_NUM];
 bool bme280_active[BME280_NUM];
 float temperature[BME280_NUM];
@@ -17,7 +19,7 @@ void (*bme280_callback_pressure)(const uint8_t num, const float pressure);
 
 void DT_BME280_init()
 {
-    LOG;
+    debug(__LINE__, __func__);
     bme280_callback_temperature = nullptr;
     bme280_callback_humidity = nullptr;
     bme280_callback_pressure = nullptr;
@@ -58,7 +60,7 @@ void DT_BME280_loop()
     static uint16_t old = 0;
     if (now - old >= 1000)
     {
-        LOG;
+        debug(__LINE__, __func__);
         old = now;
         for (uint8_t num = 0; num < BME280_NUM; ++num)
         {
@@ -100,36 +102,36 @@ void DT_BME280_loop()
 
 void DT_BME280_set_callback_temperature(void (*callback)(const uint8_t num, const float temperature))
 {
-    LOG;
+    debug(__LINE__, __func__);
     bme280_callback_temperature = callback;
 }
 
 void DT_BME280_set_callback_humidity(void (*callback)(const uint8_t num, const float humidity))
 {
-    LOG;
+    debug(__LINE__, __func__);
     bme280_callback_humidity = callback;
 }
 
 void DT_BME280_set_callback_pressure(void (*callback)(const uint8_t num, const float pressure))
 {
-    LOG;
+    debug(__LINE__, __func__);
     bme280_callback_pressure = callback;
 }
 
 float DT_BME280_get_temperature(const uint8_t num)
 {
-    LOG;
+    debug(__LINE__, __func__);
     return temperature[num - 1];
 }
 
 float DT_BME280_get_humidity(const uint8_t num)
 {
-    LOG;
+    debug(__LINE__, __func__);
     return humidity[num - 1];
 }
 
 float DT_BME280_get_pressure(const uint8_t num)
 {
-    LOG;
+    debug(__LINE__, __func__);
     return pressure[num - 1];
 }

@@ -2,6 +2,7 @@
 #include <pinout.h>
 #include <config.h>
 
+#include <debug.h>
 // #include <Adafruit_Sensor.h>
 #include <Adafruit_CCS811.h>
 
@@ -15,7 +16,7 @@ void (*ccs811_callback_cov)(const uint8_t num, const float cov);
 
 void DT_CCS811_init()
 {
-    LOG;
+    debug(__LINE__, __func__);
     ccs811_callback_co2 = nullptr;
     ccs811_callback_cov = nullptr;
     for (uint8_t num = 0; num < CCS811_NUM; ++num)
@@ -51,7 +52,7 @@ void DT_CCS811_loop()
     static uint16_t old = 0;
     if (now - old >= 1000)
     {
-        LOG;
+        debug(__LINE__, __func__);
         old = now;
         for (uint8_t num = 0; num < CCS811_NUM; ++num)
         {
@@ -96,31 +97,31 @@ void DT_CCS811_loop()
 
 void DT_CCS811_set_callback_co2(void (*callback)(const uint8_t num, const float temperature))
 {
-    LOG;
+    debug(__LINE__, __func__);
     ccs811_callback_co2 = callback;
 }
 
 void DT_CCS811_set_callback_cov(void (*callback)(const uint8_t num, const float humidity))
 {
-    LOG;
+    debug(__LINE__, __func__);
     ccs811_callback_cov = callback;
 }
 
 float DT_CCS811_get_co2(const uint8_t num)
 {
-    LOG;
+    debug(__LINE__, __func__);
     return ccs811_co2[num - 1];
 }
 
 float DT_CCS811_get_cov(const uint8_t num)
 {
-    LOG;
+    debug(__LINE__, __func__);
     return ccs811_cov[num - 1];
 }
 
 void DT_CCS811_set_environmental_data(uint8_t num, float humidity, float temperature)
 {
-    LOG;
+    debug(__LINE__, __func__);
     if (ccs811_active[num - 1])
         ccs811[num - 1].setEnvironmentalData(humidity, temperature);
 }

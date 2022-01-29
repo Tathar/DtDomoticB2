@@ -8,6 +8,7 @@
 #include <DT_eeprom.h>
 
 #include <config.h>
+#include <debug.h>
 
 void (*poele_mode_callback)(const DT_Poele_mode mode);
 void (*poele_C1_callback)(const uint8_t C1);
