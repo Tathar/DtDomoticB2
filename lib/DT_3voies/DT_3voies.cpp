@@ -407,12 +407,20 @@ void DT_3voies_loop()
     {
         if (Output_PCBT > 0)
         {
-            Output_PCBT = (Output_PCBT / eeprom_config.ratio_PCBT ) + eeprom_config.out_offset_PCBT;
+            if (eeprom_config.ratio_PCBT > 0)
+            {
+                Output_PCBT /= eeprom_config.ratio_PCBT;
+            }
+            Output_PCBT += eeprom_config.out_offset_PCBT;
             DT_relay(VANNE_PCBT_HOT, (uint32_t)(Output_PCBT)); // activation de la vanne
         }
         else
         {
-            Output_PCBT -=  eeprom_config.out_offset_PCBT;
+            if (eeprom_config.ratio_PCBT < 0)
+            {
+                Output_PCBT /= (eeprom_config.ratio_PCBT * -1);
+            }
+            Output_PCBT -= eeprom_config.out_offset_PCBT;
             DT_relay(VANNE_PCBT_COLD, (uint32_t)(Output_PCBT * -1)); // activation de la vanne
         }
         if (_callback_pcbt_pid != nullptr)
@@ -423,12 +431,19 @@ void DT_3voies_loop()
     {
         if (Output_MCBT > 0)
         {
-
-            Output_MCBT = (Output_MCBT / eeprom_config.ratio_MCBT ) + eeprom_config.out_offset_MCBT;
+            if (eeprom_config.ratio_MCBT > 0)
+            {
+                Output_MCBT /= eeprom_config.ratio_MCBT;
+            }
+            Output_MCBT += eeprom_config.out_offset_MCBT;
             DT_relay(VANNE_MCBT_HOT, (uint32_t)(Output_MCBT)); // activation de la vanne
         }
         else
         {
+            if (eeprom_config.ratio_MCBT < 0)
+            {
+                Output_MCBT /= eeprom_config.ratio_MCBT * -1;
+            }
             Output_MCBT -= eeprom_config.out_offset_MCBT;
             DT_relay(VANNE_MCBT_COLD, (uint32_t)(Output_MCBT * -1)); // activation de la vanne
         }
