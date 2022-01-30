@@ -1395,6 +1395,7 @@ void dt3voies_callback_pid_pcbt(const float P, const float I, const float D, con
 void dt3voies_callback_pid_mcbt(const float P, const float I, const float D, const float OUT)
 {
   wdt_reset();
+  debug(__LINE__, __func__);
 
   static uint32_t refresh = 0;
   uint32_t now = millis();

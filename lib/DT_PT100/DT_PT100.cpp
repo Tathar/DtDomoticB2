@@ -126,7 +126,7 @@ void DT_pt100_init()
 
 void DT_pt100_loop()
 {
-    // delay(50);
+    debug(__LINE__, __func__);
     static uint32_t old_time = 0;
     uint32_t now = millis();
     float tmp = 0;

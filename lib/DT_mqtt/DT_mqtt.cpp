@@ -73,7 +73,11 @@ bool DT_mqtt_send(const char *tag, const uint32_t value)
 bool DT_mqtt_send(const char *tag, const char *value)
 {
     debug(__LINE__, __func__);
-    return mqtt.publish(tag, value, strlen(value));
+    debug(__LINE__, __func__, tag);
+    debug(__LINE__, __func__, value);
+    bool ret = mqtt.publish(tag, value, strlen(value));
+    debug(__LINE__, __func__);
+    return ret;
 }
 
 void init_ethernet()
@@ -108,6 +112,7 @@ void DT_mqtt_init()
 
 void DT_mqtt_loop()
 {
+    debug(__LINE__, __func__);
     static uint32_t last_reconnection_time = 0;
     static uint32_t reset_time = 0; // for reset network device
     static bool reset = false;      // for reset network device

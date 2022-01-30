@@ -30,6 +30,7 @@ uint8_t DT_input_get(int num)
 
 void DT_input_loop()
 {
+    debug(__LINE__, __func__);
     uint32_t now = millis();
 
     for (uint8_t num = 0; num < INPUT_NUM; ++num)

@@ -198,6 +198,7 @@ void DT_3voies_init()
 
 void DT_3voies_loop()
 {
+    debug(__LINE__, __func__);
     uint32_t now = millis();
     static uint32_t old_now = 0;
     static float old_C2 = 0;

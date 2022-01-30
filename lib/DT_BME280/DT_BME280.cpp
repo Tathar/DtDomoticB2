@@ -56,6 +56,7 @@ void DT_BME280_init()
 
 void DT_BME280_loop()
 {
+    debug(__LINE__, __func__);
     uint16_t now = millis();
     static uint16_t old = 0;
     if (now - old >= 1000)

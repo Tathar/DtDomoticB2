@@ -3,6 +3,7 @@
 #include <pinout.h>
 #include <SPI.h>
 #include <avr/wdt.h> //watchdog
+#include <debug.h>
 
 const uint8_t NTC_R1[] PROGMEM = {
     145, 145, 145, 145, 112, 91, 88, 109, 84, 94, 70, 98, 82,
@@ -35,6 +36,7 @@ void (*fake_ntc_callback)(const uint8_t value);
 
 void _fake_ntc_set(uint8_t value)
 {
+    debug(__LINE__, __func__);
     if (value >= 0 && value <= 100 && fake_ntc_value != value)
     {
         fake_ntc_value = value;
@@ -73,6 +75,7 @@ void _fake_ntc_set(uint8_t value)
 
 void DT_fake_ntc_init(uint8_t value)
 {
+    debug(__LINE__, __func__);
     fake_ntc_callback = nullptr;
     pinMode(FAKE_NTC_CS, OUTPUT);
     digitalWrite(FAKE_NTC_CS, HIGH);
@@ -100,6 +103,7 @@ void DT_fake_ntc_loop()
 */
 void DT_fake_ntc_set(uint8_t value)
 {
+    debug(__LINE__, __func__);
     if (value > 70)
     {
         value = 70;
@@ -119,6 +123,7 @@ void DT_fake_ntc_set(uint8_t value)
 
 uint8_t DT_fake_ntc_get()
 {
+    debug(__LINE__, __func__);
     return fake_ntc_value;
 };
 

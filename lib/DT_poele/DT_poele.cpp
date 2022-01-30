@@ -25,6 +25,7 @@ uint32_t temp_default_pt100_ECS = 0;
 
 void DT_Poele_init()
 {
+    debug(__LINE__, __func__);
     DT_relay(RELAY_EV1, false);
     poele_mode_callback = nullptr;
     poele_C1_callback = nullptr;
@@ -72,6 +73,7 @@ bool marche_poele_ballon_normal(uint32_t now)
 
 void DT_Poele_loop()
 {
+    debug(__LINE__, __func__);
     uint32_t now = millis();
     static uint32_t old = 0;
     static bool poele = false;
@@ -211,6 +213,7 @@ void DT_Poele_loop()
 
 void DT_Poele_set_mode(DT_Poele_mode mode)
 {
+    debug(__LINE__, __func__);
     if (mode != eeprom_config.poele_mode)
     {
         eeprom_config.poele_mode = mode;
@@ -222,6 +225,7 @@ void DT_Poele_set_mode(DT_Poele_mode mode)
 
 DT_Poele_mode DT_Poele_get_mode(void)
 {
+    debug(__LINE__, __func__);
     return eeprom_config.poele_mode;
 }
 

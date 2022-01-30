@@ -142,6 +142,8 @@ void DT_relay(uint8_t num, uint32_t time)
 
 void DT_relay_loop()
 {
+
+    debug(__LINE__, __func__);
     static uint32_t last = 0;
     uint32_t now = millis();
     uint32_t elapse = now - last;
