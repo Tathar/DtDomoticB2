@@ -2455,7 +2455,7 @@ void mqtt_receve(char *topic, uint8_t *payload, unsigned int length)
     if (!error)
     {
       eeprom_config.out_offset_MCBT = doc.as<uint16_t>();
-      strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/Mcbt/offset/state"), BUFFER_SIZE);
+      strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/mcbt/offset/state"), BUFFER_SIZE);
       DT_mqtt_send(buffer, eeprom_config.out_offset_MCBT);
       sauvegardeEEPROM();
     }
