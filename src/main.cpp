@@ -1145,7 +1145,7 @@ void homeassistant(void)
   doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
   serializeJson(doc, buffer_value, sizeof(buffer_value));
   // Serial.println(buffer_value);
-  strlcpy_P(buffer, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/offset-pcbt-out/config"), BUFFER_SIZE);
+  strlcpy_P(buffer, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/offset-pcbt-in/config"), BUFFER_SIZE);
   DT_mqtt_send(buffer, buffer_value);
 
 
@@ -1164,7 +1164,7 @@ void homeassistant(void)
   doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
   serializeJson(doc, buffer_value, sizeof(buffer_value));
   // Serial.println(buffer_value);
-  strlcpy_P(buffer, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/offset-mcbt-out/config"), BUFFER_SIZE);
+  strlcpy_P(buffer, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/offset-mcbt-in/config"), BUFFER_SIZE);
   DT_mqtt_send(buffer, buffer_value);
 
   // load 1s
