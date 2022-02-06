@@ -415,7 +415,7 @@ void DT_3voies_loop()
     {
         if (Output_PCBT > 0)
         {
-            if (eeprom_config.ratio_PCBT > 0)
+            if (eeprom_config.ratio_PCBT > 1)
             {
                 Output_PCBT /= eeprom_config.ratio_PCBT;
             }
@@ -424,7 +424,7 @@ void DT_3voies_loop()
         }
         else
         {
-            if (eeprom_config.ratio_PCBT < 0)
+            if (eeprom_config.ratio_PCBT < 1)
             {
                 Output_PCBT /= (eeprom_config.ratio_PCBT * -1);
             }
