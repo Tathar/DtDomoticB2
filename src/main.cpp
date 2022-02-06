@@ -2348,13 +2348,13 @@ void mqtt_receve(char *topic, uint8_t *payload, unsigned int length)
   {
     if (strcmp(buffer, "direct") == 0)
     {
-      DT_3voies_PCBT_set_action(QuickPID::Action::direct);
+      DT_3voies_MCBT_set_action(QuickPID::Action::direct);
       strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/mcbt/pid_action/state"), BUFFER_SIZE);
       DT_mqtt_send(buffer, "direct");
     }
     if (strcmp(buffer, "reverse") == 0)
     {
-      DT_3voies_PCBT_set_action(QuickPID::Action::reverse);
+      DT_3voies_MCBT_set_action(QuickPID::Action::reverse);
       strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/mcbt/pid_action/state"), BUFFER_SIZE);
       DT_mqtt_send(buffer, "reverse");
     }
@@ -2363,19 +2363,19 @@ void mqtt_receve(char *topic, uint8_t *payload, unsigned int length)
   {
     if (strcmp(buffer, "pOnError") == 0)
     {
-      DT_3voies_PCBT_set_pmode(QuickPID::pMode::pOnError);
+      DT_3voies_MCBT_set_pmode(QuickPID::pMode::pOnError);
       strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/mcbt/pid_pmode/state"), BUFFER_SIZE);
       DT_mqtt_send(buffer, "pOnError");
     }
     if (strcmp(buffer, "pOnErrorMeas") == 0)
     {
-      DT_3voies_PCBT_set_pmode(QuickPID::pMode::pOnErrorMeas);
+      DT_3voies_MCBT_set_pmode(QuickPID::pMode::pOnErrorMeas);
       strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/mcbt/pid_pmode/state"), BUFFER_SIZE);
       DT_mqtt_send(buffer, "pOnErrorMeas");
     }
     if (strcmp(buffer, "pOnMeas") == 0)
     {
-      DT_3voies_PCBT_set_pmode(QuickPID::pMode::pOnMeas);
+      DT_3voies_MCBT_set_pmode(QuickPID::pMode::pOnMeas);
       strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/mcbt/pid_pmode/state"), BUFFER_SIZE);
       DT_mqtt_send(buffer, "pOnMeas");
     }
@@ -2384,13 +2384,13 @@ void mqtt_receve(char *topic, uint8_t *payload, unsigned int length)
   {
     if (strcmp(buffer, "dOnError") == 0)
     {
-      DT_3voies_PCBT_set_dmode(QuickPID::dMode::dOnError);
+      DT_3voies_MCBT_set_dmode(QuickPID::dMode::dOnError);
       strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/mcbt/pid_dmode/state"), BUFFER_SIZE);
       DT_mqtt_send(buffer, "dOnError");
     }
     if (strcmp(buffer, "dOnMeas") == 0)
     {
-      DT_3voies_PCBT_set_dmode(QuickPID::dMode::dOnMeas);
+      DT_3voies_MCBT_set_dmode(QuickPID::dMode::dOnMeas);
       strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/mcbt/pid_dmode/state"), BUFFER_SIZE);
       DT_mqtt_send(buffer, "dOnMeas");
     }
@@ -2399,19 +2399,19 @@ void mqtt_receve(char *topic, uint8_t *payload, unsigned int length)
   {
     if (strcmp(buffer, "iAwClamp") == 0)
     {
-      DT_3voies_PCBT_set_iawmode(QuickPID::iAwMode::iAwClamp);
+      DT_3voies_MCBT_set_iawmode(QuickPID::iAwMode::iAwClamp);
       strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/mcbt/pid_iawmode/state"), BUFFER_SIZE);
       DT_mqtt_send(buffer, "iAwClamp");
     }
     if (strcmp(buffer, "iAwCondition") == 0)
     {
-      DT_3voies_PCBT_set_iawmode(QuickPID::iAwMode::iAwCondition);
+      DT_3voies_MCBT_set_iawmode(QuickPID::iAwMode::iAwCondition);
       strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/mcbt/pid_iawmode/state"), BUFFER_SIZE);
       DT_mqtt_send(buffer, "iAwCondition");
     }
     if (strcmp(buffer, "iAwOff") == 0)
     {
-      DT_3voies_PCBT_set_iawmode(QuickPID::iAwMode::iAwOff);
+      DT_3voies_MCBT_set_iawmode(QuickPID::iAwMode::iAwOff);
       strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/mcbt/pid_iawmode/state"), BUFFER_SIZE);
       DT_mqtt_send(buffer, "iAwOff");
     }
