@@ -107,6 +107,17 @@ void chargeEEPROM()
                 eeprom_config.out_offset_MCBT = 0;
         }
 
+        // Valeurs par défaut struct_version == 4
+        if (eeprom_config.struct_version < 5 || erreur)
+        {
+                need_save = true;
+                Serial.println("EEPROM version < 5");
+                eeprom_config.struct_version = 5;
+                
+                eeprom_config.in_offset_PCBT = 0;
+                eeprom_config.in_offset_MCBT = 0;
+        }
+
         
 
         // Sauvegarde les nouvelles données

@@ -225,7 +225,11 @@ void DT_3voies_loop()
     }
     else if (eeprom_config.mode_3voies_PCBT == DT_3VOIES_NORMAL)
     {
-        mem_config.C2 = scale(DT_pt100_get(PT100_EXT), -10, 10, eeprom_config.C8, eeprom_config.C9);
+        mem_config.C2 = scale(DT_pt100_get(PT100_EXT), -10, 10, eeprom_config.C8, eeprom_config.C9); //calcul de la consigne en fonction de la temperature exterieur
+        if (mem_config.MQTT_online) //si la carte est connecte au serveur MQTT
+        {
+            mem_config.C2 += eeprom_config.in_offset_PCBT; //ajout du decalage de la consigne (mode eco)
+        }
     }
 
     if (eeprom_config.mode_3voies_MCBT == DT_3VOIES_DEMMARAGE)
@@ -251,7 +255,11 @@ void DT_3voies_loop()
     }
     else if (eeprom_config.mode_3voies_MCBT == DT_3VOIES_NORMAL)
     {
-        mem_config.C3 = scale(DT_pt100_get(PT100_EXT), -10, 10, eeprom_config.C10, eeprom_config.C11);
+        mem_config.C3 = scale(DT_pt100_get(PT100_EXT), -10, 10, eeprom_config.C10, eeprom_config.C11); //calcul de la consigne en fonction de la temperature exterieur
+        if (mem_config.MQTT_online) //si la carte est connecte au serveur MQTT
+        {
+            mem_config.C3 += eeprom_config.in_offset_MCBT; //ajout du decalage de la consigne (mode eco)
+        }
     }
 
     // protection sur temperature

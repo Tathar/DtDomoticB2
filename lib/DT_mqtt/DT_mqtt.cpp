@@ -1,6 +1,7 @@
 #include <DT_mqtt.h>
 
 #include <avr/wdt.h> //watchdog
+#include <DT_eeprom.h>
 
 #define add0x2(s) 0x##s
 #define toHEX(s) add0x2(s)
@@ -85,7 +86,7 @@ void init_ethernet()
 
 void DT_mqtt_init()
 {
-   //auto Serial.println("start network");
+    // auto Serial.println("start network");
     pinMode(NETWORK_RESET, OUTPUT);
     digitalWrite(NETWORK_RESET, HIGH);
     mqtt.setServer(server, 1883);
@@ -103,12 +104,17 @@ void DT_mqtt_loop()
     uint32_t now = millis();
     if (!mqtt.connected())
     {
+        if (mem_config.MQTT_online)
+        {
+            mem_config.MQTT_online = false;
+        }
+
         wdt_enable(WDTO_8S); // watchdog at 8 secdons
         if (reset_time == 0)
             reset_time = now;
         else if (reset_time != 0 && !reset && now - reset_time > NETWORK_RESET_TIME)
         {
-           //auto Serial.println("reset network board");
+            // auto Serial.println("reset network board");
             digitalWrite(NETWORK_RESET, LOW);
             last_reconnection_time = now;
             reset = true;
@@ -118,7 +124,7 @@ void DT_mqtt_loop()
             last_reconnection_time = now;
             if (reset)
             {
-               //auto Serial.println("restart network");
+                // auto Serial.println("restart network");
                 digitalWrite(NETWORK_RESET, HIGH);
                 delay(2);
                 wdt_reset();
@@ -129,8 +135,8 @@ void DT_mqtt_loop()
             }
             // Attempt to reconnect
             // String clientId = "Board01";
-           //auto Serial.println("start MQTT conection");
-            // if (mqtt.connect(clientId.c_str(), "DtBoard", "1MotdePasse"))
+            // auto Serial.println("start MQTT conection");
+            //  if (mqtt.connect(clientId.c_str(), "DtBoard", "1MotdePasse"))
 
             wdt_reset();
             if (mqtt.connect(MQTT_CLIENT_ID, MQTT_USER, MQTT_PASSWORD))
@@ -140,14 +146,14 @@ void DT_mqtt_loop()
                 if (_mqtt_subscribe != nullptr)
                     _mqtt_subscribe(mqtt);
                 reset_time = 0; // desactivation du compteur de reset
-               //auto Serial.println("MQTT connected");
+                                // auto Serial.println("MQTT connected");
             }
             else
             { // si echec affichage erreur
                 wdt_reset();
-               //auto Serial.print("ECHEC, rc=");
-               //auto Serial.print(mqtt.state());
-               //auto Serial.println(" nouvelle tentative dans 5 secondes");
+                // auto Serial.print("ECHEC, rc=");
+                // auto Serial.print(mqtt.state());
+                // auto Serial.println(" nouvelle tentative dans 5 secondes");
             }
         }
 
@@ -160,6 +166,10 @@ void DT_mqtt_loop()
         static uint32_t time = 0;
         if (now - time >= MQTT_UPDATE)
         {
+            if (!mem_config.MQTT_online)
+            {
+                mem_config.MQTT_online = true;
+            }
             if (_mqtt_update != nullptr)
                 _mqtt_update(mqtt);
         }
