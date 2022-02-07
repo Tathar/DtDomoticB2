@@ -64,6 +64,11 @@
 #define MQTT_CLIENT_ID "Board1"
 #define MQTT_USER "dtboard"
 #define MQTT_PASSWORD "1MotdePasse"
+#define MQTT_ROOT_TOPIC "DtBoard"
+#define MQTT_WILL_TOPIC MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/status"
+#define MQTT_WILL_QOS 1
+#define MQTT_WILL_RETAIN true
+#define MQTT_WILL_MESSAGE "offline"
 
 #define NETWORK_RESET_TIME 20000 // temp avant reset de la carte reseau en qua d'imposibilité de se connecter (en miliseconde)
 #define MQTT_UPDATE 1000         // in ms

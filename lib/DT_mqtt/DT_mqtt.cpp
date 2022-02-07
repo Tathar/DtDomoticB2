@@ -139,7 +139,7 @@ void DT_mqtt_loop()
             //  if (mqtt.connect(clientId.c_str(), "DtBoard", "1MotdePasse"))
 
             wdt_reset();
-            if (mqtt.connect(MQTT_CLIENT_ID, MQTT_USER, MQTT_PASSWORD))
+            if (mqtt.connect(MQTT_CLIENT_ID, MQTT_USER, MQTT_PASSWORD, MQTT_WILL_TOPIC, MQTT_WILL_QOS, MQTT_WILL_RETAIN,MQTT_WILL_MESSAGE))
             {
                 wdt_reset();
                 // Once connected, publish an announcement and resubscribe...
