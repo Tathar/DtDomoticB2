@@ -77,8 +77,8 @@ struct Eeprom_Config
     float ratio_MCBT;
     uint16_t out_offset_PCBT;//en ms
     uint16_t out_offset_MCBT;//en ms
-    int8_t in_offset_PCBT; //en °c
-    int8_t in_offset_MCBT; //en °c
+    float in_offset_PCBT; //en °c
+    float in_offset_MCBT; //en °c
 };
 
 // structure de configuration

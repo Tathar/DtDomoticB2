@@ -1156,10 +1156,11 @@ void homeassistant(void)
   doc["name"] = F("Decalage consigne PCBT");
   doc["stat_t"] = F("~/state");
   doc["command_topic"] = F("~/set");
-  doc["min"] = -128;
-  doc["max"] = 127;
-  // doc["dev_cla"] = F("temperature");
-  // doc["unit_of_meas"] = F("°C");
+  doc["min"] = -100;
+  doc["max"] = 100;
+  doc["step"] = 0.01;
+  doc["dev_cla"] = F("temperature");
+  doc["unit_of_meas"] = F("°C");
   doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
   serializeJson(doc, buffer_value, sizeof(buffer_value));
   // Serial.println(buffer_value);
@@ -1175,10 +1176,11 @@ void homeassistant(void)
   doc["name"] = F("Decalage consigne MCBT");
   doc["stat_t"] = F("~/state");
   doc["command_topic"] = F("~/set");
-  doc["min"] = -128;
-  doc["max"] = 127;
-  // doc["dev_cla"] = F("temperature");
-  // doc["unit_of_meas"] = F("°C");
+  doc["min"] = -100;
+  doc["max"] = 100;
+  doc["step"] = 0.01;
+  doc["dev_cla"] = F("temperature");
+  doc["unit_of_meas"] = F("°C");
   doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
   serializeJson(doc, buffer_value, sizeof(buffer_value));
   // Serial.println(buffer_value);
