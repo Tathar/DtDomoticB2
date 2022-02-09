@@ -8,7 +8,7 @@
 #define TO_C_STR(x) STRINGIFY(x)
 
 #define SAVE_EEPROM 600000 // sauvegarde des données dans l eeprom toute les x ms
-#define MQTT_REFRESH 10000 //temp de rafrechissement du MQTT
+#define MQTT_REFRESH 10000 // temp de rafrechissement du MQTT
 
 #define BOARD_MANUFACTURER "DOUET Touch Familly"
 #define BOARD_MODEL "DTBoard02"
@@ -18,13 +18,14 @@
 
 // input
 #define DEBOUNCE_TIME 50
-
-#define BUFFER_SIZE 65
-#define BUFFER_VALUE_SIZE 512
-
 // watchdog
 #define WATCHDOG_TIME WDTO_1S
 
+#define MQTT
+#ifdef MQTT
+//buffer
+#define BUFFER_SIZE 65
+#define BUFFER_VALUE_SIZE 512
 // network
 #define MAC1 0xDE
 #define MAC2 0xED
@@ -32,9 +33,7 @@
 #define MAC4 0xFE
 #define MAC5 0xFE
 #define MAC6 0xED
-
 //#define DHCP
-
 // ip address
 #define SOURCE_IP1 192
 #define SOURCE_IP2 168
@@ -55,12 +54,12 @@
 #define MASK2 255
 #define MASK3 255
 #define MASK4 0
-
+//MQTT Server
 #define MQTT_IP1 192
 #define MQTT_IP2 168
 #define MQTT_IP3 1
 #define MQTT_IP4 2
-
+//MQTT config
 #define MQTT_CLIENT_ID "Board1"
 #define MQTT_USER "dtboard"
 #define MQTT_PASSWORD "1MotdePasse"
@@ -69,11 +68,14 @@
 #define MQTT_WILL_QOS 1
 #define MQTT_WILL_RETAIN true
 #define MQTT_WILL_MESSAGE "offline"
-
+//Advance option
 #define NETWORK_RESET_TIME 20000 // temp avant reset de la carte reseau en qua d'imposibilité de se connecter (en miliseconde)
 #define MQTT_UPDATE 1000         // in ms
+#endif //MQTT
 
 // Poele
+#define POELE
+#ifdef POELE
 #define MIN_T4 0                     // en °C (fake NTC)
 #define POELE_MAX_TEMPERATURE 85     // en °C (consigne temperature Balon)
 #define TEMPERATURE_DEFAULT_POELE 85 // en °C (Temperature a la quelle le poele ce met en default)
@@ -86,9 +88,11 @@
 #define PT100_ECS2 5
 
 #define RELAY_EV1 1
+#endif //POELE
 
 // Vanne 3 Voies
-
+#define VANNES
+#ifdef VANNES
 #define TMP_EAU_PCBT_MAX 38 // valeur maximum de la consigne de temperature
 #define TMP_EAU_MCBT_MAX 60 // valeur maximum de la consigne de temperature
 #define DBMAC 0.5           // demi bamnde morte pour l'arret des circulateur (en °C)
@@ -120,13 +124,15 @@
 const float PT100_PLANCHEE[NUM_PLANCHE] PROGMEM = {PT100_PLANCHE_SALON, PT100_PLANCHE_CH_1, PT100_PLANCHE_CH_2, PT100_PLANCHE_SDB};
 const uint8_t RELAI_PLANCHE[NUM_PLANCHE] PROGMEM = {RELAIS_PLANCHE_SALON, RELAIS_PLANCHE_CH_1, RELAIS_PLANCHE_CH_2, RELAIS_PLANCHE_SDB};
 
+#endif //VANNES
+
 // Circulateur boucle d eau chaude
 #define CIRCULATEUR_ECS 12
 
-//EV2 ECS
+// EV2 ECS
 #define EV2_ECS 13
 
-//Demmarage Poele
+// Demmarage Poele
 #define MARCHE_POELE 14
 
 #endif

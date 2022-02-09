@@ -6,6 +6,7 @@
 #define add0x2(s) 0x##s
 #define toHEX(s) add0x2(s)
 
+#ifdef MQTT
 // float to str
 //  char *dtostrf(double val, signed char width, unsigned char prec, char *s);
 // str to float
@@ -44,6 +45,7 @@ bool DT_mqtt_send(const char *tag, const float value)
 
 bool DT_mqtt_send(const char *tag, const unsigned int value)
 {
+
     char buffer[32];
     sprintf(buffer, "%u", value);
     return mqtt.publish(tag, buffer, strlen(buffer));
@@ -139,7 +141,7 @@ void DT_mqtt_loop()
             //  if (mqtt.connect(clientId.c_str(), "DtBoard", "1MotdePasse"))
 
             wdt_reset();
-            if (mqtt.connect(MQTT_CLIENT_ID, MQTT_USER, MQTT_PASSWORD, MQTT_WILL_TOPIC, MQTT_WILL_QOS, MQTT_WILL_RETAIN,MQTT_WILL_MESSAGE))
+            if (mqtt.connect(MQTT_CLIENT_ID, MQTT_USER, MQTT_PASSWORD, MQTT_WILL_TOPIC, MQTT_WILL_QOS, MQTT_WILL_RETAIN, MQTT_WILL_MESSAGE))
             {
                 wdt_reset();
                 // Once connected, publish an announcement and resubscribe...
@@ -176,3 +178,5 @@ void DT_mqtt_loop()
         // delay(100);
     }
 }
+
+#endif //MQTT

@@ -20,8 +20,6 @@
 #include <config.h>
 
 StaticJsonDocument<256> doc;
-char buffer[BUFFER_SIZE];
-char buffer_value[BUFFER_VALUE_SIZE];
 
 // #include "Wire.h"
 // #include "DFRobot_CCS811.h"
@@ -31,10 +29,16 @@ char buffer_value[BUFFER_VALUE_SIZE];
 
 long int lastReconnectAttempt = 0;
 
+#ifdef MQTT
+
+char buffer[BUFFER_SIZE];
+char buffer_value[BUFFER_VALUE_SIZE];
+
 void homeassistant(void)
 {
-  //online
-  // strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/status"), BUFFER_SIZE);
+  JsonArray options;
+  // online
+  //  strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/status"), BUFFER_SIZE);
   wdt_reset();
   doc.clear();
   doc["~"] = F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER);
@@ -251,22 +255,7 @@ void homeassistant(void)
     DT_mqtt_send(buffer, buffer_value);
   }
 
-  // Fake NTC
-  // wdt_reset();
-  // doc.clear();
-  // doc["~"] = F("DtBoard/" BOARD_IDENTIFIER "/fake_NTC");
-  // doc["uniq_id"] = F(BOARD_IDENTIFIER "-fake_NTC");
-  // doc["name"] = F("NTC Poele");
-  // doc["stat_t"] = F("~/temperature");
-  // doc["command_topic"] = F("~/temperature_set");
-  // doc["dev_cla"] = F("temperature");
-  // doc["unit_of_meas"] = F("°C");
-  // doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
-
-  // serializeJson(doc, buffer_value, sizeof(buffer_value));
-  // strlcpy_P(buffer, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/fake_NTC/config"), BUFFER_SIZE);
-  // DT_mqtt_send(buffer, buffer_value);
-
+#ifdef POELE
   // Poele mode
   wdt_reset(); // clear watchdog
   doc.clear();
@@ -276,7 +265,7 @@ void homeassistant(void)
   doc["command_topic"] = F("~/set");
   doc["state_topic"] = F("~/state");
 
-  JsonArray options = doc.createNestedArray("options");
+  options = doc.createNestedArray("options");
   options.add("Arret");
   options.add("Normal");
   options.add("ECS");
@@ -288,91 +277,8 @@ void homeassistant(void)
   strlcpy_P(buffer, PSTR("homeassistant/select/" BOARD_IDENTIFIER "/poele-mode/config"), BUFFER_SIZE);
   DT_mqtt_send(buffer, buffer_value);
 
-  // 3 voies PCBT mode
-  wdt_reset(); // clear watchdog
-  doc.clear();
-  doc["~"] = F("DtBoard/" BOARD_IDENTIFIER "/pcbt/mode");
-  doc["uniq_id"] = F(BOARD_IDENTIFIER "-pcbt-mode");
-  doc["name"] = F("mode pcbt");
-  doc["command_topic"] = F("~/set");
-  doc["state_topic"] = F("~/state");
-
-  options = doc.createNestedArray("options");
-  options.add("Demmarage");
-  options.add("Normal");
-  options.add("Manuel");
-  options.add("Arret");
-
-  doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
-
-  serializeJson(doc, buffer_value, sizeof(buffer_value));
-  strlcpy_P(buffer, PSTR("homeassistant/select/" BOARD_IDENTIFIER "/pcbt-mode/config"), BUFFER_SIZE);
-  DT_mqtt_send(buffer, buffer_value);
-
-  // consigne vanne 3 voies PCBT
-  wdt_reset();
-  doc.clear();
-  doc["~"] = F("DtBoard/" BOARD_IDENTIFIER "/pcbt/C2");
-  doc["uniq_id"] = F(BOARD_IDENTIFIER "-C2");
-  doc["name"] = F("consigne PCBT (C2)");
-  doc["stat_t"] = F("~/state");
-  doc["command_topic"] = F("~/set");
-  doc["min"] = 0;
-  doc["max"] = TEMPERATURE_DEFAULT_POELE;
-  doc["step"] = 0.01;
-  doc["dev_cla"] = F("temperature");
-  doc["unit_of_meas"] = F("°C");
-  doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
-
-  serializeJson(doc, buffer_value, sizeof(buffer_value));
-  // Serial.println(buffer_value);
-  strlcpy_P(buffer, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/C2/config"), BUFFER_SIZE);
-  DT_mqtt_send(buffer, buffer_value);
-
-  // 3 voies MCBT mode
-  wdt_reset(); // clear watchdog
-  doc.clear();
-  doc["~"] = F("DtBoard/" BOARD_IDENTIFIER "/mcbt/mode");
-  doc["uniq_id"] = F(BOARD_IDENTIFIER "-mcbt-mode");
-  doc["name"] = F("mode mcbt");
-  doc["command_topic"] = F("~/set");
-  doc["state_topic"] = F("~/state");
-
-  options = doc.createNestedArray("options");
-  options.add("Demmarage");
-  options.add("Normal");
-  options.add("Manuel");
-  options.add("Arret");
-
-  doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
-
-  serializeJson(doc, buffer_value, sizeof(buffer_value));
-  strlcpy_P(buffer, PSTR("homeassistant/select/" BOARD_IDENTIFIER "/mcbt-mode/config"), BUFFER_SIZE);
-  DT_mqtt_send(buffer, buffer_value);
-
-  // consigne vanne 3 voies MCBT
-  wdt_reset();
-  doc.clear();
-  doc["~"] = F("DtBoard/" BOARD_IDENTIFIER "/mcbt/C3");
-  doc["uniq_id"] = F(BOARD_IDENTIFIER "-C3");
-  doc["name"] = F("consigne MCBT (C3)");
-  doc["stat_t"] = F("~/state");
-  doc["command_topic"] = F("~/set");
-  doc["min"] = 0;
-  doc["max"] = TEMPERATURE_DEFAULT_POELE;
-  doc["step"] = 0.01;
-  doc["dev_cla"] = F("temperature");
-  doc["unit_of_meas"] = F("°C");
-
-  doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
-
-  serializeJson(doc, buffer_value, sizeof(buffer_value));
-  // Serial.println(buffer_value);
-  strlcpy_P(buffer, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/C3/config"), BUFFER_SIZE);
-  DT_mqtt_send(buffer, buffer_value);
-
   // EEPROM
-  //  V1
+  //  V1 consigne poêle en mode force (70°C)
   wdt_reset();
   doc.clear();
   doc["~"] = F("DtBoard/" BOARD_IDENTIFIER "/V1");
@@ -390,43 +296,25 @@ void homeassistant(void)
   strlcpy_P(buffer, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/V1/config"), BUFFER_SIZE);
   DT_mqtt_send(buffer, buffer_value);
 
-  // V2
+  // C7
   wdt_reset();
   doc.clear();
-  doc["~"] = F("DtBoard/" BOARD_IDENTIFIER "/V2");
-  doc["uniq_id"] = F(BOARD_IDENTIFIER "-V2");
-  doc["name"] = F("Reserve chaleur Ballon (V2)");
+  doc["~"] = F("DtBoard/" BOARD_IDENTIFIER "/C7");
+  doc["uniq_id"] = F(BOARD_IDENTIFIER "-C7");
+  doc["name"] = F("Band morte Poele  (C7)");
   doc["stat_t"] = F("~/state");
   doc["command_topic"] = F("~/set");
   doc["dev_cla"] = F("temperature");
   doc["unit_of_meas"] = F("°C");
-  doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
-
-  serializeJson(doc, buffer_value, sizeof(buffer_value));
-  // Serial.println(buffer_value);
-  strlcpy_P(buffer, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/V2/config"), BUFFER_SIZE);
-  DT_mqtt_send(buffer, buffer_value);
-
-  // V3
-  wdt_reset();
-  doc.clear();
-  doc["~"] = F("DtBoard/" BOARD_IDENTIFIER "/V3");
-  doc["uniq_id"] = F(BOARD_IDENTIFIER "-V3");
-  doc["name"] = F("Temp Demi plage Morte (V3)");
-  doc["stat_t"] = F("~/state");
-  doc["command_topic"] = F("~/set");
-  doc["min"] = 0;
+  doc["min"] = -100;
   doc["max"] = 100;
-  doc["step"] = 0.01;
-  doc["dev_cla"] = F("temperature");
-  doc["unit_of_meas"] = F("°C");
+  doc["step"] = 1;
   doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
 
   serializeJson(doc, buffer_value, sizeof(buffer_value));
   // Serial.println(buffer_value);
-  strlcpy_P(buffer, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/V3/config"), BUFFER_SIZE);
+  strlcpy_P(buffer, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/C7/config"), BUFFER_SIZE);
   DT_mqtt_send(buffer, buffer_value);
-
   // C4
   wdt_reset();
   doc.clear();
@@ -478,26 +366,91 @@ void homeassistant(void)
   strlcpy_P(buffer, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/C6/config"), BUFFER_SIZE);
   DT_mqtt_send(buffer, buffer_value);
 
-  // C7
+#endif // POELE
+
+#ifdef VANNES
+  // 3 voies PCBT mode
+  wdt_reset(); // clear watchdog
+  doc.clear();
+  doc["~"] = F("DtBoard/" BOARD_IDENTIFIER "/pcbt/mode");
+  doc["uniq_id"] = F(BOARD_IDENTIFIER "-pcbt-mode");
+  doc["name"] = F("mode pcbt");
+  doc["command_topic"] = F("~/set");
+  doc["state_topic"] = F("~/state");
+
+  options = doc.createNestedArray("options");
+  options.add("Demmarage");
+  options.add("Normal");
+  options.add("Manuel");
+  options.add("Arret");
+
+  doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
+
+  serializeJson(doc, buffer_value, sizeof(buffer_value));
+  strlcpy_P(buffer, PSTR("homeassistant/select/" BOARD_IDENTIFIER "/pcbt-mode/config"), BUFFER_SIZE);
+  DT_mqtt_send(buffer, buffer_value);
+
+  // consigne vanne 3 voies PCBT
   wdt_reset();
   doc.clear();
-  doc["~"] = F("DtBoard/" BOARD_IDENTIFIER "/C7");
-  doc["uniq_id"] = F(BOARD_IDENTIFIER "-C7");
-  doc["name"] = F("Band morte Poele  (C7)");
+  doc["~"] = F("DtBoard/" BOARD_IDENTIFIER "/pcbt/C2");
+  doc["uniq_id"] = F(BOARD_IDENTIFIER "-C2");
+  doc["name"] = F("consigne PCBT (C2)");
   doc["stat_t"] = F("~/state");
   doc["command_topic"] = F("~/set");
+  doc["min"] = 0;
+  doc["max"] = TMP_EAU_PCBT_MAX;
+  doc["step"] = 0.01;
   doc["dev_cla"] = F("temperature");
   doc["unit_of_meas"] = F("°C");
-  doc["min"] = -100;
-  doc["max"] = 100;
-  doc["step"] = 1;
   doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
 
   serializeJson(doc, buffer_value, sizeof(buffer_value));
   // Serial.println(buffer_value);
-  strlcpy_P(buffer, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/C7/config"), BUFFER_SIZE);
+  strlcpy_P(buffer, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/C2/config"), BUFFER_SIZE);
   DT_mqtt_send(buffer, buffer_value);
 
+  // 3 voies MCBT mode
+  wdt_reset(); // clear watchdog
+  doc.clear();
+  doc["~"] = F("DtBoard/" BOARD_IDENTIFIER "/mcbt/mode");
+  doc["uniq_id"] = F(BOARD_IDENTIFIER "-mcbt-mode");
+  doc["name"] = F("mode mcbt");
+  doc["command_topic"] = F("~/set");
+  doc["state_topic"] = F("~/state");
+
+  options = doc.createNestedArray("options");
+  options.add("Demmarage");
+  options.add("Normal");
+  options.add("Manuel");
+  options.add("Arret");
+
+  doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
+
+  serializeJson(doc, buffer_value, sizeof(buffer_value));
+  strlcpy_P(buffer, PSTR("homeassistant/select/" BOARD_IDENTIFIER "/mcbt-mode/config"), BUFFER_SIZE);
+  DT_mqtt_send(buffer, buffer_value);
+
+  // consigne vanne 3 voies MCBT
+  wdt_reset();
+  doc.clear();
+  doc["~"] = F("DtBoard/" BOARD_IDENTIFIER "/mcbt/C3");
+  doc["uniq_id"] = F(BOARD_IDENTIFIER "-C3");
+  doc["name"] = F("consigne MCBT (C3)");
+  doc["stat_t"] = F("~/state");
+  doc["command_topic"] = F("~/set");
+  doc["min"] = 0;
+  doc["max"] = TMP_EAU_MCBT_MAX;
+  doc["step"] = 0.01;
+  doc["dev_cla"] = F("temperature");
+  doc["unit_of_meas"] = F("°C");
+
+  doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
+
+  serializeJson(doc, buffer_value, sizeof(buffer_value));
+  // Serial.println(buffer_value);
+  strlcpy_P(buffer, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/C3/config"), BUFFER_SIZE);
+  DT_mqtt_send(buffer, buffer_value);
   // C8
   wdt_reset();
   doc.clear();
@@ -1167,7 +1120,6 @@ void homeassistant(void)
   strlcpy_P(buffer, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/offset-pcbt-in/config"), BUFFER_SIZE);
   DT_mqtt_send(buffer, buffer_value);
 
-
   // Offset MCBT IN
   wdt_reset();
   doc.clear();
@@ -1185,6 +1137,45 @@ void homeassistant(void)
   serializeJson(doc, buffer_value, sizeof(buffer_value));
   // Serial.println(buffer_value);
   strlcpy_P(buffer, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/offset-mcbt-in/config"), BUFFER_SIZE);
+  DT_mqtt_send(buffer, buffer_value);
+
+#endif // POELE
+
+  // V2
+  wdt_reset();
+  doc.clear();
+  doc["~"] = F("DtBoard/" BOARD_IDENTIFIER "/V2");
+  doc["uniq_id"] = F(BOARD_IDENTIFIER "-V2");
+  doc["name"] = F("Reserve chaleur Ballon (V2)");
+  doc["stat_t"] = F("~/state");
+  doc["command_topic"] = F("~/set");
+  doc["dev_cla"] = F("temperature");
+  doc["unit_of_meas"] = F("°C");
+  doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
+
+  serializeJson(doc, buffer_value, sizeof(buffer_value));
+  // Serial.println(buffer_value);
+  strlcpy_P(buffer, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/V2/config"), BUFFER_SIZE);
+  DT_mqtt_send(buffer, buffer_value);
+
+  // V3
+  wdt_reset();
+  doc.clear();
+  doc["~"] = F("DtBoard/" BOARD_IDENTIFIER "/V3");
+  doc["uniq_id"] = F(BOARD_IDENTIFIER "-V3");
+  doc["name"] = F("Temp Demi plage Morte (V3)");
+  doc["stat_t"] = F("~/state");
+  doc["command_topic"] = F("~/set");
+  doc["min"] = 0;
+  doc["max"] = 100;
+  doc["step"] = 0.01;
+  doc["dev_cla"] = F("temperature");
+  doc["unit_of_meas"] = F("°C");
+  doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
+
+  serializeJson(doc, buffer_value, sizeof(buffer_value));
+  // Serial.println(buffer_value);
+  strlcpy_P(buffer, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/V3/config"), BUFFER_SIZE);
   DT_mqtt_send(buffer, buffer_value);
 
   // load 1s
@@ -1341,6 +1332,7 @@ void ccs811_callback_cov(const uint8_t num, const float cov)
   }
 }
 
+#ifdef POELE
 void poele_mode_callback(const DT_Poele_mode mode)
 {
   // mode poele
@@ -1362,7 +1354,9 @@ void poele_mode_callback(const DT_Poele_mode mode)
     break;
   }
 }
+#endif // POELE
 
+#ifdef VANNES
 void dt3voies_callback(const float C2, const float C3)
 {
 
@@ -1475,6 +1469,7 @@ void dt3voies_callback_pid_mcbt(const float P, const float I, const float D, con
     DT_mqtt_send(buffer, buffer_value);
   }
 }
+#endif // VANNES
 
 void mqtt_publish()
 {
@@ -1502,15 +1497,29 @@ void mqtt_publish()
     pt100_callback(num + 1, DT_pt100_get(num + 1));
   }
 
-  // Fake NTC
-  // wdt_reset();
-  // strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/fake_NTC/temperature"), BUFFER_SIZE);
-  // DT_mqtt_send(buffer, DT_fake_ntc_get());
-
+#ifdef POELE
   // mode poele
   wdt_reset();
   poele_mode_callback(DT_Poele_get_mode());
 
+  // EEPROM
+  //  V1
+  wdt_reset();
+  strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/V1/state"), BUFFER_SIZE);
+  DT_mqtt_send(buffer, eeprom_config.V1);
+
+  // V2
+  wdt_reset();
+  strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/V2/state"), BUFFER_SIZE);
+  DT_mqtt_send(buffer, eeprom_config.V2);
+
+  // V3
+  wdt_reset();
+  strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/V3/state"), BUFFER_SIZE);
+  DT_mqtt_send(buffer, eeprom_config.V3);
+#endif // POELE
+
+#ifdef VANNES
   // 3 voies PCBT mode
   wdt_reset();
   strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/pcbt/mode/state"), BUFFER_SIZE);
@@ -1551,22 +1560,6 @@ void mqtt_publish()
 
   // consigne vanne 3 voies PCBT & MCBT
   dt3voies_callback(DT_3voies_get_C2(), DT_3voies_get_C3());
-
-  // EEPROM
-  //  V1
-  wdt_reset();
-  strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/V1/state"), BUFFER_SIZE);
-  DT_mqtt_send(buffer, eeprom_config.V1);
-
-  // V2
-  wdt_reset();
-  strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/V2/state"), BUFFER_SIZE);
-  DT_mqtt_send(buffer, eeprom_config.V2);
-
-  // V3
-  wdt_reset();
-  strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/V3/state"), BUFFER_SIZE);
-  DT_mqtt_send(buffer, eeprom_config.V3);
 
   // C4
   wdt_reset();
@@ -1812,8 +1805,9 @@ void mqtt_publish()
   wdt_reset();
   strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/mcbt/offset-in/state"), BUFFER_SIZE);
   DT_mqtt_send(buffer, eeprom_config.in_offset_MCBT);
+#endif
 
-  //ONLINE
+  // ONLINE
   wdt_reset();
   strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/status"), BUFFER_SIZE);
   DT_mqtt_send(buffer, "online");
@@ -1834,23 +1828,30 @@ void mqtt_subscribe(PubSubClient &mqtt)
     mqtt.subscribe(buffer);
   }
 
-  // fake_NTC
-  // mqtt.subscribe("DtBoard/" BOARD_IDENTIFIER "/fake_NTC/temperature_set");
+#ifdef POELE
   // Poele
   mqtt.subscribe("DtBoard/" BOARD_IDENTIFIER "/poele/mode/set");
   // 3 voies PCBT mode
   mqtt.subscribe("DtBoard/" BOARD_IDENTIFIER "/mcbt/mode/set");
   // 3 voies PCBT consigne
+#endif // POELE
+
   mqtt.subscribe("DtBoard/" BOARD_IDENTIFIER "/pcbt/C2/set");
   // 3 voies MCBT mode
   mqtt.subscribe("DtBoard/" BOARD_IDENTIFIER "/pcbt/mode/set");
   // 3 voies MCBT consigne
   mqtt.subscribe("DtBoard/" BOARD_IDENTIFIER "/mcbt/C3/set");
 
+#ifdef POELE
   // EEPROM
   //  V1
   wdt_reset();
   mqtt.subscribe("DtBoard/" BOARD_IDENTIFIER "/V1/set");
+
+  // C7
+  wdt_reset();
+  mqtt.subscribe("DtBoard/" BOARD_IDENTIFIER "/C7/set");
+#endif // POELE
 
   // V2
   wdt_reset();
@@ -1871,10 +1872,6 @@ void mqtt_subscribe(PubSubClient &mqtt)
   // C6
   wdt_reset();
   mqtt.subscribe("DtBoard/" BOARD_IDENTIFIER "/C6/set");
-
-  // C7
-  wdt_reset();
-  mqtt.subscribe("DtBoard/" BOARD_IDENTIFIER "/C7/set");
 
   // C8
   wdt_reset();
@@ -1969,9 +1966,8 @@ void mqtt_subscribe(PubSubClient &mqtt)
   mqtt.subscribe("DtBoard/" BOARD_IDENTIFIER "/pcbt/offset-in/set");
   mqtt.subscribe("DtBoard/" BOARD_IDENTIFIER "/mcbt/offset-in/set");
 
-  //HomeAssistant
+  // HomeAssistant
   mqtt.subscribe("homeassistant/status");
-
 
   homeassistant();
   mqtt_publish();
@@ -2006,14 +2002,7 @@ void mqtt_receve(char *topic, uint8_t *payload, unsigned int length)
     else if (strcmp(buffer, "OFF") == 0)
       DT_relay(num, false);
   }
-  // else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/fake_NTC/temperature_set") == 0) // Fake NTC
-  // {
-  //   uint8_t temperature = 0;
-  //   if (sscanf_P(buffer, PSTR("%" SCNu8), &temperature) == 1)
-  //   {
-  //     DT_fake_ntc_set(temperature);
-  //   }
-  // }
+#ifdef POELE
   else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/poele/mode/set") == 0) // Mode du Poele
   {
     if (strcmp(buffer, "Arret") == 0)
@@ -2032,7 +2021,29 @@ void mqtt_receve(char *topic, uint8_t *payload, unsigned int length)
     {
       DT_Poele_set_mode(DT_POELE_FORCE);
     }
+  }                                                                   // identifiers  // EEPROM
+  else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/V1/set") == 0) // V1
+  {
+    if (sscanf_P(buffer, PSTR("%" SCNu8), &u8t_value) == 1)
+    {
+      eeprom_config.V1 = u8t_value;
+      strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/V1/state"), BUFFER_SIZE);
+      DT_mqtt_send(buffer, u8t_value);
+      sauvegardeEEPROM();
+    }
   }
+  else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/V2/set") == 0) // V2
+  {
+    if (sscanf_P(buffer, PSTR("%" SCNu8), &u8t_value) == 1)
+    {
+      eeprom_config.V2 = u8t_value;
+      strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/V2/state"), BUFFER_SIZE);
+      DT_mqtt_send(buffer, u8t_value);
+      sauvegardeEEPROM();
+    }
+  }
+#endif // Poele
+#ifdef VANNES
   else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/pcbt/mode/set") == 0) // Mode de la vannes 3 voie PCBT
   {
 
@@ -2102,26 +2113,6 @@ void mqtt_receve(char *topic, uint8_t *payload, unsigned int length)
     if (!error)
     {
       DT_3voies_set_C3(doc.as<float>());
-    }
-  }                                                                   // identifiers  // EEPROM
-  else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/V1/set") == 0) // V1
-  {
-    if (sscanf_P(buffer, PSTR("%" SCNu8), &u8t_value) == 1)
-    {
-      eeprom_config.V1 = u8t_value;
-      strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/V1/state"), BUFFER_SIZE);
-      DT_mqtt_send(buffer, u8t_value);
-      sauvegardeEEPROM();
-    }
-  }
-  else if (strcmp(topic, "DtBoard/" BOARD_IDENTIFIER "/V2/set") == 0) // V2
-  {
-    if (sscanf_P(buffer, PSTR("%" SCNu8), &u8t_value) == 1)
-    {
-      eeprom_config.V2 = u8t_value;
-      strlcpy_P(buffer, PSTR("DtBoard/" BOARD_IDENTIFIER "/V2/state"), BUFFER_SIZE);
-      DT_mqtt_send(buffer, u8t_value);
-      sauvegardeEEPROM();
     }
   }
   else if (strcmp_P(topic, PSTR("DtBoard/" BOARD_IDENTIFIER "/V3/set")) == 0) // V3
@@ -2558,6 +2549,7 @@ void mqtt_receve(char *topic, uint8_t *payload, unsigned int length)
       sauvegardeEEPROM();
     }
   }
+#endif                                                 // VANNES
   else if (strcmp(topic, "homeassistant/status") == 0) // Home Assistant Online / Offline
   {
     if (strcmp(buffer, "online") == 0)
@@ -2572,6 +2564,7 @@ void mqtt_receve(char *topic, uint8_t *payload, unsigned int length)
     }
   }
 }
+#endif // MQTT
 
 void setup()
 {
@@ -2583,48 +2576,67 @@ void setup()
   // auto Serial.println("Load eeprom");
   chargeEEPROM();
 
+#ifdef MQTT
   // auto Serial.println("starting mqtt");
   DT_mqtt_init();
   DT_mqtt_set_subscribe_callback(mqtt_subscribe);
   DT_mqtt_set_receve_callback(mqtt_receve);
+#endif // MQTT
 
   // auto Serial.println("starting relay");
   DT_relay_init();
+#ifdef MQTT
   DT_relay_set_callback(relay_callback);
 
+#endif // MQTT
   // auto Serial.println("starting input");
   DT_input_init();
+#ifdef MQTT
   DT_input_set_callback(input_callback);
+#endif // MQTT
 
   // auto Serial.println("starting PT100");
   DT_pt100_init();
+#ifdef MQTT
   DT_pt100_set_callback(pt100_callback);
+#endif // MQTT
 
   // auto Serial.println("starting BME280");
   DT_BME280_init();
+#ifdef MQTT
   DT_BME280_set_callback_temperature(bme280_callback_temperature);
   DT_BME280_set_callback_humidity(bme280_callback_humidity);
   DT_BME280_set_callback_pressure(bme280_callback_pressure);
+#endif // MQTT
 
   // auto Serial.println("starting BCCS811");
   DT_CCS811_init();
+#ifdef MQTT
   DT_CCS811_set_callback_co2(ccs811_callback_co2);
   DT_CCS811_set_callback_cov(ccs811_callback_cov);
+#endif // MQTT
 
-  // auto Serial.println("starting fake_NTC");
-  // DT_fake_ntc_init();
-  // DT_fake_ntc_callback(fake_ntc_callback);
+// auto Serial.println("starting fake_NTC");
+// DT_fake_ntc_init();
+// DT_fake_ntc_callback(fake_ntc_callback);
 
-  // auto Serial.println("starting Poele");
+// auto Serial.println("starting Poele");
+#ifdef POELE
   DT_Poele_init();
+#ifdef MQTT
   DT_Poele_set_mode_callback(poele_mode_callback);
+#endif // MQTT
+#endif // POELE
 
   // auto Serial.println("starting 3 voies");
+#ifdef VANNES
   DT_3voies_init();
+#ifdef MQTT
   DT_3voies_set_callback(dt3voies_callback);
   DT_3voies_pcbt_set_callback_pid(dt3voies_callback_pid_pcbt);
   DT_3voies_mcbt_set_callback_pid(dt3voies_callback_pid_mcbt);
-
+#endif // MQTT
+#endif // VANNE
   // client.setServer(server, 1883);
   // client.setCallback(callback);
 
@@ -2659,14 +2671,20 @@ void loop()
 
   wdt_reset();
 
+#ifdef MQTT
   DT_mqtt_loop();
+#endif
   DT_relay_loop();
   DT_input_loop();
   DT_BME280_loop();
   DT_CCS811_loop();
   DT_pt100_loop();
+#ifdef POELE
   DT_Poele_loop();
+#endif
+#ifdef VANNES
   DT_3voies_loop();
+#endif
   //  DT_fake_ntc_loop();
 
   // adjust CCS811
@@ -2706,6 +2724,7 @@ void loop()
     }*/
   }
 
+#ifdef MQTT
   static uint32_t heartbeat_time = 0;
   static bool heartbeat_status = false;
   if (now - heartbeat_time > 1000) // Backup data in eeprom
@@ -2771,4 +2790,5 @@ void loop()
     if (load_10s_num == 6)
       load_10s_num = 0;
   }
+#endif // MQTT
 }

@@ -52,6 +52,7 @@ void DT_relay(uint8_t num, bool state)
 
     bool old_state = DT_relay_get(num);
 
+#ifdef VANNES
     //interverouillage
     if (num == VANNE_PCBT_HOT && state == true && DT_relay_get(VANNE_PCBT_COLD) == true)
     {
@@ -69,6 +70,7 @@ void DT_relay(uint8_t num, bool state)
     {
         return;
     }
+#endif //VANNES
 
     if (pin >= 100)
     {

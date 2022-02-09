@@ -11,8 +11,8 @@ void sauvegardeEEPROM()
 {
         Serial.println("Save on EEPROM");
         // Met à jour le nombre magic et le numéro de version avant l'écriture
-        //eeprom_config.magic = STRUCT_MAGIC;
-        //eeprom_config.struct_version = STRUCT_VERSION;
+        // eeprom_config.magic = STRUCT_MAGIC;
+        // eeprom_config.struct_version = STRUCT_VERSION;
         EEPROM.put(0, eeprom_config);
 }
 
@@ -43,12 +43,13 @@ void chargeEEPROM()
                 eeprom_config.mode_3voies_PCBT = DT_3VOIES_OFF;
                 eeprom_config.mode_3voies_MCBT = DT_3VOIES_OFF;
 
-                eeprom_config.V1 = 70;                       // consigne poêle en mode force (70°C)
-                eeprom_config.V2 = 20;                       // Variable Reserve chaleur Ballon (20°C)
-                eeprom_config.V3 = 0;                        // Variable Temp Demi plage Morte
-                eeprom_config.C4 = 80;                       // consigne Jacuzzi
-                eeprom_config.C5 = 60;                       // consigne ECS1 & ECS2
-                eeprom_config.C7 = 90;                       // Valeur renvoyer au poele pour le mode silance (Fake NTC)
+                eeprom_config.V1 = 70; // consigne poêle en mode force (70°C)
+                eeprom_config.V2 = 20; // Variable Reserve chaleur Ballon (20°C)
+                eeprom_config.V3 = 0;  // Variable Temp Demi plage Morte
+                eeprom_config.C4 = 80; // consigne Jacuzzi
+                eeprom_config.C5 = 60; // consigne ECS1 & ECS2
+                eeprom_config.C7 = 90; // Valeur renvoyer au poele pour le mode silance (Fake NTC)
+#ifdef VANNES
                 eeprom_config.C8 = 35;                       // consigne Temp PCBT a -10°C
                 eeprom_config.C9 = 20;                       // consigne Temp PCBT a +10°C
                 eeprom_config.C10 = 50;                      // consigne Temp MCBT a -10°C
@@ -57,6 +58,7 @@ void chargeEEPROM()
                 eeprom_config.C_PCBT_MAX = TMP_EAU_PCBT_MAX; // consigne Temp PCBT maximum
                 eeprom_config.C_MCBT_MIN = 25;               // consigne Temp MCBT minimum
                 eeprom_config.C_MCBT_MAX = TMP_EAU_MCBT_MAX; // consigne Temp MCBT maximum
+#endif                                                       // VANNES
         }
 
         // Valeurs par défaut struct_version == 2
@@ -102,7 +104,7 @@ void chargeEEPROM()
                 need_save = true;
                 Serial.println("EEPROM version < 4");
                 eeprom_config.struct_version = 4;
-                
+
                 eeprom_config.out_offset_PCBT = 0;
                 eeprom_config.out_offset_MCBT = 0;
         }
@@ -113,12 +115,10 @@ void chargeEEPROM()
                 need_save = true;
                 Serial.println("EEPROM version < 5");
                 eeprom_config.struct_version = 5;
-                
+
                 eeprom_config.in_offset_PCBT = 0;
                 eeprom_config.in_offset_MCBT = 0;
         }
-
-        
 
         // Sauvegarde les nouvelles données
         if (need_save)

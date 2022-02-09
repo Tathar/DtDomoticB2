@@ -8,7 +8,7 @@
 #include <DT_eeprom.h>
 
 #include <config.h>
-
+#ifdef POELE
 void (*poele_mode_callback)(const DT_Poele_mode mode);
 void (*poele_C1_callback)(const uint8_t C1);
 // void (*poele_T4_callback)(const float t4);
@@ -228,3 +228,5 @@ void DT_Poele_set_mode_callback(void (*callback)(const DT_Poele_mode mode))
 {
     poele_mode_callback = callback;
 }
+
+#endif //POELE
