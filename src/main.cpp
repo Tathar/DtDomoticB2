@@ -52,7 +52,7 @@ void homeassistant(void)
   doc["dev"]["mf"] = F(BOARD_MANUFACTURER); // manufacturer
   doc["dev"]["mdl"] = F(BOARD_MODEL);       // model
   doc["dev"]["name"] = F(BOARD_NAME);       // name
-  doc["dev"]["sw"] = F(BOARD_SW_VERSION);   // software version
+  doc["dev"]["sw"] = F(BOARD_SW_VERSION_PRINT);   //  software version
   serializeJson(doc, buffer_value, sizeof(buffer_value));
   // Serial.println(buffer_value);
   strlcpy_P(buffer, PSTR("homeassistant/sensor/" BOARD_IDENTIFIER "/status/config"), BUFFER_SIZE);
@@ -69,7 +69,7 @@ void homeassistant(void)
   // doc["dev"]["mf"] = F(BOARD_MANUFACTURER); // manufacturer
   // doc["dev"]["mdl"] = F(BOARD_MODEL);       // model
   // doc["dev"]["name"] = F(BOARD_NAME);       // name
-  // doc["dev"]["sw"] = F(BOARD_SW_VERSION);   // software version
+  // doc["dev"]["sw"] = F(BOARD_SW_VERSION_PRINT);   // software version
   serializeJson(doc, buffer_value, sizeof(buffer_value));
   // Serial.println(buffer_value);
   strlcpy_P(buffer, PSTR("homeassistant/sensor/" BOARD_IDENTIFIER "/heartbeat/config"), BUFFER_SIZE);
@@ -2571,7 +2571,7 @@ void setup()
   // Serial.begin(9600);
   Serial.begin(57600);
 
-  // auto Serial.println("starting board version " BOARD_SW_VERSION);
+  // auto Serial.println("starting board version " BOARD_SW_VERSION_PRINT);
 
   // auto Serial.println("Load eeprom");
   chargeEEPROM();
@@ -2663,6 +2663,8 @@ void setup()
 
   wdt_enable(WATCHDOG_TIME);
   Serial.println("Board started");
+  Serial.print("version: ");
+  Serial.println(F(BOARD_SW_VERSION_PRINT));
 }
 
 void loop()

@@ -13,8 +13,15 @@
 #define BOARD_MANUFACTURER "DOUET Touch Familly"
 #define BOARD_MODEL "DTBoard02"
 #define BOARD_NAME "Chauffage"
-#define BOARD_SW_VERSION "0.1"
+#define BOARD_SW_VERSION "0.2"
 #define BOARD_IDENTIFIER "DTB02-001"
+
+
+#ifdef __GIT_HASH__
+#define BOARD_SW_VERSION_PRINT BOARD_SW_VERSION " (" __GIT_HASH__ ")"
+#else
+#define BOARD_SW_VERSION_PRINT BOARD_SW_VERSION
+#endif
 
 // input
 #define DEBOUNCE_TIME 50
