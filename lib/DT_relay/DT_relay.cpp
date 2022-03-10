@@ -2,37 +2,24 @@
 #include "Arduino.h"
 #include <Adafruit_MCP23X08.h>
 #include <config.h>
+#include <DT_mcp.h>
 
 uint32_t num_delay[RELAY_NUM];
 void (*_callback)(const uint8_t num, const bool action);
-Adafruit_MCP23X08 mcp[2];
 
 void DT_relay_init()
 {
-    uint8_t i2c = 0;
     _callback = NULL;
-
-    for (uint8_t mcp_num = 0; mcp_num < 2; ++mcp_num)
-    {
-        i2c = pgm_read_byte(MCP_ADDRESS + mcp_num);
-        if (!mcp[mcp_num].begin_I2C(i2c))
-        {
-            {
-               //auto Serial.println("MCP23008 Init Error.");
-            }
-        }
-    }
 
     for (uint8_t num = 0; num < RELAY_NUM; ++num)
     {
-
         uint8_t pin = pgm_read_byte(RELAY_ARRAY + num);
 
         if (pin >= 100)
         {
-            pin -= 100;
-            i2c = pin / 10;
-            pin %= 10;
+            uint8_t i2c = pin / 100;
+            pin -= i2c * 100;
+            i2c -= 1;
             mcp[i2c].pinMode(pin, OUTPUT);
         }
         else
@@ -53,7 +40,7 @@ void DT_relay(uint8_t num, bool state)
     bool old_state = DT_relay_get(num);
 
 #ifdef VANNES
-    //interverouillage
+    // interverouillage
     if (num == VANNE_PCBT_HOT && state == true && DT_relay_get(VANNE_PCBT_COLD) == true)
     {
         return;
@@ -70,13 +57,13 @@ void DT_relay(uint8_t num, bool state)
     {
         return;
     }
-#endif //VANNES
+#endif // VANNES
 
     if (pin >= 100)
     {
-        pin -= 100;
-        uint8_t i2c = pin / 10;
-        pin %= 10;
+        uint8_t i2c = pin / 100;
+        pin -= i2c * 100;
+        i2c -= 1;
         if ((state && !revert) || (!state && revert))
         {
             mcp[i2c].digitalWrite(pin, HIGH);

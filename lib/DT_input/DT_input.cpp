@@ -4,6 +4,8 @@
 #include <pinout.h>
 #include <config.h>
 
+#include <DT_mcp.h>
+
 uint32_t debounce_start_time[INPUT_NUM];
 uint8_t old_pin_stats[INPUT_NUM];
 
@@ -15,8 +17,19 @@ void DT_input_init()
 
     for (uint8_t num = 0; num < INPUT_NUM; ++num)
     {
-        uint8_t pin = pgm_read_byte(INPUT_ARRAY + num);
-        pinMode(pin, INPUT);
+        uint16_t pin = pgm_read_byte(INPUT_ARRAY + num);
+        if (pin >= 100)
+        {
+            uint8_t i2c = pin / 100;
+            pin -= i2c * 100;
+            i2c -= 1;
+            mcp[i2c].pinMode(pin, OUTPUT);
+        }
+        else
+        {
+
+            pinMode(pin, INPUT);
+        }
     }
 }
 
@@ -31,12 +44,25 @@ void DT_input_loop()
 
     for (uint8_t num = 0; num < INPUT_NUM; ++num)
     {
-        uint8_t pin = pgm_read_byte(INPUT_ARRAY + num);
+        uint16_t pin = pgm_read_byte(INPUT_ARRAY + num);
         bool revert = pgm_read_byte(INPUT_REVERT + num);
 
         ////auto Serial.println(pin);
         ////auto Serial.println(revert);
-        uint8_t pin_stats = digitalRead(pin);
+        uint8_t pin_stats;
+
+        if (pin >= 100)
+        {
+            // Serial.println(F("MCP2308 input not implemented"));
+            uint8_t i2c = pin / 100;
+            pin -= i2c * 100;
+            i2c -= 1;
+            pin_stats = mcp[i2c].digitalRead(pin);
+        }
+        else
+        {
+            pin_stats = digitalRead(pin);
+        }
 
         if (revert)
             pin_stats = !pin_stats;
