@@ -17,7 +17,7 @@ void DT_input_init()
 
     for (uint8_t num = 0; num < INPUT_NUM; ++num)
     {
-        uint16_t pin = pgm_read_byte(INPUT_ARRAY + num);
+        uint16_t pin = pgm_read_word(INPUT_ARRAY + num);
         if (pin >= 100)
         {
             uint8_t i2c = pin / 100;
@@ -44,7 +44,7 @@ void DT_input_loop()
 
     for (uint8_t num = 0; num < INPUT_NUM; ++num)
     {
-        uint16_t pin = pgm_read_byte(INPUT_ARRAY + num);
+        uint16_t pin = pgm_read_word(INPUT_ARRAY + num);
         bool revert = pgm_read_byte(INPUT_REVERT + num);
 
         ////auto Serial.println(pin);

@@ -15,7 +15,7 @@
 // Update these with values suitable for your hardware/network.
 IPAddress server(MQTT_IP1, MQTT_IP2, MQTT_IP3, MQTT_IP4);
 EthernetClient ethClient;
-PubSubClient mqtt(ethClient);
+PubSubClient mqtt;
 
 void (*_mqtt_update)(PubSubClient &mqtt);
 void (*_mqtt_subscribe)(PubSubClient &mqtt);
@@ -73,17 +73,58 @@ bool DT_mqtt_send(const char *tag, const char *value)
 void init_ethernet()
 {
     Ethernet.init(NETWORK_CS);
+    byte mac[] = {MAC1, MAC2, MAC3, MAC4, MAC5, MAC6};
 #ifdef DHCP
     Ethernet.begin(mac, 5000);
 #else
-    byte mac[] = {MAC1, MAC2, MAC3, MAC4, MAC5, MAC6};
     IPAddress ip(SOURCE_IP1, SOURCE_IP2, SOURCE_IP3, SOURCE_IP4);
     IPAddress dns(DNS1, DNS2, DNS3, DNS4);
     IPAddress gateway(GW1, GW2, GW3, GW4);
     IPAddress mask(MASK1, MASK2, MASK3, MASK4);
     Ethernet.begin(mac, ip, dns, gateway, mask);
 #endif
-    // delay(1500);
+
+    while (Ethernet.linkStatus() == LinkOFF)
+    {
+        delay(10);
+    }
+
+    if (Ethernet.hardwareStatus() == EthernetNoHardware)
+    {
+        Serial.println(F("Ethernet shield was not found."));
+    }
+    else if (Ethernet.hardwareStatus() == EthernetW5100)
+    {
+        Serial.println(F("W5100 Ethernet controller detected."));
+    }
+    else if (Ethernet.hardwareStatus() == EthernetW5200)
+    {
+        Serial.println(F("W5200 Ethernet controller detected."));
+    }
+    else if (Ethernet.hardwareStatus() == EthernetW5500)
+    {
+        Serial.println(F("W5500 Ethernet controller detected."));
+    }
+
+    if (Ethernet.linkStatus() == Unknown)
+    {
+        Serial.println(F("Link status unknown. Link status detection is only available with W5200 and W5500."));
+    }
+    else if (Ethernet.linkStatus() == LinkON)
+    {
+        Serial.println(F("Link status: On"));
+    }
+    else if (Ethernet.linkStatus() == LinkOFF)
+    {
+        Serial.println(F("Link status: Off"));
+    }
+
+    // IPAddress ping(192, 168, 1, 1);
+    // EthernetClient client;
+    // if (client.connect(ping, 80))
+    //     Serial.println(F("ping OK"));
+    // else
+    //     Serial.println(F("ping KO"));
 }
 
 void DT_mqtt_init()
@@ -91,11 +132,28 @@ void DT_mqtt_init()
     // auto Serial.println("start network");
     pinMode(NETWORK_RESET, OUTPUT);
     digitalWrite(NETWORK_RESET, HIGH);
-    mqtt.setServer(server, 1883);
-    // _mqtt_update = nullptr;
-    // _mqtt_subscribe = nullptr;
-    // mqtt.setCallback(&test_mqtt_receve);
+    Serial.println(F("start network"));
     init_ethernet();
+    // mqtt.setServer(server, 1883);
+    //  if (!mqtt.connected())
+    //  {
+    //      if (mqtt.connect("test", "test", "test"))
+    //      {
+    //          Serial.println("MQTT connected");
+    //          mqtt.loop();
+    //      }
+    //      else
+    //      {
+    //          Serial.println("MQTT not connected");
+    //      }
+    //  }
+    //  else
+    //  {
+    //      mqtt.loop();
+    //  }
+    //  _mqtt_update = nullptr;
+    //  _mqtt_subscribe = nullptr;
+    //  mqtt.setCallback(&test_mqtt_receve);
 }
 
 void DT_mqtt_loop()
@@ -143,7 +201,7 @@ void DT_mqtt_loop()
             wdt_reset();
             if (mqtt.connect(MQTT_CLIENT_ID, MQTT_USER, MQTT_PASSWORD, MQTT_WILL_TOPIC, MQTT_WILL_QOS, MQTT_WILL_RETAIN, MQTT_WILL_MESSAGE))
             {
-                wdt_reset();
+                // wdt_reset();
                 // Once connected, publish an announcement and resubscribe...
                 if (_mqtt_subscribe != nullptr)
                     _mqtt_subscribe(mqtt);
@@ -160,10 +218,11 @@ void DT_mqtt_loop()
         }
 
         // delay(50);
-        wdt_enable(WATCHDOG_TIME);
+        // wdt_enable(WATCHDOG_TIME);
     }
     else
     {
+        wdt_reset();
         mqtt.loop();
         static uint32_t time = 0;
         if (now - time >= MQTT_UPDATE)
@@ -179,4 +238,4 @@ void DT_mqtt_loop()
     }
 }
 
-#endif //MQTT
+#endif // MQTT
