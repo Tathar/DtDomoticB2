@@ -62,14 +62,14 @@
 #define MASK3 255
 #define MASK4 0
 //MQTT Server
-#define MQTT_IP1 192
-#define MQTT_IP2 168
-#define MQTT_IP3 1
-#define MQTT_IP4 2
+#define MQTT_IP1 80
+#define MQTT_IP2 11
+#define MQTT_IP3 239
+#define MQTT_IP4 99
 //MQTT config
-#define MQTT_CLIENT_ID "Board1"
-#define MQTT_USER "dtboard"
-#define MQTT_PASSWORD "1MotdePasse"
+#define MQTT_CLIENT_ID "Board2"
+#define MQTT_USER "test"
+#define MQTT_PASSWORD "test"
 #define MQTT_ROOT_TOPIC "DtBoard"
 #define MQTT_WILL_TOPIC MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/status"
 #define MQTT_WILL_QOS 1
