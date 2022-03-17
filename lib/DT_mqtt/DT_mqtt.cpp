@@ -16,6 +16,7 @@
 IPAddress server(MQTT_IP1, MQTT_IP2, MQTT_IP3, MQTT_IP4);
 EthernetClient ethClient;
 PubSubClient mqtt(ethClient);
+bool as_ethernet;
 
 void (*_mqtt_update)(PubSubClient &mqtt);
 void (*_mqtt_subscribe)(PubSubClient &mqtt);
@@ -92,29 +93,34 @@ void init_ethernet()
     if (Ethernet.hardwareStatus() == EthernetNoHardware)
     {
         Serial.println(F("Ethernet shield was not found."));
+        as_ethernet = false;
     }
-    else if (Ethernet.hardwareStatus() == EthernetW5100)
+    else
     {
-        Serial.println(F("W5100 Ethernet controller detected."));
-    }
-    else if (Ethernet.hardwareStatus() == EthernetW5200)
-    {
-        Serial.println(F("W5200 Ethernet controller detected."));
-    }
-    else if (Ethernet.hardwareStatus() == EthernetW5500)
-    {
-        Serial.println(F("W5500 Ethernet controller detected."));
+        as_ethernet = true;
+        if (Ethernet.hardwareStatus() == EthernetW5100)
+        {
+            Serial.println(F("W5100 Ethernet controller detected."));
+        }
+        else if (Ethernet.hardwareStatus() == EthernetW5200)
+        {
+            Serial.println(F("W5200 Ethernet controller detected."));
+        }
+        else if (Ethernet.hardwareStatus() == EthernetW5500)
+        {
+            Serial.println(F("W5500 Ethernet controller detected."));
+        }
     }
 
-    if (Ethernet.linkStatus() == Unknown)
+    if (as_ethernet && Ethernet.linkStatus() == Unknown)
     {
         Serial.println(F("Link status unknown. Link status detection is only available with W5200 and W5500."));
     }
-    else if (Ethernet.linkStatus() == LinkON)
+    else if (as_ethernet && Ethernet.linkStatus() == LinkON)
     {
         Serial.println(F("Link status: On"));
     }
-    else if (Ethernet.linkStatus() == LinkOFF)
+    else if (as_ethernet && Ethernet.linkStatus() == LinkOFF)
     {
         Serial.println(F("Link status: Off"));
     }
@@ -198,28 +204,34 @@ void DT_mqtt_loop()
             Serial.println("start MQTT conection");
             //  if (mqtt.connect(clientId.c_str(), "DtBoard", "1MotdePasse"))
 
-            if (Ethernet.linkStatus() == LinkOFF)
+            // if (Ethernet.linkStatus() == LinkOFF)
+            // {
+            //     wdt_reset();
+            //     Serial.println(F("Link status: Off"));
+            // }
+            // else
+            if (as_ethernet && Ethernet.linkStatus() == LinkON)
             {
-                wdt_reset();
-                Serial.println(F("Link status: Off"));
+                if (mqtt.connect(MQTT_CLIENT_ID, MQTT_USER, MQTT_PASSWORD, MQTT_WILL_TOPIC, MQTT_WILL_QOS, MQTT_WILL_RETAIN, MQTT_WILL_MESSAGE))
+                {
+                    wdt_reset();
+                    Serial.println(F("MQTT Connected"));
+                    // Once connected, publish an announcement and resubscribe...
+                    if (_mqtt_subscribe != nullptr)
+                        _mqtt_subscribe(mqtt);
+                    reset_time = 0; // desactivation du compteur de reset
+                                    // auto Serial.println("MQTT connected");
+                }
+                else
+                { // si echec affichage erreur
+                    wdt_reset();
+                    Serial.print(F("ECHEC, rc="));
+                    Serial.print(mqtt.state());
+                    Serial.println(F(" nouvelle tentative dans 5 secondes"));
+                }
             }
-            else if (Ethernet.linkStatus() == LinkON && mqtt.connect(MQTT_CLIENT_ID, MQTT_USER, MQTT_PASSWORD, MQTT_WILL_TOPIC, MQTT_WILL_QOS, MQTT_WILL_RETAIN, MQTT_WILL_MESSAGE))
-            {
-                wdt_reset();
-                Serial.println(F("MQTT Connected"));
-                // Once connected, publish an announcement and resubscribe...
-                if (_mqtt_subscribe != nullptr)
-                    _mqtt_subscribe(mqtt);
-                reset_time = 0; // desactivation du compteur de reset
-                                // auto Serial.println("MQTT connected");
-            }
-            else
-            { // si echec affichage erreur
-                wdt_reset();
-                Serial.print(F("ECHEC, rc="));
-                Serial.print(mqtt.state());
-                Serial.println(F(" nouvelle tentative dans 5 secondes"));
-            }
+            Serial.print(F("mqtt elapse time = "));
+            Serial.println(millis() - now);
         }
 
         // delay(50);
