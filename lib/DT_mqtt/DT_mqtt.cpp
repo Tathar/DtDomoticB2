@@ -15,7 +15,7 @@
 // Update these with values suitable for your hardware/network.
 IPAddress server(MQTT_IP1, MQTT_IP2, MQTT_IP3, MQTT_IP4);
 EthernetClient ethClient;
-PubSubClient mqtt;
+PubSubClient mqtt(ethClient);
 
 void (*_mqtt_update)(PubSubClient &mqtt);
 void (*_mqtt_subscribe)(PubSubClient &mqtt);
@@ -84,10 +84,10 @@ void init_ethernet()
     Ethernet.begin(mac, ip, dns, gateway, mask);
 #endif
 
-    while (Ethernet.linkStatus() == LinkOFF)
-    {
-        delay(10);
-    }
+    // while (Ethernet.linkStatus() == LinkOFF)
+    // {
+    //     delay(10);
+    // }
 
     if (Ethernet.hardwareStatus() == EthernetNoHardware)
     {
@@ -134,7 +134,7 @@ void DT_mqtt_init()
     digitalWrite(NETWORK_RESET, HIGH);
     Serial.println(F("start network"));
     init_ethernet();
-    // mqtt.setServer(server, 1883);
+    mqtt.setServer(server, 1883);
     //  if (!mqtt.connected())
     //  {
     //      if (mqtt.connect("test", "test", "test"))
@@ -151,8 +151,8 @@ void DT_mqtt_init()
     //  {
     //      mqtt.loop();
     //  }
-    //  _mqtt_update = nullptr;
-    //  _mqtt_subscribe = nullptr;
+    _mqtt_update = nullptr;
+    _mqtt_subscribe = nullptr;
     //  mqtt.setCallback(&test_mqtt_receve);
 }
 
@@ -162,7 +162,7 @@ void DT_mqtt_loop()
     static uint32_t reset_time = 0; // for reset network device
     static bool reset = false;      // for reset network device
     uint32_t now = millis();
-    if (!mqtt.connected())
+    if (!mqtt.connected() || Ethernet.linkStatus() == LinkOFF)
     {
         if (mem_config.MQTT_online)
         {
@@ -174,7 +174,7 @@ void DT_mqtt_loop()
             reset_time = now;
         else if (reset_time != 0 && !reset && now - reset_time > NETWORK_RESET_TIME)
         {
-            // auto Serial.println("reset network board");
+            Serial.println("reset network board");
             digitalWrite(NETWORK_RESET, LOW);
             last_reconnection_time = now;
             reset = true;
@@ -184,7 +184,7 @@ void DT_mqtt_loop()
             last_reconnection_time = now;
             if (reset)
             {
-                // auto Serial.println("restart network");
+                Serial.println(F("restart network"));
                 digitalWrite(NETWORK_RESET, HIGH);
                 delay(2);
                 wdt_reset();
@@ -195,13 +195,18 @@ void DT_mqtt_loop()
             }
             // Attempt to reconnect
             // String clientId = "Board01";
-            // auto Serial.println("start MQTT conection");
+            Serial.println("start MQTT conection");
             //  if (mqtt.connect(clientId.c_str(), "DtBoard", "1MotdePasse"))
 
-            wdt_reset();
-            if (mqtt.connect(MQTT_CLIENT_ID, MQTT_USER, MQTT_PASSWORD, MQTT_WILL_TOPIC, MQTT_WILL_QOS, MQTT_WILL_RETAIN, MQTT_WILL_MESSAGE))
+            if (Ethernet.linkStatus() == LinkOFF)
             {
-                // wdt_reset();
+                wdt_reset();
+                Serial.println(F("Link status: Off"));
+            }
+            else if (Ethernet.linkStatus() == LinkON && mqtt.connect(MQTT_CLIENT_ID, MQTT_USER, MQTT_PASSWORD, MQTT_WILL_TOPIC, MQTT_WILL_QOS, MQTT_WILL_RETAIN, MQTT_WILL_MESSAGE))
+            {
+                wdt_reset();
+                Serial.println(F("MQTT Connected"));
                 // Once connected, publish an announcement and resubscribe...
                 if (_mqtt_subscribe != nullptr)
                     _mqtt_subscribe(mqtt);
@@ -211,9 +216,9 @@ void DT_mqtt_loop()
             else
             { // si echec affichage erreur
                 wdt_reset();
-                // auto Serial.print("ECHEC, rc=");
-                // auto Serial.print(mqtt.state());
-                // auto Serial.println(" nouvelle tentative dans 5 secondes");
+                Serial.print(F("ECHEC, rc="));
+                Serial.print(mqtt.state());
+                Serial.println(F(" nouvelle tentative dans 5 secondes"));
             }
         }
 

@@ -10,11 +10,14 @@ const uint8_t RELAY_ARRAY[RELAY_NUM] PROGMEM = {23, 25, 27, 29, 31, 33, 35, 37, 
 const bool RELAY_REVERT[RELAY_NUM] PROGMEM = {false, false, false, false, false, false, false, false, false, false, false, true, false, true, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false};
 
 #define MCP_NUM 4
-const uint8_t MCP_ADDRESS[MCP_NUM] PROGMEM = {0x40, 0x42, 0x44, 0x46};
+const uint8_t MCP_ADDRESS[MCP_NUM] PROGMEM = {0x20, 0x21, 0x22, 0x23};
+#define MCP_CHANNEL 0b00000010
+#define MCP_PIN_INTERUPT 48
+
 
 // input 12V 230V
 #define INPUT_NUM 32
-const uint16_t INPUT_ARRAY[INPUT_NUM] PROGMEM = {54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 200, 201, 202, 203, 204, 205, 206, 207, 300, 301, 302, 303, 304, 305, 306, 307};
+const uint16_t INPUT_ARRAY[INPUT_NUM] PROGMEM = {54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 300, 301, 302, 303, 304, 305, 306, 307, 400, 401, 402, 403, 404, 405, 406, 407};
 const bool INPUT_REVERT[INPUT_NUM] PROGMEM = {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false};
 
 // sonde de temperature pt100

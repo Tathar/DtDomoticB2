@@ -6,9 +6,25 @@ void DT_mcp_init()
 {
     uint8_t i2c = 0;
 
+    Wire.beginTransmission(I2C_MULTIPLEXER_ADDRESS);
+    Wire.write(MCP_CHANNEL);
+    Wire.endTransmission();
+
+
+    // Wire.requestFrom(I2C_MULTIPLEXER_ADDRESS, 1);
+    // if (!Wire.available())
+    // {
+    //     Serial.println(F("Multiplexer error"));
+    //     return; // Error
+    // }
+
+    // Serial.print(F("Multiplexer settings = "));
+    // Serial.println(Wire.read(), BIN);
+
     for (uint8_t mcp_num = 0; mcp_num < MCP_NUM; ++mcp_num)
     {
         i2c = pgm_read_byte(MCP_ADDRESS + mcp_num);
+        // Serial.println(i2c,HEX);
         if (!mcp[mcp_num].begin_I2C(i2c))
         {
             {

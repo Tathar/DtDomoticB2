@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include <SPI.h>
 #include <Ethernet.h>
+#include <Wire.h>
 
 #include <DT_relay.h>
 #include <DT_input.h>
@@ -8,6 +9,8 @@
 #include <DT_mqtt.h>
 #include <DT_BME280.h>
 #include <DT_CCS811.h>
+#include <DT_mcp.h>
+
 // #include <DT_fake_ntc.h>
 #include <DT_poele.h>
 #include <DT_eeprom.h>
@@ -2575,6 +2578,13 @@ void setup()
 
   // auto Serial.println("Load eeprom");
   chargeEEPROM();
+
+  Wire.begin();
+  // Wire.beginTransmission(I2C_MULTIPLEXER_ADDRESS);
+  // Wire.write(MCP_CHANNEL); // channel 1
+  // Wire.endTransmission();
+
+  DT_mcp_init();
 
 #ifdef MQTT
   Serial.println("starting mqtt");
