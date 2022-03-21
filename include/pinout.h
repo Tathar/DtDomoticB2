@@ -3,6 +3,25 @@
 
 #include <avr/pgmspace.h>
 
+#define OPT_1 19
+#define OPT_2 46
+#define OPT_3 3
+#define OPT_4 6
+#define OPT_5 8
+#define OPT_6 12
+#define OPT_7 2
+#define OPT_8 45
+#define OPT_9 5
+#define OPT_10 7
+#define OPT_11 11
+#define OPT_12 13
+#define OPT_13 9
+#define OPT_14 10
+#define OPT_15 18
+#define OPT_16 38
+#define OPT_17 15
+#define OPT_18 14
+
 // sortie relay
 #define RELAY_MIN_TIME 10
 #define RELAY_NUM 32
@@ -22,11 +41,11 @@ const bool INPUT_REVERT[INPUT_NUM] PROGMEM = {false, false, false, false, false,
 // sonde de temperature pt100
 #define TEMP_RREF 430.0
 #define TEMP_NUM 10 // 12 ok 13 ko
-const uint8_t TEMP_ARRAY[18] PROGMEM = {19, 46, 3, 6, 8, 12, 2, 45, 5, 7, 11, 13, 9, 10, 18, 38, 15};
+const uint8_t TEMP_ARRAY[18] PROGMEM = {OPT_1, OPT_2, OPT_3, OPT_4, OPT_5, OPT_6, OPT_7, OPT_8, OPT_9, OPT_10, OPT_11, OPT_12, OPT_13, OPT_14, OPT_15, OPT_16, OPT_17, OPT_18};
 
-//Dimmer
-#define DIMMER_NUM 16
-const uint8_t TEMP_ARRAY[DIMMER_NUM] PROGMEM = {19, 46, 3, 6, 8, 12, 2, 45, 5, 7, 11, 13, 9, 10, 18, 38, 15};
+// Dimmer
+#define DIMMER_NUM 14
+const uint8_t DIMMER_ARRAY[14] PROGMEM = {OPT_2, OPT_3, OPT_4, OPT_5, OPT_6, OPT_7, OPT_8, OPT_9, OPT_10, OPT_11, OPT_12, OPT_13, OPT_14, OPT_15};
 
 // sonde de temperature bme280
 #define BME280_NUM 2
