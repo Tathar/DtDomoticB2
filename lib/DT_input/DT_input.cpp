@@ -7,9 +7,9 @@
 #include <DT_mcp.h>
 #include <Wire.h>
 
-#define F_LP _BV(0)   //numero du bit LONG_PUSH dans l'octet
-#define F_LLP _BV(1)  //numero du bit LONG_LONG_PUSH dans l'octet
-#define F_XLLP _BV(2) //numero du bit XL_LONG_PUSH dans l'octet
+#define F_LP _BV(0)   // numero du bit LONG_PUSH dans l'octet
+#define F_LLP _BV(1)  // numero du bit LONG_LONG_PUSH dans l'octet
+#define F_XLLP _BV(2) // numero du bit XL_LONG_PUSH dans l'octet
 #define F_all_long_push (F_LP | F_LLP | F_XLLP)
 
 uint32_t debounce_start_time[INPUT_NUM];
@@ -106,17 +106,22 @@ void DT_input_loop()
 
         if (pin >= 100)
         {
-            if (!as_interrupt) // si pas d interuption (pullup)
-                continue;
+            if (as_interrupt) // si interuption (pullup)
+            {
 
-            // Serial.println(F("MCP2308 input not implemented"));
-            // Serial.println(pin);
-            uint8_t i2c = pin / 100;
-            pin -= i2c * 100;
-            i2c -= 1;
-            pin_stats = mcp[i2c].digitalRead(pin);
-            // Serial.println(pin);
-            // Serial.println(i2c);
+                // Serial.println(F("MCP2308 input not implemented"));
+                // Serial.println(pin);
+                uint8_t i2c = pin / 100;
+                pin -= i2c * 100;
+                i2c -= 1;
+                pin_stats = mcp[i2c].digitalRead(pin);
+                // Serial.println(pin);
+                // Serial.println(i2c);
+            }
+            else // si pas d interuption (pullup)
+            {
+                pin_stats = old_pin_stats[num];
+            }
         }
         else
         {
@@ -128,32 +133,31 @@ void DT_input_loop()
 
         if (pin_stats != old_pin_stats[num])
         {
-
             old_pin_stats[num] = pin_stats;
-            if (pin_stats == HIGH && now - debounce_start_time[num] >= DEBOUNCE_TIME) //Raise UP no debounced
+            if (pin_stats == HIGH && now - debounce_start_time[num] >= DEBOUNCE_TIME) // Raise UP no debounced
             {
-                debounce_start_time[num] = now;    //demmarage du timer de debounce
-                long_push_start_time[num] = now;   //demarage du timer d appuie long
-                multiple_push_start_time[num] = 0; //arret du timer d appuie multiple
+                debounce_start_time[num] = now;    // demmarage du timer de debounce
+                long_push_start_time[num] = now;   // demarage du timer d appuie long
+                multiple_push_start_time[num] = 0; // arret du timer d appuie multiple
                 push_count[num] += 1;
-                stats[num] = IN_PUSHED; //1
+                stats[num] = IN_PUSHED; // 1
                 if (input_callback != nullptr)
                 {
                     input_callback(num + 1, stats[num]);
                 }
             }
 
-            else if (pin_stats == LOW && now - debounce_start_time[num] >= DEBOUNCE_TIME) //Raise DOWN no debounced
+            else if (pin_stats == LOW && now - debounce_start_time[num] >= DEBOUNCE_TIME) // Raise DOWN no debounced
             {
                 // Serial.println(F("Relese"));
 
                 if (front[num] & F_all_long_push)
                     push_count[num] = 0;
 
-                debounce_start_time[num] = now;                     //demmarage du timer de debounce
-                front[num] = 0;                                     //mise a zero du front d appuie long
-                multiple_push_start_time[num] = now == 0 ? 1 : now; //demarage du timer d appuie multiple
-                stats[num] = IN_RELEASE;                            //2
+                debounce_start_time[num] = now;                     // demmarage du timer de debounce
+                front[num] = 0;                                     // mise a zero du front d appuie long
+                multiple_push_start_time[num] = now == 0 ? 1 : now; // demarage du timer d appuie multiple
+                stats[num] = IN_RELEASE;                            // 2
                 if (input_callback != nullptr)
                 {
                     input_callback(num + 1, stats[num]);
@@ -162,12 +166,12 @@ void DT_input_loop()
         }
         else
         {
-            if (multiple_push_start_time != 0 && now - multiple_push_start_time[num] > MULTIPLE_PUSH_TIME) // multiple push timer raise
+            if (multiple_push_start_time[num] != 0 && now - multiple_push_start_time[num] > MULTIPLE_PUSH_TIME) // multiple push timer raise
             {
                 multiple_push_start_time[num] = 0;
                 Bt_Action ret = IN_NULL;
                 // Serial.println(F("Multiple Push"));
-                if (push_count > 0)
+                if (push_count[num] > 0)
                 {
                     // Serial.print(F(" = "));
                     // Serial.println(push_count);
@@ -177,24 +181,27 @@ void DT_input_loop()
 
                 push_count[num] = 0;
 
-                stats[num] = ret;
-                if (input_callback != nullptr)
+                if (ret != IN_NULL)
                 {
-                    input_callback(num + 1, stats[num]);
+                    stats[num] = ret;
+                    if (input_callback != nullptr)
+                    {
+                        input_callback(num + 1, ret);
+                    }
                 }
             }
 
             else if (pin_stats == HIGH &&
                      !(front[num] & F_LP) &&
-                     long_push_start_time != 0 &&
+                     long_push_start_time[num] != 0 &&
                      now - long_push_start_time[num] >= LONG_PUSH_TIME &&
-                     now - long_push_start_time[num] < LONG_LONG_PUSH_TIME) //long push
+                     now - long_push_start_time[num] < LONG_LONG_PUSH_TIME) // long push
             {
                 // long_push_start_time = 0;
-                front[num] = front[num] | F_LP; //mise a 1 du front LONG PUSH
+                front[num] = front[num] | F_LP; // mise a 1 du front LONG PUSH
                 Bt_Action ret = IN_NULL;
                 // Serial.println(F("Long Push"));
-                if (push_count > 0)
+                if (push_count[num] > 0)
                 {
                     // Serial.print(F(" = "));
                     // Serial.print(push_count);
@@ -202,20 +209,23 @@ void DT_input_loop()
                 }
                 // push_count = 0;
                 // Serial.println(F(""));
-                stats[num] = ret;
-                if (input_callback != nullptr)
+                if (ret != IN_NULL)
                 {
-                    input_callback(num + 1, stats[num]);
+                    stats[num] = ret;
+                    if (input_callback != nullptr)
+                    {
+                        input_callback(num + 1, stats[num]);
+                    }
                 }
             }
             else if (pin_stats == HIGH &&
                      !(front[num] & F_LLP) &&
-                     now - long_push_start_time[num] >= LONG_LONG_PUSH_TIME) //long push
+                     now - long_push_start_time[num] >= LONG_LONG_PUSH_TIME) // long push
             {
-                front[num] = front[num] | F_LLP; //mise a 1 du front LONG LONG PUSH
+                front[num] = front[num] | F_LLP; // mise a 1 du front LONG LONG PUSH
                 Bt_Action ret = IN_NULL;
                 // Serial.println(F("Long Long Push"));
-                if (push_count > 0)
+                if (push_count[num] > 0)
                 {
                     // Serial.print(F(" = "));
                     // Serial.print(push_count);
@@ -223,31 +233,39 @@ void DT_input_loop()
                 }
                 // push_count = 0;
                 // Serial.println(F(""));
-                stats[num] = ret;
-                if (input_callback != nullptr)
+
+                if (ret != IN_NULL)
                 {
-                    input_callback(num + 1, stats[num]);
+                    stats[num] = ret;
+                    if (input_callback != nullptr)
+                    {
+                        input_callback(num + 1, stats[num]);
+                    }
                 }
             }
             else if (pin_stats == HIGH &&
                      !(front[num] & F_XLLP) &&
-                     now - long_push_start_time[num] >= XL_LONG_PUSH_TIME) //long push
+                     now - long_push_start_time[num] >= XL_LONG_PUSH_TIME) // long push
             {
-                front[num] = front[num] | F_XLLP; //mise a 1 du front XL LONG PUSH
+                front[num] = front[num] | F_XLLP; // mise a 1 du front XL LONG PUSH
                 Bt_Action ret = IN_NULL;
                 // Serial.println(F("XL Long Push"));
-                if (push_count > 0)
+                if (push_count[num] > 0)
                 {
                     // Serial.print(F(" = "));
                     // Serial.print(push_count);
                     ret = (Bt_Action)((int)IN_XLLPUSH + ((push_count[num] - 1) * 4));
                 }
-                //push_count = 0;
-                // Serial.println(F(""));
-                stats[num] = ret;
-                if (input_callback != nullptr)
+                // push_count = 0;
+                //  Serial.println(F(""));
+
+                if (ret != IN_NULL)
                 {
-                    input_callback(num + 1, stats[num]);
+                    stats[num] = ret;
+                    if (input_callback != nullptr)
+                    {
+                        input_callback(num + 1, stats[num]);
+                    }
                 }
             }
         }
