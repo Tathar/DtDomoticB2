@@ -14,7 +14,6 @@ const uint8_t MCP_ADDRESS[MCP_NUM] PROGMEM = {0x20, 0x21, 0x22, 0x23};
 #define MCP_CHANNEL 0b00000010
 #define MCP_PIN_INTERUPT 48
 
-
 // input 12V 230V
 #define INPUT_NUM 32
 const uint16_t INPUT_ARRAY[INPUT_NUM] PROGMEM = {54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 300, 301, 302, 303, 304, 305, 306, 307, 400, 401, 402, 403, 404, 405, 406, 407};
@@ -24,6 +23,10 @@ const bool INPUT_REVERT[INPUT_NUM] PROGMEM = {false, false, false, false, false,
 #define TEMP_RREF 430.0
 #define TEMP_NUM 10 // 12 ok 13 ko
 const uint8_t TEMP_ARRAY[18] PROGMEM = {19, 46, 3, 6, 8, 12, 2, 45, 5, 7, 11, 13, 9, 10, 18, 38, 15};
+
+//Dimmer
+#define DIMMER_NUM 16
+const uint8_t TEMP_ARRAY[DIMMER_NUM] PROGMEM = {19, 46, 3, 6, 8, 12, 2, 45, 5, 7, 11, 13, 9, 10, 18, 38, 15};
 
 // sonde de temperature bme280
 #define BME280_NUM 2
