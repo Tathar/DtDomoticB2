@@ -1254,84 +1254,84 @@ void input_callback(const uint8_t num, const Bt_Action action)
   case IN_PUSH:
     Serial.println("PUSH");
 #ifdef MQTT
-    DT_mqtt_send(buffer, "PUSH");
+    //DT_mqtt_send(buffer, "PUSH");
 #endif
     break;
 
   case IN_LPUSH:
     Serial.println("LPUSH");
 #ifdef MQTT
-    DT_mqtt_send(buffer, "LPUSH");
+    //DT_mqtt_send(buffer, "LPUSH");
 #endif
     break;
 
   case IN_LLPUSH:
     Serial.println("LLPUSH");
 #ifdef MQTT
-    DT_mqtt_send(buffer, "LLPUSH");
+    //DT_mqtt_send(buffer, "LLPUSH");
 #endif
     break;
 
   case IN_XLLPUSH:
     Serial.println("XLLPUSH");
 #ifdef MQTT
-    DT_mqtt_send(buffer, "XLLPUSH");
+    //DT_mqtt_send(buffer, "XLLPUSH");
 #endif
     break;
 
   case IN_2PUSH:
     Serial.println("2PUSH");
 #ifdef MQTT
-    DT_mqtt_send(buffer, "2PUSH");
+    //DT_mqtt_send(buffer, "2PUSH");
 #endif
     break;
 
   case IN_L2PUSH:
     Serial.println("L2PUSH");
 #ifdef MQTT
-    DT_mqtt_send(buffer, "L2PUSH");
+    //DT_mqtt_send(buffer, "L2PUSH");
 #endif
     break;
 
   case IN_LL2PUSH:
     Serial.println("LL2PUSH");
 #ifdef MQTT
-    DT_mqtt_send(buffer, "LL2PUSH");
+    //DT_mqtt_send(buffer, "LL2PUSH");
 #endif
     break;
 
   case IN_XLL2PUSH:
     Serial.println("XLL2PUSH");
 #ifdef MQTT
-    DT_mqtt_send(buffer, "XLL2PUSH");
+    //DT_mqtt_send(buffer, "XLL2PUSH");
 #endif
     break;
 
   case IN_3PUSH:
     Serial.println("3PUSH");
 #ifdef MQTT
-    DT_mqtt_send(buffer, "3PUSH");
+    //DT_mqtt_send(buffer, "3PUSH");
 #endif
     break;
 
   case IN_L3PUSH:
     Serial.println("L3PUSH");
 #ifdef MQTT
-    DT_mqtt_send(buffer, "L3PUSH");
+    //DT_mqtt_send(buffer, "L3PUSH");
 #endif
     break;
 
   case IN_LL3PUSH:
     Serial.println("LL3PUSH");
 #ifdef MQTT
-    DT_mqtt_send(buffer, "LL3PUSH");
+    //DT_mqtt_send(buffer, "LL3PUSH");
 #endif
     break;
 
   case IN_XLL3PUSH:
     Serial.println("XLL3PUSH");
 #ifdef MQTT
-    DT_mqtt_send(buffer, "XLL3PUSH");
+    //DT_mqtt_send(buffer, "XLL3PUSH");
 #endif
     break;
 
