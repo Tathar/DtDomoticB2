@@ -9,18 +9,18 @@
 
 #include <avr/interrupt.h>
 
-#define SET_DIMMER3 PORTC |= _BV(PINC0);
-#define SET_DIMMER4 PORTC |= _BV(PINC1);
+// #define SET_DIMMER15 PORTC |= _BV(PINC0);
+// #define SET_DIMMER16 PORTC |= _BV(PINC1);
 
-#define CLEAR_DIMMER3 PORTC &= 0b11111110;  // extinction dimmer 3 & 4
-#define CLEAR_DIMMER4 PORTC &= 0b11111101;  // extinction dimmer 3 & 4
-#define CLEAR_DIMMER34 PORTC &= 0b11111100; // extinction dimmer 3 & 4
+// #define CLEAR_DIMMER13 PORTC &= 0b11111110;    // extinction dimmer 3 & 4
+// #define CLEAR_DIMMER14 PORTC &= 0b11111101;    // extinction dimmer 3 & 4
+// #define CLEAR_DIMMER13_14 PORTC &= 0b11111100; // extinction dimmer 3 & 4
 
 #define SCALE(val, in_min, in_max, out_min, out_max) (((double)val - (double)in_min) * ((double)out_max - (double)out_min) / ((double)in_max - (double)in_min)) + out_min
 
-volatile uint8_t OCR2A_COUNT = 0;
-volatile uint8_t OCR2B_COUNT = 0;
-volatile uint8_t TOV2_count = 0;
+// volatile uint8_t OCR2A_COUNT = 0;
+// volatile uint8_t OCR2B_COUNT = 0;
+// volatile uint8_t TOV2_count = 0;
 
 // const PROGMEM uint16_t ocrx[] = {65535, 16498, 16210, 16090, 15997, 15920, 15849, 15786, 15729, 15674,
 //                                  15636, 15572, 15525, 15480, 15436, 15394, 15339, 15315, 15276, 15238,
@@ -34,7 +34,7 @@ volatile uint8_t TOV2_count = 0;
 //                                  12927, 12878, 12825, 12770, 12713, 12650, 12579, 12502, 12409, 12308,
 //                                  0};
 
-//const PROGMEM uint16_t ocrx[] = {65535, 16498, 15441, 15002, 14662, 14374, 14119, 13887, 13673, 13472, 13281, 13101, 12930, 12763, 12605, 12449, 12308, 12154, 12011, 11873, 11735, 11602, 11471, 11342, 11217, 11091, 10968, 10848, 10727, 10610, 10475, 10377, 10262, 10148, 10035, 9923, 9810, 9701, 9591, 9492, 9373, 9263, 9155, 9049, 8939, 8835, 8727, 8622, 8514, 8408, 8302, 8212, 8091, 7985, 7877, 7772, 7659, 7557, 7450, 7344, 7236, 7126, 7019, 6891, 6798, 6689, 6576, 6464, 6351, 6237, 6122, 6006, 5908, 5772, 5652, 5531, 5408, 5282, 5157, 5028, 4897, 4764, 4628, 4487, 4331, 4199, 4050, 3894, 3736, 3563, 3398, 3218, 3027, 2836, 2612, 2380, 2125, 1837, 1497, 1058, 0};
+// const PROGMEM uint16_t ocrx[] = {65535, 16498, 15441, 15002, 14662, 14374, 14119, 13887, 13673, 13472, 13281, 13101, 12930, 12763, 12605, 12449, 12308, 12154, 12011, 11873, 11735, 11602, 11471, 11342, 11217, 11091, 10968, 10848, 10727, 10610, 10475, 10377, 10262, 10148, 10035, 9923, 9810, 9701, 9591, 9492, 9373, 9263, 9155, 9049, 8939, 8835, 8727, 8622, 8514, 8408, 8302, 8212, 8091, 7985, 7877, 7772, 7659, 7557, 7450, 7344, 7236, 7126, 7019, 6891, 6798, 6689, 6576, 6464, 6351, 6237, 6122, 6006, 5908, 5772, 5652, 5531, 5408, 5282, 5157, 5028, 4897, 4764, 4628, 4487, 4331, 4199, 4050, 3894, 3736, 3563, 3398, 3218, 3027, 2836, 2612, 2380, 2125, 1837, 1497, 1058, 0};
 
 // #define OCRX(value) pgm_read_word_near(ocrx + value)
 
@@ -51,19 +51,14 @@ uint16_t to_ocrx(uint8_t dimmer_num, uint8_t percent)
     }
     else
     {
-        uint16_t ret = (SCALE(percent, 1, 99, config.Dimmer_scale_min[dimmer_num], config.Dimmer_scale_max[dimmer_num]));
-        // uint16_t ret = ((percent - 1) * (config.Dimmer_scale_max[dimmer_num] - config.Dimmer_scale_min[dimmer_num]) / (99.0 - 1)) + config.Dimmer_scale_min[dimmer_num];
-
-        if (dimmer_num >= 2) //dimmer 3 ou 4
+        if (dimmer_num < 12)
         {
-            if (ret % 255 < 20)
-                return (ret - (ret % 255)) + 20;
-            else if (ret % 255 > 235)
-            {
-                return (ret - (ret % 255)) + 235;
-            }
+            return (SCALE(percent, 1, 99, config.Dimmer_scale_min[dimmer_num], config.Dimmer_scale_max[dimmer_num]));
         }
-        return ret;
+        else
+        {
+            return (SCALE(percent, 1, 99, config.Dimmer_scale_min[dimmer_num], config.Dimmer_scale_max[dimmer_num])); // low resolution
+        }
     }
 }
 
@@ -71,101 +66,216 @@ volatile unsigned int Timer1_count0 = 0;
 volatile unsigned int debug_max_count = 0;
 volatile unsigned int debug_min_count = 512;
 
-volatile uint8_t Dimmer_percent[4];    //in Percent
-volatile uint16_t Dimmer_value[4];     //in Slice
-volatile uint16_t Dimmer_new_value[4]; //in Slice
-volatile uint16_t Dimmer_time_interval[4];
-volatile bool Dimmer_candle[4] = {false, false, false, false};
+volatile uint8_t Dimmer_percent[DIMMER_NUM];    // in Percent
+volatile uint16_t Dimmer_value[DIMMER_NUM];     // in Slice
+volatile uint16_t Dimmer_new_value[DIMMER_NUM]; // in Slice
+volatile uint16_t Dimmer_time_interval[DIMMER_NUM];
+volatile bool Dimmer_candle[DIMMER_NUM];
 
 // timer 2 Overflow interrupt service routine
-ISR(TIMER2_OVF_vect)
-{
-    TOV2_count += 1;
-}
+// ISR(TIMER2_OVF_vect)
+// {
+//     TOV2_count += 1;
+// }
 
 // timer compare interrupt service routine (Dimmer 3)
-ISR(TIMER2_COMPA_vect)
-{
-    if (TOV2_count == OCR2A_COUNT)
-    {
-        SET_DIMMER3;
-    }
-}
+// ISR(TIMER2_COMPA_vect)
+// {
+//     if (TOV2_count == OCR2A_COUNT)
+//     {
+//         SET_DIMMER15;
+//     }
+// }
 
 // timer compare interrupt service routine (Dimmer 4)
-ISR(TIMER2_COMPB_vect)
-{
-    // ATOMIC_BLOCK(ATOMIC_FORCEON)
-    // {
-    if (TOV2_count == OCR2B_COUNT)
-    {
-        SET_DIMMER4;
-    }
-    // }
-}
+// ISR(TIMER2_COMPB_vect)
+// {
+//     // ATOMIC_BLOCK(ATOMIC_FORCEON)
+//     // {
+//     if (TOV2_count == OCR2B_COUNT)
+//     {
+//         SET_DIMMER16;
+//     }
+//     // }
+// }
 
 // PCINT 0-7 interrupt service routine
 ISR(PCINT0_vect)
 {
     if (!(PINB & _BV(PB0))) // PCINT0 interrupts on FALLING
     {
-        TCNT1 = 0;              //clear timer1
-        TCNT2 = 0;              //cearr timer2
-        if (OCR2A & 0b11111111) //if OCR2A != 0
-            CLEAR_DIMMER3;
-        if (OCR2B & 0b11111111) //if OCR2B != 0
-            CLEAR_DIMMER4;
-        TOV2_count = 0;
+        TCNT1 = 0; // clear timer1
+        TCNT2 = 0; // cearr timer2
+        TCNT3 = 0; // clear timer3
+        TCNT4 = 0; // cearr timer4
+        TCNT5 = 0; // clear timer5
 
-        OCR1A = Dimmer_value[0];
-        OCR1B = Dimmer_value[1];
-        OCR2A = Dimmer_value[2] % 256;
-        OCR2A_COUNT = Dimmer_value[2] / 256;
-        OCR2B = Dimmer_value[3] % 256;
-        OCR2B_COUNT = Dimmer_value[3] / 256;
+        // if (OCR2A & 0b11111111) // if OCR2A != 0
+        //     CLEAR_DIMMER13;
+        // if (OCR2B & 0b11111111) // if OCR2B != 0
+        //     CLEAR_DIMMER14;
+
+        // TOV2_count = 0;
+
+#if DIMMER_NUM >= 1
+        OCR5C = Dimmer_value[0];
+#endif
+#if DIMMER_NUM >= 2
+        OCR3B = Dimmer_value[1];
+#endif
+#if DIMMER_NUM >= 3
+        OCR4A = Dimmer_value[2];
+#endif
+#if DIMMER_NUM >= 4
+        OCR4C = Dimmer_value[3];
+#endif
+#if DIMMER_NUM >= 5
+        OCR1B = Dimmer_value[4];
+#endif
+#if DIMMER_NUM >= 6
+        OCR3B = Dimmer_value[5];
+#endif
+#if DIMMER_NUM >= 7
+        OCR5B = Dimmer_value[6];
+#endif
+#if DIMMER_NUM >= 8
+        OCR3A = Dimmer_value[7];
+#endif
+#if DIMMER_NUM >= 9
+        OCR4B = Dimmer_value[8];
+#endif
+#if DIMMER_NUM >= 10
+        OCR1A = Dimmer_value[9];
+#endif
+#if DIMMER_NUM >= 11
+        OCR1C = Dimmer_value[10];
+#endif
+#if DIMMER_NUM >= 12
+        OCR5A = Dimmer_value[11];
+#endif
+#if DIMMER_NUM >= 13
+        OCR2A = Dimmer_value[12];
+#endif
+#if DIMMER_NUM >= 14
+        OCR2B = Dimmer_value[13];
+#endif
     }
 }
 
 void Dimmer_init(void)
 {
 
-    pinMode(PIN_DIMMER0, INPUT);
+    pinMode(OPT_1, INPUT); // Point zero
 
-    for (uint8_t i = 0; i < 4; i++) //init variables
+    for (uint8_t num = 0; num < DIMMER_NUM; ++num)
+    {
+        uint8_t pin = pgm_read_byte(DIMMER_ARRAY + num);
+        pinMode(pin, OUTPUT);
+    }
+
+    for (uint8_t i = 0; i < DIMMER_NUM; i++) // init variables
     {
         Dimmer_percent[i] = 0;
         Dimmer_value[i] = 65535;
         Dimmer_new_value[i] = 65535;
         Dimmer_time_interval[i] = 0;
+        Dimmer_candle[i] = false;
     }
 
     noInterrupts(); // disable all interrupts
-    //Timer 1 Dimmer 1 & 2)
-    TCCR1A = 0b11110010; // bit change at OCR1A OCR1B
+
+    // Timer 1 Dimmer OPt_11 & OPT_6 & OPT_12)
+#if DIMMER_NUM >= 10
+    TCCR1A = TCCR1A | 0b11000010; // bit change at OCR1A
+#endif
+#if DIMMER_NUM >= 5
+    TCCR1A = TCCR1A | 0b00110010; // bit change at OCR1B
+#endif
+#if DIMMER_NUM >= 11
+    TCCR1A = TCCR1A | 0b00001110; // bit change at OCR1C
+#endif
     TCCR1B = 0b00011010; // prescale 8
     TIMSK1 = 0b0000000;  // No interuption
-    OCR1A = 65535;       // Dimmer 1 OFF
-    OCR1B = 65535;       // Dimmer 2 OFF
+    OCR1A = 65535;       // Dimmer OPT_11 OFF
+    OCR1B = 65535;       // Dimmer OPT_6 OFF
+    OCR1C = 65535;       // Dimmer OPT_12 OFF
     ICR1 = 19840;        // Timer1 TOP
 
-    //Timmer 2 (Dimmer 3 et 4)
-    TCCR2A = 0b00000000; //normal mode
+    // Timmer 2 (Dimmer OPT_14 et OPT_15)
+#if DIMMER_NUM >= 13
+    TCCR2A = TCCR2A | 0b11000010; // bit change at OCR2A
+#endif
+#if DIMMER_NUM >= 14
+    TCCR2A = TCCR2A | 0b00110010; // bit change at OCR2B
+#endif
+    // TCCR2A = 0b00000000; // normal mode
     TCCR2B = 0b00000010; // prescale 8
-    TIMSK2 = 0b00000111; // interuption TOV2 OCR2A OCR2B
-    OCR2A = 255;         // Dimmer 1 OFF
-    OCR2B = 255;         // Dimmer 2 OFF
-    TOV2_count = 254;
+    TIMSK2 = 0b00000000; // interuption TOV2 OCR2A OCR2B
+    OCR2A = 255;         // Dimmer OPT_14 OFF
+    OCR2B = 255;         // Dimmer OPT_15 OFF
 
-    //interuption PCINT1  (point zero)
-    PCICR = 0b00000001;  //active PCINT1 interupt
-    PCMSK0 = 0b00000001; //active pcint at pin 8
+    // Timer 3 Dimmer OPT_9 & OPT_7 & OPT_3)
+#if DIMMER_NUM >= 8
+    TCCR3A = TCCR3A | 0b11000010; // bit change at OCR3A
+#endif
+#if DIMMER_NUM >= 6
+    TCCR3A = TCCR3A | 0b00110010; // bit change at OCR3B
+#endif
+#if DIMMER_NUM >= 2
+    TCCR3A = TCCR3A | 0b00001110; // bit change at OCR3C
+#endif
+    // TCCR3A = 0b11111110; // bit change at OCR1A OCR1B OCR1C
+    TCCR3B = 0b00011010; // prescale 8
+    TIMSK3 = 0b0000000;  // No interuption
+    OCR3A = 65535;       // Dimmer OPT_9 OFF
+    OCR3B = 65535;       // Dimmer OPT_7 OFF
+    OCR3B = 65535;       // Dimmer OPT_3 OFF
+    ICR3 = 19840;        // Timer3 TOP
+
+    // Timer 4 Dimmer OPT_4 & OPT_10 & OPT_5)
+#if DIMMER_NUM >= 3
+    TCCR4A = TCCR4A | 0b11000010; // bit change at OCR4A
+#endif
+#if DIMMER_NUM >= 9
+    TCCR4A = TCCR4A | 0b00110010; // bit change at OCR4B
+#endif
+#if DIMMER_NUM >= 4
+    TCCR4A = TCCR4A | 0b00001110; // bit change at OCR4C
+#endif
+    // TCCR4A = 0b11111110; // bit change at OCR1A OCR1B OCR1C
+    TCCR4B = 0b00011010; // prescale 8
+    TIMSK4 = 0b0000000;  // No interuption
+    OCR4A = 65535;       // Dimmer OPT_4 OFF
+    OCR4B = 65535;       // Dimmer OPT_10 OFF
+    OCR4C = 65535;       // Dimmer OPT_5 OFF
+    ICR4 = 19840;        // Timer4 TOP
+
+    // Timer 5 Dimmer OPT_13 & OPT_8 & OPT_2)
+#if DIMMER_NUM >= 12
+    TCCR5A = TCCR5A | 0b11000010; // bit change at OCR5A
+#endif
+#if DIMMER_NUM >= 7
+    TCCR5A = TCCR5A | 0b00110010; // bit change at OCR5B
+#endif
+#if DIMMER_NUM >= 1
+    TCCR5A = TCCR5A | 0b00001110; // bit change at OCR5C
+#endif
+    // TCCR5A = 0b11111110; // bit change at OCR5A OCR5B OCR5C
+    TCCR5B = 0b00011010; // prescale 8
+    TIMSK5 = 0b0000000;  // No interuption
+    OCR5A = 65535;       // Dimmer OPT_13 OFF
+    OCR5B = 65535;       // Dimmer OPT_8 OFF
+    OCR5C = 65535;       // Dimmer OPT_2 OFF
+    ICR1 = 19840;        // Timer5 TOP
+
+    // interuption PCINT1  (point zero)
+#if DIMMER_NUM >= 1
+    PCICR = 0b00000001;  // active PCINT1 interupt
+    PCMSK0 = 0b00000001; // active pcint at pin 8
+#endif
     interrupts();
 
-    delay(20);
-    pinMode(PIN_DIMMER1, OUTPUT);
-    pinMode(PIN_DIMMER2, OUTPUT);
-    pinMode(PIN_DIMMER3, OUTPUT);
-    pinMode(PIN_DIMMER4, OUTPUT);
+    // delay(20);
 };
 
 void dimmer_set(uint8_t num, uint8_t percent, uint8_t time, bool candle)
@@ -287,7 +397,7 @@ void dimmer_loop()
         /// Candle
         if (millis() - dimmer_candle_old_time >= candle_interval)
         {
-            if (Dimmer_candle[num] == true) //FIXME: candle: need test and update
+            if (Dimmer_candle[num] == true) // FIXME: candle: need test and update
             {
                 dimmer_candle_old_time = millis();
                 uint8_t candle_percent = random(CANDLE_PERCENTE_MIN, CANDLE_PERCENTE_MAX + 1);
