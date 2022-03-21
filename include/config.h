@@ -16,15 +16,19 @@
 #define BOARD_SW_VERSION "0.2"
 #define BOARD_IDENTIFIER "DTB02-001"
 
-
 #ifdef __GIT_HASH__
 #define BOARD_SW_VERSION_PRINT BOARD_SW_VERSION " (" __GIT_HASH__ ")"
 #else
 #define BOARD_SW_VERSION_PRINT BOARD_SW_VERSION
 #endif
 
-// input
+//INPUT
 #define DEBOUNCE_TIME 50
+#define LONG_PUSH_TIME 800
+#define LONG_LONG_PUSH_TIME 5000 //for value save
+#define XL_LONG_PUSH_TIME 10000
+#define MULTIPLE_PUSH_TIME 100
+#define INPUT_REFRESH DEBOUNCE_TIME / 2
 // watchdog
 #define WATCHDOG_TIME WDTO_1S
 
@@ -78,7 +82,7 @@
 //Advance option
 #define NETWORK_RESET_TIME 20000 // temp avant reset de la carte reseau en qua d'imposibilité de se connecter (en miliseconde)
 #define MQTT_UPDATE 1000         // in ms
-#endif //MQTT
+#endif                           //MQTT
 
 // Poele
 #define POELE

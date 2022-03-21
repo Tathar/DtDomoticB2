@@ -1225,16 +1225,87 @@ void relay_callback(const uint8_t num, const bool action)
     DT_mqtt_send(buffer, "OFF");
 }
 
-void input_callback(const uint8_t num, const uint8_t action)
+void input_callback(const uint8_t num, const Bt_Action action)
 {
   wdt_reset();
-  sprintf_P(buffer, PSTR("entrée numero %d dans l etat %d"), num, (int)action);
-  // auto Serial.println(buffer);
+  sprintf_P(buffer, PSTR("entrée numero %d dans l etat "), num);
+  Serial.print(buffer);
   sprintf_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/input-%02d/state"), num);
-  if (action == HIGH)
+  switch (action)
+  {
+  case IN_PUSHED:
+    Serial.println("ON");
     DT_mqtt_send(buffer, "ON");
-  else
+    break;
+
+  case IN_RELEASE:
+    Serial.println("OFF");
     DT_mqtt_send(buffer, "OFF");
+    break;
+
+  case IN_PUSH:
+    Serial.println("PUSH");
+    DT_mqtt_send(buffer, "PUSH");
+    break;
+
+  case IN_LPUSH:
+    Serial.println("LPUSH");
+    DT_mqtt_send(buffer, "LPUSH");
+    break;
+
+  case IN_LLPUSH:
+    Serial.println("LLPUSH");
+    DT_mqtt_send(buffer, "LLPUSH");
+    break;
+
+  case IN_XLLPUSH:
+    Serial.println("XLLPUSH");
+    DT_mqtt_send(buffer, "XLLPUSH");
+    break;
+
+  case IN_2PUSH:
+    Serial.println("2PUSH");
+    DT_mqtt_send(buffer, "2PUSH");
+    break;
+
+  case IN_L2PUSH:
+    Serial.println("L2PUSH");
+    DT_mqtt_send(buffer, "L2PUSH");
+    break;
+
+  case IN_LL2PUSH:
+    Serial.println("LL2PUSH");
+    DT_mqtt_send(buffer, "LL2PUSH");
+    break;
+
+  case IN_XLL2PUSH:
+    Serial.println("XLL2PUSH");
+    DT_mqtt_send(buffer, "XLL2PUSH");
+    break;
+
+  case IN_3PUSH:
+    Serial.println("3PUSH");
+    DT_mqtt_send(buffer, "3PUSH");
+    break;
+
+  case IN_L3PUSH:
+    Serial.println("L3PUSH");
+    DT_mqtt_send(buffer, "L3PUSH");
+    break;
+
+  case IN_LL3PUSH:
+    Serial.println("LL3PUSH");
+    DT_mqtt_send(buffer, "LL3PUSH");
+    break;
+
+  case IN_XLL3PUSH:
+    Serial.println("XLL3PUSH");
+    DT_mqtt_send(buffer, "XLL3PUSH");
+    break;
+
+  default:
+    break;
+  }
 }
 
 void pt100_callback(const uint8_t num, const float temp)
@@ -1490,7 +1561,7 @@ void mqtt_publish()
   for (uint8_t num = 0; num < INPUT_NUM; ++num)
   {
     wdt_reset();
-    input_callback(num + 1, DT_input_get(num + 1));
+    input_callback(num + 1, DT_input_get_stats(num + 1));
   }
 
   // PT100
