@@ -1224,90 +1224,124 @@ void relay_callback(const uint8_t num, const bool action)
   else
     DT_mqtt_send(buffer, "OFF");
 }
-
+#endif // MQTT
 void input_callback(const uint8_t num, const Bt_Action action)
 {
   wdt_reset();
-  sprintf_P(buffer, PSTR("entrée numero %d dans l etat "), num);
-  Serial.print(buffer);
+  Serial.print(F("entrée numero "));
+  Serial.print(num);
+  Serial.print(F(" dans l etat "));
+
+#ifdef MQTT
   sprintf_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/input-%02d/state"), num);
+#endif
   switch (action)
   {
   case IN_PUSHED:
     Serial.println("ON");
+#ifdef MQTT
     DT_mqtt_send(buffer, "ON");
+#endif
     break;
 
   case IN_RELEASE:
     Serial.println("OFF");
+#ifdef MQTT
     DT_mqtt_send(buffer, "OFF");
+#endif
     break;
 
   case IN_PUSH:
     Serial.println("PUSH");
+#ifdef MQTT
     DT_mqtt_send(buffer, "PUSH");
+#endif
     break;
 
   case IN_LPUSH:
     Serial.println("LPUSH");
+#ifdef MQTT
     DT_mqtt_send(buffer, "LPUSH");
+#endif
     break;
 
   case IN_LLPUSH:
     Serial.println("LLPUSH");
+#ifdef MQTT
     DT_mqtt_send(buffer, "LLPUSH");
+#endif
     break;
 
   case IN_XLLPUSH:
     Serial.println("XLLPUSH");
+#ifdef MQTT
     DT_mqtt_send(buffer, "XLLPUSH");
+#endif
     break;
 
   case IN_2PUSH:
     Serial.println("2PUSH");
+#ifdef MQTT
     DT_mqtt_send(buffer, "2PUSH");
+#endif
     break;
 
   case IN_L2PUSH:
     Serial.println("L2PUSH");
+#ifdef MQTT
     DT_mqtt_send(buffer, "L2PUSH");
+#endif
     break;
 
   case IN_LL2PUSH:
     Serial.println("LL2PUSH");
+#ifdef MQTT
     DT_mqtt_send(buffer, "LL2PUSH");
+#endif
     break;
 
   case IN_XLL2PUSH:
     Serial.println("XLL2PUSH");
+#ifdef MQTT
     DT_mqtt_send(buffer, "XLL2PUSH");
+#endif
     break;
 
   case IN_3PUSH:
     Serial.println("3PUSH");
+#ifdef MQTT
     DT_mqtt_send(buffer, "3PUSH");
+#endif
     break;
 
   case IN_L3PUSH:
     Serial.println("L3PUSH");
+#ifdef MQTT
     DT_mqtt_send(buffer, "L3PUSH");
+#endif
     break;
 
   case IN_LL3PUSH:
     Serial.println("LL3PUSH");
+#ifdef MQTT
     DT_mqtt_send(buffer, "LL3PUSH");
+#endif
     break;
 
   case IN_XLL3PUSH:
     Serial.println("XLL3PUSH");
+#ifdef MQTT
     DT_mqtt_send(buffer, "XLL3PUSH");
+#endif
     break;
 
   default:
+    Serial.println(action);
     break;
   }
 }
 
+#ifdef MQTT
 void pt100_callback(const uint8_t num, const float temp)
 {
   wdt_reset();
@@ -2671,9 +2705,7 @@ void setup()
 #endif // MQTT
   // auto Serial.println("starting input");
   DT_input_init();
-#ifdef MQTT
   DT_input_set_callback(input_callback);
-#endif // MQTT
 
   // auto Serial.println("starting PT100");
   DT_pt100_init();
@@ -2841,9 +2873,6 @@ void loop()
 #ifdef MQTT
     strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/load_1s"), BUFFER_SIZE);
     DT_mqtt_send(buffer, (float)(load_1s_count / 100.0));
-#else
-    Serial.print(F(load 10m =));
-    Serial.println((float)((load_10s_count / 100.0)));
 #endif
     load_1s_count = 0;
     load_1s_time = now;
@@ -2876,7 +2905,7 @@ void loop()
     strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/load_1m"), BUFFER_SIZE);
     DT_mqtt_send(buffer, (float)((load_10s_count / 100.0)));
 #else
-    Serial.print(F(load 10m =));
+    Serial.print(F("load 10m ="));
     Serial.println((float)((load_10s_count / 100.0)));
 #endif
     load_10s_count = 0;
