@@ -7,27 +7,27 @@
 #define MIN_DEFAULT_PT100 -100 // si la temperature est inferieur, on considere que la PT100 est en default
 #define MAX_DEFAULT_PT100 200  // si la temperature est superieur, on considere que la PT100 est en default
 
-// Adafruit_MAX31865 *temp[TEMP_NUM];
-Adafruit_MAX31865 max31865[20] = {Adafruit_MAX31865(23),
-                                  Adafruit_MAX31865(22),
-                                  Adafruit_MAX31865(25),
-                                  Adafruit_MAX31865(24),
-                                  Adafruit_MAX31865(27),
-                                  Adafruit_MAX31865(26),
-                                  Adafruit_MAX31865(29),
-                                  Adafruit_MAX31865(28),
-                                  Adafruit_MAX31865(31),
-                                  Adafruit_MAX31865(32),
-                                  Adafruit_MAX31865(33),
-                                  Adafruit_MAX31865(30),
-                                  Adafruit_MAX31865(35),
-                                  Adafruit_MAX31865(34),
-                                  Adafruit_MAX31865(37),
-                                  Adafruit_MAX31865(36),
-                                  Adafruit_MAX31865(39),
-                                  Adafruit_MAX31865(38),
-                                  Adafruit_MAX31865(41),
-                                  Adafruit_MAX31865(40)};
+Adafruit_MAX31865 *max31865[TEMP_NUM];
+// Adafruit_MAX31865 max31865[20] = {Adafruit_MAX31865(23),
+//                                   Adafruit_MAX31865(22),
+//                                   Adafruit_MAX31865(25),
+//                                   Adafruit_MAX31865(24),
+//                                   Adafruit_MAX31865(27),
+//                                   Adafruit_MAX31865(26),
+//                                   Adafruit_MAX31865(29),
+//                                   Adafruit_MAX31865(28),
+//                                   Adafruit_MAX31865(31),
+//                                   Adafruit_MAX31865(32),
+//                                   Adafruit_MAX31865(33),
+//                                   Adafruit_MAX31865(30),
+//                                   Adafruit_MAX31865(35),
+//                                   Adafruit_MAX31865(34),
+//                                   Adafruit_MAX31865(37),
+//                                   Adafruit_MAX31865(36),
+//                                   Adafruit_MAX31865(39),
+//                                   Adafruit_MAX31865(38),
+//                                   Adafruit_MAX31865(41),
+//                                   Adafruit_MAX31865(40)};
 
 float old_temp[TEMP_NUM];
 uint32_t PT100_callback_time[TEMP_NUM];
@@ -38,7 +38,7 @@ float _temp_get(int num)
     ////auto Serial.print("Temperature N°");
     ////auto Serial.print(num + 1);
 
-    uint8_t fault = max31865[num].readFault();
+    uint8_t fault = max31865[num]->readFault();
 
     if (fault)
     {
@@ -71,12 +71,12 @@ float _temp_get(int num)
         // {
         //    //auto Serial.println("Under/Over voltage");
         // }
-        max31865[num].clearFault();
+        max31865[num]->clearFault();
         return TEMP_DEFAULT_PT100;
     }
     else
     {
-        float tmp = max31865[num].temperature(100, TEMP_RREF);
+        float tmp = max31865[num]->temperature(100, TEMP_RREF);
         // sprintf(buffer, "with %%p:  x    = %p\n", &capteur);
         ////auto Serial.print(buffer);
 
@@ -105,7 +105,11 @@ void DT_pt100_init()
     {
 
         ////auto Serial.print("pgm read pin = ");
-        uint8_t pin = pgm_read_byte(TEMP_ARRAY + num);
+#if DIMMER_NUM >= 1 //si dimmer
+        uint8_t pin = pgm_read_byte(OPT_ARRAY + (DIMMER_NUM + 1 + num )); //decallage de 1 lie au dimmer
+#else
+        uint8_t pin = pgm_read_byte(OPT_ARRAY + num); //pas de decallage sinon
+#endif
         //auto Serial.println(pin);
         ////auto Serial.println("creation object");
         // temp[num] = new Adafruit_MAX31865(pin);
@@ -114,8 +118,10 @@ void DT_pt100_init()
         // uint8_t pin = pgm_read_byte(TEMP_ARRAY + num);
         pinMode(pin, OUTPUT);
         digitalWrite(pin, HIGH);
+
+        max31865[num] = new Adafruit_MAX31865(pin);
         ////auto Serial.println("adafruit.begin()");
-        max31865[num].begin(MAX31865_3WIRE);
+        max31865[num]->begin(MAX31865_3WIRE);
         ////auto Serial.println("fin begin");
     }
 }
