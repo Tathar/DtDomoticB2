@@ -98,9 +98,9 @@ bool DT_relay_get(uint8_t num)
     bool ret;
     if (pin >= 100)
     {
-        pin -= 100;
-        uint8_t i2c = pin / 10;
-        pin %= 10;
+        uint8_t i2c = pin / 100;
+        pin -= i2c * 100;
+        i2c -= 1;
         ret = mcp[i2c].digitalRead(pin);
     }
     else
