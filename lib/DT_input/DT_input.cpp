@@ -65,7 +65,8 @@ void DT_input_init()
         multiple_push_start_time[num] = 0;
         push_count[num] = 0;
         front[num] = 0;
-        old_pin_stats[num] = revert == true ? HIGH : LOW;
+        old_pin_stats[num] = revert == false ? LOW : HIGH;
+        stats[num] = revert == false ? IN_RELEASE : IN_PUSHED;
     }
 }
 
@@ -120,7 +121,7 @@ void DT_input_loop()
             }
             else // si pas d interuption (pullup)
             {
-                pin_stats = old_pin_stats[num];
+                pin_stats = revert == false ? old_pin_stats[num] : !old_pin_stats[num];
             }
         }
         else
