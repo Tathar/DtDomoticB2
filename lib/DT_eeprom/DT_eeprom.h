@@ -11,6 +11,7 @@
 #include "../lib/DT_3voies/DT_3voies.h"
 
 #include <QuickPID.h>
+#include <config.h>
 
 static const uint8_t STRUCT_MAGIC = 1;
 static const uint8_t STRUCT_VERSION = 1;
@@ -30,8 +31,8 @@ struct Pid
 // declaration de la structure de configuration
 struct Mem_Config
 {
-    float C2; // consigne Temp PCBT
-    float C3; // consigne MCBT
+    float C2;         // consigne Temp PCBT
+    float C3;         // consigne MCBT
     bool MQTT_online; //connecte au broker MQTT
 };
 struct Eeprom_Config
@@ -75,10 +76,15 @@ struct Eeprom_Config
 
     float ratio_PCBT;
     float ratio_MCBT;
-    uint16_t out_offset_PCBT;//en ms
-    uint16_t out_offset_MCBT;//en ms
-    float in_offset_PCBT; //en °c
-    float in_offset_MCBT; //en °c
+    uint16_t out_offset_PCBT; //en ms
+    uint16_t out_offset_MCBT; //en ms
+    float in_offset_PCBT;     //en °c
+    float in_offset_MCBT;     //en °c
+
+#if DIMMER_NUM >= 1
+    uint16_t Dimmer_scale_min[DIMMER_NUM]; //Mise a l echelle
+    uint16_t Dimmer_scale_max[DIMMER_NUM]; //Mise a l echelle
+#endif
 };
 
 // structure de configuration

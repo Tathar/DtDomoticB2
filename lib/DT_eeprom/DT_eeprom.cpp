@@ -109,7 +109,7 @@ void chargeEEPROM()
                 eeprom_config.out_offset_MCBT = 0;
         }
 
-        // Valeurs par défaut struct_version == 4
+        // Valeurs par défaut struct_version == 5
         if (eeprom_config.struct_version < 5 || erreur)
         {
                 need_save = true;
@@ -119,6 +119,56 @@ void chargeEEPROM()
                 eeprom_config.in_offset_PCBT = 0;
                 eeprom_config.in_offset_MCBT = 0;
         }
+
+        // Valeurs par défaut struct_version == 6
+        if (eeprom_config.struct_version < 6 || erreur)
+        {
+                need_save = true;
+                Serial.println("EEPROM version < 6");
+                eeprom_config.struct_version = 6;
+
+#if DIMMER_NUM >= 1
+                for (uint8_t num; num < DIMMER_NUM; ++num)
+                {
+                        if (num < 13)
+                        {
+                                eeprom_config.Dimmer_scale_min[num] = 100;   //Mise a l echelle
+                                eeprom_config.Dimmer_scale_max[num] = 15000; //Mise a l echelle
+                        }
+                        else
+                        {
+                                eeprom_config.Dimmer_scale_min[num] = 10;  //Mise a l echelle
+                                eeprom_config.Dimmer_scale_max[num] = 200; //Mise a l echelle
+                        }
+                }
+#endif
+        }
+
+#if DIMMER_NUM >= 1
+        if (eeprom_config.struct_version >= 6)
+        {
+                // need_save = true;
+
+                for (uint8_t num; num < DIMMER_NUM; ++num)
+                {
+                        if (num < 13)
+                        {
+                                if (eeprom_config.Dimmer_scale_min[num] == 0)
+                                        eeprom_config.Dimmer_scale_min[num] = 100; //Mise a l echelle
+
+                                if (eeprom_config.Dimmer_scale_max[num] == 0)
+                                        eeprom_config.Dimmer_scale_max[num] = 15000; //Mise a l echelle
+                        }
+                        else
+                        {
+                                if (eeprom_config.Dimmer_scale_min[num] == 0)
+                                        eeprom_config.Dimmer_scale_min[num] = 10; //Mise a l echelle
+                                if (eeprom_config.Dimmer_scale_max[num] == 0)
+                                        eeprom_config.Dimmer_scale_max[num] = 200; //Mise a l echelle
+                        }
+                }
+        }
+#endif
 
         // Sauvegarde les nouvelles données
         if (need_save)

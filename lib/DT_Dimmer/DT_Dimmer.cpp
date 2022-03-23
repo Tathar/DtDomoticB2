@@ -51,14 +51,14 @@ uint16_t to_ocrx(uint8_t dimmer_num, uint8_t percent)
     }
     else
     {
-        if (dimmer_num < 12)
-        {
-            return (SCALE(percent, 1, 99, config.Dimmer_scale_min[dimmer_num], config.Dimmer_scale_max[dimmer_num]));
-        }
-        else
-        {
-            return (SCALE(percent, 1, 99, config.Dimmer_scale_min[dimmer_num], config.Dimmer_scale_max[dimmer_num])); // low resolution
-        }
+        // if (dimmer_num < 12)
+        // {
+        return (SCALE(percent, 1, 99, eeprom_config.Dimmer_scale_min[dimmer_num], eeprom_config.Dimmer_scale_max[dimmer_num]));
+        // }
+        // else
+        // {
+        //     return (SCALE(percent, 1, 99, eeprom_config.Dimmer_scale_min[dimmer_num], eeprom_config.Dimmer_scale_max[dimmer_num])); // low resolution
+        // }
     }
 }
 
