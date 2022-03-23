@@ -5,7 +5,7 @@
 
 #include <DT_relay.h>
 #include <DT_input.h>
-//#include <DT_PT100.h>
+#include <DT_PT100.h>
 #include <DT_mqtt.h>
 #include <DT_BME280.h>
 #include <DT_CCS811.h>
@@ -124,6 +124,7 @@ void homeassistant(void)
     DT_mqtt_send(buffer, buffer_value);
   }
 
+#if TEMP_NUM > 0
   // PT100
   for (uint8_t num = 0; num < TEMP_NUM; ++num)
   {
@@ -145,6 +146,8 @@ void homeassistant(void)
     // Serial.println(buffer_value);
     DT_mqtt_send(buffer, buffer_value);
   }
+#endif // PT100
+
   // BME280 temperature
   for (uint8_t num = 0; num < BME280_NUM; ++num)
   {
@@ -1220,8 +1223,8 @@ void homeassistant(void)
 void relay_callback(const uint8_t num, const bool action)
 {
   wdt_reset();
-  //sprintf_P(buffer, PSTR("relais numero %d dans l etat %d"), num, (int)action);
-  // auto Serial.println(buffer);
+  // sprintf_P(buffer, PSTR("relais numero %d dans l etat %d"), num, (int)action);
+  //  auto Serial.println(buffer);
   sprintf_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/relay-%02d/state"), num);
   if (action)
     DT_mqtt_send(buffer, "ON");
@@ -1243,110 +1246,111 @@ void input_callback(const uint8_t num, const Bt_Action action)
   switch (action)
   {
   case IN_PUSHED:
-    //Serial.println("ON");
+    // Serial.println("ON");
 #ifdef MQTT
     DT_mqtt_send(buffer, "ON");
 #endif
     break;
 
   case IN_RELEASE:
-    //Serial.println("OFF");
+    // Serial.println("OFF");
 #ifdef MQTT
     DT_mqtt_send(buffer, "OFF");
 #endif
     break;
 
   case IN_PUSH:
-    //Serial.println("PUSH");
+    // Serial.println("PUSH");
 #ifdef MQTT
-    //DT_mqtt_send(buffer, "PUSH");
+    // DT_mqtt_send(buffer, "PUSH");
 #endif
     break;
 
   case IN_LPUSH:
-    //Serial.println("LPUSH");
+    // Serial.println("LPUSH");
 #ifdef MQTT
-    //DT_mqtt_send(buffer, "LPUSH");
+    // DT_mqtt_send(buffer, "LPUSH");
 #endif
     break;
 
   case IN_LLPUSH:
-    //Serial.println("LLPUSH");
+    // Serial.println("LLPUSH");
 #ifdef MQTT
-    //DT_mqtt_send(buffer, "LLPUSH");
+    // DT_mqtt_send(buffer, "LLPUSH");
 #endif
     break;
 
   case IN_XLLPUSH:
-    //Serial.println("XLLPUSH");
+    // Serial.println("XLLPUSH");
 #ifdef MQTT
-    //DT_mqtt_send(buffer, "XLLPUSH");
+    // DT_mqtt_send(buffer, "XLLPUSH");
 #endif
     break;
 
   case IN_2PUSH:
-    //Serial.println("2PUSH");
+    // Serial.println("2PUSH");
 #ifdef MQTT
-    //DT_mqtt_send(buffer, "2PUSH");
+    // DT_mqtt_send(buffer, "2PUSH");
 #endif
     break;
 
   case IN_L2PUSH:
-    //Serial.println("L2PUSH");
+    // Serial.println("L2PUSH");
 #ifdef MQTT
-    //DT_mqtt_send(buffer, "L2PUSH");
+    // DT_mqtt_send(buffer, "L2PUSH");
 #endif
     break;
 
   case IN_LL2PUSH:
-    //Serial.println("LL2PUSH");
+    // Serial.println("LL2PUSH");
 #ifdef MQTT
-    //DT_mqtt_send(buffer, "LL2PUSH");
+    // DT_mqtt_send(buffer, "LL2PUSH");
 #endif
     break;
 
   case IN_XLL2PUSH:
-    //Serial.println("XLL2PUSH");
+    // Serial.println("XLL2PUSH");
 #ifdef MQTT
-    //DT_mqtt_send(buffer, "XLL2PUSH");
+    // DT_mqtt_send(buffer, "XLL2PUSH");
 #endif
     break;
 
   case IN_3PUSH:
-    //Serial.println("3PUSH");
+    // Serial.println("3PUSH");
 #ifdef MQTT
-    //DT_mqtt_send(buffer, "3PUSH");
+    // DT_mqtt_send(buffer, "3PUSH");
 #endif
     break;
 
   case IN_L3PUSH:
-    //Serial.println("L3PUSH");
+    // Serial.println("L3PUSH");
 #ifdef MQTT
-    //DT_mqtt_send(buffer, "L3PUSH");
+    // DT_mqtt_send(buffer, "L3PUSH");
 #endif
     break;
 
   case IN_LL3PUSH:
-    //Serial.println("LL3PUSH");
+    // Serial.println("LL3PUSH");
 #ifdef MQTT
-    //DT_mqtt_send(buffer, "LL3PUSH");
+    // DT_mqtt_send(buffer, "LL3PUSH");
 #endif
     break;
 
   case IN_XLL3PUSH:
-    //Serial.println("XLL3PUSH");
+    // Serial.println("XLL3PUSH");
 #ifdef MQTT
-    //DT_mqtt_send(buffer, "XLL3PUSH");
+    // DT_mqtt_send(buffer, "XLL3PUSH");
 #endif
     break;
 
   default:
-    //Serial.println(action);
+    // Serial.println(action);
     break;
   }
 }
 
 #ifdef MQTT
+#if TEMP_NUM > 0
 void pt100_callback(const uint8_t num, const float temp)
 {
   wdt_reset();
@@ -1360,6 +1364,7 @@ void pt100_callback(const uint8_t num, const float temp)
   // Serial.println(buffer_value);
   DT_mqtt_send(buffer, buffer_value);
 }
+#endif // PT100
 
 void bme280_callback_temperature(const uint8_t num, const float temperature)
 {
@@ -1605,12 +1610,14 @@ void mqtt_publish()
     input_callback(num + 1, DT_input_get_stats(num + 1));
   }
 
-  // PT100
+// PT100
+#if TEMP_NUM > 0
   for (uint8_t num = 0; num < TEMP_NUM; ++num)
   {
     wdt_reset();
-    //pt100_callback(num + 1, DT_pt100_get(num + 1));
+    pt100_callback(num + 1, DT_pt100_get(num + 1));
   }
+#endif
 
 #ifdef POELE
   // mode poele
@@ -2090,9 +2097,8 @@ void mqtt_subscribe(PubSubClient &mqtt)
 
   Serial.println(millis() - now);
 
-  //homeassistant();
-  //mqtt_publish();
-
+  // homeassistant();
+  // mqtt_publish();
 }
 
 void mqtt_receve(char *topic, uint8_t *payload, unsigned int length)
@@ -2721,11 +2727,13 @@ void setup()
   DT_input_init();
   DT_input_set_callback(input_callback);
 
+#if TEMP_NUM > 0
   // auto Serial.println("starting PT100");
-  //DT_pt100_init();
+  DT_pt100_init();
 #ifdef MQTT
-  //DT_pt100_set_callback(pt100_callback);
+  DT_pt100_set_callback(pt100_callback);
 #endif // MQTT
+#endif // PT100
 
   // auto Serial.println("starting BME280");
   DT_BME280_init();
@@ -2806,7 +2814,9 @@ void loop()
   DT_input_loop();
   DT_BME280_loop();
   DT_CCS811_loop();
-  //DT_pt100_loop();
+#if TEMP_NUM > 0
+  DT_pt100_loop();
+#endif
 #ifdef POELE
   DT_Poele_loop();
 #endif
