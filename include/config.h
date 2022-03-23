@@ -30,6 +30,12 @@
 #define MULTIPLE_PUSH_TIME 100
 #define INPUT_REFRESH DEBOUNCE_TIME / 2
 
+// Dimmer
+#define DIMMER_NUM 14 //max 14
+
+//PT100
+#define TEMP_NUM 4 // 12 ok 13 ko // max 18   
+
 // watchdog
 #define WATCHDOG_TIME WDTO_1S
 
@@ -146,11 +152,5 @@ const uint8_t RELAI_PLANCHE[NUM_PLANCHE] PROGMEM = {RELAIS_PLANCHE_SALON, RELAIS
 
 // Demmarage Poele
 #define MARCHE_POELE 14
-
-// Dimmer
-#define DIMMER_NUM 14
-
-//PT100
-#define TEMP_NUM 10 // 12 ok 13 ko
 
 #endif

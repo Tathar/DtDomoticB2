@@ -40,12 +40,10 @@ const bool INPUT_REVERT[INPUT_NUM] PROGMEM = {false, false, false, false, false,
 
 // sonde de temperature pt100
 #define TEMP_RREF 430.0
-#define TEMP_NUM 10 // 12 ok 13 ko
 const uint8_t OPT_ARRAY[18] PROGMEM = {OPT_1, OPT_2, OPT_3, OPT_4, OPT_5, OPT_6, OPT_7, OPT_8, OPT_9, OPT_10, OPT_11, OPT_12, OPT_13, OPT_14, OPT_15, OPT_16, OPT_17, OPT_18};
 
 // Dimmer
-#define DIMMER_NUM 14
-const uint8_t DIMMER_ARRAY[14] PROGMEM = {OPT_2, OPT_3, OPT_4, OPT_5, OPT_6, OPT_7, OPT_8, OPT_9, OPT_10, OPT_11, OPT_12, OPT_13, OPT_14, OPT_15};
+//const uint8_t DIMMER_ARRAY[14] PROGMEM = {OPT_2, OPT_3, OPT_4, OPT_5, OPT_6, OPT_7, OPT_8, OPT_9, OPT_10, OPT_11, OPT_12, OPT_13, OPT_14, OPT_15};
 
 // sonde de temperature bme280
 #define BME280_NUM 2

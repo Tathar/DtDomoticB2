@@ -169,7 +169,7 @@ void Dimmer_init(void)
 
     for (uint8_t num = 0; num < DIMMER_NUM; ++num)
     {
-        uint8_t pin = pgm_read_byte(DIMMER_ARRAY + num);
+        uint8_t pin = pgm_read_byte(OPT_ARRAY + num);
         pinMode(pin, OUTPUT);
     }
 
