@@ -915,7 +915,7 @@ void mqtt_subscribe(PubSubClient &mqtt)
 
   Serial.println(millis() - now);
 
-  // homeassistant();
+  // homeassistant(true);
   // mqtt_publish();
 }
 
@@ -1500,7 +1500,7 @@ void mqtt_receve(char *topic, uint8_t *payload, unsigned int length)
   {
     if (strcmp(buffer, "online") == 0)
     {
-      homeassistant();
+      homeassistant(true);
       mqtt_publish();
       mem_config.MQTT_online = true;
     }

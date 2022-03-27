@@ -2,6 +2,7 @@
 
 #include <avr/wdt.h> //watchdog
 #include <DT_eeprom.h>
+#include <DT_ha.h>
 
 #define add0x2(s) 0x##s
 #define toHEX(s) add0x2(s)
@@ -250,6 +251,7 @@ void DT_mqtt_loop()
         wdt_reset();
         mqtt.loop();
         static uint32_t time = 0;
+        homeassistant(false);
         if (now - time >= MQTT_UPDATE)
         {
             if (!mem_config.MQTT_online)

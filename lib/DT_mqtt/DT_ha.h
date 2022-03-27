@@ -13,4 +13,4 @@ extern char buffer[BUFFER_SIZE];
 extern char buffer_value[BUFFER_VALUE_SIZE];
 
 
-void homeassistant(void);
+void homeassistant(bool start);
