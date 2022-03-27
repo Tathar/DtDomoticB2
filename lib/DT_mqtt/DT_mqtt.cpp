@@ -170,7 +170,7 @@ void DT_mqtt_loop()
     uint32_t now = millis();
     bool link_status = (Ethernet.linkStatus() == LinkON);
 
-    if (!mqtt.connected() || !link_status)
+    if (as_ethernet && (!mqtt.connected() || !link_status))
     {
         if (mem_config.MQTT_online)
         {
@@ -203,10 +203,13 @@ void DT_mqtt_loop()
             }
             // Attempt to reconnect
             // String clientId = "Board01";
-            if (!link_status) 
-                Serial.println("Link OFF");
 
-            Serial.println("start MQTT conection");
+            Serial.print("start MQTT conection ");
+
+            if (!link_status)
+                Serial.println("(Link OFF)");
+            else
+                Serial.println("(Link ON)");
             //  if (mqtt.connect(clientId.c_str(), "DtBoard", "1MotdePasse"))
 
             // if (Ethernet.linkStatus() == LinkOFF)
@@ -242,7 +245,7 @@ void DT_mqtt_loop()
         // delay(50);
         // wdt_enable(WATCHDOG_TIME);
     }
-    else
+    else if (as_ethernet)
     {
         wdt_reset();
         mqtt.loop();
