@@ -34,7 +34,7 @@
 #define DIMMER_NUM 14 //max 14
 
 //PT100
-#define TEMP_NUM 4 // 12 ok 13 ko // max 18   
+#define TEMP_NUM 3 // 12 ok 13 ko // max 18   
 
 // watchdog
 #define WATCHDOG_TIME WDTO_1S
