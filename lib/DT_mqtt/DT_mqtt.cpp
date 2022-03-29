@@ -18,6 +18,7 @@ IPAddress server(MQTT_IP1, MQTT_IP2, MQTT_IP3, MQTT_IP4);
 EthernetClient ethClient;
 PubSubClient mqtt(ethClient);
 bool as_ethernet;
+bool link_status;
 
 void (*_mqtt_update)(PubSubClient &mqtt);
 void (*_mqtt_subscribe)(PubSubClient &mqtt);
@@ -40,36 +41,56 @@ void DT_mqtt_set_receve_callback(void (*mqtt_receve)(char *, uint8_t *, unsigned
 
 bool DT_mqtt_send(const char *tag, const float value)
 {
-    char buffer[32];
-    dtostrf(value, 1, 2, buffer);
-    return mqtt.publish(tag, buffer, strlen(buffer));
+    if (as_ethernet && link_status && mqtt.connected())
+    {
+        char buffer[32];
+        dtostrf(value, 1, 2, buffer);
+        return mqtt.publish(tag, buffer, strlen(buffer));
+    }
+    return false;
 }
 
 bool DT_mqtt_send(const char *tag, const unsigned int value)
 {
 
-    char buffer[32];
-    sprintf(buffer, "%u", value);
-    return mqtt.publish(tag, buffer, strlen(buffer));
+    if (as_ethernet && link_status && mqtt.connected())
+    {
+        char buffer[32];
+        sprintf(buffer, "%u", value);
+        return mqtt.publish(tag, buffer, strlen(buffer));
+    }
+    return false;
 }
 
 bool DT_mqtt_send(const char *tag, const int value)
 {
-    char buffer[32];
-    sprintf(buffer, "%i", value);
-    return mqtt.publish(tag, buffer, strlen(buffer));
+    if (as_ethernet && link_status && mqtt.connected())
+    {
+        char buffer[32];
+        sprintf(buffer, "%i", value);
+        return mqtt.publish(tag, buffer, strlen(buffer));
+    }
+    return false;
 }
 
 bool DT_mqtt_send(const char *tag, const uint32_t value)
 {
-    char buffer[32];
-    sprintf(buffer, "%" PRIu32, value);
-    return mqtt.publish(tag, buffer, strlen(buffer));
+    if (as_ethernet && link_status && mqtt.connected())
+    {
+        char buffer[32];
+        sprintf(buffer, "%" PRIu32, value);
+        return mqtt.publish(tag, buffer, strlen(buffer));
+    }
+    return false;
 }
 
 bool DT_mqtt_send(const char *tag, const char *value)
 {
-    return mqtt.publish(tag, value, strlen(value));
+    if (as_ethernet && link_status && mqtt.connected())
+    {
+        return mqtt.publish(tag, value, strlen(value));
+    }
+    return false;
 }
 
 void init_ethernet()
@@ -165,42 +186,54 @@ void DT_mqtt_init()
 
 void DT_mqtt_loop()
 {
+    wdt_reset();
     static uint32_t last_reconnection_time = 0;
     static uint32_t reset_time = 0; // for reset network device
     static bool reset = false;      // for reset network device
     uint32_t now = millis();
-    bool link_status = (Ethernet.linkStatus() == LinkON);
+    // Serial.println("DT_mqtt_loop start");
+    link_status = (Ethernet.linkStatus() == LinkON);
 
+    // Serial.println("DT_mqtt_loop 2");
     if (as_ethernet && (!mqtt.connected() || !link_status))
     {
         if (mem_config.MQTT_online)
         {
             mem_config.MQTT_online = false;
+            Serial.println("DT_mqtt_loop 1");
         }
 
-        wdt_enable(WDTO_8S); // watchdog at 8 secdons
+        // wdt_enable(WDTO_8S); // watchdog at 8 secdons
+        wdt_disable();
         if (reset_time == 0)
+        {
+            Serial.println("DT_mqtt_loop 2");
             reset_time = now;
+        }
         else if (reset_time != 0 && !reset && now - reset_time > NETWORK_RESET_TIME)
         {
             Serial.println("reset network board");
             digitalWrite(NETWORK_RESET, LOW);
             last_reconnection_time = now;
             reset = true;
+            Serial.println("DT_mqtt_loop 3");
         }
         else if (now - last_reconnection_time > 5000)
         {
+            Serial.println("DT_mqtt_loop 4");
             last_reconnection_time = now;
             if (reset)
             {
                 Serial.println(F("restart network"));
                 digitalWrite(NETWORK_RESET, HIGH);
-                delay(2);
+                delay(10);
                 wdt_reset();
                 init_ethernet();
                 wdt_reset();
                 reset_time = 0;
                 reset = false;
+
+                Serial.println("DT_mqtt_loop 5");
             }
             // Attempt to reconnect
             // String clientId = "Board01";
@@ -246,7 +279,7 @@ void DT_mqtt_loop()
         // delay(50);
         // wdt_enable(WATCHDOG_TIME);
     }
-    else if (as_ethernet)
+    else if (as_ethernet && link_status && mqtt.connected())
     {
         wdt_reset();
         mqtt.loop();
