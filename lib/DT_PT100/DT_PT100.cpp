@@ -106,7 +106,7 @@ void DT_pt100_init()
 
         ////auto Serial.print("pgm read pin = ");
 #if DIMMER_NUM >= 1 //si dimmer
-        uint8_t pin = pgm_read_byte(OPT_ARRAY + (DIMMER_NUM + 1 + num )); //decallage de 1 lie au dimmer
+        uint8_t pin = pgm_read_byte(OPT_ARRAY + (DIMMER_NUM + num )); //decallage de 1 lie au dimmer
 #else
         uint8_t pin = pgm_read_byte(OPT_ARRAY + num); //pas de decallage sinon
 #endif
