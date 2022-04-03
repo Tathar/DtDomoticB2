@@ -8,7 +8,7 @@ char buffer_value[BUFFER_VALUE_SIZE];
 
 void homeassistant(bool start)
 {
-    uint32_t now = millis();
+    // uint32_t now = millis();
     static uint8_t sequance = 0;
     JsonArray options;
     static uint8_t num = 0;
@@ -17,13 +17,14 @@ void homeassistant(bool start)
     if (start)
     {
         sequance = 0;
+        Serial.println(F("homeassistant"));
         return;
     }
 
-    if (sequance <= 16)
-    {
-        Serial.print(F("homeassistant"));
-    }
+    // if (sequance <= 16)
+    // {
+    //     Serial.print(F("homeassistant"));
+    // }
 
     switch (sequance)
     {
@@ -72,7 +73,7 @@ void homeassistant(bool start)
         // for (uint8_t num = 0; num < RELAY_NUM; ++num)
         if (num < RELAY_NUM)
         {
-            Serial.print(F(" relay"));
+            // Serial.print(F(" relay"));
             doc.clear();
             sprintf_P(buffer, PSTR("homeassistant/switch/" BOARD_IDENTIFIER "/relay-%02d/config"), num + 1);
             doc["~"] = F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER);
@@ -101,7 +102,7 @@ void homeassistant(bool start)
         // for (uint8_t num = 0; num < INPUT_NUM; ++num)
         if (num < INPUT_NUM)
         {
-            Serial.print(F(" input"));
+            //Serial.print(F("homeassistant"));(" input"));
             doc.clear();
             sprintf_P(buffer, PSTR("homeassistant/binary_sensor/" BOARD_IDENTIFIER "/input-%02d/config"), num + 1);
             doc["~"] = F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER);
@@ -131,7 +132,7 @@ void homeassistant(bool start)
         // for (uint8_t num = 0; num < TEMP_NUM; ++num)
         if (num < TEMP_NUM)
         {
-            Serial.print(F(" temp"));
+            //Serial.print(F("homeassistant"));(" temp"));
             wdt_reset();
             doc.clear();
             sprintf_P(buffer, PSTR("homeassistant/sensor/" BOARD_IDENTIFIER "/pt100-%02d/config"), num + 1);
@@ -1265,6 +1266,6 @@ void homeassistant(bool start)
     }
     sequance += 1;
 
-    Serial.print(F(" = "));
-    Serial.println(millis() - now);
+    // Serial.print(F(" = "));
+    // Serial.println(millis() - now);
 }

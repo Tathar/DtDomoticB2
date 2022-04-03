@@ -220,8 +220,8 @@ void DT_mqtt_loop()
             // Serial.println("DT_mqtt_loop 1");
         }
 
-        // wdt_enable(WDTO_8S); // watchdog at 8 secdons
-        wdt_disable();
+        wdt_enable(WDTO_8S); // watchdog at 8 secdons
+        //wdt_disable();
         if (reset_time == 0)
         {
             // Serial.println("DT_mqtt_loop 2");
