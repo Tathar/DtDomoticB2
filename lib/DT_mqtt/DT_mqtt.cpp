@@ -122,28 +122,35 @@ void init_ethernet()
         as_ethernet = true;
         if (Ethernet.hardwareStatus() == EthernetW5100)
         {
+
+            // Serial.print(millis());
             Serial.println(F("W5100 Ethernet controller detected."));
         }
         else if (Ethernet.hardwareStatus() == EthernetW5200)
         {
+            // Serial.print(millis());
             Serial.println(F("W5200 Ethernet controller detected."));
         }
         else if (Ethernet.hardwareStatus() == EthernetW5500)
         {
+            // Serial.print(millis());
             Serial.println(F("W5500 Ethernet controller detected."));
         }
     }
 
     if (as_ethernet && Ethernet.linkStatus() == Unknown)
     {
+        // Serial.print(millis());
         Serial.println(F("Link status unknown. Link status detection is only available with W5200 and W5500."));
     }
     else if (as_ethernet && Ethernet.linkStatus() == LinkON)
     {
+        // Serial.print(millis());
         Serial.println(F("Link status: On"));
     }
     else if (as_ethernet && Ethernet.linkStatus() == LinkOFF)
     {
+        // Serial.print(millis());
         Serial.println(F("Link status: Off"));
     }
 
@@ -160,6 +167,7 @@ void DT_mqtt_init()
     // auto Serial.println("start network");
     pinMode(NETWORK_RESET, OUTPUT);
     digitalWrite(NETWORK_RESET, HIGH);
+    // Serial.print(millis());
     Serial.println(F("start network"));
     init_ethernet();
     mqtt.setServer(server, 1883);
@@ -188,8 +196,8 @@ void DT_mqtt_loop()
 {
     wdt_reset();
     static uint32_t last_reconnection_time = 0;
-    static uint32_t reset_time = 0;      // for reset network device
-    static bool reset = false;           // for reset network device
+    static uint32_t reset_time = 0; // for reset network device
+    static bool reset = false;      // for reset network device
     // static bool old_link_status = false; // for reset network device
     uint32_t now = millis();
     // Serial.println("DT_mqtt_loop start");
@@ -221,7 +229,7 @@ void DT_mqtt_loop()
         }
 
         wdt_enable(WDTO_8S); // watchdog at 8 secdons
-        //wdt_disable();
+        // wdt_disable();
         if (reset_time == 0)
         {
             // Serial.println("DT_mqtt_loop 2");
@@ -229,6 +237,7 @@ void DT_mqtt_loop()
         }
         else if (reset_time != 0 && !reset && now - reset_time > NETWORK_RESET_TIME)
         {
+            // Serial.print(millis());
             Serial.println("reset network board");
             digitalWrite(NETWORK_RESET, LOW);
             last_reconnection_time = now;
@@ -241,6 +250,7 @@ void DT_mqtt_loop()
             last_reconnection_time = now;
             if (reset)
             {
+                // Serial.print(millis());
                 Serial.println(F("restart network"));
                 digitalWrite(NETWORK_RESET, HIGH);
                 delay(10);
@@ -255,6 +265,7 @@ void DT_mqtt_loop()
             // Attempt to reconnect
             // String clientId = "Board01";
 
+            // Serial.print(millis());
             Serial.print("start MQTT conection ");
 
             if (!link_status)
@@ -275,6 +286,7 @@ void DT_mqtt_loop()
                 if (mqtt.connect(MQTT_CLIENT_ID, MQTT_USER, MQTT_PASSWORD, MQTT_WILL_TOPIC, MQTT_WILL_QOS, MQTT_WILL_RETAIN, MQTT_WILL_MESSAGE))
                 {
                     wdt_reset();
+                    // Serial.print(millis());
                     Serial.println(F("MQTT Connected"));
                     // Once connected, publish an announcement and resubscribe...
                     if (_mqtt_subscribe != nullptr)
@@ -285,22 +297,28 @@ void DT_mqtt_loop()
                 else
                 { // si echec affichage erreur
                     wdt_reset();
-                    Serial.print(F("ECHEC, rc="));
+                    // Serial.print(millis());
+                    Serial.print(F(" ECHEC, rc="));
                     Serial.print(mqtt.state());
-                    Serial.println(F(" nouvelle tentative dans 5 secondes"));
+                    Serial.println(F("nouvelle tentative dans 5 secondes"));
                 }
             }
+            // Serial.print(millis());
             Serial.print(F("mqtt elapse time = "));
             Serial.println(millis() - now);
         }
 
         // delay(50);
-        // wdt_enable(WATCHDOG_TIME);
+        wdt_enable(WATCHDOG_TIME);
     }
     else if (as_ethernet && link_status && mqtt.connected())
     {
+        if (reset_time != 0)
+            reset_time = 0;
         wdt_reset();
+        Serial.println(F("loop1"));
         mqtt.loop();
+        Serial.println(F("loop2"));
         static uint32_t time = 0;
         homeassistant(false);
         if (now - time >= MQTT_UPDATE)

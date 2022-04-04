@@ -22,26 +22,28 @@
 #define BOARD_SW_VERSION_PRINT BOARD_SW_VERSION
 #endif
 
-//INPUT
+// INPUT
 #define DEBOUNCE_TIME 50
 #define LONG_PUSH_TIME 800
-#define LONG_LONG_PUSH_TIME 5000 //for value save
+#define LONG_LONG_PUSH_TIME 5000 // for value save
 #define XL_LONG_PUSH_TIME 10000
 #define MULTIPLE_PUSH_TIME 100
 #define INPUT_REFRESH DEBOUNCE_TIME / 2
 
 // Dimmer
-#define DIMMER_NUM 14 //max 14
+//#define DIMMER_NUM 14 // max 14
+#define DIMMER_NUM 0 // max 14
 
-//PT100
-#define TEMP_NUM 3 // 12 ok 13 ko // max 18   
+// PT100
+//#define TEMP_NUM 3 // 12 ok 13 ko // max 18
+#define TEMP_NUM 0
 
 // watchdog
-#define WATCHDOG_TIME WDTO_1S
+#define WATCHDOG_TIME WDTO_250MS
 
 #define MQTT
 #ifdef MQTT
-//buffer
+// buffer
 #define BUFFER_SIZE 65
 #define BUFFER_VALUE_SIZE 512
 // network
@@ -72,12 +74,12 @@
 #define MASK2 255
 #define MASK3 255
 #define MASK4 0
-//MQTT Server
+// MQTT Server
 #define MQTT_IP1 80
 #define MQTT_IP2 11
 #define MQTT_IP3 239
 #define MQTT_IP4 99
-//MQTT config
+// MQTT config
 #define MQTT_CLIENT_ID "Board2"
 #define MQTT_USER "test"
 #define MQTT_PASSWORD "test"
@@ -86,13 +88,13 @@
 #define MQTT_WILL_QOS 1
 #define MQTT_WILL_RETAIN true
 #define MQTT_WILL_MESSAGE "offline"
-//Advance option
-#define NETWORK_RESET_TIME 20000 // temp avant reset de la carte reseau en qua d'imposibilité de se connecter (en miliseconde)
+// Advance option
+#define NETWORK_RESET_TIME 30000 // temp avant reset de la carte reseau en qua d'imposibilité de se connecter (en miliseconde)
 #define MQTT_UPDATE 1000         // in ms
-#endif                           //MQTT
+#endif                           // MQTT
 
 // Poele
-#define POELE
+//#define POELE
 #ifdef POELE
 #define MIN_T4 0                     // en °C (fake NTC)
 #define POELE_MAX_TEMPERATURE 85     // en °C (consigne temperature Balon)
@@ -106,10 +108,10 @@
 #define PT100_ECS2 5
 
 #define RELAY_EV1 1
-#endif //POELE
+#endif // POELE
 
 // Vanne 3 Voies
-#define VANNES
+//#define VANNES
 #ifdef VANNES
 #define TMP_EAU_PCBT_MAX 38 // valeur maximum de la consigne de temperature
 #define TMP_EAU_MCBT_MAX 60 // valeur maximum de la consigne de temperature
@@ -142,7 +144,7 @@
 const float PT100_PLANCHEE[NUM_PLANCHE] PROGMEM = {PT100_PLANCHE_SALON, PT100_PLANCHE_CH_1, PT100_PLANCHE_CH_2, PT100_PLANCHE_SDB};
 const uint8_t RELAI_PLANCHE[NUM_PLANCHE] PROGMEM = {RELAIS_PLANCHE_SALON, RELAIS_PLANCHE_CH_1, RELAIS_PLANCHE_CH_2, RELAIS_PLANCHE_SDB};
 
-#endif //VANNES
+#endif // VANNES
 
 // Circulateur boucle d eau chaude
 #define CIRCULATEUR_ECS 12

@@ -18,6 +18,7 @@ void homeassistant(bool start)
     {
         sequance = 0;
         Serial.println(F("homeassistant"));
+        // Serial.print(millis());
         return;
     }
 
@@ -102,7 +103,7 @@ void homeassistant(bool start)
         // for (uint8_t num = 0; num < INPUT_NUM; ++num)
         if (num < INPUT_NUM)
         {
-            //Serial.print(F("homeassistant"));(" input"));
+            // Serial.print(F("homeassistant"));(" input"));
             doc.clear();
             sprintf_P(buffer, PSTR("homeassistant/binary_sensor/" BOARD_IDENTIFIER "/input-%02d/config"), num + 1);
             doc["~"] = F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER);
@@ -132,7 +133,7 @@ void homeassistant(bool start)
         // for (uint8_t num = 0; num < TEMP_NUM; ++num)
         if (num < TEMP_NUM)
         {
-            //Serial.print(F("homeassistant"));(" temp"));
+            // Serial.print(F("homeassistant"));(" temp"));
             wdt_reset();
             doc.clear();
             sprintf_P(buffer, PSTR("homeassistant/sensor/" BOARD_IDENTIFIER "/pt100-%02d/config"), num + 1);
