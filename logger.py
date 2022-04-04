@@ -14,7 +14,7 @@ filename = get_filename()
 while True:
     try:
         ser_bytes = ser.readline()
-        decoded_bytes = ser_bytes[0:len(ser_bytes)-2].decode("UTF8")
+        decoded_bytes = ser_bytes[0:len(ser_bytes)-2].decode("latin1")
         #print(decoded_bytes)
         if ( "starting board" in decoded_bytes) :
             filename = get_filename()
@@ -22,6 +22,6 @@ while True:
         with open(filename,"a") as f:
             writer = csv.writer(f,delimiter=",")
             writer.writerow([time.strftime("%y-%m-%d-%H:%M:%S"),decoded_bytes])
-    except:
-        print("Keyboard Interrupt")
-        break
+    except KeyboardInterrupt:
+       print("Keyboard Interrupt")
+       break
