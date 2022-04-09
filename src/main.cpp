@@ -797,7 +797,7 @@ void mqtt_publish(bool start)
   sequance += 1;
 }
 
-void mqtt_subscribe(PubSubClient &mqtt)
+void mqtt_subscribe(MQTTClient &mqtt)
 {
   uint32_t now = millis();
   // Serial.print(millis());
@@ -1009,7 +1009,7 @@ void mqtt_subscribe(PubSubClient &mqtt)
   // mqtt_publish();
 }
 
-void mqtt_receve(char *topic, uint8_t *payload, unsigned int length)
+void mqtt_receve(MQTTClient *client, char topic[], char payload[], int length)
 {
   wdt_reset();
   uint32_t now = millis();

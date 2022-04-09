@@ -16,27 +16,27 @@
 // Update these with values suitable for your hardware/network.
 IPAddress server(MQTT_IP1, MQTT_IP2, MQTT_IP3, MQTT_IP4);
 EthernetClient ethClient;
-PubSubClient mqtt(ethClient);
+MQTTClient mqtt;
 bool as_ethernet;
 bool link_status;
 
-void (*_mqtt_update)(PubSubClient &mqtt);
-void (*_mqtt_subscribe)(PubSubClient &mqtt);
+void (*_mqtt_update)(MQTTClient &mqtt);
+void (*_mqtt_subscribe)(MQTTClient &mqtt);
 // void (*_mqtt_receve)(char *, uint8_t *, unsigned int);
 
-void DT_mqtt_set_update_callback(void (*mqtt_update)(PubSubClient &mqtt))
+void DT_mqtt_set_update_callback(void (*mqtt_update)(MQTTClient &mqtt))
 {
     _mqtt_update = mqtt_update;
 }
 
-void DT_mqtt_set_subscribe_callback(void (*mqtt_subscribe)(PubSubClient &mqtt))
+void DT_mqtt_set_subscribe_callback(void (*mqtt_subscribe)(MQTTClient &mqtt))
 {
     _mqtt_subscribe = mqtt_subscribe;
 }
 
-void DT_mqtt_set_receve_callback(void (*mqtt_receve)(char *, uint8_t *, unsigned int))
+void DT_mqtt_set_receve_callback(void (*mqtt_receve)(MQTTClient *client, char topic[], char bytes[], int length))
 {
-    mqtt.setCallback(mqtt_receve);
+    mqtt.onMessageAdvanced(mqtt_receve);
 }
 
 bool DT_mqtt_send(const char *tag, const float value)
@@ -170,7 +170,8 @@ void DT_mqtt_init()
     // Serial.print(millis());
     Serial.println(F("start network"));
     init_ethernet();
-    mqtt.setServer(server, 1883);
+    mqtt.begin(server, 1883, ethClient);
+    mqtt.setWill(MQTT_WILL_TOPIC, MQTT_WILL_MESSAGE, MQTT_WILL_RETAIN, MQTT_WILL_QOS);
     //  if (!mqtt.connected())
     //  {
     //      if (mqtt.connect("test", "test", "test"))
@@ -283,7 +284,7 @@ void DT_mqtt_loop()
             if (as_ethernet && link_status)
             {
                 // old_link_status = true;
-                if (mqtt.connect(MQTT_CLIENT_ID, MQTT_USER, MQTT_PASSWORD, MQTT_WILL_TOPIC, MQTT_WILL_QOS, MQTT_WILL_RETAIN, MQTT_WILL_MESSAGE))
+                if (mqtt.connect(MQTT_CLIENT_ID, MQTT_USER, MQTT_PASSWORD, false))
                 {
                     wdt_reset();
                     // Serial.print(millis());
@@ -299,8 +300,10 @@ void DT_mqtt_loop()
                     wdt_reset();
                     // Serial.print(millis());
                     Serial.print(F(" ECHEC, rc="));
-                    Serial.print(mqtt.state());
-                    Serial.println(F("nouvelle tentative dans 5 secondes"));
+                    Serial.print(mqtt.returnCode());
+                    Serial.print(F(" le="));
+                    Serial.print(mqtt.lastError());
+                    Serial.println(F(" nouvelle tentative dans 5 secondes"));
                 }
             }
             // Serial.print(millis());
