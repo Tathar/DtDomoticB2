@@ -5,6 +5,7 @@
 #include <DT_mcp.h>
 
 uint32_t num_delay[RELAY_NUM];
+bool async_call[RELAY_NUM];
 void (*_callback)(const uint8_t num, const bool action);
 
 void DT_relay_init()
@@ -36,8 +37,7 @@ void DT_relay(uint8_t num, bool state)
 {
     uint8_t pin = pgm_read_byte(RELAY_ARRAY + (num - 1));
     bool revert = pgm_read_byte(RELAY_REVERT + (num - 1));
-
-    bool old_state = DT_relay_get(num);
+    async_call[num - 1] = true;
 
 #ifdef VANNES
     // interverouillage
@@ -84,11 +84,6 @@ void DT_relay(uint8_t num, bool state)
             digitalWrite(pin, LOW);
         }
     }
-
-    if (_callback != NULL && old_state != state)
-    {
-        _callback(num, state);
-    }
 }
 
 bool DT_relay_get(uint8_t num)
@@ -129,7 +124,7 @@ void DT_relay_loop()
     static uint32_t last = 0;
     uint32_t now = millis();
     uint32_t elapse = now - last;
-    if (elapse > RELAY_MIN_TIME)
+    if (elapse >= RELAY_MIN_TIME)
     {
         last = now;
 
@@ -147,6 +142,18 @@ void DT_relay_loop()
             else
             {
                 num_delay[num] -= elapse;
+            }
+        }
+    }
+
+    if (_callback != NULL)
+    {
+        for (uint8_t num = 0; num < RELAY_NUM; ++num)
+        {
+            if (async_call[num] == true)
+            {
+                async_call[num] = false;
+                _callback(num + 1, DT_relay_get(num + 1));
             }
         }
     }
