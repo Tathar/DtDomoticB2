@@ -10,12 +10,13 @@
 #include <config.h>
 #ifdef POELE
 void (*poele_mode_callback)(const DT_Poele_mode mode);
-void (*poele_C1_callback)(const uint8_t C1);
+bool async_call_poele_mode;
+//void (*poele_C1_callback)(const uint8_t C1);
 // void (*poele_T4_callback)(const float t4);
 
 // bool ev1; // 0(Circuit ballon tampon + Ballon ECS) / 1(Circuit Ballon ECS)
 // float T4; // Temperature envoyé au poêle
-//float C1; // consigne temp Ballon
+// float C1; // consigne temp Ballon
 // T1 = Temp Ballon					T2 = Temp ECS							T3 = Temp ECS2
 // T5 = Temp Extérieur					T6 = Temp Vanne 3V PCBT					T7 = Temp Vanne 3V MCBT				T8 = Temp Vanne 3V Jacuzzi
 
@@ -26,11 +27,11 @@ void DT_Poele_init()
 {
     DT_relay(RELAY_EV1, false);
     poele_mode_callback = nullptr;
-    poele_C1_callback = nullptr;
+    //poele_C1_callback = nullptr;
     // poele_T4_callback = nullptr;
 }
 
-//decision de mise en service du poele en fonction des temperature
+// decision de mise en service du poele en fonction des temperature
 bool marche_poele_ballon_normal(uint32_t now)
 {
     static bool ret = false;
@@ -206,6 +207,12 @@ void DT_Poele_loop()
         DT_relay(MARCHE_POELE, poele);
         DT_relay(RELAY_EV1, ev1);
     }
+
+    if (poele_mode_callback != nullptr && async_call_poele_mode == true)
+    {
+        async_call_poele_mode = false;
+        poele_mode_callback(eeprom_config.poele_mode);
+    }
 }
 
 void DT_Poele_set_mode(DT_Poele_mode mode)
@@ -213,8 +220,7 @@ void DT_Poele_set_mode(DT_Poele_mode mode)
     if (mode != eeprom_config.poele_mode)
     {
         eeprom_config.poele_mode = mode;
-        if (poele_mode_callback != nullptr)
-            poele_mode_callback(mode);
+        async_call_poele_mode = true;
     }
     sauvegardeEEPROM();
 }
@@ -229,4 +235,4 @@ void DT_Poele_set_mode_callback(void (*callback)(const DT_Poele_mode mode))
     poele_mode_callback = callback;
 }
 
-#endif //POELE
+#endif // POELE
