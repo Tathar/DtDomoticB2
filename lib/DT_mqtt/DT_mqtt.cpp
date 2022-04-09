@@ -16,7 +16,7 @@
 // Update these with values suitable for your hardware/network.
 IPAddress server(MQTT_IP1, MQTT_IP2, MQTT_IP3, MQTT_IP4);
 EthernetClient ethClient;
-MQTTClient mqtt;
+MQTTClient mqtt(512);
 bool as_ethernet;
 bool link_status;
 
@@ -38,6 +38,8 @@ void DT_mqtt_set_receve_callback(void (*mqtt_receve)(MQTTClient *client, char to
 {
     mqtt.onMessageAdvanced(mqtt_receve);
 }
+
+
 
 bool DT_mqtt_send(const char *tag, const float value)
 {
