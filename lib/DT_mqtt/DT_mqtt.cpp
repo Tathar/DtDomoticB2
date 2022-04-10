@@ -43,6 +43,7 @@ void DT_mqtt_set_receve_callback(void (*mqtt_receve)(MQTTClient *client, char to
 
 bool DT_mqtt_send(const char *tag, const float value)
 {
+  debug();
     if (mem_config.MQTT_online)
     {
         char buffer[32];
@@ -54,7 +55,7 @@ bool DT_mqtt_send(const char *tag, const float value)
 
 bool DT_mqtt_send(const char *tag, const unsigned int value)
 {
-
+  debug();
     if (mem_config.MQTT_online)
     {
         char buffer[32];
@@ -66,6 +67,7 @@ bool DT_mqtt_send(const char *tag, const unsigned int value)
 
 bool DT_mqtt_send(const char *tag, const int value)
 {
+  debug();
     if (mem_config.MQTT_online)
     {
         char buffer[32];
@@ -77,6 +79,7 @@ bool DT_mqtt_send(const char *tag, const int value)
 
 bool DT_mqtt_send(const char *tag, const uint32_t value)
 {
+  debug();
     if (mem_config.MQTT_online)
     {
         char buffer[32];
@@ -88,6 +91,7 @@ bool DT_mqtt_send(const char *tag, const uint32_t value)
 
 bool DT_mqtt_send(const char *tag, const char *value)
 {
+  debug();
     if (mem_config.MQTT_online)
     {
         return mqtt.publish(tag, value, strlen(value));
@@ -97,6 +101,7 @@ bool DT_mqtt_send(const char *tag, const char *value)
 
 void init_ethernet()
 {
+  debug();
     Ethernet.init(NETWORK_CS);
     byte mac[] = {MAC1, MAC2, MAC3, MAC4, MAC5, MAC6};
 #ifdef DHCP
@@ -166,6 +171,7 @@ void init_ethernet()
 
 void DT_mqtt_init()
 {
+  debug();
     // auto Serial.println("start network");
     pinMode(NETWORK_RESET, OUTPUT);
     digitalWrite(NETWORK_RESET, HIGH);
@@ -197,6 +203,7 @@ void DT_mqtt_init()
 
 void DT_mqtt_loop()
 {
+  debug();
     wdt_reset();
     static uint32_t last_reconnection_time = 0;
     static uint32_t reset_time = 0; // for reset network device

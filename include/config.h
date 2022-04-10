@@ -5,7 +5,14 @@
 #include <config.h>
 
 #define STRINGIFY(x) #x
-#define TO_C_STR(x) STRINGIFY(x)
+#define TOSTRING(x) STRINGIFY(x)
+#define AT __FILE__ ":" TOSTRING(__LINE__)
+
+inline void debug() __attribute__((always_inline));
+inline void debug()
+{
+    Serial.println(AT);
+}
 
 #define SAVE_EEPROM 600000 // sauvegarde des données dans l eeprom toute les x ms
 #define MQTT_REFRESH 10000 // temp de rafrechissement du MQTT
