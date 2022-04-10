@@ -43,7 +43,7 @@ void DT_mqtt_set_receve_callback(void (*mqtt_receve)(MQTTClient *client, char to
 
 bool DT_mqtt_send(const char *tag, const float value)
 {
-  debug();
+  debug(AT);
     if (mem_config.MQTT_online)
     {
         char buffer[32];
@@ -55,7 +55,7 @@ bool DT_mqtt_send(const char *tag, const float value)
 
 bool DT_mqtt_send(const char *tag, const unsigned int value)
 {
-  debug();
+  debug(AT);
     if (mem_config.MQTT_online)
     {
         char buffer[32];
@@ -67,7 +67,7 @@ bool DT_mqtt_send(const char *tag, const unsigned int value)
 
 bool DT_mqtt_send(const char *tag, const int value)
 {
-  debug();
+  debug(AT);
     if (mem_config.MQTT_online)
     {
         char buffer[32];
@@ -79,7 +79,7 @@ bool DT_mqtt_send(const char *tag, const int value)
 
 bool DT_mqtt_send(const char *tag, const uint32_t value)
 {
-  debug();
+  debug(AT);
     if (mem_config.MQTT_online)
     {
         char buffer[32];
@@ -91,7 +91,7 @@ bool DT_mqtt_send(const char *tag, const uint32_t value)
 
 bool DT_mqtt_send(const char *tag, const char *value)
 {
-  debug();
+  debug(AT);
     if (mem_config.MQTT_online)
     {
         return mqtt.publish(tag, value, strlen(value));
@@ -101,7 +101,7 @@ bool DT_mqtt_send(const char *tag, const char *value)
 
 void init_ethernet()
 {
-  debug();
+  debug(AT);
     Ethernet.init(NETWORK_CS);
     byte mac[] = {MAC1, MAC2, MAC3, MAC4, MAC5, MAC6};
 #ifdef DHCP
@@ -171,7 +171,7 @@ void init_ethernet()
 
 void DT_mqtt_init()
 {
-  debug();
+  debug(AT);
     // auto Serial.println("start network");
     pinMode(NETWORK_RESET, OUTPUT);
     digitalWrite(NETWORK_RESET, HIGH);
@@ -180,6 +180,7 @@ void DT_mqtt_init()
     init_ethernet();
     mqtt.begin(server, 1883, ethClient);
     mqtt.setWill(MQTT_WILL_TOPIC, MQTT_WILL_MESSAGE, MQTT_WILL_RETAIN, MQTT_WILL_QOS);
+    mqtt.setTimeout(100);
     //  if (!mqtt.connected())
     //  {
     //      if (mqtt.connect("test", "test", "test"))
@@ -203,7 +204,7 @@ void DT_mqtt_init()
 
 void DT_mqtt_loop()
 {
-  debug();
+  debug(AT);
     wdt_reset();
     static uint32_t last_reconnection_time = 0;
     static uint32_t reset_time = 0; // for reset network device
@@ -328,9 +329,9 @@ void DT_mqtt_loop()
         if (reset_time != 0)
             reset_time = 0;
         wdt_reset();
-        Serial.println(F("loop1"));
+        // Serial.println(F("loop1"));
         mqtt.loop();
-        Serial.println(F("loop2"));
+        // Serial.println(F("loop2"));
         static uint32_t time = 0;
         homeassistant(false);
         if (now - time >= MQTT_UPDATE)

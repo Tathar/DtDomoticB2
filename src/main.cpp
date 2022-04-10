@@ -33,12 +33,19 @@
 
 long int lastReconnectAttempt = 0;
 
+
+void debug(const char *var)
+{
+        Serial.println(var);
+}
+
+
 #ifdef MQTT
 
 // Relay Callback
 void relay_callback(const uint8_t num, const bool action)
 {
-  debug();
+  debug(AT);
   wdt_reset();
   // sprintf_P(buffer, PSTR("relais numero %d dans l etat %d"), num, (int)action);
   //  auto Serial.println(buffer);
@@ -52,7 +59,7 @@ void relay_callback(const uint8_t num, const bool action)
 
 void input_callback(const uint8_t num, const Bt_Action action)
 {
-  debug();
+  debug(AT);
   wdt_reset();
   // Serial.print(F("entrée numero "));
   // Serial.print(num);
@@ -171,7 +178,7 @@ void input_callback(const uint8_t num, const Bt_Action action)
 #if TEMP_NUM > 0
 void pt100_callback(const uint8_t num, const float temp)
 {
-  debug();
+  debug(AT);
   wdt_reset();
   // Serial.print("PT100_CALLBACK ");
   sprintf_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pt100-%02d/temperature"), num);
@@ -187,7 +194,7 @@ void pt100_callback(const uint8_t num, const float temp)
 
 void bme280_callback_temperature(const uint8_t num, const float temperature)
 {
-  debug();
+  debug(AT);
   wdt_reset();
 
   static uint32_t refresh = 0;
@@ -205,7 +212,7 @@ void bme280_callback_temperature(const uint8_t num, const float temperature)
 
 void bme280_callback_humidity(const uint8_t num, const float humidity)
 {
-  debug();
+  debug(AT);
   wdt_reset();
 
   static uint32_t refresh = 0;
@@ -223,7 +230,7 @@ void bme280_callback_humidity(const uint8_t num, const float humidity)
 
 void bme280_callback_pressure(const uint8_t num, const float pressure)
 {
-  debug();
+  debug(AT);
   wdt_reset();
 
   static uint32_t refresh = 0;
@@ -241,7 +248,7 @@ void bme280_callback_pressure(const uint8_t num, const float pressure)
 
 void ccs811_callback_co2(const uint8_t num, const float co2)
 {
-  debug();
+  debug(AT);
   wdt_reset();
 
   static uint32_t refresh = 0;
@@ -259,7 +266,7 @@ void ccs811_callback_co2(const uint8_t num, const float co2)
 
 void ccs811_callback_cov(const uint8_t num, const float cov)
 {
-  debug();
+  debug(AT);
   wdt_reset();
   static uint32_t refresh = 0;
   uint32_t now = millis();
@@ -277,7 +284,7 @@ void ccs811_callback_cov(const uint8_t num, const float cov)
 #ifdef POELE
 void poele_mode_callback(const DT_Poele_mode mode)
 {
-  debug();
+  debug(AT);
   // mode poele
   wdt_reset();
   strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/poele/mode/state"), BUFFER_SIZE);
@@ -302,7 +309,7 @@ void poele_mode_callback(const DT_Poele_mode mode)
 #ifdef VANNES
 void dt3voies_callback(const float C2, const float C3)
 {
-  debug();
+  debug(AT);
 
   wdt_reset();
 
@@ -331,7 +338,7 @@ void dt3voies_callback(const float C2, const float C3)
 // retour des valleur du PID PCBT
 void dt3voies_callback_pid_pcbt(const float P, const float I, const float D, const float OUT)
 {
-  debug();
+  debug(AT);
   wdt_reset();
 
   static uint32_t refresh = 0;
@@ -375,7 +382,7 @@ void dt3voies_callback_pid_pcbt(const float P, const float I, const float D, con
 // retour des valleur du PID MCBT
 void dt3voies_callback_pid_mcbt(const float P, const float I, const float D, const float OUT)
 {
-  debug();
+  debug(AT);
   wdt_reset();
 
   static uint32_t refresh = 0;
@@ -419,7 +426,7 @@ void dt3voies_callback_pid_mcbt(const float P, const float I, const float D, con
 
 void mqtt_publish(bool start)
 {
-  debug();
+  debug(AT);
   static uint8_t sequance = 0;
   static uint8_t num = 0;
   if (start)
@@ -813,7 +820,7 @@ void mqtt_publish(bool start)
 
 void mqtt_subscribe(MQTTClient &mqtt)
 {
-  debug();
+  debug(AT);
   uint32_t now = millis();
   // Serial.print(millis());
   Serial.print(F("mqtt_subscribe = "));
@@ -1026,7 +1033,7 @@ void mqtt_subscribe(MQTTClient &mqtt)
 
 void mqtt_receve(MQTTClient *client, char topic[], char payload[], int length)
 {
-  debug();
+  debug(AT);
   wdt_reset();
   uint32_t now = millis();
   Serial.print("receve topic ");
@@ -1733,7 +1740,7 @@ void setup()
 
 void loop()
 {
-  debug();
+  debug(AT);
   uint32_t now = millis();
 
   wdt_reset();
@@ -1742,10 +1749,10 @@ void loop()
   DT_mqtt_loop();
   mqtt_publish(false);
 #endif
-  // DT_relay_loop();
-  // DT_input_loop();
-  // DT_BME280_loop();
-  // DT_CCS811_loop();
+  DT_relay_loop();
+  DT_input_loop();
+  //DT_BME280_loop();
+  //DT_CCS811_loop();
 #if TEMP_NUM > 0
   // DT_pt100_loop();
 #endif
