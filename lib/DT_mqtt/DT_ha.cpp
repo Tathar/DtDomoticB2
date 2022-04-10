@@ -17,10 +17,11 @@ void homeassistant(bool start)
     if (start)
     {
         sequance = 0;
-        Serial.println(F("homeassistant"));
         // Serial.print(millis());
         return;
     }
+    else if (sequance == 0)
+        Serial.println(F("homeassistant"));
 
     // if (sequance <= 16)
     // {

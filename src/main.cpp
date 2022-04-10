@@ -412,9 +412,10 @@ void mqtt_publish(bool start)
   if (start)
   {
     sequance = 0;
-    Serial.println(F("mqtt_publish"));
     return;
   }
+  else if (sequance == 0)
+    Serial.println(F("mqtt_publish"));
 
   uint32_t now = millis();
 
