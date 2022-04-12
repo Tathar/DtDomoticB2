@@ -17,11 +17,16 @@
 IPAddress server(MQTT_IP1, MQTT_IP2, MQTT_IP3, MQTT_IP4);
 EthernetClient ethClient;
 MQTTClient mqtt(512);
+// MQTTClient mqtt(128);
 bool as_ethernet;
 bool link_status;
 
 void (*_mqtt_update)(MQTTClient &mqtt);
 void (*_mqtt_subscribe)(MQTTClient &mqtt);
+void (*_mqtt_receve)(MQTTClient *client, const char topic[], const char bytes[], const int length);
+
+String rcv_topic;
+String rcv_payload;
 // void (*_mqtt_receve)(char *, uint8_t *, unsigned int);
 
 void DT_mqtt_set_update_callback(void (*mqtt_update)(MQTTClient &mqtt))
@@ -34,20 +39,37 @@ void DT_mqtt_set_subscribe_callback(void (*mqtt_subscribe)(MQTTClient &mqtt))
     _mqtt_subscribe = mqtt_subscribe;
 }
 
-void DT_mqtt_set_receve_callback(void (*mqtt_receve)(MQTTClient *client, char topic[], char bytes[], int length))
+void DT_mqtt_set_receve_callback(void (*mqtt_receve)(MQTTClient *client, const char topic[], const char bytes[], const int length))
 {
-    mqtt.onMessageAdvanced(mqtt_receve);
+    _mqtt_receve = mqtt_receve;
 }
 
+void DT_receve_callback(MQTTClient *client, char topic[], char bytes[], int length)
+{
+    if (rcv_topic.length() > 0)
+    {
+        rcv_topic += "|";
+        rcv_topic += topic;
+        rcv_payload += "|";
+        rcv_payload += bytes;
+    }
+    else
+    {
+        rcv_topic = topic;
+        rcv_payload = bytes;
+    }
 
+    memory();
+}
 
 bool DT_mqtt_send(const char *tag, const float value)
 {
-  debug(AT);
+    debug(AT);
     if (mem_config.MQTT_online)
     {
         char buffer[32];
         dtostrf(value, 1, 2, buffer);
+  memory();
         return mqtt.publish(tag, buffer, strlen(buffer));
     }
     return false;
@@ -55,11 +77,12 @@ bool DT_mqtt_send(const char *tag, const float value)
 
 bool DT_mqtt_send(const char *tag, const unsigned int value)
 {
-  debug(AT);
+    debug(AT);
     if (mem_config.MQTT_online)
     {
         char buffer[32];
         sprintf(buffer, "%u", value);
+  memory();
         return mqtt.publish(tag, buffer, strlen(buffer));
     }
     return false;
@@ -67,11 +90,12 @@ bool DT_mqtt_send(const char *tag, const unsigned int value)
 
 bool DT_mqtt_send(const char *tag, const int value)
 {
-  debug(AT);
+    debug(AT);
     if (mem_config.MQTT_online)
     {
         char buffer[32];
         sprintf(buffer, "%i", value);
+  memory();
         return mqtt.publish(tag, buffer, strlen(buffer));
     }
     return false;
@@ -79,11 +103,12 @@ bool DT_mqtt_send(const char *tag, const int value)
 
 bool DT_mqtt_send(const char *tag, const uint32_t value)
 {
-  debug(AT);
+    debug(AT);
     if (mem_config.MQTT_online)
     {
         char buffer[32];
         sprintf(buffer, "%" PRIu32, value);
+  memory();
         return mqtt.publish(tag, buffer, strlen(buffer));
     }
     return false;
@@ -91,9 +116,10 @@ bool DT_mqtt_send(const char *tag, const uint32_t value)
 
 bool DT_mqtt_send(const char *tag, const char *value)
 {
-  debug(AT);
+    debug(AT);
     if (mem_config.MQTT_online)
     {
+  memory();
         return mqtt.publish(tag, value, strlen(value));
     }
     return false;
@@ -101,7 +127,7 @@ bool DT_mqtt_send(const char *tag, const char *value)
 
 void init_ethernet()
 {
-  debug(AT);
+    debug(AT);
     Ethernet.init(NETWORK_CS);
     byte mac[] = {MAC1, MAC2, MAC3, MAC4, MAC5, MAC6};
 #ifdef DHCP
@@ -171,16 +197,18 @@ void init_ethernet()
 
 void DT_mqtt_init()
 {
-  debug(AT);
+    debug(AT);
     // auto Serial.println("start network");
     pinMode(NETWORK_RESET, OUTPUT);
     digitalWrite(NETWORK_RESET, HIGH);
+
     // Serial.print(millis());
     Serial.println(F("start network"));
     init_ethernet();
     mqtt.begin(server, 1883, ethClient);
     mqtt.setWill(MQTT_WILL_TOPIC, MQTT_WILL_MESSAGE, MQTT_WILL_RETAIN, MQTT_WILL_QOS);
     mqtt.setTimeout(100);
+    mqtt.onMessageAdvanced(DT_receve_callback);
     //  if (!mqtt.connected())
     //  {
     //      if (mqtt.connect("test", "test", "test"))
@@ -200,11 +228,14 @@ void DT_mqtt_init()
     _mqtt_update = nullptr;
     _mqtt_subscribe = nullptr;
     //  mqtt.setCallback(&test_mqtt_receve);
+    rcv_topic.reserve(32);
+    rcv_payload.reserve(16);
+  memory();
 }
 
 void DT_mqtt_loop()
 {
-  debug(AT);
+    // debug(AT);
     wdt_reset();
     static uint32_t last_reconnection_time = 0;
     static uint32_t reset_time = 0; // for reset network device
@@ -331,6 +362,23 @@ void DT_mqtt_loop()
         wdt_reset();
         // Serial.println(F("loop1"));
         mqtt.loop();
+        if (_mqtt_receve != nullptr && rcv_topic.length() > 0)
+        {
+            int topic_index = rcv_topic.indexOf("|");
+            if (topic_index == -1) // only one data in rcv_topic
+            {
+                _mqtt_receve(&mqtt, rcv_topic.c_str(), rcv_payload.c_str(), rcv_payload.length());
+                rcv_topic = "";
+                rcv_payload = "";
+            }
+            else // many data in rcv_topic
+            {
+                int payload_index = rcv_payload.indexOf("|");
+                _mqtt_receve(&mqtt, rcv_topic.substring(0, topic_index - 1).c_str(), rcv_payload.substring(0, payload_index - 1).c_str(), rcv_payload.substring(0, payload_index - 1).length());
+                rcv_topic.remove(0, topic_index + 1);
+                rcv_payload.remove(0, payload_index + 1);
+            }
+        }
         // Serial.println(F("loop2"));
         static uint32_t time = 0;
         homeassistant(false);
@@ -345,6 +393,8 @@ void DT_mqtt_loop()
         }
         // delay(100);
     }
+
+    memory();
 }
 
 #endif // MQTT
