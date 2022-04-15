@@ -1,6 +1,6 @@
 #include <DT_ha.h>
 
-StaticJsonDocument<256> doc;
+//StaticJsonDocument<256> doc;
 char buffer[BUFFER_SIZE];
 char buffer_value[BUFFER_VALUE_SIZE];
 
