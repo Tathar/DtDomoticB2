@@ -17,7 +17,6 @@
 IPAddress server(MQTT_IP1, MQTT_IP2, MQTT_IP3, MQTT_IP4);
 EthernetClient ethClient;
 MQTTClient mqtt(512);
-// MQTTClient mqtt(128);
 bool as_ethernet;
 bool link_status;
 
@@ -65,12 +64,22 @@ void DT_receve_callback(MQTTClient *client, char topic[], char bytes[], int leng
 bool DT_mqtt_send(const char *tag, const float value)
 {
     debug(AT);
-    if (mem_config.MQTT_online)
+    if (mqtt.connected())
     {
+        debug(AT);
         char buffer[32];
         dtostrf(value, 1, 2, buffer);
-  memory();
-        return mqtt.publish(tag, buffer, strlen(buffer));
+        memory();
+        // Serial.println(buffer);
+        debug(AT);
+        bool ret = mqtt.publish(tag, buffer, strlen(buffer));
+        memory();
+        debug(AT);
+        return ret;
+    }
+    else
+    {
+        mem_config.MQTT_online = false;
     }
     return false;
 }
@@ -78,12 +87,21 @@ bool DT_mqtt_send(const char *tag, const float value)
 bool DT_mqtt_send(const char *tag, const unsigned int value)
 {
     debug(AT);
-    if (mem_config.MQTT_online)
+    if (mqtt.connected())
     {
+    debug(AT);
         char buffer[32];
         sprintf(buffer, "%u", value);
-  memory();
-        return mqtt.publish(tag, buffer, strlen(buffer));
+        memory();
+    debug(AT);
+        bool ret = mqtt.publish(tag, buffer, strlen(buffer));
+        memory();
+    debug(AT);
+        return ret;
+    }
+    else
+    {
+        mem_config.MQTT_online = false;
     }
     return false;
 }
@@ -91,12 +109,20 @@ bool DT_mqtt_send(const char *tag, const unsigned int value)
 bool DT_mqtt_send(const char *tag, const int value)
 {
     debug(AT);
-    if (mem_config.MQTT_online)
+    if (mqtt.connected())
     {
         char buffer[32];
         sprintf(buffer, "%i", value);
-  memory();
-        return mqtt.publish(tag, buffer, strlen(buffer));
+    debug(AT);
+        memory();
+        bool ret = mqtt.publish(tag, buffer, strlen(buffer));
+        memory();
+    debug(AT);
+        return ret;
+    }
+    else
+    {
+        mem_config.MQTT_online = false;
     }
     return false;
 }
@@ -104,12 +130,20 @@ bool DT_mqtt_send(const char *tag, const int value)
 bool DT_mqtt_send(const char *tag, const uint32_t value)
 {
     debug(AT);
-    if (mem_config.MQTT_online)
+    if (mqtt.connected())
     {
         char buffer[32];
         sprintf(buffer, "%" PRIu32, value);
-  memory();
-        return mqtt.publish(tag, buffer, strlen(buffer));
+    debug(AT);
+        memory();
+        bool ret = mqtt.publish(tag, buffer, strlen(buffer));
+        memory();
+    debug(AT);
+        return ret;
+    }
+    else
+    {
+        mem_config.MQTT_online = false;
     }
     return false;
 }
@@ -117,11 +151,21 @@ bool DT_mqtt_send(const char *tag, const uint32_t value)
 bool DT_mqtt_send(const char *tag, const char *value)
 {
     debug(AT);
-    if (mem_config.MQTT_online)
+    if (mqtt.connected())
     {
-  memory();
-        return mqtt.publish(tag, value, strlen(value));
+        Serial.println(value);
+        memory();
+        debug(AT);
+        bool ret = mqtt.publish(tag, value, strlen(value));
+        debug(AT);
+        memory();
+        return ret;
     }
+    else
+    {
+        mem_config.MQTT_online = false;
+    }
+    debug(AT);
     return false;
 }
 
@@ -230,7 +274,7 @@ void DT_mqtt_init()
     //  mqtt.setCallback(&test_mqtt_receve);
     rcv_topic.reserve(32);
     rcv_payload.reserve(16);
-  memory();
+    memory();
 }
 
 void DT_mqtt_loop()

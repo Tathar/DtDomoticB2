@@ -9,6 +9,7 @@
 #define AT __FILE__ ":" TOSTRING(__LINE__)
 
 void debug(const char *var);
+void memory(void);
 
 #define SAVE_EEPROM 600000 // sauvegarde des données dans l eeprom toute les x ms
 #define MQTT_REFRESH 10000 // temp de rafrechissement du MQTT
@@ -34,12 +35,11 @@ void debug(const char *var);
 #define INPUT_REFRESH DEBOUNCE_TIME / 2
 
 // Dimmer
-//#define DIMMER_NUM 14 // max 14
-#define DIMMER_NUM 0 // max 14
+#define DIMMER_NUM 14 // max 14
 
 // PT100
-//#define TEMP_NUM 3 // 12 ok 13 ko // max 18
-#define TEMP_NUM 0
+#define TEMP_NUM 3 // 12 ok 13 ko // max 18
+//#define TEMP_NUM 0
 
 // watchdog
 #define WATCHDOG_TIME WDTO_250MS
@@ -97,7 +97,7 @@ void debug(const char *var);
 #endif                           // MQTT
 
 // Poele
-//#define POELE
+#define POELE
 #ifdef POELE
 #define MIN_T4 0                     // en °C (fake NTC)
 #define POELE_MAX_TEMPERATURE 85     // en °C (consigne temperature Balon)
@@ -114,7 +114,7 @@ void debug(const char *var);
 #endif // POELE
 
 // Vanne 3 Voies
-//#define VANNES
+#define VANNES
 #ifdef VANNES
 #define TMP_EAU_PCBT_MAX 38 // valeur maximum de la consigne de temperature
 #define TMP_EAU_MCBT_MAX 60 // valeur maximum de la consigne de temperature
@@ -144,8 +144,8 @@ void debug(const char *var);
 #define PT100_PLANCHE_SDB 12
 #define RELAIS_PLANCHE_SDB 11
 
-const float PT100_PLANCHEE[NUM_PLANCHE] PROGMEM = {PT100_PLANCHE_SALON, PT100_PLANCHE_CH_1, PT100_PLANCHE_CH_2, PT100_PLANCHE_SDB};
-const uint8_t RELAI_PLANCHE[NUM_PLANCHE] PROGMEM = {RELAIS_PLANCHE_SALON, RELAIS_PLANCHE_CH_1, RELAIS_PLANCHE_CH_2, RELAIS_PLANCHE_SDB};
+//const float PT100_PLANCHEE[NUM_PLANCHE] PROGMEM = {PT100_PLANCHE_SALON, PT100_PLANCHE_CH_1, PT100_PLANCHE_CH_2, PT100_PLANCHE_SDB};
+//const uint8_t RELAI_PLANCHE[NUM_PLANCHE] PROGMEM = {RELAIS_PLANCHE_SALON, RELAIS_PLANCHE_CH_1, RELAIS_PLANCHE_CH_2, RELAIS_PLANCHE_SDB};
 
 #endif // VANNES
 

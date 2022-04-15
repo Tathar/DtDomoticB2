@@ -30,6 +30,7 @@ void DT_relay_init()
 
         DT_relay(num + 1, false);
         num_delay[num] = 0;
+        async_call[num] = false;
     }
 }
 
@@ -37,7 +38,6 @@ void DT_relay(uint8_t num, bool state)
 {
     uint8_t pin = pgm_read_byte(RELAY_ARRAY + (num - 1));
     bool revert = pgm_read_byte(RELAY_REVERT + (num - 1));
-    async_call[num - 1] = true;
 
 #ifdef VANNES
     // interverouillage
@@ -66,22 +66,38 @@ void DT_relay(uint8_t num, bool state)
         i2c -= 1;
         if ((state && !revert) || (!state && revert))
         {
-            mcp[i2c].digitalWrite(pin, HIGH);
+            if (mcp[i2c].digitalRead(pin) != HIGH)
+            {
+                mcp[i2c].digitalWrite(pin, HIGH);
+                async_call[num - 1] = true;
+            }
         }
         else
         {
-            mcp[i2c].digitalWrite(pin, LOW);
+            if (mcp[i2c].digitalRead(pin) != LOW)
+            {
+                mcp[i2c].digitalWrite(pin, LOW);
+                async_call[num - 1] = true;
+            }
         }
     }
     else
     {
         if ((state && !revert) || (!state && revert))
         {
-            digitalWrite(pin, HIGH);
+            if (digitalRead(pin) != HIGH)
+            {
+                digitalWrite(pin, HIGH);
+                async_call[num - 1] = true;
+            }
         }
         else
         {
-            digitalWrite(pin, LOW);
+            if (digitalRead(pin) != LOW)
+            {
+                digitalWrite(pin, LOW);
+                async_call[num - 1] = true;
+            }
         }
     }
 }
@@ -124,6 +140,7 @@ void DT_relay_loop()
     static uint32_t last = 0;
     uint32_t now = millis();
     uint32_t elapse = now - last;
+    static uint8_t async_num = 0;
     if (elapse >= RELAY_MIN_TIME)
     {
         last = now;
@@ -148,14 +165,26 @@ void DT_relay_loop()
 
     if (_callback != NULL)
     {
-        for (uint8_t num = 0; num < RELAY_NUM; ++num)
+        // for (uint8_t num = 0; num < RELAY_NUM; ++num)
+        //{
+        if (async_num < RELAY_NUM - 1)
         {
-            if (async_call[num] == true)
-            {
-                async_call[num] = false;
-                _callback(num + 1, DT_relay_get(num + 1));
-            }
+            ++async_num;
         }
+        else
+        {
+            async_num = 0;
+        }
+
+        if (async_call[async_num] == true)
+        {
+            // Serial.print(F("call relay_callback = "));
+            // Serial.println(async_num);
+            async_call[async_num] = false;
+            _callback(async_num + 1, DT_relay_get(async_num + 1));
+        }
+
+        //}
     }
 }
 

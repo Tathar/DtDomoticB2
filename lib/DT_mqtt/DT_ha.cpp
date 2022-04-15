@@ -6,8 +6,22 @@ char buffer_value[BUFFER_VALUE_SIZE];
 
 // const uint8_t HA_JSON[RELAY_NUM] PROGMEM = {23, 25, 27, 29, 31, 33, 35, 37, 22, 24, 26, 28, 30, 32, 34, 36, 100, 101, 102, 103, 104, 105, 106, 107, 200, 201, 202, 203, 204, 205, 206, 207};
 
+
+// void ha_relay()
+// {
+//     "unique_id" : "DTB02-001-relay-01",
+//     "name" : "relay-01",
+//     "command_topic" : "DtBoard/DTB02-001/relay-01/set",
+//     "state_topic" : "DtBoard/DTB02-001/relay-01/state",
+//     "device":
+//     {
+//         "identifiers" : "DTB02-001"
+//     }
+// }
+
 void homeassistant(bool start)
 {
+#ifdef COMMENT
     // uint32_t now = millis();
     static uint8_t sequance = 0;
     JsonArray options;
@@ -400,7 +414,7 @@ void homeassistant(bool start)
         break;
 
     case 10:
-#ifdef VANNES
+#ifdef VANNES2
         // 3 voies PCBT mode
         wdt_reset(); // clear watchdog
         doc.clear();
@@ -558,7 +572,7 @@ void homeassistant(bool start)
         break;
     case 11:
 
-#ifdef VANNES
+#ifdef VANNES2
 
         // C_PCBT_MIN
         wdt_reset();
@@ -627,10 +641,10 @@ void homeassistant(bool start)
         // Serial.println(buffer_value);
         strlcpy_P(buffer, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/C_MCBT_MAX/config"), BUFFER_SIZE);
         DT_mqtt_send(buffer, buffer_value);
-#endif // VANNES
+#endif // VANNES2
         break;
     case 12:
-#ifdef VANNES
+#ifdef VANNES2
         // KP_PCBT
         wdt_reset();
         doc.clear();
@@ -788,10 +802,10 @@ void homeassistant(bool start)
         serializeJson(doc, buffer_value, sizeof(buffer_value));
         strlcpy_P(buffer, PSTR("homeassistant/select/" BOARD_IDENTIFIER "/pcbt-pid-iawmode/config"), BUFFER_SIZE);
         DT_mqtt_send(buffer, buffer_value);
-#endif // VANNES
+#endif // VANNES2
         break;
     case 13:
-#ifdef VANNES
+#ifdef VANNES2
         // KP_MCBT
         wdt_reset();
         doc.clear();
@@ -871,11 +885,11 @@ void homeassistant(bool start)
         // Serial.println(buffer_value);
         strlcpy_P(buffer, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/KT_MCBT/config"), BUFFER_SIZE);
         DT_mqtt_send(buffer, buffer_value);
-#endif // VANNES
+#endif // VANNES2
 
         break;
     case 14:
-#ifdef VANNES
+#ifdef VANNES2
 
         // PID PCBT Action
         wdt_reset(); // clear watchdog
@@ -1074,10 +1088,10 @@ void homeassistant(bool start)
         // Serial.println(buffer_value);
         strlcpy_P(buffer, PSTR("homeassistant/sensor/" BOARD_IDENTIFIER "/mcbt-pid-out/config"), BUFFER_SIZE);
         DT_mqtt_send(buffer, buffer_value);
-#endif // VANNES
+#endif // VANNES2
         break;
     case 15:
-#ifdef VANNES
+#ifdef VANNES2
         // RATIO PCBT
         wdt_reset();
         doc.clear();
@@ -1270,4 +1284,5 @@ void homeassistant(bool start)
 
     // Serial.print(F(" = "));
     // Serial.println(millis() - now);
+#endif
 }

@@ -33,12 +33,35 @@
 
 long int lastReconnectAttempt = 0;
 
-
 void debug(const char *var)
 {
-        Serial.println(var);
+  Serial.println(var);
 }
 
+extern void *__brkval;
+void memory(void)
+{
+  static unsigned int min_free_memory = 65535;
+  unsigned int free_memory = (uint16_t)SP - (uint16_t)__brkval;
+
+  if (free_memory < min_free_memory)
+  {
+    min_free_memory = free_memory;
+    // Serial.print(millis());
+    Serial.print(F("new minimum free memory = "));
+    Serial.println(min_free_memory);
+    // Serial.print(millis());
+    Serial.print(F("constant memory = "));
+    Serial.println((uint16_t)__malloc_heap_start);
+
+    // Serial.print(millis());
+    Serial.print(F("heap size= "));
+    Serial.println((uint16_t)((uint16_t)__brkval - (uint16_t)__malloc_heap_start));
+
+    Serial.print(F("stack size= "));
+    Serial.println((uint16_t)(RAMEND - SP));
+  }
+}
 
 #ifdef MQTT
 
@@ -178,23 +201,25 @@ void input_callback(const uint8_t num, const Bt_Action action)
 #if TEMP_NUM > 0
 void pt100_callback(const uint8_t num, const float temp)
 {
-  debug(AT);
+  // debug(AT);
   wdt_reset();
-  // Serial.print("PT100_CALLBACK ");
+  // Serial.println("PT100_CALLBACK ");
   sprintf_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pt100-%02d/temperature"), num);
-  JsonVariant variant = doc.to<JsonVariant>();
-  variant.set(temp);
-  serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
-  // Serial.print(buffer);
-  // Serial.print(" -> ");
-  // Serial.println(buffer_value);
-  DT_mqtt_send(buffer, buffer_value);
+  // JsonVariant variant = doc.to<JsonVariant>();
+  // variant.set(temp);
+  // serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
+  //  Serial.print(buffer);
+  //  Serial.print(" -> ");
+  //  Serial.println(buffer_value);
+
+  // DT_mqtt_send(buffer, buffer_value);
+  DT_mqtt_send(buffer, temp);
 }
 #endif // PT100
 
 void bme280_callback_temperature(const uint8_t num, const float temperature)
 {
-  debug(AT);
+  // debug(AT);
   wdt_reset();
 
   static uint32_t refresh = 0;
@@ -203,16 +228,17 @@ void bme280_callback_temperature(const uint8_t num, const float temperature)
   {
     refresh = now;
     sprintf_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/bme280-%02d/temperature"), num);
-    JsonVariant variant = doc.to<JsonVariant>();
-    variant.set(temperature);
-    serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
-    DT_mqtt_send(buffer, buffer_value);
+    // JsonVariant variant = doc.to<JsonVariant>();
+    // variant.set(temperature);
+    // serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
+    // DT_mqtt_send(buffer, buffer_value);
+    DT_mqtt_send(buffer, temperature);
   }
 }
 
 void bme280_callback_humidity(const uint8_t num, const float humidity)
 {
-  debug(AT);
+  // debug(AT);
   wdt_reset();
 
   static uint32_t refresh = 0;
@@ -221,16 +247,17 @@ void bme280_callback_humidity(const uint8_t num, const float humidity)
   {
     refresh = now;
     sprintf_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/bme280-%02d/humidity"), num);
-    JsonVariant variant = doc.to<JsonVariant>();
-    variant.set(humidity);
-    serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
-    DT_mqtt_send(buffer, buffer_value);
+    // JsonVariant variant = doc.to<JsonVariant>();
+    // variant.set(humidity);
+    // serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
+    // DT_mqtt_send(buffer, buffer_value);
+    DT_mqtt_send(buffer, humidity);
   }
 }
 
 void bme280_callback_pressure(const uint8_t num, const float pressure)
 {
-  debug(AT);
+  // debug(AT);
   wdt_reset();
 
   static uint32_t refresh = 0;
@@ -239,16 +266,17 @@ void bme280_callback_pressure(const uint8_t num, const float pressure)
   {
     refresh = now;
     sprintf_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/bme280-%02d/pressure"), num);
-    JsonVariant variant = doc.to<JsonVariant>();
-    variant.set(pressure);
-    serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
-    DT_mqtt_send(buffer, buffer_value);
+    // JsonVariant variant = doc.to<JsonVariant>();
+    // variant.set(pressure);
+    // serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
+    // DT_mqtt_send(buffer, buffer_value);
+    DT_mqtt_send(buffer, pressure);
   }
 }
 
 void ccs811_callback_co2(const uint8_t num, const float co2)
 {
-  debug(AT);
+  // debug(AT);
   wdt_reset();
 
   static uint32_t refresh = 0;
@@ -257,16 +285,17 @@ void ccs811_callback_co2(const uint8_t num, const float co2)
   {
     refresh = now;
     sprintf_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/ccs811-%02d/co2"), num);
-    JsonVariant variant = doc.to<JsonVariant>();
-    variant.set(co2);
-    serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
-    DT_mqtt_send(buffer, buffer_value);
+    // JsonVariant variant = doc.to<JsonVariant>();
+    // variant.set(co2);
+    // serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
+    // DT_mqtt_send(buffer, buffer_value);
+    DT_mqtt_send(buffer, co2);
   }
 }
 
 void ccs811_callback_cov(const uint8_t num, const float cov)
 {
-  debug(AT);
+  // debug(AT);
   wdt_reset();
   static uint32_t refresh = 0;
   uint32_t now = millis();
@@ -274,10 +303,11 @@ void ccs811_callback_cov(const uint8_t num, const float cov)
   {
     refresh = now;
     sprintf_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/ccs811-%02d/cov"), num);
-    JsonVariant variant = doc.to<JsonVariant>();
-    variant.set(cov);
-    serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
-    DT_mqtt_send(buffer, buffer_value);
+    // JsonVariant variant = doc.to<JsonVariant>();
+    // variant.set(cov);
+    // serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
+    // DT_mqtt_send(buffer, buffer_value);
+    DT_mqtt_send(buffer, cov);
   }
 }
 
@@ -318,20 +348,22 @@ void dt3voies_callback(const float C2, const float C3)
   if (now - refresh >= MQTT_REFRESH)
   {
     refresh = now;
-    JsonVariant variant = doc.to<JsonVariant>();
+    // JsonVariant variant = doc.to<JsonVariant>();
     int32_t digit = C2 * 100;
-    variant.set((float)digit / 100.0);
-    serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
-    strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/C2/state"), BUFFER_SIZE);
-    DT_mqtt_send(buffer, buffer_value);
+    // variant.set((float)digit / 100.0);
+    // serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
+    // strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/C2/state"), BUFFER_SIZE);
+    // DT_mqtt_send(buffer, buffer_value);
+    DT_mqtt_send(buffer, (float)(digit / 100.0));
 
     wdt_reset();
-    variant = doc.to<JsonVariant>();
+    // variant = doc.to<JsonVariant>();
     digit = C3 * 100;
-    variant.set((float)digit / 100.0);
-    serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
-    strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/C3/state"), BUFFER_SIZE);
-    DT_mqtt_send(buffer, buffer_value);
+    // variant.set((float)digit / 100.0);
+    //  serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
+    //  strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/C3/state"), BUFFER_SIZE);
+    //  DT_mqtt_send(buffer, buffer_value);
+    DT_mqtt_send(buffer, (float)(digit / 100.0));
   }
 }
 
@@ -346,36 +378,40 @@ void dt3voies_callback_pid_pcbt(const float P, const float I, const float D, con
   if (now - refresh >= MQTT_REFRESH)
   {
     refresh = now;
-    JsonVariant variant = doc.to<JsonVariant>();
+    // JsonVariant variant = doc.to<JsonVariant>();
     int32_t digit = P * 100;
-    variant.set((float)digit / 100.0);
-    serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
-    strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/P"), BUFFER_SIZE);
-    DT_mqtt_send(buffer, buffer_value);
+    // variant.set((float)digit / 100.0);
+    // serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
+    // strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/P"), BUFFER_SIZE);
+    // DT_mqtt_send(buffer, buffer_value);
+    DT_mqtt_send(buffer, (float)(digit / 100.0));
 
     wdt_reset();
-    variant = doc.to<JsonVariant>();
+    // variant = doc.to<JsonVariant>();
     digit = I * 100;
-    variant.set((float)digit / 100.0);
-    serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
-    strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/I"), BUFFER_SIZE);
-    DT_mqtt_send(buffer, buffer_value);
+    // variant.set((float)digit / 100.0);
+    // serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
+    // strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/I"), BUFFER_SIZE);
+    // DT_mqtt_send(buffer, buffer_value);
+    DT_mqtt_send(buffer, (float)(digit / 100.0));
 
     wdt_reset();
-    variant = doc.to<JsonVariant>();
+    // variant = doc.to<JsonVariant>();
     digit = D * 100;
-    variant.set((float)digit / 100.0);
-    serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
-    strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/D"), BUFFER_SIZE);
-    DT_mqtt_send(buffer, buffer_value);
+    // variant.set((float)digit / 100.0);
+    // serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
+    // strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/D"), BUFFER_SIZE);
+    // DT_mqtt_send(buffer, buffer_value);
+    DT_mqtt_send(buffer, (float)(digit / 100.0));
 
     wdt_reset();
-    variant = doc.to<JsonVariant>();
+    // variant = doc.to<JsonVariant>();
     digit = OUT * 100;
-    variant.set((float)digit / 100.0);
-    serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
-    strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/OUT"), BUFFER_SIZE);
-    DT_mqtt_send(buffer, buffer_value);
+    // variant.set((float)digit / 100.0);
+    // serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
+    // strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/OUT"), BUFFER_SIZE);
+    // DT_mqtt_send(buffer, buffer_value);
+    DT_mqtt_send(buffer, (float)(digit / 100.0));
   }
 }
 
@@ -390,43 +426,47 @@ void dt3voies_callback_pid_mcbt(const float P, const float I, const float D, con
   if (now - refresh >= MQTT_REFRESH)
   {
     refresh = now;
-    JsonVariant variant = doc.to<JsonVariant>();
+    // JsonVariant variant = doc.to<JsonVariant>();
     int32_t digit = P * 100;
-    variant.set((float)digit / 100.0);
-    serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
-    strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/P"), BUFFER_SIZE);
-    DT_mqtt_send(buffer, buffer_value);
+    // variant.set((float)digit / 100.0);
+    // serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
+    // strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/P"), BUFFER_SIZE);
+    // DT_mqtt_send(buffer, buffer_value);
+    DT_mqtt_send(buffer, (float)(digit / 100.0));
 
     wdt_reset();
-    variant = doc.to<JsonVariant>();
+    // variant = doc.to<JsonVariant>();
     digit = I * 100;
-    variant.set((float)digit / 100.0);
-    serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
-    strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/I"), BUFFER_SIZE);
-    DT_mqtt_send(buffer, buffer_value);
+    // variant.set((float)digit / 100.0);
+    // serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
+    // strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/I"), BUFFER_SIZE);
+    // DT_mqtt_send(buffer, buffer_value);
+    DT_mqtt_send(buffer, (float)(digit / 100.0));
 
     wdt_reset();
-    variant = doc.to<JsonVariant>();
+    // variant = doc.to<JsonVariant>();
     digit = D * 100;
-    variant.set((float)digit / 100.0);
-    serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
-    strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/D"), BUFFER_SIZE);
-    DT_mqtt_send(buffer, buffer_value);
+    // variant.set((float)digit / 100.0);
+    // serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
+    // strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/D"), BUFFER_SIZE);
+    // DT_mqtt_send(buffer, buffer_value);
+    DT_mqtt_send(buffer, (float)(digit / 100.0));
 
     wdt_reset();
-    variant = doc.to<JsonVariant>();
+    // variant = doc.to<JsonVariant>();
     digit = OUT * 100;
-    variant.set((float)digit / 100.0);
-    serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
-    strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/OUT"), BUFFER_SIZE);
-    DT_mqtt_send(buffer, buffer_value);
+    // variant.set((float)digit / 100.0);
+    // serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
+    // strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/OUT"), BUFFER_SIZE);
+    // DT_mqtt_send(buffer, buffer_value);
+    DT_mqtt_send(buffer, (float)(digit / 100.0));
   }
 }
 #endif // VANNES
 
 void mqtt_publish(bool start)
 {
-  debug(AT);
+  // debug(AT);
   static uint8_t sequance = 0;
   static uint8_t num = 0;
   if (start)
@@ -815,6 +855,7 @@ void mqtt_publish(bool start)
     return;
     break;
   }
+
   sequance += 1;
 }
 
@@ -1031,7 +1072,7 @@ void mqtt_subscribe(MQTTClient &mqtt)
   // mqtt_publish();
 }
 
-void mqtt_receve(MQTTClient *client, char topic[], char payload[], int length)
+void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], const int length)
 {
   debug(AT);
   wdt_reset();
@@ -1623,6 +1664,10 @@ void mqtt_receve(MQTTClient *client, char topic[], char payload[], int length)
       mem_config.MQTT_online = false;
     }
   }
+  Serial.print(F("malloc margin= "));
+  Serial.println((uint16_t)(__malloc_margin));
+  Serial.print(F("stack size= "));
+  Serial.println((uint16_t)(RAMEND - SP));
   Serial.print(F("end mqtt_receve = "));
   Serial.println(millis() - now);
 }
@@ -1633,17 +1678,23 @@ void setup()
   // Serial.begin(9600);
   Serial.begin(57600);
   Serial.println(F("starting board"));
+  memory();
   // auto Serial.println("starting board version " BOARD_SW_VERSION_PRINT);
 
-  // auto Serial.println("Load eeprom");
+  Serial.println("Load eeprom");
   chargeEEPROM();
+  memory();
 
   Wire.begin();
+  memory();
   // Wire.beginTransmission(I2C_MULTIPLEXER_ADDRESS);
   // Wire.write(MCP_CHANNEL); // channel 1
   // Wire.endTransmission();
 
+  Serial.println("init mcp");
   DT_mcp_init();
+
+  memory();
 
 #ifdef MQTT
   // Serial.print(millis());
@@ -1740,7 +1791,7 @@ void setup()
 
 void loop()
 {
-  debug(AT);
+  // debug(AT);
   uint32_t now = millis();
 
   wdt_reset();
@@ -1751,16 +1802,16 @@ void loop()
 #endif
   DT_relay_loop();
   DT_input_loop();
-  //DT_BME280_loop();
-  //DT_CCS811_loop();
+  // DT_BME280_loop();
+  // DT_CCS811_loop();
 #if TEMP_NUM > 0
-  // DT_pt100_loop();
+  DT_pt100_loop();
 #endif
 #ifdef POELE
-  // DT_Poele_loop();
+  DT_Poele_loop();
 #endif
 #ifdef VANNES
-  // DT_3voies_loop();
+  DT_3voies_loop();
 #endif
   //  DT_fake_ntc_loop();
 
@@ -1890,7 +1941,26 @@ void loop()
       // Serial.print(millis());
       Serial.print(F("heap size= "));
       Serial.println((uint16_t)(old_heap - __malloc_heap_start));
+
+      Serial.print(F("malloc margin= "));
+      Serial.println((uint16_t)(__malloc_margin));
+
+      Serial.print(F("stack size= "));
+      Serial.println((uint16_t)(RAMEND - SP));
+
+      Serial.print(F("brkval= "));
+      Serial.println((uint16_t)(__brkval));
+
+      Serial.print(F("old_heap= "));
+      Serial.println((uint16_t)(old_heap));
+
+      Serial.print(F("SP= "));
+      Serial.println((uint16_t)(SP));
+
+      Serial.print(F("free memory= "));
+      Serial.println((uint16_t)((uint16_t)SP - (uint16_t)old_heap));
     }
     free(heap);
   }
+  memory();
 }
