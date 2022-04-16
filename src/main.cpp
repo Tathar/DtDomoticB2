@@ -74,15 +74,18 @@ void relay_callback(const uint8_t num, const bool action)
   //  auto Serial.println(buffer);
   sprintf_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/relay-%02d/state"), num);
   if (action)
+  {
     DT_mqtt_send(buffer, "ON");
+  }
   else
+  {
     DT_mqtt_send(buffer, "OFF");
+  }
 }
 #endif // MQTT
 
 void input_callback(const uint8_t num, const Bt_Action action)
 {
-  debug(AT);
   wdt_reset();
   // Serial.print(F("entrée numero "));
   // Serial.print(num);
@@ -201,16 +204,16 @@ void input_callback(const uint8_t num, const Bt_Action action)
 #if TEMP_NUM > 0
 void pt100_callback(const uint8_t num, const float temp)
 {
-  // debug(AT);
+  debug(AT);
   wdt_reset();
-  // Serial.println("PT100_CALLBACK ");
+  Serial.println("PT100_CALLBACK ");
   sprintf_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pt100-%02d/temperature"), num);
   // JsonVariant variant = doc.to<JsonVariant>();
   // variant.set(temp);
   // serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
-  //  Serial.print(buffer);
-  //  Serial.print(" -> ");
-  //  Serial.println(buffer_value);
+  Serial.print(buffer);
+  Serial.print(" -> ");
+  Serial.println(temp);
 
   // DT_mqtt_send(buffer, buffer_value);
   DT_mqtt_send(buffer, temp);
@@ -340,7 +343,6 @@ void poele_mode_callback(const DT_Poele_mode mode)
 void dt3voies_callback(const float C2, const float C3)
 {
   debug(AT);
-
   wdt_reset();
 
   static uint32_t refresh = 0;
@@ -352,7 +354,7 @@ void dt3voies_callback(const float C2, const float C3)
     int32_t digit = C2 * 100;
     // variant.set((float)digit / 100.0);
     // serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
-    // strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/C2/state"), BUFFER_SIZE);
+    strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/C2/state"), BUFFER_SIZE);
     // DT_mqtt_send(buffer, buffer_value);
     DT_mqtt_send(buffer, (float)(digit / 100.0));
 
@@ -382,7 +384,7 @@ void dt3voies_callback_pid_pcbt(const float P, const float I, const float D, con
     int32_t digit = P * 100;
     // variant.set((float)digit / 100.0);
     // serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
-    // strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/P"), BUFFER_SIZE);
+    strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/P"), BUFFER_SIZE);
     // DT_mqtt_send(buffer, buffer_value);
     DT_mqtt_send(buffer, (float)(digit / 100.0));
 
@@ -391,7 +393,7 @@ void dt3voies_callback_pid_pcbt(const float P, const float I, const float D, con
     digit = I * 100;
     // variant.set((float)digit / 100.0);
     // serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
-    // strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/I"), BUFFER_SIZE);
+    strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/I"), BUFFER_SIZE);
     // DT_mqtt_send(buffer, buffer_value);
     DT_mqtt_send(buffer, (float)(digit / 100.0));
 
@@ -400,7 +402,7 @@ void dt3voies_callback_pid_pcbt(const float P, const float I, const float D, con
     digit = D * 100;
     // variant.set((float)digit / 100.0);
     // serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
-    // strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/D"), BUFFER_SIZE);
+    strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/D"), BUFFER_SIZE);
     // DT_mqtt_send(buffer, buffer_value);
     DT_mqtt_send(buffer, (float)(digit / 100.0));
 
@@ -409,7 +411,7 @@ void dt3voies_callback_pid_pcbt(const float P, const float I, const float D, con
     digit = OUT * 100;
     // variant.set((float)digit / 100.0);
     // serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
-    // strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/OUT"), BUFFER_SIZE);
+    strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/OUT"), BUFFER_SIZE);
     // DT_mqtt_send(buffer, buffer_value);
     DT_mqtt_send(buffer, (float)(digit / 100.0));
   }
@@ -430,7 +432,7 @@ void dt3voies_callback_pid_mcbt(const float P, const float I, const float D, con
     int32_t digit = P * 100;
     // variant.set((float)digit / 100.0);
     // serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
-    // strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/P"), BUFFER_SIZE);
+    strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/P"), BUFFER_SIZE);
     // DT_mqtt_send(buffer, buffer_value);
     DT_mqtt_send(buffer, (float)(digit / 100.0));
 
@@ -439,7 +441,7 @@ void dt3voies_callback_pid_mcbt(const float P, const float I, const float D, con
     digit = I * 100;
     // variant.set((float)digit / 100.0);
     // serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
-    // strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/I"), BUFFER_SIZE);
+    strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/I"), BUFFER_SIZE);
     // DT_mqtt_send(buffer, buffer_value);
     DT_mqtt_send(buffer, (float)(digit / 100.0));
 
@@ -448,7 +450,7 @@ void dt3voies_callback_pid_mcbt(const float P, const float I, const float D, con
     digit = D * 100;
     // variant.set((float)digit / 100.0);
     // serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
-    // strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/D"), BUFFER_SIZE);
+    strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/D"), BUFFER_SIZE);
     // DT_mqtt_send(buffer, buffer_value);
     DT_mqtt_send(buffer, (float)(digit / 100.0));
 
@@ -457,7 +459,7 @@ void dt3voies_callback_pid_mcbt(const float P, const float I, const float D, con
     digit = OUT * 100;
     // variant.set((float)digit / 100.0);
     // serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
-    // strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/OUT"), BUFFER_SIZE);
+    strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/OUT"), BUFFER_SIZE);
     // DT_mqtt_send(buffer, buffer_value);
     DT_mqtt_send(buffer, (float)(digit / 100.0));
   }
@@ -625,6 +627,7 @@ void mqtt_publish(bool start)
     // C9
     wdt_reset();
     strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/C9/state"), BUFFER_SIZE);
+
     DT_mqtt_send(buffer, eeprom_config.C9);
 
     // C10
@@ -861,7 +864,7 @@ void mqtt_publish(bool start)
 
 void mqtt_subscribe(MQTTClient &mqtt)
 {
-  debug(AT);
+
   uint32_t now = millis();
   // Serial.print(millis());
   Serial.print(F("mqtt_subscribe = "));
@@ -1074,7 +1077,7 @@ void mqtt_subscribe(MQTTClient &mqtt)
 
 void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], const int length)
 {
-  debug(AT);
+
   wdt_reset();
   String str_buffer;
   uint32_t now = millis();
@@ -1792,19 +1795,19 @@ void loop()
   }
 
 #ifdef MQTT
-  static uint32_t heartbeat_time = 0;
-  static bool heartbeat_status = false;
-  if (now - heartbeat_time > 1000) // Backup data in eeprom
-  {
-    heartbeat_time = now;
-    if (heartbeat_status == false)
-      heartbeat_status = true;
-    else
-      heartbeat_status = false;
+  // static uint32_t heartbeat_time = 0;
+  // static bool heartbeat_status = false;
+  // if (now - heartbeat_time > 1000) // Backup data in eeprom
+  // {
+  //   heartbeat_time = now;
+  //   if (heartbeat_status == false)
+  //     heartbeat_status = true;
+  //   else
+  //     heartbeat_status = false;
 
-    strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/heartbeat"), BUFFER_SIZE);
-    DT_mqtt_send(buffer, heartbeat_status);
-  }
+  //   strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/heartbeat"), BUFFER_SIZE);
+  //  DT_mqtt_send(buffer, heartbeat_status);
+  // }
 #endif // MQTT
   /*
   static uint32_t save_eeprom = 0;
@@ -1825,8 +1828,12 @@ void loop()
 
 #ifdef MQTT
     strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/load_1s"), BUFFER_SIZE);
+    debug(AT);
     DT_mqtt_send(buffer, (float)(load_1s_count / 100.0));
 #endif
+    Serial.print(F("Load 1s = "));
+    Serial.println((float)(load_1s_count / 100.0));
+
     load_1s_count = 0;
     load_1s_time = now;
   }
@@ -1856,6 +1863,7 @@ void loop()
 
 #ifdef MQTT
     strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/load_1m"), BUFFER_SIZE);
+    debug(AT);
     DT_mqtt_send(buffer, (float)((load_10s_count / 100.0)));
 #else
     Serial.print(F("load 10m ="));
