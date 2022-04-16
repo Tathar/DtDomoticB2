@@ -30,7 +30,7 @@ Adafruit_MAX31865 *max31865[TEMP_NUM];
 //                                   Adafruit_MAX31865(40)};
 
 float old_temp[TEMP_NUM];
-uint32_t PT100_callback_time[TEMP_NUM];
+// uint32_t PT100_callback_time[TEMP_NUM];
 void (*pt100_callback)(const uint8_t num, const float temp);
 
 float _temp_get(int num)
@@ -96,21 +96,21 @@ float _temp_get(int num)
 
 void DT_pt100_init()
 {
-    //auto Serial.print("alocation memoire = ");
-    // temp = (Adafruit_MAX31865 **)malloc(sizeof(Adafruit_MAX31865 *) * TEMP_NUM);
-    //auto Serial.println(sizeof(Adafruit_MAX31865) * TEMP_NUM);
-    //auto Serial.println("set callback an nullptr");
+    // auto Serial.print("alocation memoire = ");
+    //  temp = (Adafruit_MAX31865 **)malloc(sizeof(Adafruit_MAX31865 *) * TEMP_NUM);
+    // auto Serial.println(sizeof(Adafruit_MAX31865) * TEMP_NUM);
+    // auto Serial.println("set callback an nullptr");
     pt100_callback = nullptr;
     for (uint8_t num = 0; num < TEMP_NUM; ++num)
     {
 
         ////auto Serial.print("pgm read pin = ");
-#if DIMMER_NUM >= 1 //si dimmer
-        uint8_t pin = pgm_read_byte(OPT_ARRAY + (DIMMER_NUM + num )); //decallage de 1 lie au dimmer
+#if DIMMER_NUM >= 1                                                  // si dimmer
+        uint8_t pin = pgm_read_byte(OPT_ARRAY + (DIMMER_NUM + num)); // decallage de 1 lie au dimmer
 #else
-        uint8_t pin = pgm_read_byte(OPT_ARRAY + num); //pas de decallage sinon
+        uint8_t pin = pgm_read_byte(OPT_ARRAY + num); // pas de decallage sinon
 #endif
-        //auto Serial.println(pin);
+        // auto Serial.println(pin);
         ////auto Serial.println("creation object");
         // temp[num] = new Adafruit_MAX31865(pin);
         ////auto Serial.println("old_temp = 0");
@@ -130,6 +130,7 @@ void DT_pt100_loop()
 {
     // delay(50);
     static uint32_t old_time = 0;
+    static uint32_t PT100_callback_time = 0;
     uint32_t now = millis();
     float tmp = 0;
     if (now - old_time > 1000)
@@ -138,11 +139,18 @@ void DT_pt100_loop()
         for (uint8_t num = 0; num < TEMP_NUM; num++)
         {
             tmp = _temp_get(num);
-            if ((pt100_callback != nullptr) && (old_temp[num] != tmp) && (now - PT100_callback_time[num] >= MQTT_REFRESH))
+            old_temp[num] = tmp;
+        }
+    }
+
+    if (now - PT100_callback_time >= MQTT_REFRESH)
+    {
+        PT100_callback_time = now;
+        if (pt100_callback != nullptr)
+        {
+            for (uint8_t num = 0; num < TEMP_NUM; num++)
             {
-                PT100_callback_time[num] = now;
-                old_temp[num] = tmp;
-                pt100_callback(num + 1, tmp);
+                pt100_callback(num + 1, old_temp[num]);
             }
         }
     }
