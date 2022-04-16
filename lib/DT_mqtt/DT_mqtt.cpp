@@ -250,7 +250,7 @@ void DT_mqtt_init()
     Serial.println(F("start network"));
     init_ethernet();
     mqtt.begin(server, 1883, ethClient);
-    mqtt.setWill(PSTR(MQTT_WILL_TOPIC), PSTR(MQTT_WILL_MESSAGE), MQTT_WILL_RETAIN, MQTT_WILL_QOS);
+    mqtt.setWill(MQTT_WILL_TOPIC, MQTT_WILL_MESSAGE, MQTT_WILL_RETAIN, MQTT_WILL_QOS);
     mqtt.setTimeout(100);
     mqtt.onMessageAdvanced(DT_receve_callback);
     //  if (!mqtt.connected())
