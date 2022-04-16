@@ -408,7 +408,7 @@ void DT_mqtt_loop()
         mqtt.loop();
         if (_mqtt_receve != nullptr && rcv_topic.length() > 0)
         {
-            int topic_index = rcv_topic.indexOf(PSTR("|"));
+            int topic_index = rcv_topic.indexOf(F("|"));
             if (topic_index == -1) // only one data in rcv_topic
             {
                 _mqtt_receve(&mqtt, rcv_topic.c_str(), rcv_payload.c_str(), rcv_payload.length());
@@ -417,7 +417,7 @@ void DT_mqtt_loop()
             }
             else // many data in rcv_topic
             {
-                int payload_index = rcv_payload.indexOf(PSTR("|"));
+                int payload_index = rcv_payload.indexOf(F("|"));
                 _mqtt_receve(&mqtt, rcv_topic.substring(0, topic_index - 1).c_str(), rcv_payload.substring(0, payload_index - 1).c_str(), rcv_payload.substring(0, payload_index - 1).length());
                 rcv_topic.remove(0, topic_index + 1);
                 rcv_payload.remove(0, payload_index + 1);
