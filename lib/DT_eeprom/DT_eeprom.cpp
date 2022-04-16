@@ -9,7 +9,7 @@ Mem_Config mem_config;
 /** Sauvegarde en mémoire EEPROM le contenu actuel de la structure */
 void sauvegardeEEPROM()
 {
-        Serial.println("Save on EEPROM");
+        Serial.println(F("Save on EEPROM"));
         // Met à jour le nombre magic et le numéro de version avant l'écriture
         // eeprom_config.magic = STRUCT_MAGIC;
         // eeprom_config.struct_version = STRUCT_VERSION;
@@ -28,7 +28,7 @@ void chargeEEPROM()
         byte erreur = eeprom_config.magic != STRUCT_MAGIC;
         if (erreur)
         {
-                Serial.println("EEPROM error");
+                Serial.println(F("EEPROM error"));
                 eeprom_config.magic = STRUCT_MAGIC;
         }
 
@@ -36,7 +36,7 @@ void chargeEEPROM()
         if (eeprom_config.struct_version < 1 || erreur)
         {
                 need_save = true;
-                Serial.println("EEPROM version < 1");
+                Serial.println(F("EEPROM version < 1"));
                 eeprom_config.struct_version = 1;
                 // TODO: mqtt home assistant
                 eeprom_config.poele_mode = DT_POELE_ARRET;
@@ -65,7 +65,7 @@ void chargeEEPROM()
         if (eeprom_config.struct_version < 2 || erreur)
         {
                 need_save = true;
-                Serial.println("EEPROM version < 2");
+                Serial.println(F("EEPROM version < 2"));
                 eeprom_config.struct_version = 2;
 
                 eeprom_config.pid_pcbt.KP = 2000;
@@ -91,7 +91,7 @@ void chargeEEPROM()
         if (eeprom_config.struct_version < 3 || erreur)
         {
                 need_save = true;
-                Serial.println("EEPROM version < 3");
+                Serial.println(F("EEPROM version < 3"));
                 eeprom_config.struct_version = 3;
 
                 eeprom_config.ratio_PCBT = 4;
@@ -102,7 +102,7 @@ void chargeEEPROM()
         if (eeprom_config.struct_version < 4 || erreur)
         {
                 need_save = true;
-                Serial.println("EEPROM version < 4");
+                Serial.println(F("EEPROM version < 4"));
                 eeprom_config.struct_version = 4;
 
                 eeprom_config.out_offset_PCBT = 0;
@@ -113,7 +113,7 @@ void chargeEEPROM()
         if (eeprom_config.struct_version < 5 || erreur)
         {
                 need_save = true;
-                Serial.println("EEPROM version < 5");
+                Serial.println(F("EEPROM version < 5"));
                 eeprom_config.struct_version = 5;
 
                 eeprom_config.in_offset_PCBT = 0;
@@ -124,7 +124,7 @@ void chargeEEPROM()
         if (eeprom_config.struct_version < 6 || erreur)
         {
                 need_save = true;
-                Serial.println("EEPROM version < 6");
+                Serial.println(F("EEPROM version < 6"));
                 eeprom_config.struct_version = 6;
 
 #if DIMMER_NUM >= 1

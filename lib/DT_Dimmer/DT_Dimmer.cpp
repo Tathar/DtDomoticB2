@@ -292,12 +292,12 @@ void dimmer_set(uint8_t num, uint8_t percent, uint8_t time, bool candle)
     Dimmer_candle[num] = candle;
     // uint8_t temp_percent;
     percent = percent >= 100 ? 100 : percent;
-    Serial.print("dimmer ");
+    Serial.print(F("dimmer "));
     Serial.print(num);
-    Serial.print(" percent = ");
+    Serial.print(F(" percent = "));
     Serial.println(percent);
     Dimmer_new_value[num] = to_ocrx(num, percent);
-    Serial.print("Dimmer_new_value = ");
+    Serial.print(F("Dimmer_new_value = "));
     Serial.println(Dimmer_new_value[num]);
 
     if (time == 0)

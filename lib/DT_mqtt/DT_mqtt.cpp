@@ -47,9 +47,9 @@ void DT_receve_callback(MQTTClient *client, char topic[], char bytes[], int leng
 {
     if (rcv_topic.length() > 0)
     {
-        rcv_topic += "|";
+        rcv_topic += F("|");
         rcv_topic += topic;
-        rcv_payload += "|";
+        rcv_payload += F("|");
         rcv_payload += bytes;
     }
     else
@@ -91,7 +91,7 @@ bool DT_mqtt_send(const char *tag, const unsigned int value)
     {
     debug(AT);
         char buffer[32];
-        sprintf(buffer, "%u", value);
+        sprintf(buffer, PSTR("%u"), value);
         memory();
     debug(AT);
         bool ret = mqtt.publish(tag, buffer, strlen(buffer));
@@ -112,7 +112,7 @@ bool DT_mqtt_send(const char *tag, const int value)
     if (mqtt.connected())
     {
         char buffer[32];
-        sprintf(buffer, "%i", value);
+        sprintf(buffer, PSTR("%i"), value);
     debug(AT);
         memory();
         bool ret = mqtt.publish(tag, buffer, strlen(buffer));
@@ -250,7 +250,7 @@ void DT_mqtt_init()
     Serial.println(F("start network"));
     init_ethernet();
     mqtt.begin(server, 1883, ethClient);
-    mqtt.setWill(MQTT_WILL_TOPIC, MQTT_WILL_MESSAGE, MQTT_WILL_RETAIN, MQTT_WILL_QOS);
+    mqtt.setWill(PSTR(MQTT_WILL_TOPIC), PSTR(MQTT_WILL_MESSAGE), MQTT_WILL_RETAIN, MQTT_WILL_QOS);
     mqtt.setTimeout(100);
     mqtt.onMessageAdvanced(DT_receve_callback);
     //  if (!mqtt.connected())
@@ -324,7 +324,7 @@ void DT_mqtt_loop()
         else if (reset_time != 0 && !reset && now - reset_time > NETWORK_RESET_TIME)
         {
             // Serial.print(millis());
-            Serial.println("reset network board");
+            Serial.println(F("reset network board"));
             digitalWrite(NETWORK_RESET, LOW);
             last_reconnection_time = now;
             reset = true;
@@ -352,12 +352,12 @@ void DT_mqtt_loop()
             // String clientId = "Board01";
 
             // Serial.print(millis());
-            Serial.print("start MQTT conection ");
+            Serial.print(F("start MQTT conection "));
 
             if (!link_status)
-                Serial.println("(Link OFF)");
+                Serial.println(F("(Link OFF)"));
             else
-                Serial.println("(Link ON)");
+                Serial.println(F("(Link ON)"));
             //  if (mqtt.connect(clientId.c_str(), "DtBoard", "1MotdePasse"))
 
             // if (Ethernet.linkStatus() == LinkOFF)
@@ -369,7 +369,7 @@ void DT_mqtt_loop()
             if (as_ethernet && link_status)
             {
                 // old_link_status = true;
-                if (mqtt.connect(MQTT_CLIENT_ID, MQTT_USER, MQTT_PASSWORD, false))
+                if (mqtt.connect(PSTR(MQTT_CLIENT_ID), PSTR(MQTT_USER), PSTR(MQTT_PASSWORD), false))
                 {
                     wdt_reset();
                     // Serial.print(millis());
@@ -408,7 +408,7 @@ void DT_mqtt_loop()
         mqtt.loop();
         if (_mqtt_receve != nullptr && rcv_topic.length() > 0)
         {
-            int topic_index = rcv_topic.indexOf("|");
+            int topic_index = rcv_topic.indexOf(PSTR("|"));
             if (topic_index == -1) // only one data in rcv_topic
             {
                 _mqtt_receve(&mqtt, rcv_topic.c_str(), rcv_payload.c_str(), rcv_payload.length());
@@ -417,7 +417,7 @@ void DT_mqtt_loop()
             }
             else // many data in rcv_topic
             {
-                int payload_index = rcv_payload.indexOf("|");
+                int payload_index = rcv_payload.indexOf(PSTR("|"));
                 _mqtt_receve(&mqtt, rcv_topic.substring(0, topic_index - 1).c_str(), rcv_payload.substring(0, payload_index - 1).c_str(), rcv_payload.substring(0, payload_index - 1).length());
                 rcv_topic.remove(0, topic_index + 1);
                 rcv_payload.remove(0, payload_index + 1);
