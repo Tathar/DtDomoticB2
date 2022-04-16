@@ -69,6 +69,12 @@ bool DT_mqtt_send(const char *tag, const float value)
         debug(AT);
         char buffer[32];
         dtostrf(value, 1, 2, buffer);
+        Serial.print(F("DT_mqtt_send "));
+        Serial.print(tag);
+        Serial.print(F(" -> "));
+        Serial.print(value);
+        Serial.print(F(" = "));
+        Serial.println(buffer);
         memory();
         // Serial.println(buffer);
         debug(AT);
@@ -89,14 +95,18 @@ bool DT_mqtt_send(const char *tag, const unsigned int value)
     debug(AT);
     if (mqtt.connected())
     {
-    debug(AT);
+        debug(AT);
         char buffer[32];
         sprintf(buffer, PSTR("%u"), value);
         memory();
-    debug(AT);
+        debug(AT);
+        Serial.print(F("DT_mqtt_send "));
+        Serial.print(tag);
+        Serial.print(F(" -> "));
+        Serial.println(value);
         bool ret = mqtt.publish(tag, buffer, strlen(buffer));
         memory();
-    debug(AT);
+        debug(AT);
         return ret;
     }
     else
@@ -113,11 +123,15 @@ bool DT_mqtt_send(const char *tag, const int value)
     {
         char buffer[32];
         sprintf(buffer, PSTR("%i"), value);
-    debug(AT);
+        debug(AT);
         memory();
+        Serial.print(F("DT_mqtt_send "));
+        Serial.print(tag);
+        Serial.print(F(" -> "));
+        Serial.println(value);
         bool ret = mqtt.publish(tag, buffer, strlen(buffer));
         memory();
-    debug(AT);
+        debug(AT);
         return ret;
     }
     else
@@ -134,11 +148,15 @@ bool DT_mqtt_send(const char *tag, const uint32_t value)
     {
         char buffer[32];
         sprintf(buffer, "%" PRIu32, value);
-    debug(AT);
+        debug(AT);
         memory();
+        Serial.print(F("DT_mqtt_send "));
+        Serial.print(tag);
+        Serial.print(F(" -> "));
+        Serial.println(value);
         bool ret = mqtt.publish(tag, buffer, strlen(buffer));
         memory();
-    debug(AT);
+        debug(AT);
         return ret;
     }
     else
@@ -156,6 +174,10 @@ bool DT_mqtt_send(const char *tag, const char *value)
         Serial.println(value);
         memory();
         debug(AT);
+        Serial.print(F("DT_mqtt_send "));
+        Serial.print(tag);
+        Serial.print(F(" -> "));
+        Serial.println(value);
         bool ret = mqtt.publish(tag, value, strlen(value));
         debug(AT);
         memory();
