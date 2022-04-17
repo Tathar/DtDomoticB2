@@ -2,7 +2,7 @@
 
 //StaticJsonDocument<256> doc;
 char buffer[BUFFER_SIZE];
-char buffer_value[BUFFER_VALUE_SIZE];
+//char buffer_value[BUFFER_VALUE_SIZE];
 
 // const uint8_t HA_JSON[RELAY_NUM] PROGMEM = {23, 25, 27, 29, 31, 33, 35, 37, 22, 24, 26, 28, 30, 32, 34, 36, 100, 101, 102, 103, 104, 105, 106, 107, 200, 201, 202, 203, 204, 205, 206, 207};
 
@@ -18,13 +18,13 @@ char buffer_value[BUFFER_VALUE_SIZE];
 //         "identifiers" : "DTB02-001"
 //     }
 // }
-
+//#define COMMENT
 void homeassistant(bool start)
 {
 #ifdef COMMENT
     // uint32_t now = millis();
     static uint8_t sequance = 0;
-    JsonArray options;
+    // JsonArray options;
     static uint8_t num = 0;
 
     wdt_reset();

@@ -374,7 +374,7 @@ void DT_mqtt_loop()
             // String clientId = "Board01";
 
             // Serial.print(millis());
-            Serial.print(F("start MQTT conection "));
+            Serial.print(F("start MQTT connection "));
 
             if (!link_status)
                 Serial.println(F("(Link OFF)"));
@@ -395,7 +395,7 @@ void DT_mqtt_loop()
                 {
                     wdt_reset();
                     // Serial.print(millis());
-                    Serial.println(F("MQTT Connected"));
+                    Serial.println(F("MQTT connected"));
                     // Once connected, publish an announcement and resubscribe...
                     if (_mqtt_subscribe != nullptr)
                         _mqtt_subscribe(mqtt);
