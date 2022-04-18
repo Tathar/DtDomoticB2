@@ -451,21 +451,21 @@ void DT_3voies_loop()
         async_call_mcbt_pid = true;
     }
 
-    if (_callback_pcbt_pid != nullptr && async_call_pcbt_pid == true)
-    {
-        async_call_pcbt_pid = false;
-        _callback_pcbt_pid(pid_pcbt.GetPterm(), pid_pcbt.GetIterm(), pid_pcbt.GetDterm(), Output_PCBT);
-    }
-
-    if (_callback_mcbt_pid != nullptr && async_call_mcbt_pid == true)
-    {
-        async_call_mcbt_pid = false;
-        _callback_mcbt_pid(pid_mcbt.GetPterm(), pid_mcbt.GetIterm(), pid_mcbt.GetDterm(), Output_MCBT);
-    }
-
     if (now - old_now > 1000)
     {
         old_now = now;
+        if (_callback_pcbt_pid != nullptr && async_call_pcbt_pid == true)
+        {
+            async_call_pcbt_pid = false;
+            _callback_pcbt_pid(pid_pcbt.GetPterm(), pid_pcbt.GetIterm(), pid_pcbt.GetDterm(), Output_PCBT);
+        }
+
+        if (_callback_mcbt_pid != nullptr && async_call_mcbt_pid == true)
+        {
+            async_call_mcbt_pid = false;
+            _callback_mcbt_pid(pid_mcbt.GetPterm(), pid_mcbt.GetIterm(), pid_mcbt.GetDterm(), Output_MCBT);
+        }
+        
         if ((_callback_3_voies != nullptr) && ((old_C2 != mem_config.C2) || (old_C3 != mem_config.C3)))
         {
             _callback_3_voies(mem_config.C2, mem_config.C3);
