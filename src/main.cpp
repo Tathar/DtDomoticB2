@@ -70,16 +70,19 @@ void relay_callback(const uint8_t num, const bool action)
 {
   debug(AT);
   wdt_reset();
-  // sprintf_P(buffer, PSTR("relais numero %d dans l etat %d"), num, (int)action);
-  //  auto Serial.println(buffer);
-  sprintf_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/relay-%02d/state"), num);
-  if (action)
+  if (mem_config.MQTT_online)
   {
-    DT_mqtt_send(buffer, "ON");
-  }
-  else
-  {
-    DT_mqtt_send(buffer, "OFF");
+    // sprintf_P(buffer, PSTR("relais numero %d dans l etat %d"), num, (int)action);
+    //  auto Serial.println(buffer);
+    sprintf_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/relay-%02d/state"), num);
+    if (action)
+    {
+      DT_mqtt_send(buffer, "ON");
+    }
+    else
+    {
+      DT_mqtt_send(buffer, "OFF");
+    }
   }
 }
 #endif // MQTT
@@ -91,112 +94,115 @@ void input_callback(const uint8_t num, const Bt_Action action)
   // Serial.print(num);
   // Serial.print(F(" dans l etat "));
 
-#ifdef MQTT
-  sprintf_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/input-%02d/state"), num);
-#endif
-  switch (action)
+  if (mem_config.MQTT_online)
   {
-  case IN_PUSHED:
-    // Serial.println("ON");
 #ifdef MQTT
-    DT_mqtt_send(buffer, "ON");
+    sprintf_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/input-%02d/state"), num);
 #endif
-    break;
-
-  case IN_RELEASE:
-    // Serial.println("OFF");
+    switch (action)
+    {
+    case IN_PUSHED:
+      // Serial.println("ON");
 #ifdef MQTT
-    DT_mqtt_send(buffer, "OFF");
+      DT_mqtt_send(buffer, "ON");
 #endif
-    break;
+      break;
 
-  case IN_PUSH:
-    // Serial.println("PUSH");
+    case IN_RELEASE:
+      // Serial.println("OFF");
 #ifdef MQTT
-    // DT_mqtt_send(buffer, "PUSH");
+      DT_mqtt_send(buffer, "OFF");
 #endif
-    break;
+      break;
 
-  case IN_LPUSH:
-    // Serial.println("LPUSH");
+    case IN_PUSH:
+      // Serial.println("PUSH");
 #ifdef MQTT
-    // DT_mqtt_send(buffer, "LPUSH");
+      // DT_mqtt_send(buffer, "PUSH");
 #endif
-    break;
+      break;
 
-  case IN_LLPUSH:
-    // Serial.println("LLPUSH");
+    case IN_LPUSH:
+      // Serial.println("LPUSH");
 #ifdef MQTT
-    // DT_mqtt_send(buffer, "LLPUSH");
+      // DT_mqtt_send(buffer, "LPUSH");
 #endif
-    break;
+      break;
 
-  case IN_XLLPUSH:
-    // Serial.println("XLLPUSH");
+    case IN_LLPUSH:
+      // Serial.println("LLPUSH");
 #ifdef MQTT
-    // DT_mqtt_send(buffer, "XLLPUSH");
+      // DT_mqtt_send(buffer, "LLPUSH");
 #endif
-    break;
+      break;
 
-  case IN_2PUSH:
-    // Serial.println("2PUSH");
+    case IN_XLLPUSH:
+      // Serial.println("XLLPUSH");
 #ifdef MQTT
-    // DT_mqtt_send(buffer, "2PUSH");
+      // DT_mqtt_send(buffer, "XLLPUSH");
 #endif
-    break;
+      break;
 
-  case IN_L2PUSH:
-    // Serial.println("L2PUSH");
+    case IN_2PUSH:
+      // Serial.println("2PUSH");
 #ifdef MQTT
-    // DT_mqtt_send(buffer, "L2PUSH");
+      // DT_mqtt_send(buffer, "2PUSH");
 #endif
-    break;
+      break;
 
-  case IN_LL2PUSH:
-    // Serial.println("LL2PUSH");
+    case IN_L2PUSH:
+      // Serial.println("L2PUSH");
 #ifdef MQTT
-    // DT_mqtt_send(buffer, "LL2PUSH");
+      // DT_mqtt_send(buffer, "L2PUSH");
 #endif
-    break;
+      break;
 
-  case IN_XLL2PUSH:
-    // Serial.println("XLL2PUSH");
+    case IN_LL2PUSH:
+      // Serial.println("LL2PUSH");
 #ifdef MQTT
-    // DT_mqtt_send(buffer, "XLL2PUSH");
+      // DT_mqtt_send(buffer, "LL2PUSH");
 #endif
-    break;
+      break;
 
-  case IN_3PUSH:
-    // Serial.println("3PUSH");
+    case IN_XLL2PUSH:
+      // Serial.println("XLL2PUSH");
 #ifdef MQTT
-    // DT_mqtt_send(buffer, "3PUSH");
+      // DT_mqtt_send(buffer, "XLL2PUSH");
 #endif
-    break;
+      break;
 
-  case IN_L3PUSH:
-    // Serial.println("L3PUSH");
+    case IN_3PUSH:
+      // Serial.println("3PUSH");
 #ifdef MQTT
-    // DT_mqtt_send(buffer, "L3PUSH");
+      // DT_mqtt_send(buffer, "3PUSH");
 #endif
-    break;
+      break;
 
-  case IN_LL3PUSH:
-    // Serial.println("LL3PUSH");
+    case IN_L3PUSH:
+      // Serial.println("L3PUSH");
 #ifdef MQTT
-    // DT_mqtt_send(buffer, "LL3PUSH");
+      // DT_mqtt_send(buffer, "L3PUSH");
 #endif
-    break;
+      break;
 
-  case IN_XLL3PUSH:
-    // Serial.println("XLL3PUSH");
+    case IN_LL3PUSH:
+      // Serial.println("LL3PUSH");
 #ifdef MQTT
-    // DT_mqtt_send(buffer, "XLL3PUSH");
+      // DT_mqtt_send(buffer, "LL3PUSH");
 #endif
-    break;
+      break;
 
-  default:
-    // Serial.println(action);
-    break;
+    case IN_XLL3PUSH:
+      // Serial.println("XLL3PUSH");
+#ifdef MQTT
+      // DT_mqtt_send(buffer, "XLL3PUSH");
+#endif
+      break;
+
+    default:
+      // Serial.println(action);
+      break;
+    }
   }
 }
 
@@ -207,13 +213,17 @@ void pt100_callback(const uint8_t num, const float temp)
   debug(AT);
   wdt_reset();
   Serial.println("PT100_CALLBACK ");
-  sprintf_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pt100-%02d/temperature"), num);
-  // JsonVariant variant = doc.to<JsonVariant>();
-  // variant.set(temp);
-  // serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
 
-  // DT_mqtt_send(buffer, buffer_value);
-  DT_mqtt_send(buffer, temp);
+  if (mem_config.MQTT_online)
+  {
+    sprintf_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pt100-%02d/temperature"), num);
+    // JsonVariant variant = doc.to<JsonVariant>();
+    // variant.set(temp);
+    // serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
+
+    // DT_mqtt_send(buffer, buffer_value);
+    DT_mqtt_send(buffer, temp);
+  }
 }
 #endif // PT100
 
@@ -224,7 +234,7 @@ void bme280_callback_temperature(const uint8_t num, const float temperature)
 
   static uint32_t refresh = 0;
   uint32_t now = millis();
-  if (now - refresh >= MQTT_REFRESH)
+  if (now - refresh >= MQTT_REFRESH && mem_config.MQTT_online)
   {
     refresh = now;
     sprintf_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/bme280-%02d/temperature"), num);
@@ -243,7 +253,7 @@ void bme280_callback_humidity(const uint8_t num, const float humidity)
 
   static uint32_t refresh = 0;
   uint32_t now = millis();
-  if (now - refresh >= MQTT_REFRESH)
+  if (now - refresh >= MQTT_REFRESH && mem_config.MQTT_online)
   {
     refresh = now;
     sprintf_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/bme280-%02d/humidity"), num);
@@ -262,7 +272,7 @@ void bme280_callback_pressure(const uint8_t num, const float pressure)
 
   static uint32_t refresh = 0;
   uint32_t now = millis();
-  if (now - refresh >= MQTT_REFRESH)
+  if (now - refresh >= MQTT_REFRESH && mem_config.MQTT_online)
   {
     refresh = now;
     sprintf_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/bme280-%02d/pressure"), num);
@@ -281,7 +291,7 @@ void ccs811_callback_co2(const uint8_t num, const float co2)
 
   static uint32_t refresh = 0;
   uint32_t now = millis();
-  if (now - refresh >= MQTT_REFRESH)
+  if (now - refresh >= MQTT_REFRESH && mem_config.MQTT_online)
   {
     refresh = now;
     sprintf_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/ccs811-%02d/co2"), num);
@@ -299,7 +309,7 @@ void ccs811_callback_cov(const uint8_t num, const float cov)
   wdt_reset();
   static uint32_t refresh = 0;
   uint32_t now = millis();
-  if (now - refresh >= MQTT_REFRESH)
+  if (now - refresh >= MQTT_REFRESH && mem_config.MQTT_online)
   {
     refresh = now;
     sprintf_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/ccs811-%02d/cov"), num);
@@ -317,6 +327,8 @@ void poele_mode_callback(const DT_Poele_mode mode)
   debug(AT);
   // mode poele
   wdt_reset();
+  if (mem_config.MQTT_online)
+  {
   strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/poele/mode/state"), BUFFER_SIZE);
   switch (mode)
   {
@@ -332,7 +344,7 @@ void poele_mode_callback(const DT_Poele_mode mode)
   case DT_POELE_FORCE:
     DT_mqtt_send(buffer, "Forcé");
     break;
-  }
+  }}
 }
 #endif // POELE
 
@@ -344,7 +356,7 @@ void dt3voies_callback(const float C2, const float C3)
 
   static uint32_t refresh = 0;
   uint32_t now = millis();
-  if (now - refresh >= MQTT_REFRESH)
+  if (now - refresh >= MQTT_REFRESH && mem_config.MQTT_online)
   {
     refresh = now;
     // JsonVariant variant = doc.to<JsonVariant>();
@@ -374,7 +386,7 @@ void dt3voies_callback_pid_pcbt(const float P, const float I, const float D, con
 
   static uint32_t refresh = 0;
   uint32_t now = millis();
-  if (now - refresh >= MQTT_REFRESH)
+  if (now - refresh >= MQTT_REFRESH && mem_config.MQTT_online)
   {
     refresh = now;
     // JsonVariant variant = doc.to<JsonVariant>();
@@ -422,7 +434,7 @@ void dt3voies_callback_pid_mcbt(const float P, const float I, const float D, con
 
   static uint32_t refresh = 0;
   uint32_t now = millis();
-  if (now - refresh >= MQTT_REFRESH)
+  if (now - refresh >= MQTT_REFRESH && mem_config.MQTT_online)
   {
     refresh = now;
     // JsonVariant variant = doc.to<JsonVariant>();
@@ -466,7 +478,7 @@ void dt3voies_callback_pid_mcbt(const float P, const float I, const float D, con
 void mqtt_publish(bool start)
 {
   // debug(AT);
-  static uint8_t sequance = 0;
+  static uint8_t sequance = 254;
   static uint8_t num = 0;
   static uint32_t time = 0;
   if (start)
@@ -481,7 +493,7 @@ void mqtt_publish(bool start)
 
   // Serial.print(millis());
   wdt_reset();
-  if (now - time >= 100)
+  if (now - time >= 100 && mem_config.MQTT_online)
   {
     switch (sequance)
     {

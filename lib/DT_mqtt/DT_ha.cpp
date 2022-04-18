@@ -23,7 +23,7 @@ void homeassistant(bool start)
 {
 #ifdef COMMENT
     // uint32_t now = millis();
-    static uint8_t sequance = 0;
+    static uint8_t sequance = 254;
     // JsonArray options;
     static uint8_t num = 0;
 
