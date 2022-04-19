@@ -4,8 +4,6 @@
 #include <ArduinoJson.h>
 
 #ifdef MQTT
-char buffer[BUFFER_SIZE];
-
 
 #define max_topic 64
 #define max_payload 272

@@ -63,25 +63,90 @@ void memory(void)
   }
 }
 
+void load()
+{
+  char topic[56];
+  uint32_t now = millis();
+  static uint32_t load_1s_count = 0;
+  static uint32_t load_1s_time = 0;
+  load_1s_count += 1;
+  if (now - load_1s_time >= 1000)
+  {
+    float load = ((now - load_1s_time) / 20.0) / load_1s_count;
+
+    load_1s_count = load * 100;
+
+#ifdef MQTT
+    strlcpy_P(topic, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/load_1s"), 56);
+    debug(AT);
+    DT_mqtt_send(topic, (float)(load_1s_count / 100.0));
+#endif
+    Serial.print(F("Load 1s = "));
+    Serial.println((float)(load_1s_count / 100.0));
+
+    load_1s_count = 0;
+    load_1s_time = now;
+  }
+
+  static uint8_t load_10s_num = 0;
+  static uint32_t load_10s_count = 0;
+  static uint32_t load_10s_time = 0;
+  static float load_10s[6] = {0, 0, 0, 0, 0, 0};
+  load_10s_count += 1;
+  if (now - load_10s_time >= 10000)
+  {
+    // Serial.println(load_10s_count);
+    // Serial.println(now - load_10s_time);
+    load_10s[load_10s_num] = ((now - load_10s_time) / 20.0) / load_10s_count;
+    // Serial.println( load_10s[load_10s_num]);
+
+    float temp = 0;
+    for (uint8_t num = 0; num < 6; ++num)
+    {
+      temp += load_10s[num];
+    }
+
+    // Serial.println(temp);
+    load_10s_count = (temp / 6.0) * 100;
+    // Serial.println(load_10s_count);
+    // Serial.println((float)((load_10s_count / 100.0)));
+
+#ifdef MQTT
+    strlcpy_P(topic, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/load_1m"), 56);
+    debug(AT);
+    DT_mqtt_send(topic, (float)((load_10s_count / 100.0)));
+#else
+    Serial.print(F("load 10m ="));
+    Serial.println((float)((load_10s_count / 100.0)));
+#endif
+    load_10s_count = 0;
+    load_10s_time = now;
+    load_10s_num += 1;
+    if (load_10s_num == 6)
+      load_10s_num = 0;
+  }
+}
+
 #ifdef MQTT
 
 // Relay Callback
 void relay_callback(const uint8_t num, const bool action)
 {
+  char topic[56];
   debug(AT);
   wdt_reset();
   if (mem_config.MQTT_online)
   {
     // sprintf_P(buffer, PSTR("relais numero %d dans l etat %d"), num, (int)action);
     //  auto Serial.println(buffer);
-    sprintf_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/relay-%02d/state"), num);
+    snprintf_P(topic, 56, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/relay-%02d/state"), num);
     if (action)
     {
-      DT_mqtt_send(buffer, "ON");
+      DT_mqtt_send(topic, "ON");
     }
     else
     {
-      DT_mqtt_send(buffer, "OFF");
+      DT_mqtt_send(topic, "OFF");
     }
   }
 }
@@ -89,6 +154,7 @@ void relay_callback(const uint8_t num, const bool action)
 
 void input_callback(const uint8_t num, const Bt_Action action)
 {
+  char topic[56];
   wdt_reset();
   // Serial.print(F("entrée numero "));
   // Serial.print(num);
@@ -97,21 +163,21 @@ void input_callback(const uint8_t num, const Bt_Action action)
   if (mem_config.MQTT_online)
   {
 #ifdef MQTT
-    sprintf_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/input-%02d/state"), num);
+    snprintf_P(topic, 56, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/input-%02d/state"), num);
 #endif
     switch (action)
     {
     case IN_PUSHED:
       // Serial.println("ON");
 #ifdef MQTT
-      DT_mqtt_send(buffer, "ON");
+      DT_mqtt_send(topic, "ON");
 #endif
       break;
 
     case IN_RELEASE:
       // Serial.println("OFF");
 #ifdef MQTT
-      DT_mqtt_send(buffer, "OFF");
+      DT_mqtt_send(topic, "OFF");
 #endif
       break;
 
@@ -210,25 +276,27 @@ void input_callback(const uint8_t num, const Bt_Action action)
 #if TEMP_NUM > 0
 void pt100_callback(const uint8_t num, const float temp)
 {
+  char topic[60];
   debug(AT);
   wdt_reset();
   Serial.println("PT100_CALLBACK ");
 
   if (mem_config.MQTT_online)
   {
-    sprintf_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pt100-%02d/temperature"), num);
+    snprintf_P(topic, 60, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pt100-%02d/temperature"), num);
     // JsonVariant variant = doc.to<JsonVariant>();
     // variant.set(temp);
     // serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
 
     // DT_mqtt_send(buffer, buffer_value);
-    DT_mqtt_send(buffer, temp);
+    DT_mqtt_send(topic, temp);
   }
 }
 #endif // PT100
 
 void bme280_callback_temperature(const uint8_t num, const float temperature)
 {
+  char topic[60];
   // debug(AT);
   wdt_reset();
 
@@ -237,18 +305,19 @@ void bme280_callback_temperature(const uint8_t num, const float temperature)
   if (now - refresh >= MQTT_REFRESH && mem_config.MQTT_online)
   {
     refresh = now;
-    sprintf_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/bme280-%02d/temperature"), num);
+    snprintf_P(topic, 60, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/bme280-%02d/temperature"), num);
     // JsonVariant variant = doc.to<JsonVariant>();
     // variant.set(temperature);
     // serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
     // DT_mqtt_send(buffer, buffer_value);
-    DT_mqtt_send(buffer, temperature);
+    DT_mqtt_send(topic, temperature);
   }
 }
 
 void bme280_callback_humidity(const uint8_t num, const float humidity)
 {
   // debug(AT);
+  char topic[60];
   wdt_reset();
 
   static uint32_t refresh = 0;
@@ -256,18 +325,19 @@ void bme280_callback_humidity(const uint8_t num, const float humidity)
   if (now - refresh >= MQTT_REFRESH && mem_config.MQTT_online)
   {
     refresh = now;
-    sprintf_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/bme280-%02d/humidity"), num);
+    snprintf_P(topic, 60, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/bme280-%02d/humidity"), num);
     // JsonVariant variant = doc.to<JsonVariant>();
     // variant.set(humidity);
     // serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
     // DT_mqtt_send(buffer, buffer_value);
-    DT_mqtt_send(buffer, humidity);
+    DT_mqtt_send(topic, humidity);
   }
 }
 
 void bme280_callback_pressure(const uint8_t num, const float pressure)
 {
   // debug(AT);
+  char topic[60];
   wdt_reset();
 
   static uint32_t refresh = 0;
@@ -275,18 +345,19 @@ void bme280_callback_pressure(const uint8_t num, const float pressure)
   if (now - refresh >= MQTT_REFRESH && mem_config.MQTT_online)
   {
     refresh = now;
-    sprintf_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/bme280-%02d/pressure"), num);
+    snprintf_P(topic, 60, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/bme280-%02d/pressure"), num);
     // JsonVariant variant = doc.to<JsonVariant>();
     // variant.set(pressure);
     // serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
     // DT_mqtt_send(buffer, buffer_value);
-    DT_mqtt_send(buffer, pressure);
+    DT_mqtt_send(topic, pressure);
   }
 }
 
 void ccs811_callback_co2(const uint8_t num, const float co2)
 {
   // debug(AT);
+  char topic[56];
   wdt_reset();
 
   static uint32_t refresh = 0;
@@ -294,55 +365,57 @@ void ccs811_callback_co2(const uint8_t num, const float co2)
   if (now - refresh >= MQTT_REFRESH && mem_config.MQTT_online)
   {
     refresh = now;
-    sprintf_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/ccs811-%02d/co2"), num);
+    snprintf_P(topic, 56, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/ccs811-%02d/co2"), num);
     // JsonVariant variant = doc.to<JsonVariant>();
     // variant.set(co2);
     // serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
     // DT_mqtt_send(buffer, buffer_value);
-    DT_mqtt_send(buffer, co2);
+    DT_mqtt_send(topic, co2);
   }
 }
 
 void ccs811_callback_cov(const uint8_t num, const float cov)
 {
   // debug(AT);
+  char topic[56];
   wdt_reset();
   static uint32_t refresh = 0;
   uint32_t now = millis();
   if (now - refresh >= MQTT_REFRESH && mem_config.MQTT_online)
   {
     refresh = now;
-    sprintf_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/ccs811-%02d/cov"), num);
+    snprintf_P(topic, 56, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/ccs811-%02d/cov"), num);
     // JsonVariant variant = doc.to<JsonVariant>();
     // variant.set(cov);
     // serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
     // DT_mqtt_send(buffer, buffer_value);
-    DT_mqtt_send(buffer, cov);
+    DT_mqtt_send(topic, cov);
   }
 }
 
 #ifdef POELE
 void poele_mode_callback(const DT_Poele_mode mode)
 {
+  char topic[56];
   debug(AT);
   // mode poele
   wdt_reset();
   if (mem_config.MQTT_online)
   {
-    strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/poele/mode/state"), BUFFER_SIZE);
+    strlcpy_P(topic, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/poele/mode/state"), 56);
     switch (mode)
     {
     case DT_POELE_ARRET:
-      DT_mqtt_send(buffer, "Arret");
+      DT_mqtt_send(topic, "Arret");
       break;
     case DT_POELE_NORMAL:
-      DT_mqtt_send(buffer, "Normal");
+      DT_mqtt_send(topic, "Normal");
       break;
     case DT_POELE_ECS:
-      DT_mqtt_send(buffer, "ECS");
+      DT_mqtt_send(topic, "ECS");
       break;
     case DT_POELE_FORCE:
-      DT_mqtt_send(buffer, "Forcé");
+      DT_mqtt_send(topic, "Forcé");
       break;
     }
   }
@@ -359,29 +432,23 @@ void dt3voies_callback(const float C2, const float C3)
   uint32_t now = millis();
   if (now - refresh >= MQTT_REFRESH && mem_config.MQTT_online)
   {
+    char topic[56];
     refresh = now;
-    // JsonVariant variant = doc.to<JsonVariant>();
     int32_t digit = C2 * 100;
-    // variant.set((float)digit / 100.0);
-    // serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
-    strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/C2/state"), BUFFER_SIZE);
-    // DT_mqtt_send(buffer, buffer_value);
-    DT_mqtt_send(buffer, (float)(digit / 100.0));
+    strlcpy_P(topic, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/C2/state"), 56);
+    DT_mqtt_send(topic, (float)(digit / 100.0));
 
     wdt_reset();
-    // variant = doc.to<JsonVariant>();
     digit = C3 * 100;
-    // variant.set((float)digit / 100.0);
-    //  serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
-    //  strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/C3/state"), BUFFER_SIZE);
-    //  DT_mqtt_send(buffer, buffer_value);
-    DT_mqtt_send(buffer, (float)(digit / 100.0));
+    strlcpy_P(topic, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/C3/state"), 56);
+    DT_mqtt_send(topic, (float)(digit / 100.0));
   }
 }
 
 // retour des valleur du PID PCBT
 void dt3voies_callback_pid_pcbt(const float P, const float I, const float D, const float OUT)
 {
+  char topic[56];
   debug(AT);
   wdt_reset();
 
@@ -390,46 +457,31 @@ void dt3voies_callback_pid_pcbt(const float P, const float I, const float D, con
   if (now - refresh >= MQTT_REFRESH && mem_config.MQTT_online)
   {
     refresh = now;
-    // JsonVariant variant = doc.to<JsonVariant>();
     int32_t digit = P * 100;
-    // variant.set((float)digit / 100.0);
-    // serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
-    strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/P"), BUFFER_SIZE);
-    // DT_mqtt_send(buffer, buffer_value);
-    DT_mqtt_send(buffer, (float)(digit / 100.0));
+    strlcpy_P(topic, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/P"), 56);
+    DT_mqtt_send(topic, (float)(digit / 100.0));
 
     wdt_reset();
-    // variant = doc.to<JsonVariant>();
     digit = I * 100;
-    // variant.set((float)digit / 100.0);
-    // serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
-    strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/I"), BUFFER_SIZE);
-    // DT_mqtt_send(buffer, buffer_value);
-    DT_mqtt_send(buffer, (float)(digit / 100.0));
+    strlcpy_P(topic, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/I"), 56);
+    DT_mqtt_send(topic, (float)(digit / 100.0));
 
     wdt_reset();
-    // variant = doc.to<JsonVariant>();
     digit = D * 100;
-    // variant.set((float)digit / 100.0);
-    // serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
-    strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/D"), BUFFER_SIZE);
-    // DT_mqtt_send(buffer, buffer_value);
-    DT_mqtt_send(buffer, (float)(digit / 100.0));
+    strlcpy_P(topic, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/D"), 56);
+    DT_mqtt_send(topic, (float)(digit / 100.0));
 
     wdt_reset();
-    // variant = doc.to<JsonVariant>();
     digit = OUT * 100;
-    // variant.set((float)digit / 100.0);
-    // serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
-    strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/OUT"), BUFFER_SIZE);
-    // DT_mqtt_send(buffer, buffer_value);
-    DT_mqtt_send(buffer, (float)(digit / 100.0));
+    strlcpy_P(topic, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/OUT"), 56);
+    DT_mqtt_send(topic, (float)(digit / 100.0));
   }
 }
 
 // retour des valleur du PID MCBT
 void dt3voies_callback_pid_mcbt(const float P, const float I, const float D, const float OUT)
 {
+  char topic[56];
   debug(AT);
   wdt_reset();
 
@@ -438,46 +490,31 @@ void dt3voies_callback_pid_mcbt(const float P, const float I, const float D, con
   if (now - refresh >= MQTT_REFRESH && mem_config.MQTT_online)
   {
     refresh = now;
-    // JsonVariant variant = doc.to<JsonVariant>();
     int32_t digit = P * 100;
-    // variant.set((float)digit / 100.0);
-    // serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
-    strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/P"), BUFFER_SIZE);
-    // DT_mqtt_send(buffer, buffer_value);
-    DT_mqtt_send(buffer, (float)(digit / 100.0));
+    strlcpy_P(topic, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/P"), 56);
+    DT_mqtt_send(topic, (float)(digit / 100.0));
 
     wdt_reset();
-    // variant = doc.to<JsonVariant>();
     digit = I * 100;
-    // variant.set((float)digit / 100.0);
-    // serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
-    strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/I"), BUFFER_SIZE);
-    // DT_mqtt_send(buffer, buffer_value);
-    DT_mqtt_send(buffer, (float)(digit / 100.0));
+    strlcpy_P(topic, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/I"), 56);
+    DT_mqtt_send(topic, (float)(digit / 100.0));
 
     wdt_reset();
-    // variant = doc.to<JsonVariant>();
     digit = D * 100;
-    // variant.set((float)digit / 100.0);
-    // serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
-    strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/D"), BUFFER_SIZE);
-    // DT_mqtt_send(buffer, buffer_value);
-    DT_mqtt_send(buffer, (float)(digit / 100.0));
+    strlcpy_P(topic, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/D"), 56);
+    DT_mqtt_send(topic, (float)(digit / 100.0));
 
     wdt_reset();
-    // variant = doc.to<JsonVariant>();
     digit = OUT * 100;
-    // variant.set((float)digit / 100.0);
-    // serializeJson(variant, buffer_value, BUFFER_VALUE_SIZE);
-    strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/OUT"), BUFFER_SIZE);
-    // DT_mqtt_send(buffer, buffer_value);
-    DT_mqtt_send(buffer, (float)(digit / 100.0));
+    strlcpy_P(topic, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/OUT"), 56);
+    DT_mqtt_send(topic, (float)(digit / 100.0));
   }
 }
 #endif // VANNES
 
 void mqtt_publish(bool start)
 {
+  char topic[56];
   // debug(AT);
   static uint8_t sequance = 254;
   static uint8_t num = 0;
@@ -500,8 +537,8 @@ void mqtt_publish(bool start)
     switch (sequance)
     {
     case 0:
-      strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/availability"), BUFFER_SIZE);
-      DT_mqtt_send(buffer, "online");
+      strlcpy_P(topic, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/availability"), 56);
+      DT_mqtt_send(topic, "online");
       break;
 
     case 1:
@@ -544,8 +581,8 @@ void mqtt_publish(bool start)
       {
         num = 0;
       }
-#endif 
-    break;
+#endif
+      break;
 
     case 4:
 #ifdef POELE
@@ -559,9 +596,9 @@ void mqtt_publish(bool start)
     case 5:
 #ifdef POELE
       wdt_reset();
-      strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/V1/state"), BUFFER_SIZE);
+      strlcpy_P(topic, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/V1/state"), 56);
       debug(AT);
-      DT_mqtt_send(buffer, eeprom_config.V1);
+      DT_mqtt_send(topic, eeprom_config.V1);
       debug(AT);
 #endif
       break;
@@ -570,17 +607,17 @@ void mqtt_publish(bool start)
       // V2
       wdt_reset();
       debug(AT);
-      strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/V2/state"), BUFFER_SIZE);
+      strlcpy_P(topic, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/V2/state"), 56);
       debug(AT);
-      DT_mqtt_send(buffer, eeprom_config.V2);
+      DT_mqtt_send(topic, eeprom_config.V2);
 #endif
       break;
     case 7:
 #ifdef POELE
       // V3
       wdt_reset();
-      strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/V3/state"), BUFFER_SIZE);
-      DT_mqtt_send(buffer, eeprom_config.V3);
+      strlcpy_P(topic, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/V3/state"), 56);
+      DT_mqtt_send(topic, eeprom_config.V3);
 #endif // POELE
       break;
 
@@ -588,20 +625,20 @@ void mqtt_publish(bool start)
 #ifdef VANNES
       // 3 voies PCBT mode
       wdt_reset();
-      strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/mode/state"), BUFFER_SIZE);
+      strlcpy_P(topic, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/mode/state"), 56);
       switch (DT_3voies_PCBT_get_mode())
       {
       case DT_3VOIES_DEMMARAGE:
-        DT_mqtt_send(buffer, "Demmarage");
+        DT_mqtt_send(topic, "Demmarage");
         break;
       case DT_3VOIES_NORMAL:
-        DT_mqtt_send(buffer, "Normal");
+        DT_mqtt_send(topic, "Normal");
         break;
       case DT_3VOIES_MANUAL:
-        DT_mqtt_send(buffer, "Manuel");
+        DT_mqtt_send(topic, "Manuel");
         break;
       case DT_3VOIES_OFF:
-        DT_mqtt_send(buffer, "Arret");
+        DT_mqtt_send(topic, "Arret");
         break;
       }
 #endif // vanne
@@ -610,409 +647,409 @@ void mqtt_publish(bool start)
 #ifdef VANNES
       // 3 voies MCBT mode
       wdt_reset();
-      strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/mode/state"), BUFFER_SIZE);
+      strlcpy_P(topic, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/mode/state"), 56);
       switch (DT_3voies_MCBT_get_mode())
       {
       case DT_3VOIES_DEMMARAGE:
-        DT_mqtt_send(buffer, "Demmarage");
+        DT_mqtt_send(topic, "Demmarage");
         break;
       case DT_3VOIES_NORMAL:
-        DT_mqtt_send(buffer, "Normal");
+        DT_mqtt_send(topic, "Normal");
         break;
       case DT_3VOIES_MANUAL:
-        DT_mqtt_send(buffer, "Manuel");
+        DT_mqtt_send(topic, "Manuel");
         break;
       case DT_3VOIES_OFF:
-        DT_mqtt_send(buffer, "Arret");
+        DT_mqtt_send(topic, "Arret");
         break;
       }
 #endif // vanne
-    break;
+      break;
     case 10:
 #ifdef VANNES
       // consigne vanne 3 voies PCBT & MCBT
       dt3voies_callback(DT_3voies_get_C2(), DT_3voies_get_C3());
-#endif //vanne
- break;
+#endif // vanne
+      break;
     case 11:
 #ifdef VANNES
       // C4
       wdt_reset();
-      strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/C4/state"), BUFFER_SIZE);
-      DT_mqtt_send(buffer, eeprom_config.C4);
-#endif  //vanne
-    break;
+      strlcpy_P(topic, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/C4/state"), 56);
+      DT_mqtt_send(topic, eeprom_config.C4);
+#endif // vanne
+      break;
     case 12:
 #ifdef VANNES
       // C5
       wdt_reset();
-      strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/C5/state"), BUFFER_SIZE);
-      DT_mqtt_send(buffer, eeprom_config.C5);
-#endif  //vanne
-    break;
+      strlcpy_P(topic, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/C5/state"), 56);
+      DT_mqtt_send(topic, eeprom_config.C5);
+#endif // vanne
+      break;
     case 13:
 #ifdef VANNES
       // C6
       wdt_reset();
-      strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/C6/state"), BUFFER_SIZE);
-      DT_mqtt_send(buffer, eeprom_config.C6);
-#endif  //vanne
-    break;
+      strlcpy_P(topic, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/C6/state"), 56);
+      DT_mqtt_send(topic, eeprom_config.C6);
+#endif // vanne
+      break;
     case 14:
 #ifdef VANNES
       // C7
       wdt_reset();
-      strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/C7/state"), BUFFER_SIZE);
-      DT_mqtt_send(buffer, eeprom_config.C7);
-#endif  //vanne
-    break;
+      strlcpy_P(topic, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/C7/state"), 56);
+      DT_mqtt_send(topic, eeprom_config.C7);
+#endif // vanne
+      break;
     case 15:
 #ifdef VANNES
       // C8
       wdt_reset();
-      strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/C8/state"), BUFFER_SIZE);
-      DT_mqtt_send(buffer, eeprom_config.C8);
-#endif  //vanne
-    break;
+      strlcpy_P(topic, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/C8/state"), 56);
+      DT_mqtt_send(topic, eeprom_config.C8);
+#endif // vanne
+      break;
     case 16:
 #ifdef VANNES
       // C9
       wdt_reset();
-      strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/C9/state"), BUFFER_SIZE);
-      DT_mqtt_send(buffer, eeprom_config.C9);
-#endif  //vanne
-    break;
+      strlcpy_P(topic, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/C9/state"), 56);
+      DT_mqtt_send(topic, eeprom_config.C9);
+#endif // vanne
+      break;
     case 17:
 #ifdef VANNES
       // C10
       wdt_reset();
-      strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/C10/state"), BUFFER_SIZE);
-      DT_mqtt_send(buffer, eeprom_config.C10);
-#endif  //vanne
-    break;
+      strlcpy_P(topic, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/C10/state"), 56);
+      DT_mqtt_send(topic, eeprom_config.C10);
+#endif // vanne
+      break;
     case 18:
 #ifdef VANNES
       // C11
       wdt_reset();
-      strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/C11/state"), BUFFER_SIZE);
-      DT_mqtt_send(buffer, eeprom_config.C11);
-#endif  //vanne
-    break;
+      strlcpy_P(topic, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/C11/state"), 56);
+      DT_mqtt_send(topic, eeprom_config.C11);
+#endif // vanne
+      break;
     case 19:
 #ifdef VANNES
 
       // C_PCBT_MIN
       wdt_reset();
-      strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/min_temp/state"), BUFFER_SIZE);
-      DT_mqtt_send(buffer, eeprom_config.C_PCBT_MIN);
+      strlcpy_P(topic, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/min_temp/state"), 56);
+      DT_mqtt_send(topic, eeprom_config.C_PCBT_MIN);
 
-#endif  //vanne
-    break;
+#endif // vanne
+      break;
     case 20:
 #ifdef VANNES
       // C_PCBT_MAX
       wdt_reset();
-      strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/max_temp/state"), BUFFER_SIZE);
-      DT_mqtt_send(buffer, eeprom_config.C_PCBT_MAX);
+      strlcpy_P(topic, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/max_temp/state"), 56);
+      DT_mqtt_send(topic, eeprom_config.C_PCBT_MAX);
 
-#endif  //vanne
-    break;
+#endif // vanne
+      break;
     case 21:
 #ifdef VANNES
       // C_MCBT_MIN
       wdt_reset();
-      strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/min_temp/state"), BUFFER_SIZE);
-      DT_mqtt_send(buffer, eeprom_config.C_MCBT_MIN);
+      strlcpy_P(topic, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/min_temp/state"), 56);
+      DT_mqtt_send(topic, eeprom_config.C_MCBT_MIN);
 
-#endif  //vanne
-    break;
+#endif // vanne
+      break;
     case 22:
 #ifdef VANNES
       // C_MCBT_MAX
       wdt_reset();
-      strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/max_temp/state"), BUFFER_SIZE);
-      DT_mqtt_send(buffer, eeprom_config.C_MCBT_MAX);
+      strlcpy_P(topic, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/max_temp/state"), 56);
+      DT_mqtt_send(topic, eeprom_config.C_MCBT_MAX);
 
-#endif  //vanne
-    break;
+#endif // vanne
+      break;
     case 23:
 #ifdef VANNES
       // KP_PCBT
       wdt_reset();
-      strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/KP/state"), BUFFER_SIZE);
-      DT_mqtt_send(buffer, DT_3voies_PCBT_get_KP());
+      strlcpy_P(topic, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/KP/state"), 56);
+      DT_mqtt_send(topic, DT_3voies_PCBT_get_KP());
 
-#endif  //vanne
-    break;
+#endif // vanne
+      break;
     case 24:
 #ifdef VANNES
       // KI_PCBT
       wdt_reset();
-      strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/KI/state"), BUFFER_SIZE);
-      DT_mqtt_send(buffer, DT_3voies_PCBT_get_KI());
+      strlcpy_P(topic, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/KI/state"), 56);
+      DT_mqtt_send(topic, DT_3voies_PCBT_get_KI());
 
-#endif  //vanne
-    break;
+#endif // vanne
+      break;
     case 25:
 #ifdef VANNES
       // KD_PCBT
       wdt_reset();
-      strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/KD/state"), BUFFER_SIZE);
-      DT_mqtt_send(buffer, DT_3voies_PCBT_get_KD());
+      strlcpy_P(topic, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/KD/state"), 56);
+      DT_mqtt_send(topic, DT_3voies_PCBT_get_KD());
 
-#endif  //vanne
-    break;
+#endif // vanne
+      break;
     case 26:
 #ifdef VANNES
       // KT_PCBT
       wdt_reset();
-      strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/KT/state"), BUFFER_SIZE);
-      DT_mqtt_send(buffer, DT_3voies_PCBT_get_KT());
-#endif  //vanne
-    break;
+      strlcpy_P(topic, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/KT/state"), 56);
+      DT_mqtt_send(topic, DT_3voies_PCBT_get_KT());
+#endif // vanne
+      break;
     case 27:
 #ifdef VANNES
       // KP_MCBT
       wdt_reset();
-      strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/KP/state"), BUFFER_SIZE);
-      DT_mqtt_send(buffer, DT_3voies_MCBT_get_KP());
+      strlcpy_P(topic, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/KP/state"), 56);
+      DT_mqtt_send(topic, DT_3voies_MCBT_get_KP());
 
-#endif  //vanne
-    break;
+#endif // vanne
+      break;
     case 28:
 #ifdef VANNES
       // KI_MCBT
       wdt_reset();
-      strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/KI/state"), BUFFER_SIZE);
-      DT_mqtt_send(buffer, DT_3voies_MCBT_get_KI());
+      strlcpy_P(topic, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/KI/state"), 56);
+      DT_mqtt_send(topic, DT_3voies_MCBT_get_KI());
 
-#endif  //vanne
-    break;
+#endif // vanne
+      break;
     case 29:
 #ifdef VANNES
       // KD_MCBT
       wdt_reset();
-      strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/KD/state"), BUFFER_SIZE);
-      DT_mqtt_send(buffer, DT_3voies_MCBT_get_KD());
+      strlcpy_P(topic, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/KD/state"), 56);
+      DT_mqtt_send(topic, DT_3voies_MCBT_get_KD());
 
-#endif  //vanne
-    break;
+#endif // vanne
+      break;
     case 30:
 #ifdef VANNES
       // KT_MCBT
       wdt_reset();
-      strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/KT/state"), BUFFER_SIZE);
-      DT_mqtt_send(buffer, DT_3voies_MCBT_get_KT());
+      strlcpy_P(topic, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/KT/state"), 56);
+      DT_mqtt_send(topic, DT_3voies_MCBT_get_KT());
 
-#endif  //vanne
-    break;
+#endif // vanne
+      break;
     case 31:
 #ifdef VANNES
       // PID PCBT Action
       wdt_reset(); // clear watchdog
-      strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/pid_action/state"), BUFFER_SIZE);
+      strlcpy_P(topic, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/pid_action/state"), 56);
       switch (eeprom_config.pid_pcbt.action)
       {
       case QuickPID::Action::direct:
-        DT_mqtt_send(buffer, "direct");
+        DT_mqtt_send(topic, "direct");
         break;
       case QuickPID::Action::reverse:
-        DT_mqtt_send(buffer, "reverse");
+        DT_mqtt_send(topic, "reverse");
         break;
       }
 
-#endif  //vanne
-    break;
+#endif // vanne
+      break;
     case 32:
 #ifdef VANNES
       // PID PCBT pMode
       wdt_reset(); // clear watchdog
-      strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/pid_pmode/state"), BUFFER_SIZE);
+      strlcpy_P(topic, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/pid_pmode/state"), 56);
       switch (eeprom_config.pid_pcbt.pmode)
       {
       case QuickPID::pMode::pOnError:
-        DT_mqtt_send(buffer, "pOnError");
+        DT_mqtt_send(topic, "pOnError");
         break;
       case QuickPID::pMode::pOnMeas:
-        DT_mqtt_send(buffer, "pOnMeas");
+        DT_mqtt_send(topic, "pOnMeas");
         break;
       case QuickPID::pMode::pOnErrorMeas:
-        DT_mqtt_send(buffer, "pOnErrorMeas");
+        DT_mqtt_send(topic, "pOnErrorMeas");
         break;
       }
 
-#endif  //vanne
-    break;
+#endif // vanne
+      break;
     case 33:
 #ifdef VANNES
       // PID PCBT dMode
       wdt_reset(); // clear watchdog
-      strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/pid_dmode/state"), BUFFER_SIZE);
+      strlcpy_P(topic, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/pid_dmode/state"), 56);
       switch (eeprom_config.pid_pcbt.dmode)
       {
       case QuickPID::dMode::dOnError:
-        DT_mqtt_send(buffer, "dOnError");
+        DT_mqtt_send(topic, "dOnError");
         break;
       case QuickPID::dMode::dOnMeas:
-        DT_mqtt_send(buffer, "dOnMeas");
+        DT_mqtt_send(topic, "dOnMeas");
         break;
       }
 
-#endif  //vanne
-    break;
+#endif // vanne
+      break;
     case 34:
 #ifdef VANNES
       // PID PCBT iAwMode
       wdt_reset(); // clear watchdog
-      strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/pid_iawmode/state"), BUFFER_SIZE);
+      strlcpy_P(topic, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/pid_iawmode/state"), 56);
       switch (eeprom_config.pid_pcbt.iawmode)
       {
       case QuickPID::iAwMode::iAwCondition:
-        DT_mqtt_send(buffer, "iAwCondition");
+        DT_mqtt_send(topic, "iAwCondition");
         break;
       case QuickPID::iAwMode::iAwClamp:
-        DT_mqtt_send(buffer, "iAwClamp");
+        DT_mqtt_send(topic, "iAwClamp");
         break;
       case QuickPID::iAwMode::iAwOff:
-        DT_mqtt_send(buffer, "iAwOff");
+        DT_mqtt_send(topic, "iAwOff");
         break;
       }
 
-#endif  //vanne
-    break;
+#endif // vanne
+      break;
     case 35:
 #ifdef VANNES
       // PID MCBT Action
       wdt_reset(); // clear watchdog
-      strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/pid_action/state"), BUFFER_SIZE);
+      strlcpy_P(topic, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/pid_action/state"), 56);
       switch (eeprom_config.pid_mcbt.action)
       {
       case QuickPID::Action::direct:
-        DT_mqtt_send(buffer, "direct");
+        DT_mqtt_send(topic, "direct");
         break;
       case QuickPID::Action::reverse:
-        DT_mqtt_send(buffer, "reverse");
+        DT_mqtt_send(topic, "reverse");
         break;
       }
 
-#endif  //vanne
-    break;
+#endif // vanne
+      break;
     case 36:
 #ifdef VANNES
       // PID MCBT pMode
       wdt_reset(); // clear watchdog
-      strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/pid_pmode/state"), BUFFER_SIZE);
+      strlcpy_P(topic, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/pid_pmode/state"), 56);
       switch (eeprom_config.pid_mcbt.pmode)
       {
       case QuickPID::pMode::pOnError:
-        DT_mqtt_send(buffer, "pOnError");
+        DT_mqtt_send(topic, "pOnError");
         break;
       case QuickPID::pMode::pOnMeas:
-        DT_mqtt_send(buffer, "pOnMeas");
+        DT_mqtt_send(topic, "pOnMeas");
         break;
       case QuickPID::pMode::pOnErrorMeas:
-        DT_mqtt_send(buffer, "pOnErrorMeas");
+        DT_mqtt_send(topic, "pOnErrorMeas");
         break;
       }
 
-#endif  //vanne
-    break;
+#endif // vanne
+      break;
     case 37:
 #ifdef VANNES
       // PID MCBT dMode
       wdt_reset(); // clear watchdog
-      strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/pid_dmode/state"), BUFFER_SIZE);
+      strlcpy_P(topic, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/pid_dmode/state"), 56);
       switch (eeprom_config.pid_mcbt.dmode)
       {
       case QuickPID::dMode::dOnError:
-        DT_mqtt_send(buffer, "dOnError");
+        DT_mqtt_send(topic, "dOnError");
         break;
       case QuickPID::dMode::dOnMeas:
-        DT_mqtt_send(buffer, "dOnMeas");
+        DT_mqtt_send(topic, "dOnMeas");
         break;
       }
 
-#endif  //vanne
-    break;
+#endif // vanne
+      break;
     case 38:
 #ifdef VANNES
       // PID MCBT iAwMode
       wdt_reset(); // clear watchdog
-      strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/pid_iawmode/state"), BUFFER_SIZE);
+      strlcpy_P(topic, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/pid_iawmode/state"), 56);
       switch (eeprom_config.pid_mcbt.iawmode)
       {
       case QuickPID::iAwMode::iAwCondition:
-        DT_mqtt_send(buffer, "iAwCondition");
+        DT_mqtt_send(topic, "iAwCondition");
         break;
       case QuickPID::iAwMode::iAwClamp:
-        DT_mqtt_send(buffer, "iAwClamp");
+        DT_mqtt_send(topic, "iAwClamp");
         break;
       case QuickPID::iAwMode::iAwOff:
-        DT_mqtt_send(buffer, "iAwOff");
+        DT_mqtt_send(topic, "iAwOff");
         break;
       }
 
-#endif  //vanne
-    break;
+#endif // vanne
+      break;
     case 39:
 #ifdef VANNES
       // RATIO PCBT
       wdt_reset();
-      strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/ratio/state"), BUFFER_SIZE);
-      DT_mqtt_send(buffer, eeprom_config.ratio_PCBT);
+      strlcpy_P(topic, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/ratio/state"), 56);
+      DT_mqtt_send(topic, eeprom_config.ratio_PCBT);
 
-#endif  //vanne
-    break;
+#endif // vanne
+      break;
     case 40:
 #ifdef VANNES
       // RATIO MCBT
       wdt_reset();
-      strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/ratio/state"), BUFFER_SIZE);
-      DT_mqtt_send(buffer, eeprom_config.ratio_MCBT);
+      strlcpy_P(topic, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/ratio/state"), 56);
+      DT_mqtt_send(topic, eeprom_config.ratio_MCBT);
 
-#endif  //vanne
-    break;
+#endif // vanne
+      break;
     case 41:
 #ifdef VANNES
       // OFFSET_PCBT
       wdt_reset();
-      strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/offset-out/state"), BUFFER_SIZE);
-      DT_mqtt_send(buffer, eeprom_config.out_offset_PCBT);
+      strlcpy_P(topic, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/offset-out/state"), 56);
+      DT_mqtt_send(topic, eeprom_config.out_offset_PCBT);
 
-#endif  //vanne
-    break;
+#endif // vanne
+      break;
     case 42:
 #ifdef VANNES
       // OFFSET_MCBT
       wdt_reset();
-      strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/offset-out/state"), BUFFER_SIZE);
-      DT_mqtt_send(buffer, eeprom_config.out_offset_MCBT);
+      strlcpy_P(topic, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/offset-out/state"), 56);
+      DT_mqtt_send(topic, eeprom_config.out_offset_MCBT);
 
-#endif  //vanne
-    break;
+#endif // vanne
+      break;
     case 43:
 #ifdef VANNES
       // OFFSET_PCBT
       wdt_reset();
-      strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/offset-in/state"), BUFFER_SIZE);
-      DT_mqtt_send(buffer, eeprom_config.in_offset_PCBT);
+      strlcpy_P(topic, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/offset-in/state"), 56);
+      DT_mqtt_send(topic, eeprom_config.in_offset_PCBT);
 
-#endif  //vanne
-    break;
+#endif // vanne
+      break;
     case 44:
 #ifdef VANNES
       // OFFSET_MCBT
       wdt_reset();
-      strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/offset-in/state"), BUFFER_SIZE);
-      DT_mqtt_send(buffer, eeprom_config.in_offset_MCBT);
+      strlcpy_P(topic, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/offset-in/state"), 56);
+      DT_mqtt_send(topic, eeprom_config.in_offset_MCBT);
 #endif
       break;
 
     case 45:
       // ONLINE
       wdt_reset();
-      strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/status"), BUFFER_SIZE);
-      DT_mqtt_send(buffer, "online");
+      strlcpy_P(topic, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/status"), 56);
+      DT_mqtt_send(topic, "online");
       break;
 
     default:
@@ -1026,7 +1063,7 @@ void mqtt_publish(bool start)
 
 void mqtt_subscribe(MQTTClient &mqtt)
 {
-
+  char topic[56];
   uint32_t now = millis();
   // Serial.print(millis());
   Serial.print(F("mqtt_subscribe = "));
@@ -1042,8 +1079,8 @@ void mqtt_subscribe(MQTTClient &mqtt)
   for (uint8_t num = 0; num < RELAY_NUM; ++num)
   {
     wdt_reset();
-    sprintf_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/relay-%02d/set"), num + 1);
-    mqtt.subscribe(buffer);
+    snprintf_P(topic, 56, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/relay-%02d/set"), num + 1);
+    mqtt.subscribe(topic);
     mqtt.loop();
   }
 
@@ -1239,7 +1276,7 @@ void mqtt_subscribe(MQTTClient &mqtt)
 
 void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], const int length)
 {
-
+  char buffer[56];
   wdt_reset();
   String str_buffer;
   uint32_t now = millis();
@@ -1247,7 +1284,7 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
   Serial.println(topic);
 
   // Copy the payload to the new buffer
-  if (length < BUFFER_SIZE)
+  if (length < 56)
   {
     memcpy(buffer, payload, length);
     buffer[length] = '\0';
@@ -1294,7 +1331,7 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
     if (sscanf_P(buffer, PSTR("%" SCNu8), &u8t_value) == 1)
     {
       eeprom_config.V1 = u8t_value;
-      strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/V1/state"), BUFFER_SIZE);
+      strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/V1/state"), 56);
       DT_mqtt_send(buffer, u8t_value);
       sauvegardeEEPROM();
     }
@@ -1304,7 +1341,7 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
     if (sscanf_P(buffer, PSTR("%" SCNu8), &u8t_value) == 1)
     {
       eeprom_config.V2 = u8t_value;
-      strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/V2/state"), BUFFER_SIZE);
+      strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/V2/state"), 56);
       DT_mqtt_send(buffer, u8t_value);
       sauvegardeEEPROM();
     }
@@ -1317,26 +1354,26 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
     if (strcmp(buffer, "Normal") == 0)
     {
       DT_3voies_PCBT_set_mode(DT_3VOIES_NORMAL);
-      // strlcpy_P(buffer_value, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/mode/state"), BUFFER_SIZE);
-      DT_mqtt_send(PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/mode/state"), "Normal");
+      strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/mode/state"), 56);
+      DT_mqtt_send(buffer, "Normal");
     }
     else if (strcmp(buffer, "Demmarage") == 0)
     {
       DT_3voies_PCBT_set_mode(DT_3VOIES_DEMMARAGE);
-      // strlcpy_P(buffer_value, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/mode/state"), BUFFER_SIZE);
-      DT_mqtt_send(PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/mode/state"), "Demmarage");
+      strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/mode/state"), 56);
+      DT_mqtt_send(buffer, "Demmarage");
     }
     else if (strcmp(buffer, "Manuel") == 0)
     {
       DT_3voies_PCBT_set_mode(DT_3VOIES_MANUAL);
-      // strlcpy_P(buffer_value, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/mode/state"), BUFFER_SIZE);
-      DT_mqtt_send(PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/mode/state"), "Manuel");
+      strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/mode/state"), 56);
+      DT_mqtt_send(buffer, "Manuel");
     }
     else if (strcmp(buffer, "Arret") == 0)
     {
       DT_3voies_PCBT_set_mode(DT_3VOIES_OFF);
-      // strlcpy_P(buffer_value, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/mode/state"), BUFFER_SIZE);
-      DT_mqtt_send(PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/mode/state"), "Arret");
+      strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/mode/state"), 56);
+      DT_mqtt_send(buffer, "Arret");
     }
   }
   else if (strcmp(topic, MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/C2/set") == 0) // Mode de la vannes 3 voie PCBT
@@ -1349,26 +1386,26 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
     if (strcmp(buffer, "Normal") == 0)
     {
       DT_3voies_MCBT_set_mode(DT_3VOIES_NORMAL);
-      // strlcpy_P(buffer_value, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/mode/state"), BUFFER_SIZE);
-      DT_mqtt_send(PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/mode/state"), "Normal");
+      strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/mode/state"), 56);
+      DT_mqtt_send(buffer, "Normal");
     }
     else if (strcmp(buffer, "Demmarage") == 0)
     {
       DT_3voies_MCBT_set_mode(DT_3VOIES_DEMMARAGE);
-      // strlcpy_P(buffer_value, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/mode/state"), BUFFER_SIZE);
-      DT_mqtt_send(PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/mode/state"), "Demmarage");
+      strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/mode/state"), 56);
+      DT_mqtt_send(buffer, "Demmarage");
     }
     else if (strcmp(buffer, "Manuel") == 0)
     {
       DT_3voies_MCBT_set_mode(DT_3VOIES_MANUAL);
-      // strlcpy_P(buffer_value, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/mode/state"), BUFFER_SIZE);
-      DT_mqtt_send(PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/mode/state"), "Manuel");
+      strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/mode/state"), 56);
+      DT_mqtt_send(buffer, "Manuel");
     }
     else if (strcmp(buffer, "Arret") == 0)
     {
       DT_3voies_MCBT_set_mode(DT_3VOIES_OFF);
-      // strlcpy_P(buffer_value, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/mode/state"), BUFFER_SIZE);
-      DT_mqtt_send(PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/mode/state"), "Arret");
+      strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/mode/state"), 56);
+      DT_mqtt_send(buffer, "Arret");
     }
   }
   else if (strcmp(topic, MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/C3/set") == 0) // Mode de la vannes 3 voie MCBT
@@ -1382,7 +1419,7 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
     str_buffer = buffer;
     eeprom_config.V3 = str_buffer.toFloat();
     Serial.print(eeprom_config.V3);
-    strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/V3/state"), BUFFER_SIZE);
+    strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/V3/state"), 56);
     DT_mqtt_send(buffer, eeprom_config.V3);
     sauvegardeEEPROM();
 
@@ -1392,7 +1429,7 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
   {
     str_buffer = buffer;
     eeprom_config.C4 = str_buffer.toFloat();
-    strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/C4/state"), BUFFER_SIZE);
+    strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/C4/state"), 56);
     DT_mqtt_send(buffer, eeprom_config.C4);
     sauvegardeEEPROM();
   }
@@ -1402,7 +1439,7 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
     if (sscanf_P(buffer, PSTR("%" SCNu8), &u8t_value) == 1)
     {
       eeprom_config.C5 = u8t_value;
-      strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/C5/state"), BUFFER_SIZE);
+      strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/C5/state"), 56);
       DT_mqtt_send(buffer, u8t_value);
       sauvegardeEEPROM();
     }
@@ -1412,7 +1449,7 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
     if (sscanf_P(buffer, PSTR("%" SCNu8), &u8t_value) == 1)
     {
       eeprom_config.C6 = u8t_value;
-      strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/C6/state"), BUFFER_SIZE);
+      strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/C6/state"), 56);
       DT_mqtt_send(buffer, u8t_value);
       sauvegardeEEPROM();
     }
@@ -1422,7 +1459,7 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
     if (sscanf_P(buffer, PSTR("%" SCNu8), &u8t_value) == 1)
     {
       eeprom_config.C7 = u8t_value;
-      strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/C7/state"), BUFFER_SIZE);
+      strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/C7/state"), 56);
       DT_mqtt_send(buffer, u8t_value);
       sauvegardeEEPROM();
     }
@@ -1431,7 +1468,7 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
   {
     str_buffer = buffer;
     eeprom_config.C8 = str_buffer.toFloat();
-    strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/C8/state"), BUFFER_SIZE);
+    strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/C8/state"), 56);
     DT_mqtt_send(buffer, eeprom_config.C8);
     sauvegardeEEPROM();
   }
@@ -1440,7 +1477,7 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
   {
     str_buffer = buffer;
     eeprom_config.C9 = str_buffer.toFloat();
-    strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/C9/state"), BUFFER_SIZE);
+    strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/C9/state"), 56);
     DT_mqtt_send(buffer, eeprom_config.C9);
     sauvegardeEEPROM();
   }
@@ -1448,7 +1485,7 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
   {
     str_buffer = buffer;
     eeprom_config.C10 = str_buffer.toFloat();
-    strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/C10/state"), BUFFER_SIZE);
+    strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/C10/state"), 56);
     DT_mqtt_send(buffer, eeprom_config.C10);
     sauvegardeEEPROM();
   }
@@ -1457,7 +1494,7 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
   {
     str_buffer = buffer;
     eeprom_config.C11 = str_buffer.toFloat();
-    strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/C11/state"), BUFFER_SIZE);
+    strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/C11/state"), 56);
     DT_mqtt_send(buffer, eeprom_config.C11);
     sauvegardeEEPROM();
   }
@@ -1466,7 +1503,7 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
   {
     str_buffer = buffer;
     eeprom_config.C_PCBT_MIN = str_buffer.toFloat();
-    strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/min_temp/state"), BUFFER_SIZE);
+    strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/min_temp/state"), 56);
     DT_mqtt_send(buffer, eeprom_config.C_PCBT_MIN);
     sauvegardeEEPROM();
   }
@@ -1474,7 +1511,7 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
   {
     str_buffer = buffer;
     eeprom_config.C_PCBT_MAX = str_buffer.toFloat();
-    strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/max_temp/state"), BUFFER_SIZE);
+    strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/max_temp/state"), 56);
     DT_mqtt_send(buffer, eeprom_config.C_PCBT_MAX);
     sauvegardeEEPROM();
   }
@@ -1482,7 +1519,7 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
   {
     str_buffer = buffer;
     eeprom_config.C_MCBT_MIN = str_buffer.toFloat();
-    strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/min_temp/state"), BUFFER_SIZE);
+    strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/min_temp/state"), 56);
     DT_mqtt_send(buffer, eeprom_config.C_MCBT_MIN);
     sauvegardeEEPROM();
   }
@@ -1490,7 +1527,7 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
   {
     str_buffer = buffer;
     eeprom_config.C_MCBT_MAX = str_buffer.toFloat();
-    strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/max_temp/state"), BUFFER_SIZE);
+    strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/max_temp/state"), 56);
     DT_mqtt_send(buffer, eeprom_config.C_MCBT_MAX);
     sauvegardeEEPROM();
   }
@@ -1498,21 +1535,21 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
   {
     str_buffer = buffer;
     DT_3voies_PCBT_set_KP(str_buffer.toFloat());
-    strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/KP/state"), BUFFER_SIZE);
+    strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/KP/state"), 56);
     DT_mqtt_send(buffer, DT_3voies_PCBT_get_KP());
   }
   else if (strcmp(topic, MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/KI/set") == 0) // KI_PCBT
   {
     str_buffer = buffer;
     DT_3voies_PCBT_set_KI(str_buffer.toFloat());
-    strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/KI/state"), BUFFER_SIZE);
+    strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/KI/state"), 56);
     DT_mqtt_send(buffer, DT_3voies_PCBT_get_KI());
   }
   else if (strcmp(topic, MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/KD/set") == 0) // KD_PCBT
   {
     str_buffer = buffer;
     DT_3voies_PCBT_set_KD(str_buffer.toFloat());
-    strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/KD/state"), BUFFER_SIZE);
+    strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/KD/state"), 56);
     DT_mqtt_send(buffer, DT_3voies_PCBT_get_KD());
   }
 
@@ -1520,7 +1557,7 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
   {
     str_buffer = buffer;
     DT_3voies_PCBT_set_KT(str_buffer.toInt());
-    strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/KT/state"), BUFFER_SIZE);
+    strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/KT/state"), 56);
     DT_mqtt_send(buffer, DT_3voies_PCBT_get_KT());
   }
 
@@ -1528,7 +1565,7 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
   {
     str_buffer = buffer;
     DT_3voies_MCBT_set_KP(str_buffer.toFloat());
-    strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/KP/state"), BUFFER_SIZE);
+    strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/KP/state"), 56);
     DT_mqtt_send(buffer, DT_3voies_MCBT_get_KP());
   }
   else if (strcmp(topic, MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/KI/set") == 0) // KI_MCBT
@@ -1536,7 +1573,7 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
     str_buffer = buffer;
 
     DT_3voies_MCBT_set_KI(str_buffer.toFloat());
-    strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/KI/state"), BUFFER_SIZE);
+    strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/KI/state"), 56);
     DT_mqtt_send(buffer, DT_3voies_MCBT_get_KI());
   }
 
@@ -1544,7 +1581,7 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
   {
     str_buffer = buffer;
     DT_3voies_MCBT_set_KD(str_buffer.toFloat());
-    strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/KD/state"), BUFFER_SIZE);
+    strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/KD/state"), 56);
     DT_mqtt_send(buffer, DT_3voies_MCBT_get_KD());
   }
 
@@ -1552,7 +1589,7 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
   {
     str_buffer = buffer;
     DT_3voies_MCBT_set_KT(str_buffer.toInt());
-    strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/KT/state"), BUFFER_SIZE);
+    strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/KT/state"), 56);
     DT_mqtt_send(buffer, DT_3voies_MCBT_get_KT());
   }
 
@@ -1561,13 +1598,13 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
     if (strcmp(buffer, "direct") == 0)
     {
       DT_3voies_PCBT_set_action(QuickPID::Action::direct);
-      strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/pid_action/state"), BUFFER_SIZE);
+      strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/pid_action/state"), 56);
       DT_mqtt_send(buffer, "direct");
     }
     if (strcmp(buffer, "reverse") == 0)
     {
       DT_3voies_PCBT_set_action(QuickPID::Action::reverse);
-      strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/pid_action/state"), BUFFER_SIZE);
+      strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/pid_action/state"), 56);
       DT_mqtt_send(buffer, "reverse");
     }
   }
@@ -1576,19 +1613,19 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
     if (strcmp(buffer, "pOnError") == 0)
     {
       DT_3voies_PCBT_set_pmode(QuickPID::pMode::pOnError);
-      strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/pid_pmode/state"), BUFFER_SIZE);
+      strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/pid_pmode/state"), 56);
       DT_mqtt_send(buffer, "pOnError");
     }
     if (strcmp(buffer, "pOnErrorMeas") == 0)
     {
       DT_3voies_PCBT_set_pmode(QuickPID::pMode::pOnErrorMeas);
-      strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/pid_pmode/state"), BUFFER_SIZE);
+      strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/pid_pmode/state"), 56);
       DT_mqtt_send(buffer, "pOnErrorMeas");
     }
     if (strcmp(buffer, "pOnMeas") == 0)
     {
       DT_3voies_PCBT_set_pmode(QuickPID::pMode::pOnMeas);
-      strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/pid_pmode/state"), BUFFER_SIZE);
+      strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/pid_pmode/state"), 56);
       DT_mqtt_send(buffer, "pOnMeas");
     }
   }
@@ -1597,13 +1634,13 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
     if (strcmp(buffer, "dOnError") == 0)
     {
       DT_3voies_PCBT_set_dmode(QuickPID::dMode::dOnError);
-      strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/pid_dmode/state"), BUFFER_SIZE);
+      strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/pid_dmode/state"), 56);
       DT_mqtt_send(buffer, "dOnError");
     }
     if (strcmp(buffer, "dOnMeas") == 0)
     {
       DT_3voies_PCBT_set_dmode(QuickPID::dMode::dOnMeas);
-      strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/pid_dmode/state"), BUFFER_SIZE);
+      strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/pid_dmode/state"), 56);
       DT_mqtt_send(buffer, "dOnMeas");
     }
   }
@@ -1612,19 +1649,19 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
     if (strcmp(buffer, "iAwClamp") == 0)
     {
       DT_3voies_PCBT_set_iawmode(QuickPID::iAwMode::iAwClamp);
-      strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/pid_iawmode/state"), BUFFER_SIZE);
+      strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/pid_iawmode/state"), 56);
       DT_mqtt_send(buffer, "iAwClamp");
     }
     if (strcmp(buffer, "iAwCondition") == 0)
     {
       DT_3voies_PCBT_set_iawmode(QuickPID::iAwMode::iAwCondition);
-      strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/pid_iawmode/state"), BUFFER_SIZE);
+      strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/pid_iawmode/state"), 56);
       DT_mqtt_send(buffer, "iAwCondition");
     }
     if (strcmp(buffer, "iAwOff") == 0)
     {
       DT_3voies_PCBT_set_iawmode(QuickPID::iAwMode::iAwOff);
-      strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/pid_iawmode/state"), BUFFER_SIZE);
+      strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/pid_iawmode/state"), 56);
       DT_mqtt_send(buffer, "iAwOff");
     }
   }
@@ -1633,13 +1670,13 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
     if (strcmp(buffer, "direct") == 0)
     {
       DT_3voies_MCBT_set_action(QuickPID::Action::direct);
-      strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/pid_action/state"), BUFFER_SIZE);
+      strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/pid_action/state"), 56);
       DT_mqtt_send(buffer, "direct");
     }
     if (strcmp(buffer, "reverse") == 0)
     {
       DT_3voies_MCBT_set_action(QuickPID::Action::reverse);
-      strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/pid_action/state"), BUFFER_SIZE);
+      strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/pid_action/state"), 56);
       DT_mqtt_send(buffer, "reverse");
     }
   }
@@ -1648,19 +1685,19 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
     if (strcmp(buffer, "pOnError") == 0)
     {
       DT_3voies_MCBT_set_pmode(QuickPID::pMode::pOnError);
-      strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/pid_pmode/state"), BUFFER_SIZE);
+      strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/pid_pmode/state"), 56);
       DT_mqtt_send(buffer, "pOnError");
     }
     if (strcmp(buffer, "pOnErrorMeas") == 0)
     {
       DT_3voies_MCBT_set_pmode(QuickPID::pMode::pOnErrorMeas);
-      strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/pid_pmode/state"), BUFFER_SIZE);
+      strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/pid_pmode/state"), 56);
       DT_mqtt_send(buffer, "pOnErrorMeas");
     }
     if (strcmp(buffer, "pOnMeas") == 0)
     {
       DT_3voies_MCBT_set_pmode(QuickPID::pMode::pOnMeas);
-      strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/pid_pmode/state"), BUFFER_SIZE);
+      strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/pid_pmode/state"), 56);
       DT_mqtt_send(buffer, "pOnMeas");
     }
   }
@@ -1669,13 +1706,13 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
     if (strcmp(buffer, "dOnError") == 0)
     {
       DT_3voies_MCBT_set_dmode(QuickPID::dMode::dOnError);
-      strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/pid_dmode/state"), BUFFER_SIZE);
+      strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/pid_dmode/state"), 56);
       DT_mqtt_send(buffer, "dOnError");
     }
     if (strcmp(buffer, "dOnMeas") == 0)
     {
       DT_3voies_MCBT_set_dmode(QuickPID::dMode::dOnMeas);
-      strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/pid_dmode/state"), BUFFER_SIZE);
+      strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/pid_dmode/state"), 56);
       DT_mqtt_send(buffer, "dOnMeas");
     }
   }
@@ -1684,19 +1721,19 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
     if (strcmp(buffer, "iAwClamp") == 0)
     {
       DT_3voies_MCBT_set_iawmode(QuickPID::iAwMode::iAwClamp);
-      strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/pid_iawmode/state"), BUFFER_SIZE);
+      strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/pid_iawmode/state"), 56);
       DT_mqtt_send(buffer, "iAwClamp");
     }
     if (strcmp(buffer, "iAwCondition") == 0)
     {
       DT_3voies_MCBT_set_iawmode(QuickPID::iAwMode::iAwCondition);
-      strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/pid_iawmode/state"), BUFFER_SIZE);
+      strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/pid_iawmode/state"), 56);
       DT_mqtt_send(buffer, "iAwCondition");
     }
     if (strcmp(buffer, "iAwOff") == 0)
     {
       DT_3voies_MCBT_set_iawmode(QuickPID::iAwMode::iAwOff);
-      strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/pid_iawmode/state"), BUFFER_SIZE);
+      strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/pid_iawmode/state"), 56);
       DT_mqtt_send(buffer, "iAwOff");
     }
   }
@@ -1704,7 +1741,7 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
   {
     str_buffer = buffer;
     eeprom_config.ratio_PCBT = str_buffer.toFloat();
-    strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/ratio/state"), BUFFER_SIZE);
+    strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/ratio/state"), 56);
     DT_mqtt_send(buffer, eeprom_config.ratio_PCBT);
     sauvegardeEEPROM();
   }
@@ -1713,7 +1750,7 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
   {
     str_buffer = buffer;
     eeprom_config.ratio_MCBT = str_buffer.toFloat();
-    strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/ratio/state"), BUFFER_SIZE);
+    strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/ratio/state"), 56);
     DT_mqtt_send(buffer, eeprom_config.ratio_MCBT);
     sauvegardeEEPROM();
   }
@@ -1722,7 +1759,7 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
   {
     str_buffer = buffer;
     eeprom_config.out_offset_PCBT = str_buffer.toInt();
-    strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/offset-out/state"), BUFFER_SIZE);
+    strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/offset-out/state"), 56);
     DT_mqtt_send(buffer, eeprom_config.out_offset_PCBT);
     sauvegardeEEPROM();
   }
@@ -1731,7 +1768,7 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
   {
     str_buffer = buffer;
     eeprom_config.out_offset_MCBT = str_buffer.toInt();
-    strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/offset-out/state"), BUFFER_SIZE);
+    strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/offset-out/state"), 56);
     DT_mqtt_send(buffer, eeprom_config.out_offset_MCBT);
     sauvegardeEEPROM();
   }
@@ -1740,7 +1777,7 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
   {
     str_buffer = buffer;
     eeprom_config.in_offset_PCBT = str_buffer.toInt();
-    strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/offset-in/state"), BUFFER_SIZE);
+    strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/offset-in/state"), 56);
     DT_mqtt_send(buffer, eeprom_config.in_offset_PCBT);
     sauvegardeEEPROM();
   }
@@ -1749,7 +1786,7 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
   {
     str_buffer = buffer;
     eeprom_config.in_offset_MCBT = str_buffer.toInt();
-    strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/offset-in/state"), BUFFER_SIZE);
+    strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/offset-in/state"), 56);
     DT_mqtt_send(buffer, eeprom_config.in_offset_MCBT);
     sauvegardeEEPROM();
   }
@@ -1918,6 +1955,8 @@ void loop()
 #ifdef VANNES
   DT_3voies_loop();
 #endif
+  load();
+  memory();
   //  DT_fake_ntc_loop();
 
   // adjust CCS811
@@ -1934,13 +1973,10 @@ void loop()
   // }
 
   static uint32_t old = 0;
-
   if (now - old > 1000)
   {
-
-    /*
     old = now;
-
+/*
     if (ccs811.available())
     {
       if (!ccs811.readData())
@@ -1972,105 +2008,12 @@ void loop()
   //  DT_mqtt_send(buffer, heartbeat_status);
   // }
 #endif // MQTT
-  /*
-  static uint32_t save_eeprom = 0;
-  if (now - save_eeprom > SAVE_EEPROM) // Backup data in eeprom
-  {
-    save_eeprom = now;
-    sauvegardeEEPROM();
-  }
-*/
-  static uint32_t load_1s_count = 0;
-  static uint32_t load_1s_time = 0;
-  load_1s_count += 1;
-  if (now - load_1s_time >= 1000)
-  {
-    float load = ((now - load_1s_time) / 20.0) / load_1s_count;
-
-    load_1s_count = load * 100;
-
-#ifdef MQTT
-    strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/load_1s"), BUFFER_SIZE);
-    debug(AT);
-    DT_mqtt_send(buffer, (float)(load_1s_count / 100.0));
-#endif
-    Serial.print(F("Load 1s = "));
-    Serial.println((float)(load_1s_count / 100.0));
-
-    load_1s_count = 0;
-    load_1s_time = now;
-  }
-
-  static uint8_t load_10s_num = 0;
-  static uint32_t load_10s_count = 0;
-  static uint32_t load_10s_time = 0;
-  static float load_10s[6] = {0, 0, 0, 0, 0, 0};
-  load_10s_count += 1;
-  if (now - load_10s_time >= 10000)
-  {
-    // Serial.println(load_10s_count);
-    // Serial.println(now - load_10s_time);
-    load_10s[load_10s_num] = ((now - load_10s_time) / 20.0) / load_10s_count;
-    // Serial.println( load_10s[load_10s_num]);
-
-    float temp = 0;
-    for (uint8_t num = 0; num < 6; ++num)
-    {
-      temp += load_10s[num];
-    }
-
-    // Serial.println(temp);
-    load_10s_count = (temp / 6.0) * 100;
-    // Serial.println(load_10s_count);
-    // Serial.println((float)((load_10s_count / 100.0)));
-
-#ifdef MQTT
-    strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/load_1m"), BUFFER_SIZE);
-    debug(AT);
-    DT_mqtt_send(buffer, (float)((load_10s_count / 100.0)));
-#else
-          Serial.print(F("load 10m ="));
-          Serial.println((float)((load_10s_count / 100.0)));
-#endif
-    load_10s_count = 0;
-    load_10s_time = now;
-    load_10s_num += 1;
-    if (load_10s_num == 6)
-      load_10s_num = 0;
-
-    // Debug heap
-    char *heap = (char *)malloc(1);
-    static char *old_heap = 0;
-    if (heap != old_heap)
-    {
-      old_heap = heap;
-      // Serial.print(millis());
-      Serial.print(F("new dynamic alocation heap = "));
-      Serial.println((uint16_t)old_heap, HEX);
-
-      // Serial.print(millis());
-      Serial.print(F("heap size= "));
-      Serial.println((uint16_t)(old_heap - __malloc_heap_start));
-
-      Serial.print(F("malloc margin= "));
-      Serial.println((uint16_t)(__malloc_margin));
-
-      Serial.print(F("stack size= "));
-      Serial.println((uint16_t)(RAMEND - SP));
-
-      Serial.print(F("brkval= "));
-      Serial.println((uint16_t)(__brkval));
-
-      Serial.print(F("old_heap= "));
-      Serial.println((uint16_t)(old_heap));
-
-      Serial.print(F("SP= "));
-      Serial.println((uint16_t)(SP));
-
-      Serial.print(F("free memory= "));
-      Serial.println((uint16_t)((uint16_t)SP - (uint16_t)old_heap));
-    }
-    free(heap);
-  }
-  memory();
+       /*
+       static uint32_t save_eeprom = 0;
+       if (now - save_eeprom > SAVE_EEPROM) // Backup data in eeprom
+       {
+         save_eeprom = now;
+         sauvegardeEEPROM();
+       }
+     */
 }
