@@ -5,7 +5,8 @@
 
 #include <config.h>
 #include <DT_mqtt.h>
-#include <ArduinoJson.h>
+
+#ifdef MQTT
 
 
 //extern StaticJsonDocument<256> doc;
@@ -13,4 +14,6 @@ extern char buffer[BUFFER_SIZE];
 //extern char buffer_value[BUFFER_VALUE_SIZE];
 
 
-void homeassistant(bool start);
+bool homeassistant(bool start);
+
+#endif //MQTT

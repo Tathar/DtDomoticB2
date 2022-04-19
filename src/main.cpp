@@ -20,7 +20,7 @@
 
 #include <avr/wdt.h> //watchdog
 
-#include <ArduinoJson.h>
+//#include <ArduinoJson.h>
 
 // #include <pinout.h>
 #include <config.h>
@@ -329,22 +329,23 @@ void poele_mode_callback(const DT_Poele_mode mode)
   wdt_reset();
   if (mem_config.MQTT_online)
   {
-  strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/poele/mode/state"), BUFFER_SIZE);
-  switch (mode)
-  {
-  case DT_POELE_ARRET:
-    DT_mqtt_send(buffer, "Arret");
-    break;
-  case DT_POELE_NORMAL:
-    DT_mqtt_send(buffer, "Normal");
-    break;
-  case DT_POELE_ECS:
-    DT_mqtt_send(buffer, "ECS");
-    break;
-  case DT_POELE_FORCE:
-    DT_mqtt_send(buffer, "Forcé");
-    break;
-  }}
+    strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/poele/mode/state"), BUFFER_SIZE);
+    switch (mode)
+    {
+    case DT_POELE_ARRET:
+      DT_mqtt_send(buffer, "Arret");
+      break;
+    case DT_POELE_NORMAL:
+      DT_mqtt_send(buffer, "Normal");
+      break;
+    case DT_POELE_ECS:
+      DT_mqtt_send(buffer, "ECS");
+      break;
+    case DT_POELE_FORCE:
+      DT_mqtt_send(buffer, "Forcé");
+      break;
+    }
+  }
 }
 #endif // POELE
 
@@ -493,8 +494,9 @@ void mqtt_publish(bool start)
 
   // Serial.print(millis());
   wdt_reset();
-  if (now - time >= 100 && mem_config.MQTT_online)
+  if (now - time >= 50 && mem_config.MQTT_online)
   {
+    time = now;
     switch (sequance)
     {
     case 0:
@@ -542,8 +544,8 @@ void mqtt_publish(bool start)
       {
         num = 0;
       }
-      break;
-#endif
+#endif 
+    break;
 
     case 4:
 #ifdef POELE
@@ -552,15 +554,29 @@ void mqtt_publish(bool start)
       poele_mode_callback(DT_Poele_get_mode());
       // EEPROM
       //  V1
+#endif
+      break;
+    case 5:
+#ifdef POELE
       wdt_reset();
       strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/V1/state"), BUFFER_SIZE);
+      debug(AT);
       DT_mqtt_send(buffer, eeprom_config.V1);
-
+      debug(AT);
+#endif
+      break;
+    case 6:
+#ifdef POELE
       // V2
       wdt_reset();
+      debug(AT);
       strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/V2/state"), BUFFER_SIZE);
+      debug(AT);
       DT_mqtt_send(buffer, eeprom_config.V2);
-
+#endif
+      break;
+    case 7:
+#ifdef POELE
       // V3
       wdt_reset();
       strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/V3/state"), BUFFER_SIZE);
@@ -568,7 +584,7 @@ void mqtt_publish(bool start)
 #endif // POELE
       break;
 
-    case 5:
+    case 8:
 #ifdef VANNES
       // 3 voies PCBT mode
       wdt_reset();
@@ -588,7 +604,10 @@ void mqtt_publish(bool start)
         DT_mqtt_send(buffer, "Arret");
         break;
       }
-
+#endif // vanne
+      break;
+    case 9:
+#ifdef VANNES
       // 3 voies MCBT mode
       wdt_reset();
       strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/mode/state"), BUFFER_SIZE);
@@ -607,110 +626,188 @@ void mqtt_publish(bool start)
         DT_mqtt_send(buffer, "Arret");
         break;
       }
-
+#endif // vanne
+    break;
+    case 10:
+#ifdef VANNES
       // consigne vanne 3 voies PCBT & MCBT
       dt3voies_callback(DT_3voies_get_C2(), DT_3voies_get_C3());
-
+#endif //vanne
+ break;
+    case 11:
+#ifdef VANNES
       // C4
       wdt_reset();
       strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/C4/state"), BUFFER_SIZE);
       DT_mqtt_send(buffer, eeprom_config.C4);
-
+#endif  //vanne
+    break;
+    case 12:
+#ifdef VANNES
       // C5
       wdt_reset();
       strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/C5/state"), BUFFER_SIZE);
       DT_mqtt_send(buffer, eeprom_config.C5);
-
+#endif  //vanne
+    break;
+    case 13:
+#ifdef VANNES
       // C6
       wdt_reset();
       strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/C6/state"), BUFFER_SIZE);
       DT_mqtt_send(buffer, eeprom_config.C6);
-
+#endif  //vanne
+    break;
+    case 14:
+#ifdef VANNES
       // C7
       wdt_reset();
       strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/C7/state"), BUFFER_SIZE);
       DT_mqtt_send(buffer, eeprom_config.C7);
-
+#endif  //vanne
+    break;
+    case 15:
+#ifdef VANNES
       // C8
       wdt_reset();
       strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/C8/state"), BUFFER_SIZE);
       DT_mqtt_send(buffer, eeprom_config.C8);
-
+#endif  //vanne
+    break;
+    case 16:
+#ifdef VANNES
       // C9
       wdt_reset();
       strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/C9/state"), BUFFER_SIZE);
-
       DT_mqtt_send(buffer, eeprom_config.C9);
-
+#endif  //vanne
+    break;
+    case 17:
+#ifdef VANNES
       // C10
       wdt_reset();
       strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/C10/state"), BUFFER_SIZE);
       DT_mqtt_send(buffer, eeprom_config.C10);
-
+#endif  //vanne
+    break;
+    case 18:
+#ifdef VANNES
       // C11
       wdt_reset();
       strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/C11/state"), BUFFER_SIZE);
       DT_mqtt_send(buffer, eeprom_config.C11);
+#endif  //vanne
+    break;
+    case 19:
+#ifdef VANNES
 
       // C_PCBT_MIN
       wdt_reset();
       strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/min_temp/state"), BUFFER_SIZE);
       DT_mqtt_send(buffer, eeprom_config.C_PCBT_MIN);
 
+#endif  //vanne
+    break;
+    case 20:
+#ifdef VANNES
       // C_PCBT_MAX
       wdt_reset();
       strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/max_temp/state"), BUFFER_SIZE);
       DT_mqtt_send(buffer, eeprom_config.C_PCBT_MAX);
 
+#endif  //vanne
+    break;
+    case 21:
+#ifdef VANNES
       // C_MCBT_MIN
       wdt_reset();
       strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/min_temp/state"), BUFFER_SIZE);
       DT_mqtt_send(buffer, eeprom_config.C_MCBT_MIN);
 
+#endif  //vanne
+    break;
+    case 22:
+#ifdef VANNES
       // C_MCBT_MAX
       wdt_reset();
       strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/max_temp/state"), BUFFER_SIZE);
       DT_mqtt_send(buffer, eeprom_config.C_MCBT_MAX);
 
+#endif  //vanne
+    break;
+    case 23:
+#ifdef VANNES
       // KP_PCBT
       wdt_reset();
       strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/KP/state"), BUFFER_SIZE);
       DT_mqtt_send(buffer, DT_3voies_PCBT_get_KP());
 
+#endif  //vanne
+    break;
+    case 24:
+#ifdef VANNES
       // KI_PCBT
       wdt_reset();
       strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/KI/state"), BUFFER_SIZE);
       DT_mqtt_send(buffer, DT_3voies_PCBT_get_KI());
 
+#endif  //vanne
+    break;
+    case 25:
+#ifdef VANNES
       // KD_PCBT
       wdt_reset();
       strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/KD/state"), BUFFER_SIZE);
       DT_mqtt_send(buffer, DT_3voies_PCBT_get_KD());
 
+#endif  //vanne
+    break;
+    case 26:
+#ifdef VANNES
       // KT_PCBT
       wdt_reset();
       strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/KT/state"), BUFFER_SIZE);
       DT_mqtt_send(buffer, DT_3voies_PCBT_get_KT());
+#endif  //vanne
+    break;
+    case 27:
+#ifdef VANNES
       // KP_MCBT
       wdt_reset();
       strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/KP/state"), BUFFER_SIZE);
       DT_mqtt_send(buffer, DT_3voies_MCBT_get_KP());
 
+#endif  //vanne
+    break;
+    case 28:
+#ifdef VANNES
       // KI_MCBT
       wdt_reset();
       strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/KI/state"), BUFFER_SIZE);
       DT_mqtt_send(buffer, DT_3voies_MCBT_get_KI());
 
+#endif  //vanne
+    break;
+    case 29:
+#ifdef VANNES
       // KD_MCBT
       wdt_reset();
       strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/KD/state"), BUFFER_SIZE);
       DT_mqtt_send(buffer, DT_3voies_MCBT_get_KD());
 
+#endif  //vanne
+    break;
+    case 30:
+#ifdef VANNES
       // KT_MCBT
       wdt_reset();
       strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/KT/state"), BUFFER_SIZE);
       DT_mqtt_send(buffer, DT_3voies_MCBT_get_KT());
 
+#endif  //vanne
+    break;
+    case 31:
+#ifdef VANNES
       // PID PCBT Action
       wdt_reset(); // clear watchdog
       strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/pid_action/state"), BUFFER_SIZE);
@@ -724,6 +821,10 @@ void mqtt_publish(bool start)
         break;
       }
 
+#endif  //vanne
+    break;
+    case 32:
+#ifdef VANNES
       // PID PCBT pMode
       wdt_reset(); // clear watchdog
       strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/pid_pmode/state"), BUFFER_SIZE);
@@ -740,6 +841,10 @@ void mqtt_publish(bool start)
         break;
       }
 
+#endif  //vanne
+    break;
+    case 33:
+#ifdef VANNES
       // PID PCBT dMode
       wdt_reset(); // clear watchdog
       strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/pid_dmode/state"), BUFFER_SIZE);
@@ -753,6 +858,10 @@ void mqtt_publish(bool start)
         break;
       }
 
+#endif  //vanne
+    break;
+    case 34:
+#ifdef VANNES
       // PID PCBT iAwMode
       wdt_reset(); // clear watchdog
       strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/pid_iawmode/state"), BUFFER_SIZE);
@@ -769,6 +878,10 @@ void mqtt_publish(bool start)
         break;
       }
 
+#endif  //vanne
+    break;
+    case 35:
+#ifdef VANNES
       // PID MCBT Action
       wdt_reset(); // clear watchdog
       strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/pid_action/state"), BUFFER_SIZE);
@@ -782,6 +895,10 @@ void mqtt_publish(bool start)
         break;
       }
 
+#endif  //vanne
+    break;
+    case 36:
+#ifdef VANNES
       // PID MCBT pMode
       wdt_reset(); // clear watchdog
       strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/pid_pmode/state"), BUFFER_SIZE);
@@ -798,6 +915,10 @@ void mqtt_publish(bool start)
         break;
       }
 
+#endif  //vanne
+    break;
+    case 37:
+#ifdef VANNES
       // PID MCBT dMode
       wdt_reset(); // clear watchdog
       strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/pid_dmode/state"), BUFFER_SIZE);
@@ -811,6 +932,10 @@ void mqtt_publish(bool start)
         break;
       }
 
+#endif  //vanne
+    break;
+    case 38:
+#ifdef VANNES
       // PID MCBT iAwMode
       wdt_reset(); // clear watchdog
       strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/pid_iawmode/state"), BUFFER_SIZE);
@@ -827,31 +952,55 @@ void mqtt_publish(bool start)
         break;
       }
 
+#endif  //vanne
+    break;
+    case 39:
+#ifdef VANNES
       // RATIO PCBT
       wdt_reset();
       strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/ratio/state"), BUFFER_SIZE);
       DT_mqtt_send(buffer, eeprom_config.ratio_PCBT);
 
+#endif  //vanne
+    break;
+    case 40:
+#ifdef VANNES
       // RATIO MCBT
       wdt_reset();
       strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/ratio/state"), BUFFER_SIZE);
       DT_mqtt_send(buffer, eeprom_config.ratio_MCBT);
 
+#endif  //vanne
+    break;
+    case 41:
+#ifdef VANNES
       // OFFSET_PCBT
       wdt_reset();
       strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/offset-out/state"), BUFFER_SIZE);
       DT_mqtt_send(buffer, eeprom_config.out_offset_PCBT);
 
+#endif  //vanne
+    break;
+    case 42:
+#ifdef VANNES
       // OFFSET_MCBT
       wdt_reset();
       strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/offset-out/state"), BUFFER_SIZE);
       DT_mqtt_send(buffer, eeprom_config.out_offset_MCBT);
 
+#endif  //vanne
+    break;
+    case 43:
+#ifdef VANNES
       // OFFSET_PCBT
       wdt_reset();
       strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/offset-in/state"), BUFFER_SIZE);
       DT_mqtt_send(buffer, eeprom_config.in_offset_PCBT);
 
+#endif  //vanne
+    break;
+    case 44:
+#ifdef VANNES
       // OFFSET_MCBT
       wdt_reset();
       strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/offset-in/state"), BUFFER_SIZE);
@@ -859,7 +1008,7 @@ void mqtt_publish(bool start)
 #endif
       break;
 
-    case 6:
+    case 45:
       // ONLINE
       wdt_reset();
       strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/status"), BUFFER_SIZE);
@@ -1737,6 +1886,7 @@ void setup()
   //  //auto Serial.println("Failed to start sensor! Please check your wiring.");
   // }
 
+  homeassistant(true);
   wdt_enable(WATCHDOG_TIME);
   // Serial.print(millis());
   Serial.println(F("Board started"));
@@ -1879,8 +2029,8 @@ void loop()
     debug(AT);
     DT_mqtt_send(buffer, (float)((load_10s_count / 100.0)));
 #else
-    Serial.print(F("load 10m ="));
-    Serial.println((float)((load_10s_count / 100.0)));
+          Serial.print(F("load 10m ="));
+          Serial.println((float)((load_10s_count / 100.0)));
 #endif
     load_10s_count = 0;
     load_10s_time = now;

@@ -1,1288 +1,696 @@
 #include <DT_ha.h>
+#include <DT_eeprom.h>
 
-//StaticJsonDocument<256> doc;
+#include <ArduinoJson.h>
+
+#ifdef MQTT
 char buffer[BUFFER_SIZE];
-//char buffer_value[BUFFER_VALUE_SIZE];
-
-// const uint8_t HA_JSON[RELAY_NUM] PROGMEM = {23, 25, 27, 29, 31, 33, 35, 37, 22, 24, 26, 28, 30, 32, 34, 36, 100, 101, 102, 103, 104, 105, 106, 107, 200, 201, 202, 203, 204, 205, 206, 207};
 
 
-// void ha_relay()
-// {
-//     "unique_id" : "DTB02-001-relay-01",
-//     "name" : "relay-01",
-//     "command_topic" : "DtBoard/DTB02-001/relay-01/set",
-//     "state_topic" : "DtBoard/DTB02-001/relay-01/state",
-//     "device":
-//     {
-//         "identifiers" : "DTB02-001"
-//     }
-// }
-//#define COMMENT
-void homeassistant(bool start)
+#define max_topic 64
+#define max_payload 272
+bool homeassistant(bool start)
 {
-#ifdef COMMENT
-    // uint32_t now = millis();
+
+    uint32_t now = millis();
+    static uint32_t time = 0;
     static uint8_t sequance = 254;
-    // JsonArray options;
+    static uint16_t max_len_topic = 0;
+    static uint16_t max_len_payload = 0;
     static uint8_t num = 0;
+    char topic[max_topic];
+    char payload[max_payload];
+    memory();
 
     wdt_reset();
     if (start)
     {
+        debug(AT);
         sequance = 0;
-        // Serial.print(millis());
-        return;
+        return false;
     }
     else if (sequance == 0)
         Serial.println(F("homeassistant"));
 
-    // if (sequance <= 16)
-    // {
-    //     Serial.print(F("homeassistant"));
-    // }
-
-    switch (sequance)
+    if (now - time >= 50 && mem_config.MQTT_online)
     {
-    case 0:
-        // online
-        //  strlcpy_P(buffer, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/status"), BUFFER_SIZE);
-        doc.clear();
-        doc["~"] = F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER);
-        doc["uniq_id"] = F(BOARD_IDENTIFIER "-status");
-        doc["name"] = F("status");
-        doc["stat_t"] = F("~/status");
-        doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
-        // JsonObject connection = doc["device"].createNestedArray("connection").createNestedObject();
-        // sprintf_P(buffer_value, "%X:%X:%X:%X:%X:%X", MAC1, MAC2, MAC3, MAC4,PSTR( MAC5), MAC6);
-        // connection["mac"] = buffer_value;
-        doc["dev"]["mf"] = F(BOARD_MANUFACTURER);     // manufacturer
-        doc["dev"]["mdl"] = F(BOARD_MODEL);           // model
-        doc["dev"]["name"] = F(BOARD_NAME);           // name
-        doc["dev"]["sw"] = F(BOARD_SW_VERSION_PRINT); //  software version
-        serializeJson(doc, buffer_value, sizeof(buffer_value));
-        // Serial.println(buffer_value);
-        strlcpy_P(buffer, PSTR("homeassistant/sensor/" BOARD_IDENTIFIER "/status/config"), BUFFER_SIZE);
-        DT_mqtt_send(buffer, buffer_value);
-
-        // heartbeat
-
-        // const char* data = PSTR("{\"~\":\"" MQTT_ROOT_TOPIC "\"/\"" BOARD_IDENTIFIER "\",\"uniq_id\":" BOARD_IDENTIFIER "-heartbeat\",\"name\":\"heartbeat\",\"stat_t\":\"~/heartbeat\",\"dev\":{\"ids\" : \"" BOARD_IDENTIFIER "\"}}") ;
-
-        doc.clear();
-        doc["~"] = F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER);
-        doc["uniq_id"] = F(BOARD_IDENTIFIER "-heartbeat");
-        doc["name"] = F("heartbeat");
-        doc["stat_t"] = F("~/heartbeat");
-        doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
-
-        serializeJson(doc, buffer_value, sizeof(buffer_value));
-        // Serial.println(buffer_value);
-        strlcpy_P(buffer, PSTR("homeassistant/sensor/" BOARD_IDENTIFIER "/heartbeat/config"), BUFFER_SIZE);
-        // DT_mqtt_send(buffer, PSTR("{\"~\":\"" MQTT_ROOT_TOPIC "\"/\"" BOARD_IDENTIFIER "\",\"uniq_id\":" BOARD_IDENTIFIER "-heartbeat\",\"name\":\"heartbeat\",\"stat_t\":\"~/heartbeat\",\"dev\":{\"ids\" : \"" BOARD_IDENTIFIER "\"}}"));
-        // DT_mqtt_send(buffer, buffer_value);
-
-        break;
-
-    case 1:
-        // relay
-        // for (uint8_t num = 0; num < RELAY_NUM; ++num)
-        if (num < RELAY_NUM)
+        time = now;
+        switch (sequance)
         {
-            // Serial.print(F(" relay"));
-            doc.clear();
-            sprintf_P(buffer, PSTR("homeassistant/switch/" BOARD_IDENTIFIER "/relay-%02d/config"), num + 1);
-            doc["~"] = F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER);
-            sprintf_P(buffer_value, PSTR(BOARD_IDENTIFIER "-relay-%02d"), num + 1);
-            doc["uniq_id"] = buffer_value; // unique_id
-            sprintf_P(buffer_value, PSTR("relay-%02d"), num + 1);
-            doc["name"] = buffer_value; // name
-            sprintf_P(buffer_value, PSTR("~/relay-%02d/set"), num + 1);
-            doc["command_topic"] = buffer_value;
-            sprintf_P(buffer_value, PSTR("~/relay-%02d/state"), num + 1);
-            doc["stat_t"] = buffer_value;            // state topic
-            doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
+        case 0:
+            strlcpy_P(topic, PSTR("homeassistant/sensor/" BOARD_IDENTIFIER "/status/config"), max_topic);
+            strlcpy_P(payload, PSTR("{\"unique_id\":\"" BOARD_IDENTIFIER "-status\",\"name\":\"status\",\"state_topic\":\"DtBoard/" BOARD_IDENTIFIER "/status\",\"device\":{\"identifiers\":\"" BOARD_IDENTIFIER "\",\"manufacturer\":\"" BOARD_MANUFACTURER "\",\"model\":\"" BOARD_MODEL "\",\"name\":\"" BOARD_NAME "\",\"sw_version\":\"" BOARD_SW_VERSION_PRINT "\"}}"), max_payload);
+            DT_mqtt_send(topic, payload);
+            debug(AT);
+            /*
+                    // heartbeat
 
-            // Serial.println(buffer_value);
-            serializeJson(doc, buffer_value, sizeof(buffer_value));
-            DT_mqtt_send(buffer, buffer_value);
-            num++;
-            sequance--;
-        }
-        else
-        {
-            num = 0;
-        }
-        break;
-    case 2: // input
-        // for (uint8_t num = 0; num < INPUT_NUM; ++num)
-        if (num < INPUT_NUM)
-        {
-            // Serial.print(F("homeassistant"));(" input"));
-            doc.clear();
-            sprintf_P(buffer, PSTR("homeassistant/binary_sensor/" BOARD_IDENTIFIER "/input-%02d/config"), num + 1);
-            doc["~"] = F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER);
-            sprintf_P(buffer_value, PSTR(BOARD_IDENTIFIER "-input-%02d"), num + 1);
-            doc["uniq_id"] = buffer_value; // unique_id
-            sprintf_P(buffer_value, PSTR("input-%02d"), num + 1);
-            doc["name"] = buffer_value; // name
-            sprintf_P(buffer_value, PSTR("~/input-%02d/state"), num + 1);
-            doc["stat_t"] = buffer_value; // state topic
+                    // const char* data = PSTR("{\"~\":\"" MQTT_ROOT_TOPIC "\"/\"" BOARD_IDENTIFIER "\",\"uniq_id\":" BOARD_IDENTIFIER "-heartbeat\",\"name\":\"heartbeat\",\"stat_t\":\"~/heartbeat\",\"dev\":{\"ids\" : \"" BOARD_IDENTIFIER "\"}}") ;
 
-            doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
+                    doc.clear();
+                    doc["~"] = F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER);
+                    doc["uniq_id"] = F(BOARD_IDENTIFIER "-heartbeat");
+                    doc["name"] = F("heartbeat");
+                    doc["stat_t"] = F("~/heartbeat");
+                    doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
 
-            // Serial.println(buffer_value);
-            serializeJson(doc, buffer_value, sizeof(buffer_value));
-            DT_mqtt_send(buffer, buffer_value);
-            num++;
-            sequance--;
-        }
-        else
-        {
-            num = 0;
-        }
-        break;
-    case 3:
+                    serializeJson(doc, payload, sizeof(payload));
+                    // Serial.println(payload);
+                    strlcpy_P(topic, PSTR("homeassistant/sensor/" BOARD_IDENTIFIER "/heartbeat/config"), max_topic);
+                    // DT_mqtt_send(topic, PSTR("{\"~\":\"" MQTT_ROOT_TOPIC "\"/\"" BOARD_IDENTIFIER "\",\"uniq_id\":" BOARD_IDENTIFIER "-heartbeat\",\"name\":\"heartbeat\",\"stat_t\":\"~/heartbeat\",\"dev\":{\"ids\" : \"" BOARD_IDENTIFIER "\"}}"));
+                    // DT_mqtt_send(topic, payload);
+            */
+            break;
+
+        case 1:
+            if (num < RELAY_NUM)
+            {
+
+                snprintf_P(topic, max_topic, PSTR("homeassistant/switch/" BOARD_IDENTIFIER "/relay-%02d/config"), num + 1);
+                snprintf_P(payload, max_payload, PSTR("{\"~\":\"DtBoard/DTB02-001\",\"uniq_id\":\"" BOARD_IDENTIFIER "-relay-%02d\",\"name\":\"relay-%02d\",\"command_topic\":\"~/relay-%02d/set\",\"stat_t\":\"~/relay-%02d/state\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), num + 1, num + 1, num + 1, num + 1);
+                DT_mqtt_send(topic, payload);
+                num++;
+                sequance--;
+            }
+            else
+            {
+                num = 0;
+            }
+            break;
+
+        case 2: // input
+            if (num < INPUT_NUM)
+            {
+                sprintf_P(topic, PSTR("homeassistant/binary_sensor/" BOARD_IDENTIFIER "/input-%02d/config"), num + 1);
+                snprintf_P(payload, max_payload, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "\",\"uniq_id\":\"" BOARD_IDENTIFIER "-input-%02d\",\"name\":\"input-%02d\",\"stat_t\":\"~/input-%02d/state\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), num + 1, num + 1, num + 1);
+                DT_mqtt_send(topic, payload);
+
+                num++;
+                sequance--;
+            }
+            else
+            {
+                num = 0;
+            }
+            break;
+            // #ifdef COMMENT
+        case 3:
 #ifdef TEMP_NUM
-        // PT100
-        // for (uint8_t num = 0; num < TEMP_NUM; ++num)
-        if (num < TEMP_NUM)
-        {
-            // Serial.print(F("homeassistant"));(" temp"));
-            wdt_reset();
-            doc.clear();
-            sprintf_P(buffer, PSTR("homeassistant/sensor/" BOARD_IDENTIFIER "/pt100-%02d/config"), num + 1);
-            doc["~"] = F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER);
-            sprintf_P(buffer_value, PSTR(BOARD_IDENTIFIER "-pt100-%02d"), num + 1);
-            doc["uniq_id"] = buffer_value;
-            sprintf_P(buffer_value, PSTR("pt100-%02d"), num + 1);
-            doc["name"] = buffer_value;
-            sprintf_P(buffer_value, PSTR("~/pt100-%02d/temperature"), num + 1);
-            doc["stat_t"] = buffer_value;
-            doc["dev_cla"] = F("temperature");
-            doc["unit_of_meas"] = F("°C");
-            doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
+            // PT100
+            if (num < TEMP_NUM)
+            {
+                snprintf_P(topic, max_topic, PSTR("homeassistant/sensor/" BOARD_IDENTIFIER "/pt100-%02d/config"), num + 1);
+                snprintf_P(payload, max_payload, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "\",\"uniq_id\":\"" BOARD_IDENTIFIER "-pt100-%02d\",\"name\":\"pt100-%02d\",\"stat_t\":\"~/pt100-%02d/temperature\",\"dev_cla\":\"temperature\",\"unit_of_meas\":\"°C\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), num + 1, num + 1, num + 1);
+                DT_mqtt_send(topic, payload);
 
-            serializeJson(doc, buffer_value, sizeof(buffer_value));
-            // Serial.println(buffer_value);
-            DT_mqtt_send(buffer, buffer_value);
-            num++;
-            sequance--;
-        }
-        else
-        {
-            num = 0;
-        }
+                num++;
+                sequance--;
+            }
+            else
+            {
+                num = 0;
+            }
 #endif // PT100
-        break;
+            break;
+        case 4:
+            // BME280 temperature
+            for (uint8_t num = 0; num < BME280_NUM; ++num)
+            {
+                snprintf_P(topic, max_topic, PSTR("homeassistant/sensor/" BOARD_IDENTIFIER "/bme280-temperature-%02d/config"), num + 1);
+                snprintf_P(payload, max_payload, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "\",\"uniq_id\":\"" BOARD_IDENTIFIER "-bme280-temperature-%02d\",\"name\":\"BME280-%02d\",\"stat_t\":\"~/bme280-%02d/temperature\",\"dev_cla\":\"temperature\",\"unit_of_meas\":\"°C\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), num + 1, num + 1, num + 1);
+                DT_mqtt_send(topic, payload);
+            }
+            break;
+        case 5:
+            // BME280 humidity
+            for (uint8_t num = 0; num < BME280_NUM; ++num)
+            {
+                snprintf_P(topic, max_topic, PSTR("homeassistant/sensor/" BOARD_IDENTIFIER "/bme280-humidity-%02d/config"), num + 1);
+                snprintf_P(payload, max_payload, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "\",\"uniq_id\":\"" BOARD_IDENTIFIER "-bme280-humidity-%02d\",\"name\":\"BME280-%02d\",\"stat_t\":\"~/bme280-%02d/humidity\",\"dev_cla\":\"humidity\",\"unit_of_meas\":\"%%\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), num + 1, num + 1, num + 1);
+                DT_mqtt_send(topic, payload);
+            }
+            break;
+        case 6:
+            // BME280 pressure
+            for (uint8_t num = 0; num < BME280_NUM; ++num)
+            {
+                snprintf_P(topic, max_topic, PSTR("homeassistant/sensor/" BOARD_IDENTIFIER "/bme280-pressure-%02d/config"), num + 1);
+                snprintf_P(payload, max_payload, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "\",\"uniq_id\":\"" BOARD_IDENTIFIER "-bme280-pressure-%02d\",\"name\":\"BME280-%02d\",\"stat_t\":\"~/bme280-%02d/pressure\",\"dev_cla\":\"pressure\",\"unit_of_meas\":\"Pa\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), num + 1, num + 1, num + 1);
+                DT_mqtt_send(topic, payload);
+            }
+            break;
+        case 7:
+            // CCS811 CO2
+            for (uint8_t num = 0; num < CCS811_NUM; ++num)
+            {
+                snprintf_P(topic, max_topic, PSTR("homeassistant/sensor/" BOARD_IDENTIFIER "/ccs811-co2-%02d/config"), num + 1);
+                snprintf_P(payload, max_payload, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "\",\"uniq_id\":\"" BOARD_IDENTIFIER "-ccs811-co2-%02d\",\"name\":\"ccs811-%02d\",\"stat_t\":\"~/ccs811-%02d/co2\",\"dev_cla\":\"carbon_dioxide\",\"unit_of_meas\":\"CO2\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), num + 1, num + 1, num + 1);
 
-    case 4:
-        // BME280 temperature
-        for (uint8_t num = 0; num < BME280_NUM; ++num)
-        {
-            wdt_reset();
-            doc.clear();
-            sprintf_P(buffer, PSTR("homeassistant/sensor/" BOARD_IDENTIFIER "/bme280-temperature-%02d/config"), num + 1);
-            doc["~"] = F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER);
-            sprintf_P(buffer_value, PSTR(BOARD_IDENTIFIER "-bme280-temperature-%02d"), num + 1);
-            doc["uniq_id"] = buffer_value;
-            sprintf_P(buffer_value, PSTR("BME280-%02d"), num + 1);
-            doc["name"] = buffer_value;
-            sprintf_P(buffer_value, PSTR("~/bme280-%02d/temperature"), num + 1);
-            doc["stat_t"] = buffer_value;
-            doc["dev_cla"] = F("temperature");
-            doc["unit_of_meas"] = F("°C");
+                DT_mqtt_send(topic, payload);
+            }
 
-            doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
+            break;
+        case 8:
 
-            serializeJson(doc, buffer_value, sizeof(buffer_value));
-            // Serial.println(buffer_value);
-            DT_mqtt_send(buffer, buffer_value);
-        }
-        break;
-    case 5:
-        // BME280 humidity
-        for (uint8_t num = 0; num < BME280_NUM; ++num)
-        {
-            wdt_reset();
-            doc.clear();
-            sprintf_P(buffer, PSTR("homeassistant/sensor/" BOARD_IDENTIFIER "/bme280-humidity-%02d/config"), num + 1);
-            doc["~"] = F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER);
-            sprintf_P(buffer_value, PSTR(BOARD_IDENTIFIER "-bme280-humidity-%02d"), num + 1);
-            doc["uniq_id"] = buffer_value;
-            sprintf_P(buffer_value, PSTR("BME280-%02d"), num + 1);
-            doc["name"] = buffer_value;
-            sprintf_P(buffer_value, PSTR("~/bme280-%02d/humidity"), num + 1);
-            doc["stat_t"] = buffer_value;
-            doc["dev_cla"] = F("humidity");
-            doc["unit_of_meas"] = F("%");
+            // CCS811 COV
+            for (uint8_t num = 0; num < CCS811_NUM; ++num)
+            {
+                snprintf_P(topic, max_topic, PSTR("homeassistant/sensor/" BOARD_IDENTIFIER "/ccs811-cov-%02d/config"), num + 1);
+                snprintf_P(payload, max_payload, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "\",\"uniq_id\":\"" BOARD_IDENTIFIER "-ccs811-cov-%02d\",\"name\":\"ccs811-%02d\",\"stat_t\":\"~/ccs811-%02d/cov\",\"dev_cla\":\"pm10\",\"unit_of_meas\":\"ppm\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), num + 1, num + 1, num + 1);
+                DT_mqtt_send(topic, payload);
+            }
+            break;
 
-            doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
-
-            serializeJson(doc, buffer_value, sizeof(buffer_value));
-            // Serial.println(buffer_value);
-            DT_mqtt_send(buffer, buffer_value);
-        }
-        break;
-    case 6:
-        // BME280 pressure
-        for (uint8_t num = 0; num < BME280_NUM; ++num)
-        {
-            wdt_reset();
-            doc.clear();
-            sprintf_P(buffer, PSTR("homeassistant/sensor/" BOARD_IDENTIFIER "/bme280-pressure-%02d/config"), num + 1);
-            doc["~"] = F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER);
-            sprintf_P(buffer_value, PSTR(BOARD_IDENTIFIER "-bme280-pressure-%02d"), num + 1);
-            doc["uniq_id"] = buffer_value;
-            sprintf_P(buffer_value, PSTR("BME280-%02d"), num + 1);
-            doc["name"] = buffer_value;
-            sprintf_P(buffer_value, PSTR("~/bme280-%02d/pressure"), num + 1);
-            doc["stat_t"] = buffer_value;
-            doc["dev_cla"] = F("pressure");
-            doc["unit_of_meas"] = F("Pa");
-
-            doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
-
-            serializeJson(doc, buffer_value, sizeof(buffer_value));
-            // Serial.println(buffer_value);
-            DT_mqtt_send(buffer, buffer_value);
-        }
-        break;
-    case 7:
-        // CCS811 CO2
-        for (uint8_t num = 0; num < CCS811_NUM; ++num)
-        {
-            wdt_reset(); // clear watchdog
-            doc.clear();
-            sprintf_P(buffer, PSTR("homeassistant/sensor/" BOARD_IDENTIFIER "/ccs811-co2-%02d/config"), num + 1);
-            doc["~"] = F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER);
-            sprintf_P(buffer_value, PSTR(BOARD_IDENTIFIER "-ccs811-co2-%02d"), num + 1);
-            doc["uniq_id"] = buffer_value;
-            sprintf_P(buffer_value, PSTR("ccs811-%02d"), num + 1);
-            doc["name"] = buffer_value;
-            sprintf_P(buffer_value, PSTR("~/ccs811-%02d/co2"), num + 1);
-            doc["stat_t"] = buffer_value;
-            doc["dev_cla"] = F("carbon_dioxide");
-            doc["unit_of_meas"] = F("CO2");
-
-            doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
-
-            serializeJson(doc, buffer_value, sizeof(buffer_value));
-            // Serial.println(buffer_value);
-            DT_mqtt_send(buffer, buffer_value);
-        }
-
-        break;
-    case 8:
-
-        // CCS811 COV
-        for (uint8_t num = 0; num < CCS811_NUM; ++num)
-        {
-            wdt_reset(); // clear watchdog
-            doc.clear();
-            sprintf_P(buffer, PSTR("homeassistant/sensor/" BOARD_IDENTIFIER "/ccs811-cov-%02d/config"), num + 1);
-            doc["~"] = F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER);
-            sprintf_P(buffer_value, PSTR(BOARD_IDENTIFIER "-ccs811-cov-%02d"), num + 1);
-            doc["uniq_id"] = buffer_value;
-            sprintf_P(buffer_value, PSTR("ccs811-%02d"), num + 1);
-            doc["name"] = buffer_value;
-            sprintf_P(buffer_value, PSTR("~/ccs811-%02d/cov"), num + 1);
-            doc["stat_t"] = buffer_value;
-            doc["dev_cla"] = F("pm10");
-            doc["unit_of_meas"] = F("ppm");
-
-            doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
-
-            serializeJson(doc, buffer_value, sizeof(buffer_value));
-            // Serial.println(buffer_value);
-            DT_mqtt_send(buffer, buffer_value);
-        }
-        break;
-    case 9:
+            // #ifdef COMMENT
+        case 9:
 #ifdef POELE
-        // Poele mode
-        wdt_reset(); // clear watchdog
-        doc.clear();
-        doc["~"] = F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/poele/mode");
-        doc["uniq_id"] = F(BOARD_IDENTIFIER "-poele-mode");
-        doc["name"] = F("mode poele");
-        doc["command_topic"] = F("~/set");
-        doc["state_topic"] = F("~/state");
+            // Poele mode
+            strlcpy_P(topic, PSTR("homeassistant/select/" BOARD_IDENTIFIER "/poele-mode/config"), max_topic);
 
-        options = doc.createNestedArray("options");
-        options.add("Arret");
-        options.add("Normal");
-        options.add("ECS");
-        options.add("Forcé");
-
-        doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
-
-        serializeJson(doc, buffer_value, sizeof(buffer_value));
-        strlcpy_P(buffer, PSTR("homeassistant/select/" BOARD_IDENTIFIER "/poele-mode/config"), BUFFER_SIZE);
-        DT_mqtt_send(buffer, buffer_value);
-
-        // EEPROM
-        //  V1 consigne poêle en mode force (70°C)
-        wdt_reset();
-        doc.clear();
-        doc["~"] = F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/V1");
-        doc["uniq_id"] = F(BOARD_IDENTIFIER "-V1");
-        doc["name"] = F("parametre poêle (V1)");
-        doc["stat_t"] = F("~/state");
-        doc["command_topic"] = F("~/set");
-        doc["dev_cla"] = F("temperature");
-        doc["unit_of_meas"] = F("°C");
-        doc["max"] = POELE_MAX_TEMPERATURE;
-        doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
-
-        serializeJson(doc, buffer_value, sizeof(buffer_value));
-        // Serial.println(buffer_value);
-        strlcpy_P(buffer, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/V1/config"), BUFFER_SIZE);
-        DT_mqtt_send(buffer, buffer_value);
-
-        // C7
-        wdt_reset();
-        doc.clear();
-        doc["~"] = F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/C7");
-        doc["uniq_id"] = F(BOARD_IDENTIFIER "-C7");
-        doc["name"] = F("Band morte Poele  (C7)");
-        doc["stat_t"] = F("~/state");
-        doc["command_topic"] = F("~/set");
-        doc["dev_cla"] = F("temperature");
-        doc["unit_of_meas"] = F("°C");
-        doc["min"] = -100;
-        doc["max"] = 100;
-        doc["step"] = 1;
-        doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
-
-        serializeJson(doc, buffer_value, sizeof(buffer_value));
-        // Serial.println(buffer_value);
-        strlcpy_P(buffer, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/C7/config"), BUFFER_SIZE);
-        DT_mqtt_send(buffer, buffer_value);
-        // C4
-        wdt_reset();
-        doc.clear();
-        doc["~"] = F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/C4");
-        doc["uniq_id"] = F(BOARD_IDENTIFIER "-C4");
-        doc["name"] = F("consigne Jacuzzi (C4)");
-        doc["stat_t"] = F("~/state");
-        doc["command_topic"] = F("~/set");
-        doc["dev_cla"] = F("temperature");
-        doc["unit_of_meas"] = F("°C");
-        doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
-
-        serializeJson(doc, buffer_value, sizeof(buffer_value));
-        // Serial.println(buffer_value);
-        strlcpy_P(buffer, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/C4/config"), BUFFER_SIZE);
-        DT_mqtt_send(buffer, buffer_value);
-
-        // C5
-        wdt_reset();
-        doc.clear();
-        doc["~"] = F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/C5");
-        doc["uniq_id"] = F(BOARD_IDENTIFIER "-C5");
-        doc["name"] = F("consigne ECS1 & ECS2 (C5)");
-        doc["stat_t"] = F("~/state");
-        doc["command_topic"] = F("~/set");
-        // doc["dev_cla"] = F("temperature");
-        // doc["unit_of_meas"] = F("°C");
-        doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
-
-        serializeJson(doc, buffer_value, sizeof(buffer_value));
-        // Serial.println(buffer_value);
-        strlcpy_P(buffer, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/C5/config"), BUFFER_SIZE);
-        DT_mqtt_send(buffer, buffer_value);
-
-        // C6
-        wdt_reset();
-        doc.clear();
-        doc["~"] = F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/C6");
-        doc["uniq_id"] = F(BOARD_IDENTIFIER "-C6");
-        doc["name"] = F("consigne mode boost (C6)");
-        doc["stat_t"] = F("~/state");
-        doc["command_topic"] = F("~/set");
-        // doc["dev_cla"] = F("temperature");
-        // doc["unit_of_meas"] = F("°C");
-        doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
-
-        serializeJson(doc, buffer_value, sizeof(buffer_value));
-        // Serial.println(buffer_value);
-        strlcpy_P(buffer, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/C6/config"), BUFFER_SIZE);
-        DT_mqtt_send(buffer, buffer_value);
+            strlcpy_P(payload, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/pcbt/mode\",\"uniq_id\":\"" BOARD_IDENTIFIER "-pcbt-mode\",\"name\":\"mode pcbt\",\"command_topic\":\"~/set\",\"state_topic\":\"~/state\",\"options\":[\"Demmarage\",\"Normal\",\"Manuel\",\"Arret\"],\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), max_payload);
+            DT_mqtt_send(topic, payload);
+#endif // POELE
+            break;
+        case 10:
+#ifdef POELE
+            //  V1 consigne poêle en mode force (70°C)
+            strlcpy_P(topic, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/V1/config"), max_topic);
+            strlcpy_P(payload, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/V1\",\"uniq_id\":\"" BOARD_IDENTIFIER "-V1\",\"name\":\"parametre poêle (V1)\",\"stat_t\":\"~/state\",\"command_topic\":\"~/set\",\"dev_cla\":\"temperature\",\"unit_of_meas\":\"°C\",\"max\":85,\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), max_payload);
+            DT_mqtt_send(topic, payload);
+#endif // POELE
+            break;
+        case 11:
+#ifdef POELE
+            // C7
+            strlcpy_P(topic, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/C7/config"), max_topic);
+            strlcpy_P(payload, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/C7\",\"uniq_id\":\"" BOARD_IDENTIFIER "-C7\",\"name\":\"Band morte Poele  (C7)\",\"stat_t\":\"~/state\",\"command_topic\":\"~/set\",\"dev_cla\":\"temperature\",\"unit_of_meas\":\"°C\",\"min\":-100,\"max\":100,\"step\":1,\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), max_payload);
+            DT_mqtt_send(topic, payload);
 
 #endif // POELE
-        break;
+            break;
+        case 12:
+#ifdef POELE
+            // C4
+            strlcpy_P(topic, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/C4/config"), max_topic);
+            strlcpy_P(payload, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/C4\",\"uniq_id\":\"" BOARD_IDENTIFIER "-C4\",\"name\":\"consigne Jacuzzi (C4)\",\"stat_t\":\"~/state\",\"command_topic\":\"~/set\",\"dev_cla\":\"temperature\",\"unit_of_meas\":\"°C\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), max_payload);
+            DT_mqtt_send(topic, payload);
 
-    case 10:
-#ifdef VANNES2
-        // 3 voies PCBT mode
-        wdt_reset(); // clear watchdog
-        doc.clear();
-        doc["~"] = F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/mode");
-        doc["uniq_id"] = F(BOARD_IDENTIFIER "-pcbt-mode");
-        doc["name"] = F("mode pcbt");
-        doc["command_topic"] = F("~/set");
-        doc["state_topic"] = F("~/state");
+#endif // POELE
+            break;
 
-        options = doc.createNestedArray("options");
-        options.add("Demmarage");
-        options.add("Normal");
-        options.add("Manuel");
-        options.add("Arret");
+            // #ifdef COMMENT
+        case 13:
+#ifdef POELE
+            // C5
+            strlcpy_P(topic, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/C5/config"), max_topic);
+            strlcpy_P(payload, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/C5\",\"uniq_id\":\"" BOARD_IDENTIFIER "-C5\",\"name\":\"consigne ECS1 & ECS2 (C5)\",\"stat_t\":\"~/state\",\"command_topic\":\"~/set\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), max_payload);
+            DT_mqtt_send(topic, payload);
 
-        doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
+#endif // POELE
+            break;
 
-        serializeJson(doc, buffer_value, sizeof(buffer_value));
-        strlcpy_P(buffer, PSTR("homeassistant/select/" BOARD_IDENTIFIER "/pcbt-mode/config"), BUFFER_SIZE);
-        DT_mqtt_send(buffer, buffer_value);
+            // #ifdef COMMENT
+        case 14:
+#ifdef POELE
+            // C6
+            strlcpy_P(topic, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/C6/config"), max_topic);
+            strlcpy_P(payload, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/C6\",\"uniq_id\":\"" BOARD_IDENTIFIER "-C6\",\"name\":\"consigne mode boost (C6)\",\"stat_t\":\"~/state\",\"command_topic\":\"~/set\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), max_payload);
+            DT_mqtt_send(topic, payload);
 
-        // consigne vanne 3 voies PCBT
-        wdt_reset();
-        doc.clear();
-        doc["~"] = F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/C2");
-        doc["uniq_id"] = F(BOARD_IDENTIFIER "-C2");
-        doc["name"] = F("consigne PCBT (C2)");
-        doc["stat_t"] = F("~/state");
-        doc["command_topic"] = F("~/set");
-        doc["min"] = 0;
-        doc["max"] = TMP_EAU_PCBT_MAX;
-        doc["step"] = 0.01;
-        doc["dev_cla"] = F("temperature");
-        doc["unit_of_meas"] = F("°C");
-        doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
+#endif // POELE
+            break;
 
-        serializeJson(doc, buffer_value, sizeof(buffer_value));
-        // Serial.println(buffer_value);
-        strlcpy_P(buffer, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/C2/config"), BUFFER_SIZE);
-        DT_mqtt_send(buffer, buffer_value);
+        case 15:
+#ifdef VANNES
+            // 3 voies PCBT mode
+            strlcpy_P(topic, PSTR("homeassistant/select/" BOARD_IDENTIFIER "/pcbt-mode/config"), max_topic);
+            strlcpy_P(payload, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/pcbt/mode\",\"uniq_id\":\"" BOARD_IDENTIFIER "-pcbt-mode\",\"name\":\"mode pcbt\",\"command_topic\":\"~/set\",\"state_topic\":\"~/state\",\"options\":[\"Demmarage\",\"Normal\",\"Manuel\",\"Arret\"],\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), max_payload);
 
-        // 3 voies MCBT mode
-        wdt_reset(); // clear watchdog
-        doc.clear();
-        doc["~"] = F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/mode");
-        doc["uniq_id"] = F(BOARD_IDENTIFIER "-mcbt-mode");
-        doc["name"] = F("mode mcbt");
-        doc["command_topic"] = F("~/set");
-        doc["state_topic"] = F("~/state");
+            DT_mqtt_send(topic, payload);
 
-        options = doc.createNestedArray("options");
-        options.add("Demmarage");
-        options.add("Normal");
-        options.add("Manuel");
-        options.add("Arret");
+#endif // VANNES
+            break;
 
-        doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
+        case 16:
+#ifdef VANNES
+            // consigne vanne 3 voies PCBT
+            strlcpy_P(topic, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/C2/config"), max_topic);
+            strlcpy_P(payload, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/pcbt/C2\",\"uniq_id\":\"" BOARD_IDENTIFIER "-C2\",\"name\":\"consigne PCBT (C2)\",\"stat_t\":\"~/state\",\"command_topic\":\"~/set\",\"min\":0,\"max\":38,\"step\":0.01,\"dev_cla\":\"temperature\",\"unit_of_meas\":\"°C\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), max_payload);
+            DT_mqtt_send(topic, payload);
 
-        serializeJson(doc, buffer_value, sizeof(buffer_value));
-        strlcpy_P(buffer, PSTR("homeassistant/select/" BOARD_IDENTIFIER "/mcbt-mode/config"), BUFFER_SIZE);
-        DT_mqtt_send(buffer, buffer_value);
+#endif // VANNES
+            break;
 
-        // consigne vanne 3 voies MCBT
-        wdt_reset();
-        doc.clear();
-        doc["~"] = F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/C3");
-        doc["uniq_id"] = F(BOARD_IDENTIFIER "-C3");
-        doc["name"] = F("consigne MCBT (C3)");
-        doc["stat_t"] = F("~/state");
-        doc["command_topic"] = F("~/set");
-        doc["min"] = 0;
-        doc["max"] = TMP_EAU_MCBT_MAX;
-        doc["step"] = 0.01;
-        doc["dev_cla"] = F("temperature");
-        doc["unit_of_meas"] = F("°C");
+        case 17:
+#ifdef VANNES
+            // 3 voies MCBT mode
+            strlcpy_P(topic, PSTR("homeassistant/select/" BOARD_IDENTIFIER "/mcbt-mode/config"), max_topic);
+            strlcpy_P(payload, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/mcbt/mode\",\"uniq_id\":\"" BOARD_IDENTIFIER "-mcbt-mode\",\"name\":\"mode mcbt\",\"command_topic\":\"~/set\",\"state_topic\":\"~/state\",\"options\":[\"Demmarage\",\"Normal\",\"Manuel\",\"Arret\"],\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), max_payload);
+            DT_mqtt_send(topic, payload);
+#endif // VANNES
+            break;
 
-        doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
+        case 18:
+#ifdef VANNES
+            // consigne vanne 3 voies MCBT
+            strlcpy_P(topic, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/C3/config"), max_topic);
+            strlcpy_P(payload, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/mcbt/C3\",\"uniq_id\":\"" BOARD_IDENTIFIER "-C3\",\"name\":\"consigne MCBT (C3)\",\"stat_t\":\"~/state\",\"command_topic\":\"~/set\",\"min\":0,\"max\":60,\"step\":0.01,\"dev_cla\":\"temperature\",\"unit_of_meas\":\"°C\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), max_payload);
+            DT_mqtt_send(topic, payload);
 
-        serializeJson(doc, buffer_value, sizeof(buffer_value));
-        // Serial.println(buffer_value);
-        strlcpy_P(buffer, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/C3/config"), BUFFER_SIZE);
-        DT_mqtt_send(buffer, buffer_value);
-        // C8
-        wdt_reset();
-        doc.clear();
-        doc["~"] = F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/C8");
-        doc["uniq_id"] = F(BOARD_IDENTIFIER "-C8");
-        doc["name"] = F("consigne Temp PCBT a -10°C (C8)");
-        doc["stat_t"] = F("~/state");
-        doc["command_topic"] = F("~/set");
-        doc["step"] = 0.01;
-        // doc["dev_cla"] = F("temperature");
-        // doc["unit_of_meas"] = F("°C");
-        doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
+#endif // VANNES
+            break;
 
-        serializeJson(doc, buffer_value, sizeof(buffer_value));
-        // Serial.println(buffer_value);
-        strlcpy_P(buffer, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/C8/config"), BUFFER_SIZE);
-        DT_mqtt_send(buffer, buffer_value);
+        case 19:
+#ifdef VANNES
+            // C8
+            strlcpy_P(topic, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/C8/config"), max_topic);
+            strlcpy_P(payload, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/pcbt/C8\",\"uniq_id\":\"" BOARD_IDENTIFIER "-C8\",\"name\":\"consigne Temp PCBT a -10°C (C8)\",\"stat_t\":\"~/state\",\"command_topic\":\"~/set\",\"step\":0.01,\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), max_payload);
+            DT_mqtt_send(topic, payload);
 
-        // C9
-        wdt_reset();
-        doc.clear();
-        doc["~"] = F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/C9");
-        doc["uniq_id"] = F(BOARD_IDENTIFIER "-C9");
-        doc["name"] = F("consigne Temp PCBT a +10°C (C9)");
-        doc["stat_t"] = F("~/state");
-        doc["command_topic"] = F("~/set");
-        doc["step"] = 0.01;
-        // doc["dev_cla"] = F("temperature");
-        // doc["unit_of_meas"] = F("°C");
-        doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
+#endif // VANNES
+            break;
 
-        serializeJson(doc, buffer_value, sizeof(buffer_value));
-        // Serial.println(buffer_value);
-        strlcpy_P(buffer, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/C9/config"), BUFFER_SIZE);
-        DT_mqtt_send(buffer, buffer_value);
+        case 20:
+#ifdef VANNES
+            // C9
+            strlcpy_P(topic, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/C9/config"), max_topic);
+            strlcpy_P(payload, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/pcbt/C9\",\"uniq_id\":\"" BOARD_IDENTIFIER "-C9\",\"name\":\"consigne Temp PCBT a +10°C (C9)\",\"stat_t\":\"~/state\",\"command_topic\":\"~/set\",\"step\":0.01,\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), max_payload);
+            DT_mqtt_send(topic, payload);
 
-        // C10
-        wdt_reset();
-        doc.clear();
-        doc["~"] = F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/C10");
-        doc["uniq_id"] = F(BOARD_IDENTIFIER "-C10");
-        doc["name"] = F("consigne Temp MCBT a -10°C (C10)");
-        doc["stat_t"] = F("~/state");
-        doc["command_topic"] = F("~/set");
-        doc["step"] = 0.01;
-        // doc["dev_cla"] = F("temperature");
-        // doc["unit_of_meas"] = F("°C");
-        doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
+#endif // VANNES
+            break;
 
-        serializeJson(doc, buffer_value, sizeof(buffer_value));
-        // Serial.println(buffer_value);
-        strlcpy_P(buffer, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/C10/config"), BUFFER_SIZE);
-        DT_mqtt_send(buffer, buffer_value);
+        case 21:
+#ifdef VANNES
+            // C10
+            strlcpy_P(topic, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/C10/config"), max_topic);
+            strlcpy_P(payload, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/mcbt/C10\",\"uniq_id\":\"" BOARD_IDENTIFIER "-C10\",\"name\":\"consigne Temp MCBT a -10°C (C10)\",\"stat_t\":\"~/state\",\"command_topic\":\"~/set\",\"step\":0.01,\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), max_payload);
+            DT_mqtt_send(topic, payload);
 
-        // C11
-        wdt_reset();
-        doc.clear();
-        doc["~"] = F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/C11");
-        doc["uniq_id"] = F(BOARD_IDENTIFIER "-C11");
-        doc["name"] = F("consigne Temp MCBT a +10°C (C11)");
-        doc["stat_t"] = F("~/state");
-        doc["command_topic"] = F("~/set");
-        doc["step"] = 0.01;
-        // doc["dev_cla"] = F("temperature");
-        // doc["unit_of_meas"] = F("°C");
-        doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
+#endif // VANNES
+            break;
 
-        serializeJson(doc, buffer_value, sizeof(buffer_value));
-        // Serial.println(buffer_value);
-        strlcpy_P(buffer, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/C11/config"), BUFFER_SIZE);
-        DT_mqtt_send(buffer, buffer_value);
+        case 22:
+#ifdef VANNES
+            // C11
+            strlcpy_P(topic, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/C11/config"), max_topic);
+            strlcpy_P(payload, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/mcbt/C11\",\"uniq_id\":\"" BOARD_IDENTIFIER "-C11\",\"name\":\"consigne Temp MCBT a +10°C (C11)\",\"stat_t\":\"~/state\",\"command_topic\":\"~/set\",\"step\":0.01,\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), max_payload);
+            DT_mqtt_send(topic, payload);
 #endif // VANNE
-        break;
-    case 11:
+            break;
+        case 23:
 
-#ifdef VANNES2
+#ifdef VANNES
 
-        // C_PCBT_MIN
-        wdt_reset();
-        doc.clear();
-        doc["~"] = F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/min_temp");
-        doc["uniq_id"] = F(BOARD_IDENTIFIER "-C_PCBT_MIN");
-        doc["name"] = F("consigne Temp PCBT minimum (C_PCBT_MIN)");
-        doc["stat_t"] = F("~/state");
-        doc["command_topic"] = F("~/set");
-        // doc["dev_cla"] = F("temperature");
-        // doc["unit_of_meas"] = F("°C");
-        doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
+            // C_PCBT_MIN
+            strlcpy_P(topic, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/C_PCBT_MIN/config"), max_topic);
+            strlcpy_P(payload, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/pcbt/min_temp\",\"uniq_id\":\"" BOARD_IDENTIFIER "-C_PCBT_MIN\",\"name\":\"consigne Temp PCBT minimum (C_PCBT_MIN)\",\"stat_t\":\"~/state\",\"command_topic\":\"~/set\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), max_payload);
+            DT_mqtt_send(topic, payload);
 
-        serializeJson(doc, buffer_value, sizeof(buffer_value));
-        // Serial.println(buffer_value);
-        strlcpy_P(buffer, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/C_PCBT_MIN/config"), BUFFER_SIZE);
-        DT_mqtt_send(buffer, buffer_value);
+#endif // VANNES
+            break;
 
-        // C_PCBT_MAX
-        wdt_reset();
-        doc.clear();
-        doc["~"] = F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/max_temp");
-        doc["uniq_id"] = F(BOARD_IDENTIFIER "-C_PCBT_MAX");
-        doc["name"] = F("consigne Temp PCBT maximum (C_PCBT_MAX)");
-        doc["stat_t"] = F("~/state");
-        doc["command_topic"] = F("~/set");
-        // doc["dev_cla"] = F("temperature");
-        // doc["unit_of_meas"] = F("°C");
-        doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
+        case 24:
+#ifdef VANNES
+            // C_PCBT_MAX
+            strlcpy_P(topic, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/C_PCBT_MAX/config"), max_topic);
+            strlcpy_P(payload, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/pcbt/max_temp\",\"uniq_id\":\"" BOARD_IDENTIFIER "-C_PCBT_MAX\",\"name\":\"consigne Temp PCBT maximum (C_PCBT_MAX)\",\"stat_t\":\"~/state\",\"command_topic\":\"~/set\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), max_payload);
+            DT_mqtt_send(topic, payload);
 
-        serializeJson(doc, buffer_value, sizeof(buffer_value));
-        // Serial.println(buffer_value);
-        strlcpy_P(buffer, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/C_PCBT_MAX/config"), BUFFER_SIZE);
-        DT_mqtt_send(buffer, buffer_value);
+#endif // VANNES
+            break;
 
-        // C_MCBT_MIN
-        wdt_reset();
-        doc.clear();
-        doc["~"] = F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/min_temp");
-        doc["uniq_id"] = F(BOARD_IDENTIFIER "-C_MCBT_MIN");
-        doc["name"] = F("consigne Temp MCBT minimum (C_MCBT_MIN)");
-        doc["stat_t"] = F("~/state");
-        doc["command_topic"] = F("~/set");
-        // doc["dev_cla"] = F("temperature");
-        // doc["unit_of_meas"] = F("°C");
-        doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
+        case 25:
+#ifdef VANNES
+            // C_MCBT_MIN
+            strlcpy_P(topic, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/C_MCBT_MIN/config"), max_topic);
+            strlcpy_P(payload, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/mcbt/min_temp\",\"uniq_id\":\"" BOARD_IDENTIFIER "-C_MCBT_MIN\",\"name\":\"consigne Temp MCBT minimum (C_MCBT_MIN)\",\"stat_t\":\"~/state\",\"command_topic\":\"~/set\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), max_payload);
+            DT_mqtt_send(topic, payload);
 
-        serializeJson(doc, buffer_value, sizeof(buffer_value));
-        // Serial.println(buffer_value);
-        strlcpy_P(buffer, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/C_MCBT_MIN/config"), BUFFER_SIZE);
-        DT_mqtt_send(buffer, buffer_value);
+#endif // VANNES
+            break;
 
-        // C_MCBT_MAX
-        wdt_reset();
-        doc.clear();
-        doc["~"] = F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/max_temp");
-        doc["uniq_id"] = F(BOARD_IDENTIFIER "-C_MCBT_MAX");
-        doc["name"] = F("consigne Temp MCBT maximum (C_MCBT_MAX)");
-        doc["stat_t"] = F("~/state");
-        doc["command_topic"] = F("~/set");
-        // doc["dev_cla"] = F("temperature");
-        // doc["unit_of_meas"] = F("°C");
-        doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
+        case 26:
+#ifdef VANNES
+            // C_MCBT_MAX
+            strlcpy_P(topic, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/C_MCBT_MAX/config"), max_topic);
+            strlcpy_P(payload, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/mcbt/max_temp\",\"uniq_id\":\"" BOARD_IDENTIFIER "-C_MCBT_MAX\",\"name\":\"consigne Temp MCBT maximum (C_MCBT_MAX)\",\"stat_t\":\"~/state\",\"command_topic\":\"~/set\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), max_payload);
+            DT_mqtt_send(topic, payload);
 
-        serializeJson(doc, buffer_value, sizeof(buffer_value));
-        // Serial.println(buffer_value);
-        strlcpy_P(buffer, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/C_MCBT_MAX/config"), BUFFER_SIZE);
-        DT_mqtt_send(buffer, buffer_value);
-#endif // VANNES2
-        break;
-    case 12:
-#ifdef VANNES2
-        // KP_PCBT
-        wdt_reset();
-        doc.clear();
-        doc["~"] = F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/KP");
-        doc["uniq_id"] = F(BOARD_IDENTIFIER "-KP_PCBT");
-        doc["name"] = F("pid KP PCBT (KP_PCBT)");
-        doc["stat_t"] = F("~/state");
-        doc["command_topic"] = F("~/set");
-        doc["min"] = 0;
-        doc["max"] = 100000;
-        doc["step"] = 0.01;
-        // doc["dev_cla"] = F("temperature");
-        // doc["unit_of_meas"] = F("°C");
-        doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
+#endif // VANNES
+            break;
+        case 27:
+#ifdef VANNES
+            // KP_PCBT
+            strlcpy_P(topic, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/KP_PCBT/config"), max_topic);
+            strlcpy_P(payload, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/pcbt/KP\",\"uniq_id\":\"" BOARD_IDENTIFIER "-KP_PCBT\",\"name\":\"pid KP PCBT (KP_PCBT)\",\"stat_t\":\"~/state\",\"command_topic\":\"~/set\",\"min\":0,\"max\":100000,\"step\":0.01,\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), max_payload);
+            DT_mqtt_send(topic, payload);
 
-        serializeJson(doc, buffer_value, sizeof(buffer_value));
-        // Serial.println(buffer_value);
-        strlcpy_P(buffer, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/KP_PCBT/config"), BUFFER_SIZE);
-        DT_mqtt_send(buffer, buffer_value);
+#endif // VANNES
+            break;
 
-        // KI_PCBT
-        wdt_reset();
-        doc.clear();
-        doc["~"] = F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/KI");
-        doc["uniq_id"] = F(BOARD_IDENTIFIER "-KI_PCBT");
-        doc["name"] = F("pid KI PCBT (KI_PCBT)");
-        doc["stat_t"] = F("~/state");
-        doc["command_topic"] = F("~/set");
-        doc["min"] = 0;
-        doc["max"] = 1000;
-        doc["step"] = 0.01;
-        // doc["dev_cla"] = F("temperature");
-        // doc["unit_of_meas"] = F("°C");
-        doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
+        case 28:
+#ifdef VANNES
+            // KI_PCBT
+            strlcpy_P(topic, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/KI_PCBT/config"), max_topic);
+            strlcpy_P(payload, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/pcbt/KI\",\"uniq_id\":\"" BOARD_IDENTIFIER "-KI_PCBT\",\"name\":\"pid KI PCBT (KI_PCBT)\",\"stat_t\":\"~/state\",\"command_topic\":\"~/set\",\"min\":0,\"max\":1000,\"step\":0.01,\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), max_payload);
+            DT_mqtt_send(topic, payload);
 
-        serializeJson(doc, buffer_value, sizeof(buffer_value));
-        // Serial.println(buffer_value);
-        strlcpy_P(buffer, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/KI_PCBT/config"), BUFFER_SIZE);
-        DT_mqtt_send(buffer, buffer_value);
+#endif // VANNES
+            break;
 
-        // KD_PCBT
-        wdt_reset();
-        doc.clear();
-        doc["~"] = F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/KD");
-        doc["uniq_id"] = F(BOARD_IDENTIFIER "-KD_PCBT");
-        doc["name"] = F("pid KD PCBT (KD_PCBT)");
-        doc["stat_t"] = F("~/state");
-        doc["command_topic"] = F("~/set");
-        doc["min"] = 0;
-        doc["max"] = 100000;
-        doc["step"] = 0.01;
-        // doc["dev_cla"] = F("temperature");
-        // doc["unit_of_meas"] = F("°C");
-        doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
+        case 29:
+#ifdef VANNES
+            // KD_PCBT
+            strlcpy_P(topic, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/KD_PCBT/config"), max_topic);
+            strlcpy_P(payload, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/pcbt/KD\",\"uniq_id\":\"" BOARD_IDENTIFIER "-KD_PCBT\",\"name\":\"pid KD PCBT (KD_PCBT)\",\"stat_t\":\"~/state\",\"command_topic\":\"~/set\",\"min\":0,\"max\":100000,\"step\":0.01,\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), max_payload);
+            DT_mqtt_send(topic, payload);
 
-        serializeJson(doc, buffer_value, sizeof(buffer_value));
-        // Serial.println(buffer_value);
-        strlcpy_P(buffer, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/KD_PCBT/config"), BUFFER_SIZE);
-        DT_mqtt_send(buffer, buffer_value);
+#endif // VANNES
+            break;
 
-        // KT_PCBT
-        wdt_reset();
-        doc.clear();
-        doc["~"] = F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/KT");
-        doc["uniq_id"] = F(BOARD_IDENTIFIER "-KT_PCBT");
-        doc["name"] = F("pid interval PCBT (en ms) (KT_PCBT)");
-        doc["stat_t"] = F("~/state");
-        doc["command_topic"] = F("~/set");
-        doc["min"] = 0;
-        doc["max"] = 60000;
-        // doc["step"] = 0.01;
-        // doc["dev_cla"] = F("temperature");
-        // doc["unit_of_meas"] = F("°C");
-        doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
+        case 30:
+#ifdef VANNES
+            // KT_PCBT
+            strlcpy_P(topic, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/KT_PCBT/config"), max_topic);
+            strlcpy_P(payload, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/pcbt/KT\",\"uniq_id\":\"" BOARD_IDENTIFIER "-KT_PCBT\",\"name\":\"pid interval PCBT (en ms) (KT_PCBT)\",\"stat_t\":\"~/state\",\"command_topic\":\"~/set\",\"min\":0,\"max\":60000,\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), max_payload);
+            DT_mqtt_send(topic, payload);
 
-        serializeJson(doc, buffer_value, sizeof(buffer_value));
-        // Serial.println(buffer_value);
-        strlcpy_P(buffer, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/KT_PCBT/config"), BUFFER_SIZE);
-        DT_mqtt_send(buffer, buffer_value);
+#endif // VANNES
+            break;
 
-        // PID PCBT Action
-        wdt_reset(); // clear watchdog
-        doc.clear();
-        doc["~"] = F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/pid_action");
-        doc["uniq_id"] = F(BOARD_IDENTIFIER "-pcbt-pid_action");
-        doc["name"] = F("pcbt pid action ");
-        doc["command_topic"] = F("~/set");
-        doc["state_topic"] = F("~/state");
+        case 31:
+#ifdef VANNES
+            // PID PCBT Action
+            strlcpy_P(topic, PSTR("homeassistant/select/" BOARD_IDENTIFIER "/pcbt-pid_action/config"), max_topic);
+            strlcpy_P(payload, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/pcbt/pid_action\",\"uniq_id\":\"" BOARD_IDENTIFIER "-pcbt-pid_action\",\"name\":\"pcbt pid action \",\"command_topic\":\"~/set\",\"state_topic\":\"~/state\",\"options\":[\"direct\",\"reverse\"],\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), max_payload);
+            DT_mqtt_send(topic, payload);
 
-        options = doc.createNestedArray("options");
-        options.add("direct");
-        options.add("reverse");
+#endif // VANNES
+            break;
 
-        doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
+        case 32:
+#ifdef VANNES
+            // PID PCBT pMode
+            strlcpy_P(topic, PSTR("homeassistant/select/" BOARD_IDENTIFIER "/pcbt-pid-pmode/config"), max_topic);
+            strlcpy_P(payload, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/pcbt/pid_pmode\",\"uniq_id\":\"" BOARD_IDENTIFIER "-pcbt-pid_pmode\",\"name\":\"pcbt pid pmode\",\"command_topic\":\"~/set\",\"state_topic\":\"~/state\",\"options\":[\"pOnError\",\"pOnMeas\",\"pOnErrorMeas\"],\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), max_payload);
+            DT_mqtt_send(topic, payload);
 
-        serializeJson(doc, buffer_value, sizeof(buffer_value));
-        strlcpy_P(buffer, PSTR("homeassistant/select/" BOARD_IDENTIFIER "/pcbt-pid_action/config"), BUFFER_SIZE);
-        DT_mqtt_send(buffer, buffer_value);
+#endif // VANNES
+            break;
 
-        // PID PCBT pMode
-        wdt_reset(); // clear watchdog
-        doc.clear();
-        doc["~"] = F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/pid_pmode");
-        doc["uniq_id"] = F(BOARD_IDENTIFIER "-pcbt-pid_pmode");
-        doc["name"] = F("pcbt pid pmode");
-        doc["command_topic"] = F("~/set");
-        doc["state_topic"] = F("~/state");
+        case 33:
+#ifdef VANNES
+            // PID PCBT dMode
+            strlcpy_P(topic, PSTR("homeassistant/select/" BOARD_IDENTIFIER "/pcbt-pid-dmode/config"), max_topic);
+            strlcpy_P(payload, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/pcbt/pid_dmode\",\"uniq_id\":\"" BOARD_IDENTIFIER "-pcbt-pid_dmode\",\"name\":\"pcbt pid dmode\",\"command_topic\":\"~/set\",\"state_topic\":\"~/state\",\"options\":[\"dOnError\",\"dOnMeas\"],\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), max_payload);
+            DT_mqtt_send(topic, payload);
 
-        options = doc.createNestedArray("options");
-        options.add("pOnError");
-        options.add("pOnMeas");
-        options.add("pOnErrorMeas");
+#endif // VANNES
+            break;
 
-        doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
+        case 34:
+#ifdef VANNES
+            // PID PCBT dMode
+            strlcpy_P(topic, PSTR("homeassistant/select/" BOARD_IDENTIFIER "/pcbt-pid-iawmode/config"), max_topic);
+            strlcpy_P(payload, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/pcbt/pid_iawmode\",\"uniq_id\":\"" BOARD_IDENTIFIER "-pcbt-pid_iawmode\",\"name\":\"pcbt pid iawmode\",\"command_topic\":\"~/set\",\"state_topic\":\"~/state\",\"options\":[\"iAwCondition\",\"iAwClamp\",\"iAwOff\"],\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), max_payload);
+            DT_mqtt_send(topic, payload);
 
-        serializeJson(doc, buffer_value, sizeof(buffer_value));
-        strlcpy_P(buffer, PSTR("homeassistant/select/" BOARD_IDENTIFIER "/pcbt-pid-pmode/config"), BUFFER_SIZE);
-        DT_mqtt_send(buffer, buffer_value);
+#endif // VANNES
+            break;
+        case 35:
+#ifdef VANNES
+            // KP_MCBT
+            strlcpy_P(topic, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/KP_MCBT/config"), max_topic);
+            strlcpy_P(payload, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/mcbt/KP\",\"uniq_id\":\"" BOARD_IDENTIFIER "-KP_MCBT\",\"name\":\"pid KP MCBT (KP_MCBT)\",\"stat_t\":\"~/state\",\"command_topic\":\"~/set\",\"min\":0,\"max\":100000,\"step\":0.01,\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), max_payload);
+            DT_mqtt_send(topic, payload);
 
-        // PID PCBT dMode
-        wdt_reset(); // clear watchdog
-        doc.clear();
-        doc["~"] = F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/pid_dmode");
-        doc["uniq_id"] = F(BOARD_IDENTIFIER "-pcbt-pid_dmode");
-        doc["name"] = F("pcbt pid dmode");
-        doc["command_topic"] = F("~/set");
-        doc["state_topic"] = F("~/state");
+#endif // VANNES
+            break;
 
-        options = doc.createNestedArray("options");
-        options.add("dOnError");
-        options.add("dOnMeas");
+        case 36:
+#ifdef VANNES
+            // KI_MCBT
+            strlcpy_P(topic, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/KI_MCBT/config"), max_topic);
+            strlcpy_P(payload, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/mcbt/KI\",\"uniq_id\":\"" BOARD_IDENTIFIER "-KI_MCBT\",\"name\":\"pid KI MCBT (KI_MCBT)\",\"stat_t\":\"~/state\",\"command_topic\":\"~/set\",\"min\":0,\"max\":100000,\"step\":0.01,\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), max_payload);
+            DT_mqtt_send(topic, payload);
 
-        doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
+#endif // VANNES
+            break;
 
-        serializeJson(doc, buffer_value, sizeof(buffer_value));
-        strlcpy_P(buffer, PSTR("homeassistant/select/" BOARD_IDENTIFIER "/pcbt-pid-dmode/config"), BUFFER_SIZE);
-        DT_mqtt_send(buffer, buffer_value);
+        case 37:
+#ifdef VANNES
+            // KD_MCBT
+            strlcpy_P(topic, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/KD_MCBT/config"), max_topic);
+            strlcpy_P(payload, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/mcbt/KD\",\"uniq_id\":\"" BOARD_IDENTIFIER "-KD_MCBT\",\"name\":\"pid KD MCBT (KD_MCBT)\",\"stat_t\":\"~/state\",\"command_topic\":\"~/set\",\"min\":0,\"max\":1000000,\"step\":0.01,\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), max_payload);
+            DT_mqtt_send(topic, payload);
 
-        // PID PCBT dMode
-        wdt_reset(); // clear watchdog
-        doc.clear();
-        doc["~"] = F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/pid_iawmode");
-        doc["uniq_id"] = F(BOARD_IDENTIFIER "-pcbt-pid_iawmode");
-        doc["name"] = F("pcbt pid iawmode");
-        doc["command_topic"] = F("~/set");
-        doc["state_topic"] = F("~/state");
+#endif // VANNES
+            break;
 
-        options = doc.createNestedArray("options");
-        options.add("iAwCondition");
-        options.add("iAwClamp");
-        options.add("iAwOff");
-
-        doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
-
-        serializeJson(doc, buffer_value, sizeof(buffer_value));
-        strlcpy_P(buffer, PSTR("homeassistant/select/" BOARD_IDENTIFIER "/pcbt-pid-iawmode/config"), BUFFER_SIZE);
-        DT_mqtt_send(buffer, buffer_value);
-#endif // VANNES2
-        break;
-    case 13:
-#ifdef VANNES2
-        // KP_MCBT
-        wdt_reset();
-        doc.clear();
-        doc["~"] = F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/KP");
-        doc["uniq_id"] = F(BOARD_IDENTIFIER "-KP_MCBT");
-        doc["name"] = F("pid KP MCBT (KP_MCBT)");
-        doc["stat_t"] = F("~/state");
-        doc["command_topic"] = F("~/set");
-        doc["min"] = 0;
-        doc["max"] = 100000;
-        doc["step"] = 0.01;
-        // doc["dev_cla"] = F("temperature");
-        // doc["unit_of_meas"] = F("°C");
-        doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
-
-        serializeJson(doc, buffer_value, sizeof(buffer_value));
-        // Serial.println(buffer_value);
-        strlcpy_P(buffer, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/KP_MCBT/config"), BUFFER_SIZE);
-        DT_mqtt_send(buffer, buffer_value);
-
-        // KI_MCBT
-        wdt_reset();
-        doc.clear();
-        doc["~"] = F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/KI");
-        doc["uniq_id"] = F(BOARD_IDENTIFIER "-KI_MCBT");
-        doc["name"] = F("pid KI MCBT (KI_MCBT)");
-        doc["stat_t"] = F("~/state");
-        doc["command_topic"] = F("~/set");
-        doc["min"] = 0;
-        doc["max"] = 100000;
-        doc["step"] = 0.01;
-        // doc["dev_cla"] = F("temperature");
-        // doc["unit_of_meas"] = F("°C");
-        doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
-
-        serializeJson(doc, buffer_value, sizeof(buffer_value));
-        // Serial.println(buffer_value);
-        strlcpy_P(buffer, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/KI_MCBT/config"), BUFFER_SIZE);
-        DT_mqtt_send(buffer, buffer_value);
-
-        // KD_MCBT
-        wdt_reset();
-        doc.clear();
-        doc["~"] = F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/KD");
-        doc["uniq_id"] = F(BOARD_IDENTIFIER "-KD_MCBT");
-        doc["name"] = F("pid KD MCBT (KD_MCBT)");
-        doc["stat_t"] = F("~/state");
-        doc["command_topic"] = F("~/set");
-        doc["min"] = 0;
-        doc["max"] = 1000000;
-        doc["step"] = 0.01;
-        // doc["dev_cla"] = F("temperature");
-        // doc["unit_of_meas"] = F("°C");
-        doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
-
-        serializeJson(doc, buffer_value, sizeof(buffer_value));
-        // Serial.println(buffer_value);
-        strlcpy_P(buffer, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/KD_MCBT/config"), BUFFER_SIZE);
-        DT_mqtt_send(buffer, buffer_value);
-
-        // KT_MCBT
-        wdt_reset();
-        doc.clear();
-        doc["~"] = F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/KT");
-        doc["uniq_id"] = F(BOARD_IDENTIFIER "-KT_MCBT");
-        doc["name"] = F("pid interval MCBT (en ms) (KT_MCBT)");
-        doc["stat_t"] = F("~/state");
-        doc["command_topic"] = F("~/set");
-        doc["min"] = 0;
-        doc["max"] = 60000;
-        // doc["step"] = 0.01;
-        // doc["dev_cla"] = F("temperature");
-        // doc["unit_of_meas"] = F("°C");
-        doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
-
-        serializeJson(doc, buffer_value, sizeof(buffer_value));
-        // Serial.println(buffer_value);
-        strlcpy_P(buffer, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/KT_MCBT/config"), BUFFER_SIZE);
-        DT_mqtt_send(buffer, buffer_value);
+        case 38:
+#ifdef VANNES
+            // KT_MCBT
+            strlcpy_P(topic, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/KT_MCBT/config"), max_topic);
+            strlcpy_P(payload, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/mcbt/KT\",\"uniq_id\":\"" BOARD_IDENTIFIER "-KT_MCBT\",\"name\":\"pid interval MCBT (en ms) (KT_MCBT)\",\"stat_t\":\"~/state\",\"command_topic\":\"~/set\",\"min\":0,\"max\":60000,\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), max_payload);
+            DT_mqtt_send(topic, payload);
 #endif // VANNES2
 
-        break;
-    case 14:
-#ifdef VANNES2
+            break;
+        case 39:
+#ifdef VANNES
 
-        // PID PCBT Action
-        wdt_reset(); // clear watchdog
-        doc.clear();
-        doc["~"] = F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/pid_action");
-        doc["uniq_id"] = F(BOARD_IDENTIFIER "-mcbt-pid_action");
-        doc["name"] = F("mcbt pid action ");
-        doc["command_topic"] = F("~/set");
-        doc["state_topic"] = F("~/state");
+            // PID PCBT Action
+            strlcpy_P(topic, PSTR("homeassistant/select/" BOARD_IDENTIFIER "/mcbt-pid_action/config"), max_topic);
+            strlcpy_P(payload, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/mcbt/pid_action\",\"uniq_id\":\"" BOARD_IDENTIFIER "-mcbt-pid_action\",\"name\":\"mcbt pid action \",\"command_topic\":\"~/set\",\"state_topic\":\"~/state\",\"options\":[\"direct\",\"reverse\"],\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), max_payload);
+            DT_mqtt_send(topic, payload);
 
-        options = doc.createNestedArray("options");
-        options.add("direct");
-        options.add("reverse");
+#endif // VANNES
+            break;
 
-        doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
+        case 40:
+#ifdef VANNES
+            // PID PCBT pMode
+            strlcpy_P(topic, PSTR("homeassistant/select/" BOARD_IDENTIFIER "/mcbt-pid-pmode/config"), max_topic);
+            strlcpy_P(payload, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/mcbt/pid_pmode\",\"uniq_id\":\"" BOARD_IDENTIFIER "-mcbt-pid_pmode\",\"name\":\"mcbt pid pmode\",\"command_topic\":\"~/set\",\"state_topic\":\"~/state\",\"options\":[\"pOnError\",\"pOnMeas\",\"pOnErrorMeas\"],\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), max_payload);
+            DT_mqtt_send(topic, payload);
 
-        serializeJson(doc, buffer_value, sizeof(buffer_value));
-        strlcpy_P(buffer, PSTR("homeassistant/select/" BOARD_IDENTIFIER "/mcbt-pid_action/config"), BUFFER_SIZE);
-        DT_mqtt_send(buffer, buffer_value);
+#endif // VANNES
+            break;
 
-        // PID PCBT pMode
-        wdt_reset(); // clear watchdog
-        doc.clear();
-        doc["~"] = F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/pid_pmode");
-        doc["uniq_id"] = F(BOARD_IDENTIFIER "-mcbt-pid_pmode");
-        doc["name"] = F("mcbt pid pmode");
-        doc["command_topic"] = F("~/set");
-        doc["state_topic"] = F("~/state");
+        case 41:
+#ifdef VANNES
+            // PID PCBT dMode
+            strlcpy_P(topic, PSTR("homeassistant/select/" BOARD_IDENTIFIER "/mcbt-pid-dmode/config"), max_topic);
+            strlcpy_P(payload, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/mcbt/pid_dmode\",\"uniq_id\":\"" BOARD_IDENTIFIER "-mcbt-pid_dmode\",\"name\":\"mcbt pid dmode\",\"command_topic\":\"~/set\",\"state_topic\":\"~/state\",\"options\":[\"dOnError\",\"dOnMeas\"],\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), max_payload);
+            DT_mqtt_send(topic, payload);
 
-        options = doc.createNestedArray("options");
-        options.add("pOnError");
-        options.add("pOnMeas");
-        options.add("pOnErrorMeas");
+#endif // VANNES
+            break;
 
-        doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
+        case 42:
+#ifdef VANNES
+            // PID MCBT dMode
+            strlcpy_P(topic, PSTR("homeassistant/select/" BOARD_IDENTIFIER "/mcbt-pid-iawmode/config"), max_topic);
+            strlcpy_P(payload, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/mcbt/pid_iawmode\",\"uniq_id\":\"" BOARD_IDENTIFIER "-mcbt-pid_iawmode\",\"name\":\"mcbt pid iawmode\",\"command_topic\":\"~/set\",\"state_topic\":\"~/state\",\"options\":[\"iAwCondition\",\"iAwClamp\",\"iAwOff\"],\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), max_payload);
+            DT_mqtt_send(topic, payload);
 
-        serializeJson(doc, buffer_value, sizeof(buffer_value));
-        strlcpy_P(buffer, PSTR("homeassistant/select/" BOARD_IDENTIFIER "/mcbt-pid-pmode/config"), BUFFER_SIZE);
-        DT_mqtt_send(buffer, buffer_value);
+#endif // VANNES
+            break;
 
-        // PID PCBT dMode
-        wdt_reset(); // clear watchdog
-        doc.clear();
-        doc["~"] = F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/pid_dmode");
-        doc["uniq_id"] = F(BOARD_IDENTIFIER "-mcbt-pid_dmode");
-        doc["name"] = F("mcbt pid dmode");
-        doc["command_topic"] = F("~/set");
-        doc["state_topic"] = F("~/state");
+        case 43:
+#ifdef VANNES
+            // PID PCBT 
+            strlcpy_P(topic, PSTR("homeassistant/sensor/" BOARD_IDENTIFIER "/pcbt-pid-p/config"), max_topic);
+            strlcpy_P(payload, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/pcbt\",\"uniq_id\":\"" BOARD_IDENTIFIER "-pcbt-P\",\"name\":\"PCBT P\",\"stat_t\":\"~/P\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), max_payload);
+            DT_mqtt_send(topic, payload);
 
-        options = doc.createNestedArray("options");
-        options.add("dOnError");
-        options.add("dOnMeas");
+#endif // VANNES
+            break;
 
-        doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
+        case 44:
+#ifdef VANNES
+            // PID PCBT I
+            strlcpy_P(topic, PSTR("homeassistant/sensor/" BOARD_IDENTIFIER "/pcbt-pid-i/config"), max_topic);
+            strlcpy_P(payload, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/pcbt\",\"uniq_id\":\"" BOARD_IDENTIFIER "-pcbt-I\",\"name\":\"PCBT I\",\"stat_t\":\"~/I\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), max_payload);
+            DT_mqtt_send(topic, payload);
 
-        serializeJson(doc, buffer_value, sizeof(buffer_value));
-        strlcpy_P(buffer, PSTR("homeassistant/select/" BOARD_IDENTIFIER "/mcbt-pid-dmode/config"), BUFFER_SIZE);
-        DT_mqtt_send(buffer, buffer_value);
+#endif // VANNES
+            break;
 
-        // PID MCBT dMode
-        wdt_reset(); // clear watchdog
-        doc.clear();
-        doc["~"] = F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/pid_iawmode");
-        doc["uniq_id"] = F(BOARD_IDENTIFIER "-mcbt-pid_iawmode");
-        doc["name"] = F("mcbt pid iawmode");
-        doc["command_topic"] = F("~/set");
-        doc["state_topic"] = F("~/state");
+        case 45:
+#ifdef VANNES
+            // PID PCBT D
+            strlcpy_P(topic, PSTR("homeassistant/sensor/" BOARD_IDENTIFIER "/pcbt-pid-d/config"), max_topic);
+            strlcpy_P(payload, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/pcbt\",\"uniq_id\":\"" BOARD_IDENTIFIER "-pcbt-D\",\"name\":\"PCBT D\",\"stat_t\":\"~/D\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), max_payload);
+            DT_mqtt_send(topic, payload);
 
-        options = doc.createNestedArray("options");
-        options.add("iAwCondition");
-        options.add("iAwClamp");
-        options.add("iAwOff");
+#endif // VANNES
+            break;
 
-        doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
+        case 46:
+#ifdef VANNES
+            // PID PCBT OUT
+            strlcpy_P(topic, PSTR("homeassistant/sensor/" BOARD_IDENTIFIER "/pcbt-pid-out/config"), max_topic);
+            strlcpy_P(payload, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/pcbt\",\"uniq_id\":\"" BOARD_IDENTIFIER "-pcbt-out\",\"name\":\"PCBT out\",\"stat_t\":\"~/OUT\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), max_payload);
+            DT_mqtt_send(topic, payload);
 
-        serializeJson(doc, buffer_value, sizeof(buffer_value));
-        strlcpy_P(buffer, PSTR("homeassistant/select/" BOARD_IDENTIFIER "/mcbt-pid-iawmode/config"), BUFFER_SIZE);
-        DT_mqtt_send(buffer, buffer_value);
+#endif // VANNES
+            break;
 
-        // PID PCBT P
-        wdt_reset();
-        doc.clear();
-        doc["~"] = F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt");
-        doc["uniq_id"] = F(BOARD_IDENTIFIER "-pcbt-P");
-        doc["name"] = F("PCBT P");
-        doc["stat_t"] = F("~/P");
-        // doc["dev_cla"] = F("temperature");
-        // doc["unit_of_meas"] = F("°C");
-        doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
-        serializeJson(doc, buffer_value, sizeof(buffer_value));
-        // Serial.println(buffer_value);
-        strlcpy_P(buffer, PSTR("homeassistant/sensor/" BOARD_IDENTIFIER "/pcbt-pid-p/config"), BUFFER_SIZE);
-        DT_mqtt_send(buffer, buffer_value);
+        case 47:
+#ifdef VANNES
+            // PID MCBT P
+            strlcpy_P(topic, PSTR("homeassistant/sensor/" BOARD_IDENTIFIER "/mcbt-pid-p/config"), max_topic);
+            strlcpy_P(payload, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/mcbt\",\"uniq_id\":\"" BOARD_IDENTIFIER "-mcbt-P\",\"name\":\"MCBT P\",\"stat_t\":\"~/P\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), max_payload);
+            DT_mqtt_send(topic, payload);
 
-        // PID PCBT I
-        wdt_reset();
-        doc.clear();
-        doc["~"] = F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt");
-        doc["uniq_id"] = F(BOARD_IDENTIFIER "-pcbt-I");
-        doc["name"] = F("PCBT I");
-        doc["stat_t"] = F("~/I");
-        // doc["dev_cla"] = F("temperature");
-        // doc["unit_of_meas"] = F("°C");
-        doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
-        serializeJson(doc, buffer_value, sizeof(buffer_value));
-        // Serial.println(buffer_value);
-        strlcpy_P(buffer, PSTR("homeassistant/sensor/" BOARD_IDENTIFIER "/pcbt-pid-i/config"), BUFFER_SIZE);
-        DT_mqtt_send(buffer, buffer_value);
+#endif // VANNES
+            break;
 
-        // PID PCBT D
-        wdt_reset();
-        doc.clear();
-        doc["~"] = F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt");
-        doc["uniq_id"] = F(BOARD_IDENTIFIER "-pcbt-D");
-        doc["name"] = F("PCBT D");
-        doc["stat_t"] = F("~/D");
-        // doc["dev_cla"] = F("temperature");
-        // doc["unit_of_meas"] = F("°C");
-        doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
-        serializeJson(doc, buffer_value, sizeof(buffer_value));
-        // Serial.println(buffer_value);
-        strlcpy_P(buffer, PSTR("homeassistant/sensor/" BOARD_IDENTIFIER "/pcbt-pid-d/config"), BUFFER_SIZE);
-        DT_mqtt_send(buffer, buffer_value);
+        case 48:
+#ifdef VANNES
+            // PID MCBT I
+            strlcpy_P(topic, PSTR("homeassistant/sensor/" BOARD_IDENTIFIER "/mcbt-pid-i/config"), max_topic);
+            strlcpy_P(payload, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/mcbt\",\"uniq_id\":\"" BOARD_IDENTIFIER "-mcbt-I\",\"name\":\"MCBT I\",\"stat_t\":\"~/I\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), max_payload);
+            DT_mqtt_send(topic, payload);
 
-        // PID PCBT OUT
-        wdt_reset();
-        doc.clear();
-        doc["~"] = F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt");
-        doc["uniq_id"] = F(BOARD_IDENTIFIER "-pcbt-out");
-        doc["name"] = F("PCBT out");
-        doc["stat_t"] = F("~/OUT");
-        // doc["dev_cla"] = F("temperature");
-        // doc["unit_of_meas"] = F("°C");
-        doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
-        serializeJson(doc, buffer_value, sizeof(buffer_value));
-        // Serial.println(buffer_value);
-        strlcpy_P(buffer, PSTR("homeassistant/sensor/" BOARD_IDENTIFIER "/pcbt-pid-out/config"), BUFFER_SIZE);
-        DT_mqtt_send(buffer, buffer_value);
+#endif // VANNES
+            break;
 
-        // PID MCBT P
-        wdt_reset();
-        doc.clear();
-        doc["~"] = F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt");
-        doc["uniq_id"] = F(BOARD_IDENTIFIER "-mcbt-P");
-        doc["name"] = F("MCBT P");
-        doc["stat_t"] = F("~/P");
-        // doc["dev_cla"] = F("temperature");
-        // doc["unit_of_meas"] = F("°C");
-        doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
-        serializeJson(doc, buffer_value, sizeof(buffer_value));
-        // Serial.println(buffer_value);
-        strlcpy_P(buffer, PSTR("homeassistant/sensor/" BOARD_IDENTIFIER "/mcbt-pid-p/config"), BUFFER_SIZE);
-        DT_mqtt_send(buffer, buffer_value);
+        case 49:
+#ifdef VANNES
+            // PID MCBT D
+            strlcpy_P(topic, PSTR("homeassistant/sensor/" BOARD_IDENTIFIER "/mcbt-pid-d/config"), max_topic);
+            strlcpy_P(payload, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/mcbt\",\"uniq_id\":\"" BOARD_IDENTIFIER "-mcbt-D\",\"name\":\"MCBT D\",\"stat_t\":\"~/D\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), max_payload);
+            DT_mqtt_send(topic, payload);
 
-        // PID MCBT I
-        wdt_reset();
-        doc.clear();
-        doc["~"] = F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt");
-        doc["uniq_id"] = F(BOARD_IDENTIFIER "-mcbt-I");
-        doc["name"] = F("MCBT I");
-        doc["stat_t"] = F("~/I");
-        // doc["dev_cla"] = F("temperature");
-        // doc["unit_of_meas"] = F("°C");
-        doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
-        serializeJson(doc, buffer_value, sizeof(buffer_value));
-        // Serial.println(buffer_value);
-        strlcpy_P(buffer, PSTR("homeassistant/sensor/" BOARD_IDENTIFIER "/mcbt-pid-i/config"), BUFFER_SIZE);
-        DT_mqtt_send(buffer, buffer_value);
+#endif // VANNES
+            break;
 
-        // PID MCBT D
-        wdt_reset();
-        doc.clear();
-        doc["~"] = F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt");
-        doc["uniq_id"] = F(BOARD_IDENTIFIER "-mcbt-D");
-        doc["name"] = F("MCBT D");
-        doc["stat_t"] = F("~/D");
-        // doc["dev_cla"] = F("temperature");
-        // doc["unit_of_meas"] = F("°C");
-        doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
-        serializeJson(doc, buffer_value, sizeof(buffer_value));
-        // Serial.println(buffer_value);
-        strlcpy_P(buffer, PSTR("homeassistant/sensor/" BOARD_IDENTIFIER "/mcbt-pid-d/config"), BUFFER_SIZE);
-        DT_mqtt_send(buffer, buffer_value);
+        case 50:
+#ifdef VANNES
+            // PID MCBT OUT
+            strlcpy_P(topic, PSTR("homeassistant/sensor/" BOARD_IDENTIFIER "/mcbt-pid-out/config"), max_topic);
+            strlcpy_P(payload, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/mcbt\",\"uniq_id\":\"" BOARD_IDENTIFIER "-mcbt-out\",\"name\":\"MCBT out\",\"stat_t\":\"~/OUT\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), max_payload);
+            DT_mqtt_send(topic, payload);
 
-        // PID MCBT OUT
-        wdt_reset();
-        doc.clear();
-        doc["~"] = F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt");
-        doc["uniq_id"] = F(BOARD_IDENTIFIER "-mcbt-out");
-        doc["name"] = F("MCBT out");
-        doc["stat_t"] = F("~/OUT");
-        // doc["dev_cla"] = F("temperature");
-        // doc["unit_of_meas"] = F("°C");
-        doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
-        serializeJson(doc, buffer_value, sizeof(buffer_value));
-        // Serial.println(buffer_value);
-        strlcpy_P(buffer, PSTR("homeassistant/sensor/" BOARD_IDENTIFIER "/mcbt-pid-out/config"), BUFFER_SIZE);
-        DT_mqtt_send(buffer, buffer_value);
 #endif // VANNES2
-        break;
-    case 15:
-#ifdef VANNES2
-        // RATIO PCBT
-        wdt_reset();
-        doc.clear();
-        doc["~"] = F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/ratio");
-        doc["uniq_id"] = F(BOARD_IDENTIFIER "-ratio-pcbt");
-        doc["name"] = F("Ratio PCBT");
-        doc["stat_t"] = F("~/state");
-        doc["command_topic"] = F("~/set");
-        doc["min"] = 0;
-        doc["max"] = 10;
-        doc["step"] = 0.01;
-        // doc["dev_cla"] = F("temperature");
-        // doc["unit_of_meas"] = F("°C");
-        doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
-        serializeJson(doc, buffer_value, sizeof(buffer_value));
-        // Serial.println(buffer_value);
-        strlcpy_P(buffer, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/ratio-pcbt/config"), BUFFER_SIZE);
-        DT_mqtt_send(buffer, buffer_value);
+            break;
+        case 51:
+#ifdef VANNES
+            // RATIO PCBT
+            strlcpy_P(topic, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/ratio-pcbt/config"), max_topic);
+            strlcpy_P(payload, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/pcbt/ratio\",\"uniq_id\":\"" BOARD_IDENTIFIER "-ratio-pcbt\",\"name\":\"Ratio PCBT\",\"stat_t\":\"~/state\",\"command_topic\":\"~/set\",\"min\":0,\"max\":10,\"step\":0.01,\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), max_payload);
+            DT_mqtt_send(topic, payload);
 
-        // RATIO MCBT
-        wdt_reset();
-        doc.clear();
-        doc["~"] = F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/ratio");
-        doc["uniq_id"] = F(BOARD_IDENTIFIER "-ratio-mcbt");
-        doc["name"] = F("Ratio MCBT");
-        doc["stat_t"] = F("~/state");
-        doc["command_topic"] = F("~/set");
-        doc["min"] = 0;
-        doc["max"] = 10;
-        doc["step"] = 0.01;
-        // doc["dev_cla"] = F("temperature");
-        // doc["unit_of_meas"] = F("°C");
-        doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
-        serializeJson(doc, buffer_value, sizeof(buffer_value));
-        // Serial.println(buffer_value);
-        strlcpy_P(buffer, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/ratio-mcbt/config"), BUFFER_SIZE);
-        DT_mqtt_send(buffer, buffer_value);
+#endif // VANNES
+            break;
 
-        // Offset PCBT OUT
-        wdt_reset();
-        doc.clear();
-        doc["~"] = F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/offset-out");
-        doc["uniq_id"] = F(BOARD_IDENTIFIER "-offset-pcbt-out");
-        doc["name"] = F("Decalage Sortie PCBT");
-        doc["stat_t"] = F("~/state");
-        doc["command_topic"] = F("~/set");
-        doc["min"] = -32768;
-        doc["max"] = 32767;
-        // doc["dev_cla"] = F("temperature");
-        // doc["unit_of_meas"] = F("°C");
-        doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
-        serializeJson(doc, buffer_value, sizeof(buffer_value));
-        // Serial.println(buffer_value);
-        strlcpy_P(buffer, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/offset-pcbt-out/config"), BUFFER_SIZE);
-        DT_mqtt_send(buffer, buffer_value);
+        case 52:
+#ifdef VANNES
+            // RATIO MCBT
+            strlcpy_P(topic, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/ratio-mcbt/config"), max_topic);
+            strlcpy_P(payload, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/mcbt/ratio\",\"uniq_id\":\"" BOARD_IDENTIFIER "-ratio-mcbt\",\"name\":\"Ratio MCBT\",\"stat_t\":\"~/state\",\"command_topic\":\"~/set\",\"min\":0,\"max\":10,\"step\":0.01,\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), max_payload);
+            DT_mqtt_send(topic, payload);
 
-        // Offset MCBT OUT
-        wdt_reset();
-        doc.clear();
-        doc["~"] = F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/offset-out");
-        doc["uniq_id"] = F(BOARD_IDENTIFIER "-offset-mcbt-out");
-        doc["name"] = F("Decalage Sortie MCBT");
-        doc["stat_t"] = F("~/state");
-        doc["command_topic"] = F("~/set");
-        doc["min"] = 0;
-        doc["max"] = 65534;
-        // doc["dev_cla"] = F("temperature");
-        // doc["unit_of_meas"] = F("°C");
-        doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
-        serializeJson(doc, buffer_value, sizeof(buffer_value));
-        // Serial.println(buffer_value);
-        strlcpy_P(buffer, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/offset-mcbt-out/config"), BUFFER_SIZE);
-        DT_mqtt_send(buffer, buffer_value);
+#endif // VANNES
+            break;
 
-        // Offset PCBT IN
-        wdt_reset();
-        doc.clear();
-        doc["~"] = F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/offset-in");
-        doc["uniq_id"] = F(BOARD_IDENTIFIER "-offset-pcbt-in");
-        doc["name"] = F("Decalage consigne PCBT");
-        doc["stat_t"] = F("~/state");
-        doc["command_topic"] = F("~/set");
-        doc["min"] = -100;
-        doc["max"] = 100;
-        doc["step"] = 0.01;
-        doc["dev_cla"] = F("temperature");
-        doc["unit_of_meas"] = F("°C");
-        doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
-        serializeJson(doc, buffer_value, sizeof(buffer_value));
-        // Serial.println(buffer_value);
-        strlcpy_P(buffer, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/offset-pcbt-in/config"), BUFFER_SIZE);
-        DT_mqtt_send(buffer, buffer_value);
+        case 53:
+#ifdef VANNES
+            // Offset PCBT OUT
+            strlcpy_P(topic, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/offset-pcbt-out/config"), max_topic);
+            strlcpy_P(payload, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/pcbt/offset-out\",\"uniq_id\":\"" BOARD_IDENTIFIER "-offset-pcbt-out\",\"name\":\"Decalage Sortie PCBT\",\"stat_t\":\"~/state\",\"command_topic\":\"~/set\",\"min\":-32768,\"max\":32767,\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), max_payload);
+            DT_mqtt_send(topic, payload);
 
-        // Offset MCBT IN
-        wdt_reset();
-        doc.clear();
-        doc["~"] = F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/offset-in");
-        doc["uniq_id"] = F(BOARD_IDENTIFIER "-offset-mcbt-in");
-        doc["name"] = F("Decalage consigne MCBT");
-        doc["stat_t"] = F("~/state");
-        doc["command_topic"] = F("~/set");
-        doc["min"] = -100;
-        doc["max"] = 100;
-        doc["step"] = 0.01;
-        doc["dev_cla"] = F("temperature");
-        doc["unit_of_meas"] = F("°C");
-        doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
-        serializeJson(doc, buffer_value, sizeof(buffer_value));
-        // Serial.println(buffer_value);
-        strlcpy_P(buffer, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/offset-mcbt-in/config"), BUFFER_SIZE);
-        DT_mqtt_send(buffer, buffer_value);
+#endif // VANNES
+            break;
+
+        case 54:
+#ifdef VANNES
+            // Offset MCBT OUT
+            strlcpy_P(topic, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/offset-mcbt-out/config"), max_topic);
+            strlcpy_P(payload, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/mcbt/offset-out\",\"uniq_id\":\"" BOARD_IDENTIFIER "-offset-mcbt-out\",\"name\":\"Decalage Sortie MCBT\",\"stat_t\":\"~/state\",\"command_topic\":\"~/set\",\"min\":0,\"max\":65534,\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), max_payload);
+            DT_mqtt_send(topic, payload);
+
+#endif // VANNES
+            break;
+
+        case 55:
+#ifdef VANNES
+            // Offset PCBT IN
+            strlcpy_P(topic, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/offset-pcbt-in/config"), max_topic);
+            strlcpy_P(payload, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/pcbt/offset-in\",\"uniq_id\":\"" BOARD_IDENTIFIER "-offset-pcbt-in\",\"name\":\"Decalage consigne PCBT\",\"stat_t\":\"~/state\",\"command_topic\":\"~/set\",\"min\":-100,\"max\":100,\"step\":0.01,\"dev_cla\":\"temperature\",\"unit_of_meas\":\"°C\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), max_payload);
+            DT_mqtt_send(topic, payload);
+
+#endif // VANNES
+            break;
+
+        case 56:
+#ifdef VANNES
+            // Offset MCBT IN
+            strlcpy_P(topic, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/offset-mcbt-in/config"), max_topic);
+            strlcpy_P(payload, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/mcbt/offset-in\",\"uniq_id\":\"" BOARD_IDENTIFIER "-offset-mcbt-in\",\"name\":\"Decalage consigne MCBT\",\"stat_t\":\"~/state\",\"command_topic\":\"~/set\",\"min\":-100,\"max\":100,\"step\":0.01,\"dev_cla\":\"temperature\",\"unit_of_meas\":\"°C\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), max_payload);
+            DT_mqtt_send(topic, payload);
+            
 #endif // VANNE
-        break;
-    case 16:
+            break;
+        case 57:
 
-        // V2
-        wdt_reset();
-        doc.clear();
-        doc["~"] = F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/V2");
-        doc["uniq_id"] = F(BOARD_IDENTIFIER "-V2");
-        doc["name"] = F("Reserve chaleur Ballon (V2)");
-        doc["stat_t"] = F("~/state");
-        doc["command_topic"] = F("~/set");
-        doc["dev_cla"] = F("temperature");
-        doc["unit_of_meas"] = F("°C");
-        doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
+            // V2
+            strlcpy_P(topic, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/V2/config"), max_topic);
+            strlcpy_P(payload, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/V2\",\"uniq_id\":\"" BOARD_IDENTIFIER "-V2\",\"name\":\"Reserve chaleur Ballon (V2)\",\"stat_t\":\"~/state\",\"command_topic\":\"~/set\",\"dev_cla\":\"temperature\",\"unit_of_meas\":\"°C\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), max_payload);
+            DT_mqtt_send(topic, payload);
 
-        serializeJson(doc, buffer_value, sizeof(buffer_value));
-        // Serial.println(buffer_value);
-        strlcpy_P(buffer, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/V2/config"), BUFFER_SIZE);
-        DT_mqtt_send(buffer, buffer_value);
+            break;
+        case 58:
+            // V3
+            strlcpy_P(topic, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/V3/config"), max_topic);
+            strlcpy_P(payload, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/V3\",\"uniq_id\":\"" BOARD_IDENTIFIER "-V3\",\"name\":\"Temp Demi plage Morte (V3)\",\"stat_t\":\"~/state\",\"command_topic\":\"~/set\",\"min\":0,\"max\":100,\"step\":0.01,\"dev_cla\":\"temperature\",\"unit_of_meas\":\"°C\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), max_payload);
+            DT_mqtt_send(topic, payload);
 
-        // V3
-        wdt_reset();
-        doc.clear();
-        doc["~"] = F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/V3");
-        doc["uniq_id"] = F(BOARD_IDENTIFIER "-V3");
-        doc["name"] = F("Temp Demi plage Morte (V3)");
-        doc["stat_t"] = F("~/state");
-        doc["command_topic"] = F("~/set");
-        doc["min"] = 0;
-        doc["max"] = 100;
-        doc["step"] = 0.01;
-        doc["dev_cla"] = F("temperature");
-        doc["unit_of_meas"] = F("°C");
-        doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
+            break;
+        case 59:
+            // load 1s
+            strlcpy_P(topic, PSTR("homeassistant/sensor/" BOARD_IDENTIFIER "/load_1s/config"), max_topic);
+            strlcpy_P(payload, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "\",\"uniq_id\":\"" BOARD_IDENTIFIER "-load_1s\",\"name\":\"Load 1s\",\"stat_t\":\"~/load_1s\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), max_payload);
+            DT_mqtt_send(topic, payload);
 
-        serializeJson(doc, buffer_value, sizeof(buffer_value));
-        // Serial.println(buffer_value);
-        strlcpy_P(buffer, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/V3/config"), BUFFER_SIZE);
-        DT_mqtt_send(buffer, buffer_value);
+            break;
+        case 60:
+            // load 1m
+            strlcpy_P(topic, PSTR("homeassistant/sensor/" BOARD_IDENTIFIER "/load_1m/config"), max_topic);
+            strlcpy_P(payload, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "\",\"uniq_id\":\"" BOARD_IDENTIFIER "-load_1m\",\"name\":\"Load 1m\",\"stat_t\":\"~/load_1m\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), max_payload);
+            DT_mqtt_send(topic, payload);
 
-        // load 1s
-        wdt_reset();
-        doc.clear();
-        doc["~"] = F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER);
-        doc["uniq_id"] = F(BOARD_IDENTIFIER "-load_1s");
-        doc["name"] = F("Load 1s");
-        doc["stat_t"] = F("~/load_1s");
-        // doc["dev_cla"] = F("temperature");
-        // doc["unit_of_meas"] = F("°C");
-        doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
-        serializeJson(doc, buffer_value, sizeof(buffer_value));
-        // Serial.println(buffer_value);
-        strlcpy_P(buffer, PSTR("homeassistant/sensor/" BOARD_IDENTIFIER "/load_1s/config"), BUFFER_SIZE);
-        DT_mqtt_send(buffer, buffer_value);
-
-        // load 1m
-        wdt_reset();
-        doc.clear();
-        doc["~"] = F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER);
-        doc["uniq_id"] = F(BOARD_IDENTIFIER "-load_1m");
-        doc["name"] = F("Load 1m");
-        doc["stat_t"] = F("~/load_1m");
-        // doc["dev_cla"] = F("temperature");
-        // doc["unit_of_meas"] = F("°C");
-        doc["dev"]["ids"] = F(BOARD_IDENTIFIER); // identifiers
-        serializeJson(doc, buffer_value, sizeof(buffer_value));
-        // Serial.println(buffer_value);
-        strlcpy_P(buffer, PSTR("homeassistant/sensor/" BOARD_IDENTIFIER "/load_1m/config"), BUFFER_SIZE);
-        DT_mqtt_send(buffer, buffer_value);
-
-        break;
-
-    default:
-        return;
-        break;
+            break;
+        default:
+            return true;
+            break;
+        }
+        memory();
+        sequance += 1;
+        Serial.print(F("len topic = "));
+        Serial.print(strlen(topic));
+        Serial.print(F(" payload = "));
+        Serial.println(strlen(payload));
+        if (strlen(topic) > max_len_topic)
+        {
+            max_len_topic = strlen(topic);
+            Serial.print(F("max len topic = "));
+            Serial.println(max_len_topic);
+        }
+        if (strlen(payload) > max_len_payload)
+        {
+            max_len_payload = strlen(payload);
+            Serial.print(F("max len payload = "));
+            Serial.println(max_len_payload);
+        }
+        memory();
     }
-    sequance += 1;
 
-    // Serial.print(F(" = "));
-    // Serial.println(millis() - now);
-#endif
+    return false;
 }
+
+#endif // MQTT

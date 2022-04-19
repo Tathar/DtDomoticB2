@@ -66,20 +66,18 @@ bool DT_mqtt_send(const char *tag, const float value)
     Serial.print(F("DT_mqtt_send "));
     Serial.print(tag);
     Serial.print(F(" -> "));
-    Serial.print(value);
-    Serial.print(F(" = "));
-    Serial.println(buffer);
+    Serial.println(value);
     if (mqtt.connected())
     {
-        debug(AT);
+        // debug(AT);
         char buffer[32];
         dtostrf(value, 1, 2, buffer);
         memory();
         // Serial.println(buffer);
-        debug(AT);
+        // debug(AT);
         bool ret = mqtt.publish(tag, buffer, strlen(buffer));
         memory();
-        debug(AT);
+        // debug(AT);
         return ret;
     }
     else
@@ -97,11 +95,14 @@ bool DT_mqtt_send(const char *tag, const unsigned int value)
     Serial.println(value);
     if (mqtt.connected())
     {
+        // debug(AT);
         char buffer[32];
-        sprintf(buffer, PSTR("%u"), value);
+        sprintf(buffer, "%u", value);
         memory();
+        // debug(AT);
         bool ret = mqtt.publish(tag, buffer, strlen(buffer));
         memory();
+        // debug(AT);
         return ret;
     }
     else
@@ -119,11 +120,14 @@ bool DT_mqtt_send(const char *tag, const int value)
     Serial.println(value);
     if (mqtt.connected())
     {
+        // debug(AT);
         char buffer[32];
-        sprintf(buffer, PSTR("%i"), value);
+        sprintf(buffer, "%i", value);
         memory();
+        // debug(AT);
         bool ret = mqtt.publish(tag, buffer, strlen(buffer));
         memory();
+        // debug(AT);
         return ret;
     }
     else
@@ -135,17 +139,20 @@ bool DT_mqtt_send(const char *tag, const int value)
 
 bool DT_mqtt_send(const char *tag, const uint32_t value)
 {
-        Serial.print(F("DT_mqtt_send "));
-        Serial.print(tag);
-        Serial.print(F(" -> "));
-        Serial.println(value);
+    Serial.print(F("DT_mqtt_send "));
+    Serial.print(tag);
+    Serial.print(F(" -> "));
+    Serial.println(value);
     if (mqtt.connected())
     {
+        // debug(AT);
         char buffer[32];
         sprintf(buffer, "%" PRIu32, value);
         memory();
+        // debug(AT);
         bool ret = mqtt.publish(tag, buffer, strlen(buffer));
         memory();
+        // debug(AT);
         return ret;
     }
     else
@@ -157,13 +164,12 @@ bool DT_mqtt_send(const char *tag, const uint32_t value)
 
 bool DT_mqtt_send(const char *tag, const char *value)
 {
-        Serial.print(F("DT_mqtt_send "));
-        Serial.print(tag);
-        Serial.print(F(" -> "));
-        Serial.println(value);
+    Serial.print(F("DT_mqtt_send "));
+    Serial.print(tag);
+    Serial.print(F(" -> "));
+    Serial.println(value);
     if (mqtt.connected())
     {
-        Serial.println(value);
         memory();
         bool ret = mqtt.publish(tag, value, strlen(value));
         memory();
@@ -173,7 +179,7 @@ bool DT_mqtt_send(const char *tag, const char *value)
     {
         mem_config.MQTT_online = false;
     }
-    debug(AT);
+    // debug(AT);
     return false;
 }
 
@@ -292,6 +298,7 @@ void DT_mqtt_loop()
     static uint32_t last_reconnection_time = 0;
     static uint32_t reset_time = 0; // for reset network device
     static bool reset = false;      // for reset network device
+    static bool ret_homeassistant = false;
     // static bool old_link_status = false; // for reset network device
     uint32_t now = millis();
     // Serial.println("DT_mqtt_loop start");
@@ -433,7 +440,15 @@ void DT_mqtt_loop()
         }
         // Serial.println(F("loop2"));
         static uint32_t time = 0;
-        homeassistant(false);
+        if (ret_homeassistant == false)
+        {
+            while (mqtt.connected() && ret_homeassistant == false)
+            {
+                ret_homeassistant = homeassistant(false);
+                mqtt.loop();
+            }
+        }
+
         if (now - time >= MQTT_UPDATE)
         {
             if (!mem_config.MQTT_online)
