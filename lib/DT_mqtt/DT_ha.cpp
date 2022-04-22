@@ -12,15 +12,15 @@ bool homeassistant(bool start)
 
     uint32_t now = millis();
     static uint32_t time = 0;
-    static uint8_t sequance = 254;
+    static uint8_t sequance = 253;
     static uint16_t max_len_topic = 0;
     static uint16_t max_len_payload = 0;
     static uint8_t num = 0;
     char topic[max_topic];
     char payload[max_payload];
-    memory();
+    memory(true);
 
-    wdt_reset();
+    // debug_wdt_reset();
     if (start)
     {
         debug(AT);
@@ -30,7 +30,7 @@ bool homeassistant(bool start)
     else if (sequance == 0)
         Serial.println(F("homeassistant"));
 
-    if (now - time >= 50 && mem_config.MQTT_online)
+    if (now - time >= 50)
     {
         time = now;
         switch (sequance)
@@ -164,7 +164,6 @@ bool homeassistant(bool start)
 #ifdef POELE
             // Poele mode
             strlcpy_P(topic, PSTR("homeassistant/select/" BOARD_IDENTIFIER "/poele-mode/config"), max_topic);
-
             strlcpy_P(payload, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/pcbt/mode\",\"uniq_id\":\"" BOARD_IDENTIFIER "-pcbt-mode\",\"name\":\"mode pcbt\",\"command_topic\":\"~/set\",\"state_topic\":\"~/state\",\"options\":[\"Demmarage\",\"Normal\",\"Manuel\",\"Arret\"],\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), max_payload);
             DT_mqtt_send(topic, payload);
 #endif // POELE
@@ -223,7 +222,6 @@ bool homeassistant(bool start)
             // 3 voies PCBT mode
             strlcpy_P(topic, PSTR("homeassistant/select/" BOARD_IDENTIFIER "/pcbt-mode/config"), max_topic);
             strlcpy_P(payload, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/pcbt/mode\",\"uniq_id\":\"" BOARD_IDENTIFIER "-pcbt-mode\",\"name\":\"mode pcbt\",\"command_topic\":\"~/set\",\"state_topic\":\"~/state\",\"options\":[\"Demmarage\",\"Normal\",\"Manuel\",\"Arret\"],\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), max_payload);
-
             DT_mqtt_send(topic, payload);
 
 #endif // VANNES
@@ -667,8 +665,10 @@ bool homeassistant(bool start)
             return true;
             break;
         }
-        memory();
+        memory(false);
         sequance += 1;
+        Serial.print(F("sequance = "));
+        Serial.println(sequance - 1);
         Serial.print(F("len topic = "));
         Serial.print(strlen(topic));
         Serial.print(F(" payload = "));
@@ -685,7 +685,7 @@ bool homeassistant(bool start)
             Serial.print(F("max len payload = "));
             Serial.println(max_len_payload);
         }
-        memory();
+        memory(false);
     }
 
     return false;

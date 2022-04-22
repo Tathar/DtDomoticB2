@@ -41,20 +41,20 @@ void _fake_ntc_set(uint8_t value)
         uint8_t r1 = pgm_read_byte(NTC_R1 + fake_ntc_value);
         uint8_t r2 = pgm_read_byte(NTC_R2 + fake_ntc_value);
         digitalWrite(FAKE_NTC_CS, LOW);
-        wdt_reset();
+        debug_wdt_reset();
         delay(10);
         SPI.transfer(FAKE_NTC_R1_ADDRESS);
         SPI.transfer(r1);
         digitalWrite(FAKE_NTC_CS, HIGH);
-        wdt_reset();
+        debug_wdt_reset();
         delay(10);
         digitalWrite(FAKE_NTC_CS, LOW);
-        wdt_reset();
+        debug_wdt_reset();
         delay(10);
         SPI.transfer(FAKE_NTC_R2_ADDRESS);
         SPI.transfer(r2);
         digitalWrite(FAKE_NTC_CS, HIGH);
-        wdt_reset();
+        debug_wdt_reset();
         delay(10);
 
         

@@ -20,8 +20,11 @@ while True:
             filename = get_filename()
 
         with open(filename,"a") as f:
-            writer = csv.writer(f,delimiter=",")
-            writer.writerow([time.strftime("%y-%m-%d-%H:%M:%S"),decoded_bytes])
+            # writer = csv.writer(f,delimiter=",")
+            # writer.writerow([time.strftime("%y-%m-%d-%H:%M:%S"),decoded_bytes])
+
+            f.write("{},{}\n".format(time.strftime("%y-%m-%d-%H:%M:%S"),decoded_bytes))
+
     except KeyboardInterrupt:
        print("Keyboard Interrupt")
        break

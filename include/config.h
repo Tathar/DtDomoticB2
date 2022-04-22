@@ -9,7 +9,8 @@
 #define AT __FILE__ ":" TOSTRING(__LINE__)
 
 void debug(const char *var);
-void memory(void);
+void memory(bool print);
+void debug_wdt_reset();
 
 #define SAVE_EEPROM 600000 // sauvegarde des données dans l eeprom toute les x ms
 #define MQTT_REFRESH 10000 // temp de rafrechissement du MQTT
