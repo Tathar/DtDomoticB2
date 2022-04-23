@@ -1,7 +1,11 @@
 #pragma once
 #include <Arduino.h>
 
-#include <DT_ha.h>
+#include <stdint.h>
+#include <stddef.h>
+// #include <DT_ha.h>
+
+struct MQTT_data;
 
 class DT_buffer
 {
@@ -24,13 +28,16 @@ class DT_buffer
 	DT_buffer& operator=(DT_buffer&&) = delete;
 
 
-    void append(MQTT_BUFF &data);
-    MQTT_BUFF get();
+    void append(MQTT_data &data);
+    MQTT_data get();
 
-    uint16_t size() const
+    uint8_t size() const
     {
         return(buffer_len);
     };
+
+    uint8_t avalible() const;
+    uint8_t usage() const;
 
 
     void reseve(uint8_t);
@@ -38,9 +45,10 @@ class DT_buffer
     void clear();
 
     private:
+    // void DT_buffer::cls_debug();
 
-    MQTT_BUFF* buffer;
-    MQTT_BUFF* tail;
-    MQTT_BUFF* head;
-    uint16_t buffer_len;
+    MQTT_data* buffer;
+    MQTT_data* tail;
+    MQTT_data* head;
+    uint8_t buffer_len;
 };
