@@ -16,7 +16,7 @@ DT_buffer<T>::~DT_buffer()
     {
         free(buffer);
         buffer = nullptr;
-        buffer_len = 0;
+        buffer_len = tail = head = 0;
     }
 }
 
@@ -29,8 +29,8 @@ void DT_buffer<T>::append(T &data)
     {
         // debug(AT);
         buffer_len = 1;
-        buffer = head = tail = (T *)malloc(sizeof(T));
-        *tail = T(data);
+        buffer = (T*) malloc(sizeof(T));
+        buffer[tail] = T(data);
         ++tail;
     }
     else
@@ -38,12 +38,12 @@ void DT_buffer<T>::append(T &data)
         // debug(AT);
         reseve(1);
 
-        if (tail == buffer + buffer_len)
+        if (tail == buffer_len)
         {
-            tail = buffer;
+            tail = 0;
         }
 
-        *tail = T(data);
+        buffer[tail] = T(data);
         ++tail;
     }
     // debug(AT);
@@ -57,20 +57,20 @@ T DT_buffer<T>::get()
     {
         // debug(AT);
         // cls_debug();
-        if (head == buffer + buffer_len)
+        if (head == buffer_len)
         {
-            debug(AT);
-            head = buffer;
+            // debug(AT);
+            head = 0;
         }
 
-        ret = T(*head);
+        ret = T(buffer[head]);
         ++head;
 
         if (head == tail)
         {
             free(buffer);
-            buffer = head = tail = nullptr;
-            buffer_len = 0;
+            buffer = nullptr;
+            buffer_len = head = tail = 0;
         }
         return ret;
     }
@@ -83,8 +83,8 @@ void DT_buffer<T>::clear()
     if (buffer != nullptr)
     {
         free(buffer);
-        buffer = head = tail = nullptr;
-        buffer_len = 0;
+        buffer = nullptr;
+        buffer_len = head = tail = 0;
     }
 }
 
@@ -94,8 +94,9 @@ void DT_buffer<T>::reseve(uint8_t Size)
     if (buffer == nullptr)
     {
         // debug(AT);
-        buffer_len = 1;
-        buffer = head = tail = (T *)malloc(sizeof(T) * Size);
+        buffer_len = Size;
+        buffer = (T *)malloc(sizeof(T) * Size);
+        // head = tail = 0;
     }
     else
     {
@@ -106,17 +107,13 @@ void DT_buffer<T>::reseve(uint8_t Size)
         if (avalible() < Size)
         {
             uint8_t size = Size - avalible();
-            uint8_t head_offset = head - buffer;
-            uint8_t tail_offset = tail - buffer;
             // Serial.println(head_offset);
-            buffer = head = tail = (T *)realloc(buffer, sizeof(T) * (buffer_len + size));
-            head += head_offset;
-            tail += tail_offset;
+            buffer = (T *)realloc(buffer, sizeof(T) * (buffer_len + size));
             if (tail - head <= 0) // la tete est deriere la queud
             {
-                for (uint8_t num = 0; num < (buffer_len - head_offset); ++num)
+                for (uint8_t num = 0; num < (buffer_len - head); ++num)
                 {
-                    debug(AT);
+                    // debug(AT);
                     uint8_t from_indx = buffer_len - 1 - num;
                     uint8_t dest_index = buffer_len + size - 1 - num;
                     memcpy((void *)&buffer[dest_index], (void *)&buffer[from_indx], sizeof(T));

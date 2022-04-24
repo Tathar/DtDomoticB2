@@ -43,8 +43,8 @@ private:
     // void DT_buffer::cls_debug();
 
     T *buffer;
-    T *tail;
-    T *head;
+    uint8_t tail;
+    uint8_t head;
     uint8_t buffer_len;
 };
 
