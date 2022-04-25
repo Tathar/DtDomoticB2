@@ -4,7 +4,10 @@
 #include <SPI.h>
 #include <Ethernet.h>
 // #define MQTT_MAX_PACKET_SIZE 512
+#include <DT_buffer.h>
 #include <MQTT.h>
+
+struct MQTT_data;
 
 #include <pinout.h>
 #include <config.h>
@@ -20,5 +23,7 @@ bool DT_mqtt_send(const char *tag, const int value);
 bool DT_mqtt_send(const char *tag, const unsigned int value);
 bool DT_mqtt_send(const char *tag, const uint32_t value);
 bool DT_mqtt_send(const char *tag, const float value);
+
+extern DT_buffer<MQTT_data> send_buffer;
 
 #endif

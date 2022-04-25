@@ -2,7 +2,7 @@
 #define DT_POELE
 #include <Arduino.h>
 
-enum DT_Poele_mode
+enum __attribute__((__packed__)) DT_Poele_mode
 {
     DT_POELE_ARRET,
     DT_POELE_NORMAL,

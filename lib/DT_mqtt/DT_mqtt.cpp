@@ -1,8 +1,8 @@
 #include <DT_mqtt.h>
 
-#include <avr/wdt.h> //watchdog
 #include <DT_eeprom.h>
 #include <DT_ha.h>
+#include <DT_buffer.h>
 
 #define add0x2(s) 0x##s
 #define toHEX(s) add0x2(s)
@@ -27,8 +27,10 @@ void (*_mqtt_receve)(MQTTClient *client, const char topic[], const char bytes[],
 
 String rcv_topic;
 String rcv_payload;
-String *send_topic;
-String *send_payload;
+DT_buffer<MQTT_data> send_buffer;
+// uint8_t send_buffer_len;
+// uint8_t send_buffer_read;
+// uint8_t send_buffer_write;
 // void (*_mqtt_receve)(char *, uint8_t *, unsigned int);
 
 void DT_mqtt_set_update_callback(bool (*mqtt_update)(MQTTClient &mqtt, bool start))
@@ -71,21 +73,26 @@ void DT_receve_callback(MQTTClient *client, char topic[], char bytes[], int leng
 
 bool DT_mqtt_send(const char *topic, const float value)
 {
-    Serial.print(F("DT_mqtt_send "));
-    Serial.print(topic);
-    Serial.print(F(" -> "));
-    Serial.println(value);
+    // Serial.print(F("DT_mqtt_send "));
+    // Serial.print(topic);
+    // Serial.print(F(" -> "));
+    // Serial.println(value);
     memory(false);
-    debug(AT);
+    debug(F(AT));
+    debug_wdt_reset(F(AT));
+    ;
     if (mqtt.connected())
     {
-        debug(AT);
+        debug_wdt_reset(F(AT));
+        ;
+        // debug(AT);
         char buffer[32];
         dtostrf(value, 1, 2, buffer);
         memory(false);
-        debug_wdt_reset();
+        debug_wdt_reset(F(AT));
+        ;
         bool ret = mqtt.publish(topic, buffer, strlen(buffer));
-        debug(AT);
+        // debug(AT);
         memory(false);
         // debug(AT);
         return ret;
@@ -93,7 +100,7 @@ bool DT_mqtt_send(const char *topic, const float value)
     else
     {
         mem_config.MQTT_online = false;
-        debug(AT);
+        // debug(AT);
     }
     memory(false);
     return false;
@@ -101,29 +108,30 @@ bool DT_mqtt_send(const char *topic, const float value)
 
 bool DT_mqtt_send(const char *topic, const unsigned int value)
 {
-    Serial.print(F("DT_mqtt_send "));
-    Serial.print(topic);
-    Serial.print(F(" -> "));
-    Serial.println(value);
+    // Serial.print(F("DT_mqtt_send "));
+    // Serial.print(topic);
+    // Serial.print(F(" -> "));
+    // Serial.println(value);
     memory(false);
-    debug(AT);
+    debug(F(AT));
     if (mqtt.connected())
     {
-        debug(AT);
+        // debug(AT);
         char buffer[32];
         sprintf(buffer, "%u", value);
         memory(false);
         // debug(AT);
-        debug_wdt_reset();
+        debug_wdt_reset(F(AT));
+        ;
         bool ret = mqtt.publish(topic, buffer, strlen(buffer));
         memory(false);
-        debug(AT);
+        // debug(AT);
         return ret;
     }
     else
     {
         mem_config.MQTT_online = false;
-        debug(AT);
+        // debug(AT);
     }
     memory(false);
     return false;
@@ -131,29 +139,30 @@ bool DT_mqtt_send(const char *topic, const unsigned int value)
 
 bool DT_mqtt_send(const char *topic, const int value)
 {
-    Serial.print(F("DT_mqtt_send "));
-    Serial.print(topic);
-    Serial.print(F(" -> "));
-    Serial.println(value);
+    // Serial.print(F("DT_mqtt_send "));
+    // Serial.print(topic);
+    // Serial.print(F(" -> "));
+    // Serial.println(value);
     memory(false);
-    debug(AT);
+    debug(F(AT));
     if (mqtt.connected())
     {
-        debug(AT);
+        // debug(AT);
         char buffer[32];
         sprintf(buffer, "%i", value);
         memory(false);
         // debug(AT);
-        debug_wdt_reset();
+        debug_wdt_reset(F(AT));
+        ;
         bool ret = mqtt.publish(topic, buffer, strlen(buffer));
         memory(false);
-        debug(AT);
+        // debug(AT);
         return ret;
     }
     else
     {
         mem_config.MQTT_online = false;
-        debug(AT);
+        // debug(AT);
     }
     memory(false);
     return false;
@@ -162,29 +171,30 @@ bool DT_mqtt_send(const char *topic, const int value)
 bool DT_mqtt_send(const char *topic, const uint32_t value)
 {
     memory(false);
-    Serial.print(F("DT_mqtt_send "));
-    Serial.print(topic);
-    Serial.print(F(" -> "));
-    Serial.println(value);
-    debug(AT);
+    // Serial.print(F("DT_mqtt_send "));
+    // Serial.print(topic);
+    // Serial.print(F(" -> "));
+    // Serial.println(value);
+    debug(F(AT));
 
     if (mqtt.connected())
     {
-        debug(AT);
+        debug(F(AT));
         char buffer[32];
         sprintf(buffer, "%" PRIu32, value);
         memory(false);
         // debug(AT);
-        debug_wdt_reset();
+        debug_wdt_reset(F(AT));
+        ;
         bool ret = mqtt.publish(topic, buffer, strlen(buffer));
         memory(false);
-        debug(AT);
+        // debug(AT);
         return ret;
     }
     else
     {
         mem_config.MQTT_online = false;
-        debug(AT);
+        // debug(AT);
     }
 
     memory(false);
@@ -194,26 +204,27 @@ bool DT_mqtt_send(const char *topic, const uint32_t value)
 bool DT_mqtt_send(const char *topic, const char *value)
 {
     memory(false);
-    Serial.print(F("DT_mqtt_send "));
-    Serial.print(topic);
-    Serial.print(F(" -> "));
-    Serial.println(value);
+    // Serial.print(F("DT_mqtt_send "));
+    // Serial.print(topic);
+    // Serial.print(F(" -> "));
+    // Serial.println(value);
 
-    debug(AT);
+    debug(F(AT));
     if (mqtt.connected())
     {
-        debug(AT);
+        // debug(AT);
         memory(false);
         bool ret = mqtt.publish(topic, value, strlen(value));
-        debug_wdt_reset();
+        debug_wdt_reset(F(AT));
+        ;
         memory(false);
-        debug(AT);
+        // debug(AT);
         return ret;
     }
     else
     {
         mem_config.MQTT_online = false;
-        debug(AT);
+        // debug(AT);
     }
     memory(false);
     return false;
@@ -221,7 +232,7 @@ bool DT_mqtt_send(const char *topic, const char *value)
 
 void init_ethernet()
 {
-    debug(AT);
+    debug(F(AT));
     memory(true);
     Ethernet.init(NETWORK_CS);
     byte mac[] = {MAC1, MAC2, MAC3, MAC4, MAC5, MAC6};
@@ -327,8 +338,10 @@ void DT_mqtt_init()
     //  mqtt.setCallback(&test_mqtt_receve);
         rcv_topic.reserve(32);
     rcv_payload.reserve(16);
-    send_topic = nullptr;
-    send_payload = nullptr;
+    // send_buffer = nullptr;
+    // send_buffer_len = 0;
+    // send_buffer_read = 0;
+    // send_buffer_write = 0;
     memory(false);
 }
 
@@ -341,6 +354,7 @@ void DT_mqtt_loop()
     static bool reset = false;      // for reset network device
     static bool ret_homeassistant = false;
     bool ret = true;
+    static uint32_t time = 0;
     // static bool old_link_status = false; // for reset network device
     uint32_t now = millis();
     // Serial.println("DT_mqtt_loop start");
@@ -369,26 +383,32 @@ void DT_mqtt_loop()
             digitalWrite(NETWORK_RESET, LOW);
             last_reconnection_time = now;
             reset = true;
+            reset_time = now;
             // Serial.println("DT_mqtt_loop 3");
         }
         else if (now - last_reconnection_time > 5000)
         {
-            debug(AT);
+            debug(F(AT));
             // Serial.println("DT_mqtt_loop 4");
             last_reconnection_time = now;
-            if (reset)
+            if (reset && now - reset_time > 60000)
             {
                 // Serial.print(millis());
                 Serial.println(F("restart network"));
                 digitalWrite(NETWORK_RESET, HIGH);
                 delay(10);
-                debug_wdt_reset();
+                debug_wdt_reset(F(AT));
+                ;
                 init_ethernet();
                 // debug_wdt_reset();
                 reset_time = 0;
                 reset = false;
 
                 // Serial.println("DT_mqtt_loop 5");
+            }
+            else if (reset)
+            {
+                return;
             }
             // Attempt to reconnect
             // String clientId = "Board01";
@@ -404,27 +424,32 @@ void DT_mqtt_loop()
 
             // if (Ethernet.linkStatus() == LinkOFF)
             // {
-            //     debug_wdt_reset();
+            //     debug_wdt_reset(F(AT));;
             //     Serial.println(F("Link status: Off"));
             // }
             // else
             if (as_ethernet && link_status)
             {
-                debug_wdt_reset();
-                debug(AT);
+                wdt_enable(WDTO_1S);
+                debug_wdt_reset(F(AT));
+                ;
+                debug(F(AT));
                 // old_link_status = true;
                 if (mqtt.connect(MQTT_CLIENT_ID, MQTT_USER, MQTT_PASSWORD, false))
                 {
-                    debug(AT);
-                    debug_wdt_reset();
+                    reset_time = 0;
+                    debug(F(AT));
                     // Serial.print(millis());
                     Serial.println(F("MQTT connected"));
+                    mem_config.MQTT_online = true; // TODO : ne fonctionne pas si home assistant nes plus en ligne
                     memory(true);
                     // Once connected, publish an announcement and resubscribe...
                     if (_mqtt_subscribe != nullptr)
                         _mqtt_subscribe(mqtt, true);
                     reset_time = 0; // desactivation du compteur de reset
                                     // auto Serial.println("MQTT connected");
+
+                    // debug(AT);
                 }
                 else
                 { // si echec affichage erreur
@@ -440,10 +465,13 @@ void DT_mqtt_loop()
             // Serial.print(millis());
             Serial.print(F("mqtt elapse time = "));
             Serial.println(millis() - now);
+            // debug(AT);
         }
 
         // delay(50);
-        // wdt_enable(WATCHDOG_TIME);
+        debug_wdt_reset(F(AT));
+        ;
+        wdt_enable(WATCHDOG_TIME);
     }
     else if (as_ethernet && link_status && mqtt.connected()) // si connecté au serveur MQTT
     {
@@ -456,7 +484,7 @@ void DT_mqtt_loop()
         mqtt.loop();
         if (_mqtt_receve != nullptr && rcv_topic.length() > 0) // traitement du buffer de reception de donnée
         {
-            debug(AT);
+            debug(F(AT));
             int topic_index = rcv_topic.indexOf(F("|"));
             if (topic_index == -1) // only one data in rcv_topic
             {
@@ -472,10 +500,16 @@ void DT_mqtt_loop()
                 rcv_payload.remove(0, payload_index + 1);
             }
         }
-
-        // Serial.println(F("loop2"));
-        static uint32_t time = 0;
-        if (ret_homeassistant == false)
+        else if (send_buffer.usage() > 0)
+        {
+            debug(F(AT));
+            char topic[64];
+            char payload[32];
+            MQTT_data data = send_buffer.get();
+            MQTT_data_get(data, topic, 64, payload, 32);
+            mqtt.publish(topic, payload);
+        }
+        else if (ret_homeassistant == false)
         {
             // while (mqtt.connected() && mem_config.MQTT_online && ret_homeassistant == false)
             // {
@@ -484,28 +518,25 @@ void DT_mqtt_loop()
             // mqtt.loop();
             // }
         }
-
-        if (_mqtt_subscribe != nullptr && ret)
+        else if (_mqtt_subscribe != nullptr && ret)
         {
             ret = _mqtt_subscribe(mqtt, false);
             // debug_wdt_reset();
         }
-
-        if (_mqtt_publish != nullptr && ret)
+        else if (_mqtt_publish != nullptr && ret)
         {
             ret = _mqtt_publish(false);
             // debug_wdt_reset();
         }
-
-        mem_config.MQTT_online = true; // TODO : ne fonctionne pas si home assistant nes plus en ligne
-
-        if (now - time >= MQTT_UPDATE)
+        else if (now - time >= MQTT_UPDATE)
         {
             time = now;
-            debug(AT);
+            debug(F(AT));
             if (_mqtt_update != nullptr)
                 _mqtt_update(mqtt, false);
         }
+
+        mem_config.MQTT_online = true; // TODO : ne fonctionne pas si home assistant nes plus en ligne
         // delay(100);
     }
 

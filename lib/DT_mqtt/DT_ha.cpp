@@ -9,7 +9,6 @@
 #define max_payload 272
 bool homeassistant(bool start)
 {
-
     uint32_t now = millis();
     static uint32_t time = 0;
     static uint8_t sequance = 253;
@@ -23,7 +22,7 @@ bool homeassistant(bool start)
     // debug_wdt_reset();
     if (start)
     {
-        debug(AT);
+        // debug(AT);
         sequance = 0;
         return false;
     }
@@ -39,7 +38,7 @@ bool homeassistant(bool start)
             strlcpy_P(topic, PSTR("homeassistant/sensor/" BOARD_IDENTIFIER "/status/config"), max_topic);
             strlcpy_P(payload, PSTR("{\"unique_id\":\"" BOARD_IDENTIFIER "-status\",\"name\":\"status\",\"state_topic\":\"DtBoard/" BOARD_IDENTIFIER "/status\",\"device\":{\"identifiers\":\"" BOARD_IDENTIFIER "\",\"manufacturer\":\"" BOARD_MANUFACTURER "\",\"model\":\"" BOARD_MODEL "\",\"name\":\"" BOARD_NAME "\",\"sw_version\":\"" BOARD_SW_VERSION_PRINT "\"}}"), max_payload);
             DT_mqtt_send(topic, payload);
-            debug(AT);
+            // debug(AT);
             /*
                     // heartbeat
 
@@ -496,7 +495,7 @@ bool homeassistant(bool start)
 
         case 43:
 #ifdef VANNES
-            // PID PCBT 
+            // PID PCBT
             strlcpy_P(topic, PSTR("homeassistant/sensor/" BOARD_IDENTIFIER "/pcbt-pid-p/config"), max_topic);
             strlcpy_P(payload, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/pcbt\",\"uniq_id\":\"" BOARD_IDENTIFIER "-pcbt-P\",\"name\":\"PCBT P\",\"stat_t\":\"~/P\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), max_payload);
             DT_mqtt_send(topic, payload);
@@ -629,7 +628,7 @@ bool homeassistant(bool start)
             strlcpy_P(topic, PSTR("homeassistant/number/" BOARD_IDENTIFIER "/offset-mcbt-in/config"), max_topic);
             strlcpy_P(payload, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/mcbt/offset-in\",\"uniq_id\":\"" BOARD_IDENTIFIER "-offset-mcbt-in\",\"name\":\"Decalage consigne MCBT\",\"stat_t\":\"~/state\",\"command_topic\":\"~/set\",\"min\":-100,\"max\":100,\"step\":0.01,\"dev_cla\":\"temperature\",\"unit_of_meas\":\"°C\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), max_payload);
             DT_mqtt_send(topic, payload);
-            
+
 #endif // VANNE
             break;
         case 57:
@@ -689,6 +688,178 @@ bool homeassistant(bool start)
     }
 
     return false;
+}
+
+void MQTT_data_store_P(MQTT_data &self, const char *Topic, const char *Payload)
+{
+    self._type = ha_flash_cstr;
+    self._topic = Topic;
+    self._cstr = Payload;
+};
+
+void MQTT_data_store_P(MQTT_data &self, const char *Topic, uint8_t num, const char *Payload)
+{
+    self._type = ha_flash_cstr_tsprintf;
+    self._num = num;
+    self._topic = Topic;
+    self._cstr = Payload;
+};
+
+void MQTT_data_store(MQTT_data &self, const char *Topic, const char *Payload)
+{
+    self._type = ha_cstr;
+    self._topic = Topic;
+    self._cstr = Payload;
+};
+void MQTT_data_store(MQTT_data &self, const char *Topic, uint8_t num, const char *Payload)
+{
+    self._type = ha_cstr_tsprintf;
+    self._num = num;
+    self._topic = Topic;
+    self._cstr = Payload;
+};
+// void MQTT_data_store(MQTT_data &self, const char *Topic, const String &Payload)
+// {
+//     self._type = ha_str;
+//     self._topic = (char *)Topic;
+//     self._str = Payload;
+// };
+
+void MQTT_data_store(MQTT_data &self, const char *Topic, const float Payload)
+{
+    self._type = ha_float;
+    self._topic = Topic;
+    self._float = Payload;
+};
+
+void MQTT_data_store(MQTT_data &self, const char *Topic, uint8_t num, const float Payload)
+{
+    self._type = ha_float_tsprintf;
+    self._num = num;
+    self._topic = Topic;
+    self._float = Payload;
+};
+
+void MQTT_data_store(MQTT_data &self, const char *Topic,const uint8_t Payload)
+
+{
+    self._type = ha_int32_t;
+    self._topic = Topic;
+    self._int = Payload;
+};
+
+void MQTT_data_store(MQTT_data &self, const char *Topic, uint8_t num, const uint8_t Payload)
+{
+    self._type = ha_int32_t_tsprintf;
+    self._num = num;
+    self._topic = Topic;
+    self._int = Payload;
+};
+
+void MQTT_data_store(MQTT_data &self, const char *Topic, const uint16_t Payload)
+{
+    self._type = ha_int32_t;
+    self._topic = Topic;
+    self._int = Payload;
+};
+
+void MQTT_data_store(MQTT_data &self, const char *Topic, uint8_t num, const uint16_t Payload)
+{
+    self._type = ha_int32_t_tsprintf;
+    self._num = num;
+    self._topic = Topic;
+    self._int = Payload;
+};
+
+
+void MQTT_data_store(MQTT_data &self, const char *Topic, const uint32_t Payload)
+{
+    self._type = ha_int32_t;
+    self._topic = Topic;
+    self._int = Payload;
+};
+
+void MQTT_data_store(MQTT_data &self, const char *Topic, uint8_t num, const uint32_t Payload)
+{
+    self._type = ha_int32_t_tsprintf;
+    self._num = num;
+    self._topic = Topic;
+    self._int = Payload;
+};
+
+
+
+void MQTT_data_get(MQTT_data &self, char *topic, int topic_len, char *payload, int payload_len)
+{
+    switch (self._type)
+    {
+    case ha_flash_cstr:
+        strncpy_P(topic, self._topic, topic_len);
+        strncpy_P(payload, self._cstr, payload_len);
+        break;
+
+    case ha_cstr:
+        strncpy_P(topic, self._topic, topic_len);
+        strncpy(payload, self._cstr, payload_len);
+        /* code */
+        break;
+
+        // case ha_str:
+        //     strncpy_P(topic, self._topic, topic_len);
+        //     strncpy(payload, self._str.c_str(), payload_len);
+        //     break;
+
+    case ha_float:
+        strncpy_P(topic, self._topic, topic_len);
+        dtostrf(self._float, 1, 2, payload);
+        break;
+
+    case ha_int32_t:
+        strncpy_P(topic, self._topic, topic_len);
+        snprintf_P(payload, payload_len, PSTR("%i"), (int)self._int);
+        break;
+
+    case ha_flash_cstr_tsprintf:
+        snprintf_P(topic, topic_len, self._topic, self._num);
+        strncpy_P(payload, self._cstr, payload_len);
+        break;
+
+    case ha_cstr_tsprintf:
+        snprintf_P(topic, topic_len, self._topic, self._num);
+        strncpy(payload, self._cstr, payload_len);
+        /* code */
+        break;
+
+        // case ha_str:
+        //     strncpy_P(topic, self._topic, topic_len);
+        //     strncpy(payload, self._str.c_str(), payload_len);
+        //     break;
+
+    case ha_float_tsprintf:
+        snprintf_P(topic, topic_len, self._topic, self._num);
+        dtostrf(self._float, 1, 2, payload);
+        break;
+
+    case ha_int32_t_tsprintf:
+        snprintf_P(topic, topic_len, self._topic, self._num);
+        snprintf_P(payload, payload_len, PSTR("%i"), (int)self._int);
+        break;
+
+    default:
+        break;
+    }
+};
+
+
+
+void MQTT_data_debug(MQTT_data &self)
+{
+    char topic[64];
+    char payload[32];
+    MQTT_data_get(self, topic, 64, payload, 32);
+    Serial.print(topic);
+    Serial.print(F("-->"));
+    Serial.println(payload);
 }
 
 #endif // MQTT

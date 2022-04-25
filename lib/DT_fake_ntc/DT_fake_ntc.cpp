@@ -14,20 +14,112 @@ const uint8_t NTC_R1[] PROGMEM = {
     8, 8, 13, 13, 7, 10, 8, 8, 7, 6,
     6, 6, 8, 6, 7, 5, 5, 5, 5, 5,
     5, 5, 5, 4, 4, 4, 4, 4, 4, 4,
-    4, 4, 5, 4, 3, 3, 3, 
+    4, 4, 5, 4, 3, 3, 3,
     3};
 
 const uint8_t NTC_R2[] PROGMEM = {
-    149, 149, 149, 149, 188, 255, 236, 140, 194, 139, 230, 108, 123,
-    133, 204, 180, 83, 89, 173, 106, 85, 127, 132,
-    155, 111, 162, 132, 188, 128, 107, 66, 74, 182,
-    98, 180, 57, 90, 211, 242, 89, 184, 228, 37,
-    111, 35, 44, 116, 89, 109, 155, 108, 172, 30,
-    231, 133, 93, 199, 27, 83, 222, 122, 83, 37,
-    165, 99, 16, 15, 191, 19, 31, 27, 42, 192,
-    97, 64, 16, 38, 18, 231, 98, 62, 45, 35,
-    29, 24, 21, 199, 83, 52, 38, 30, 24, 20,
-    18, 15, 8, 12, 140, 63, 40, 29,};
+    149,
+    149,
+    149,
+    149,
+    188,
+    255,
+    236,
+    140,
+    194,
+    139,
+    230,
+    108,
+    123,
+    133,
+    204,
+    180,
+    83,
+    89,
+    173,
+    106,
+    85,
+    127,
+    132,
+    155,
+    111,
+    162,
+    132,
+    188,
+    128,
+    107,
+    66,
+    74,
+    182,
+    98,
+    180,
+    57,
+    90,
+    211,
+    242,
+    89,
+    184,
+    228,
+    37,
+    111,
+    35,
+    44,
+    116,
+    89,
+    109,
+    155,
+    108,
+    172,
+    30,
+    231,
+    133,
+    93,
+    199,
+    27,
+    83,
+    222,
+    122,
+    83,
+    37,
+    165,
+    99,
+    16,
+    15,
+    191,
+    19,
+    31,
+    27,
+    42,
+    192,
+    97,
+    64,
+    16,
+    38,
+    18,
+    231,
+    98,
+    62,
+    45,
+    35,
+    29,
+    24,
+    21,
+    199,
+    83,
+    52,
+    38,
+    30,
+    24,
+    20,
+    18,
+    15,
+    8,
+    12,
+    140,
+    63,
+    40,
+    29,
+};
 
 uint8_t fake_ntc_value = 0;
 // uint8_t fake_ntc_new_value = 0;
@@ -41,33 +133,36 @@ void _fake_ntc_set(uint8_t value)
         uint8_t r1 = pgm_read_byte(NTC_R1 + fake_ntc_value);
         uint8_t r2 = pgm_read_byte(NTC_R2 + fake_ntc_value);
         digitalWrite(FAKE_NTC_CS, LOW);
-        debug_wdt_reset();
+        debug_wdt_reset(F(AT));
+        ;
         delay(10);
         SPI.transfer(FAKE_NTC_R1_ADDRESS);
         SPI.transfer(r1);
         digitalWrite(FAKE_NTC_CS, HIGH);
-        debug_wdt_reset();
+        debug_wdt_reset(F(AT));
+        ;
         delay(10);
         digitalWrite(FAKE_NTC_CS, LOW);
-        debug_wdt_reset();
+        debug_wdt_reset(F(AT));
+        ;
         delay(10);
         SPI.transfer(FAKE_NTC_R2_ADDRESS);
         SPI.transfer(r2);
         digitalWrite(FAKE_NTC_CS, HIGH);
-        debug_wdt_reset();
+        debug_wdt_reset(F(AT));
+        ;
         delay(10);
 
-        
         if (fake_ntc_callback != nullptr)
         {
             fake_ntc_callback(value);
         }
-        //auto Serial.print("fake_NTC = ");
-        //auto Serial.println(fake_ntc_value);
-        //auto Serial.print("r1 = ");
-        //auto Serial.println(r1);
-        //auto Serial.print("r2 = ");
-        //auto Serial.println(r2);
+        // auto Serial.print("fake_NTC = ");
+        // auto Serial.println(fake_ntc_value);
+        // auto Serial.print("r1 = ");
+        // auto Serial.println(r1);
+        // auto Serial.print("r2 = ");
+        // auto Serial.println(r2);
     }
 }
 

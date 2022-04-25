@@ -9,8 +9,11 @@
 #define AT __FILE__ ":" TOSTRING(__LINE__)
 
 void debug(const char *var);
+void debug(const __FlashStringHelper *var);
 void memory(bool print);
 void debug_wdt_reset();
+void debug_wdt_reset(const char *var);
+void debug_wdt_reset(const __FlashStringHelper *var);
 
 #define SAVE_EEPROM 600000 // sauvegarde des données dans l eeprom toute les x ms
 #define MQTT_REFRESH 10000 // temp de rafrechissement du MQTT
@@ -93,7 +96,7 @@ void debug_wdt_reset();
 #define MQTT_WILL_RETAIN true
 #define MQTT_WILL_MESSAGE "offline"
 // Advance option
-#define NETWORK_RESET_TIME 30000 // temp avant reset de la carte reseau en qua d'imposibilité de se connecter (en miliseconde)
+#define NETWORK_RESET_TIME 60000 // temp avant reset de la carte reseau en qua d'imposibilité de se connecter (en miliseconde)
 #define MQTT_UPDATE 1000         // in ms
 #endif                           // MQTT
 
@@ -145,8 +148,8 @@ void debug_wdt_reset();
 #define PT100_PLANCHE_SDB 12
 #define RELAIS_PLANCHE_SDB 11
 
-//const float PT100_PLANCHEE[NUM_PLANCHE] PROGMEM = {PT100_PLANCHE_SALON, PT100_PLANCHE_CH_1, PT100_PLANCHE_CH_2, PT100_PLANCHE_SDB};
-//const uint8_t RELAI_PLANCHE[NUM_PLANCHE] PROGMEM = {RELAIS_PLANCHE_SALON, RELAIS_PLANCHE_CH_1, RELAIS_PLANCHE_CH_2, RELAIS_PLANCHE_SDB};
+// const float PT100_PLANCHEE[NUM_PLANCHE] PROGMEM = {PT100_PLANCHE_SALON, PT100_PLANCHE_CH_1, PT100_PLANCHE_CH_2, PT100_PLANCHE_SDB};
+// const uint8_t RELAI_PLANCHE[NUM_PLANCHE] PROGMEM = {RELAIS_PLANCHE_SALON, RELAIS_PLANCHE_CH_1, RELAIS_PLANCHE_CH_2, RELAIS_PLANCHE_SDB};
 
 #endif // VANNES
 

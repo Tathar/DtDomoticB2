@@ -6,7 +6,7 @@ template <typename T>
 DT_buffer<T>::DT_buffer()
 {
     buffer = nullptr;
-    buffer_len = 0;
+    buffer_len = tail = head = 0;
 }
 
 template <typename T>
@@ -25,27 +25,23 @@ void DT_buffer<T>::append(T &data)
 {
     // debug(AT);
 
-    if (buffer == nullptr)
-    {
-        // debug(AT);
-        buffer_len = 1;
-        buffer = (T*) malloc(sizeof(T));
-        buffer[tail] = T(data);
-        ++tail;
-    }
-    else
-    {
-        // debug(AT);
-        reseve(1);
+    // Serial.print(F("buffer append "));
+    // MQTT_data_debug(data);
 
-        if (tail == buffer_len)
-        {
-            tail = 0;
-        }
+    // debug(AT);
+    reseve(1);
 
-        buffer[tail] = T(data);
-        ++tail;
+    if (avalible() == 0)
+        return;
+
+    if (tail == buffer_len)
+    {
+        tail = 0;
     }
+
+    buffer[tail] = T(data);
+    // MQTT_data_debug(buffer[tail]);
+    ++tail;
     // debug(AT);
 }
 
@@ -64,16 +60,28 @@ T DT_buffer<T>::get()
         }
 
         ret = T(buffer[head]);
-        ++head;
 
+        // Serial.print(F("buffer get "));
+        // MQTT_data_debug(ret);
+        // Serial.print(F("buffer_len = "));
+        // Serial.println(buffer_len);
+        // Serial.print(F("head = "));
+        // Serial.println(head);
+        // Serial.print(F("tail = "));
+        // Serial.println(tail);
+
+        ++head;
         if (head == tail)
         {
+
+            // Serial.println(F("buffer get free"));
             free(buffer);
             buffer = nullptr;
             buffer_len = head = tail = 0;
         }
         return ret;
     }
+    // debug(AT);
     return ret;
 }
 
@@ -84,30 +92,39 @@ void DT_buffer<T>::clear()
     {
         free(buffer);
         buffer = nullptr;
-        buffer_len = head = tail = 0;
+        // buffer_len = head = tail = 0;
     }
 }
 
 template <typename T>
 void DT_buffer<T>::reseve(uint8_t Size)
 {
+    // Serial.print(F("buffer reserve "));
+    // Serial.println(Size);
+
     if (buffer == nullptr)
     {
+        // Serial.println(F("nullptr"));
         // debug(AT);
-        buffer_len = Size;
         buffer = (T *)malloc(sizeof(T) * Size);
-        // head = tail = 0;
+        if (buffer != nullptr)
+        {
+            buffer_len = Size;
+            head = tail = 0;
+        }
     }
     else
     {
-
         // debug(AT);
         // cls_debug();
-        // if (((tail - head <= 0) && (head - tail < size)) || ((tail - head > 0) && buffer_len - (tail - head) < size))
+        // Serial.print(F("avalible =  "));
+        // Serial.println(avalible());
         if (avalible() < Size)
         {
             uint8_t size = Size - avalible();
             // Serial.println(head_offset);
+
+            // Serial.println(F("realloc"));
             buffer = (T *)realloc(buffer, sizeof(T) * (buffer_len + size));
             if (tail - head <= 0) // la tete est deriere la queud
             {
@@ -124,12 +141,19 @@ void DT_buffer<T>::reseve(uint8_t Size)
             buffer_len += size;
         }
     }
+
+    // Serial.print(F("buffer_len = "));
+    // Serial.println(buffer_len);
+    // Serial.print(F("head = "));
+    // Serial.println(head);
+    // Serial.print(F("tail = "));
+    // Serial.println(tail);
 }
 
 template <typename T>
 uint8_t DT_buffer<T>::avalible() const
 {
-    return tail - head <= 0 ? head - tail : buffer_len - (tail - head);
+    return tail - head < 0 ? head - tail : buffer_len - (tail - head);
 }
 
 template <typename T>

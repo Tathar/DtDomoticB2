@@ -3,7 +3,7 @@
 #include <Arduino.h>
 #include <QuickPID.h>
 
-enum DT_3voies_mode
+enum __attribute__((__packed__)) DT_3voies_mode
 {
     DT_3VOIES_OFF,
     DT_3VOIES_DEMMARAGE,
