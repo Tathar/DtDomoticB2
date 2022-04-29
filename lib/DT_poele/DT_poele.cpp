@@ -11,8 +11,8 @@
 #ifdef POELE
 void (*poele_mode_callback)(const DT_Poele_mode mode);
 bool async_call_poele_mode;
-//void (*poele_C1_callback)(const uint8_t C1);
-// void (*poele_T4_callback)(const float t4);
+// void (*poele_C1_callback)(const uint8_t C1);
+//  void (*poele_T4_callback)(const float t4);
 
 // bool ev1; // 0(Circuit ballon tampon + Ballon ECS) / 1(Circuit Ballon ECS)
 // float T4; // Temperature envoyé au poêle
@@ -27,8 +27,8 @@ void DT_Poele_init()
 {
     DT_relay(RELAY_EV1, false);
     poele_mode_callback = nullptr;
-    //poele_C1_callback = nullptr;
-    // poele_T4_callback = nullptr;
+    // poele_C1_callback = nullptr;
+    //  poele_T4_callback = nullptr;
 }
 
 // decision de mise en service du poele en fonction des temperature
@@ -79,6 +79,7 @@ void DT_Poele_loop()
 
     if (now - old >= 1000)
     {
+        debug(F(AT));
         old = now;
         // bool old_ev1 = ev1;
         if (eeprom_config.poele_mode == DT_POELE_NORMAL)
@@ -206,6 +207,8 @@ void DT_Poele_loop()
 
         DT_relay(MARCHE_POELE, poele);
         DT_relay(RELAY_EV1, ev1);
+
+        debug(F(AT));
     }
 
     if (poele_mode_callback != nullptr && async_call_poele_mode == true)

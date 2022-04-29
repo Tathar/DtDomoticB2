@@ -38,60 +38,22 @@ float _temp_get(int num)
     ////auto Serial.print("Temperature N°");
     ////auto Serial.print(num + 1);
 
-    uint8_t fault = max31865[num]->readFault();
+    float tmp = max31865[num]->temperature(100, TEMP_RREF);
+    // sprintf(buffer, "with %%p:  x    = %p\n", &capteur);
+    ////auto Serial.print(buffer);
 
-    if (fault)
+    ////auto Serial.print(" return ");
+    if (tmp < MIN_DEFAULT_PT100 || tmp > MAX_DEFAULT_PT100)
     {
-
-        ////auto Serial.print(" Fault 0x");
-        ////auto Serial.println(fault, HEX);
-        // sprintf(buffer, "with %%p:  x    = %p\n", &capteur);
-        ////auto Serial.print(buffer);
-        // if (fault & MAX31865_FAULT_HIGHTHRESH)
-        // {
-        //    //auto Serial.println("RTD High Threshold");
-        // }
-        // if (fault & MAX31865_FAULT_LOWTHRESH)
-        // {
-        //    //auto Serial.println("RTD Low Threshold");
-        // }
-        // if (fault & MAX31865_FAULT_REFINLOW)
-        // {
-        //    //auto Serial.println("REFIN- > 0.85 x Bias");
-        // }
-        // if (fault & MAX31865_FAULT_REFINHIGH)
-        // {
-        //    //auto Serial.println("REFIN- < 0.85 x Bias - FORCE- open");
-        // }
-        // if (fault & MAX31865_FAULT_RTDINLOW)
-        // {
-        //    //auto Serial.println("RTDIN- < 0.85 x Bias - FORCE- open");
-        // }
-        // if (fault & MAX31865_FAULT_OVUV)
-        // {
-        //    //auto Serial.println("Under/Over voltage");
-        // }
-        max31865[num]->clearFault();
+        ////auto Serial.print(TEMP_DEFAULT_PT100);
+        ////auto Serial.println("°C");
+        // max31865[num]->reconfigure();
+        max31865[num]->reconfigure();
         return TEMP_DEFAULT_PT100;
     }
-    else
-    {
-        float tmp = max31865[num]->temperature(100, TEMP_RREF);
-        // sprintf(buffer, "with %%p:  x    = %p\n", &capteur);
-        ////auto Serial.print(buffer);
-
-        ////auto Serial.print(" return ");
-        if (tmp < MIN_DEFAULT_PT100 || tmp > MAX_DEFAULT_PT100)
-        {
-            ////auto Serial.print(TEMP_DEFAULT_PT100);
-            ////auto Serial.println("°C");
-            return TEMP_DEFAULT_PT100;
-        }
-        ////auto Serial.print(tmp);
-        ////auto Serial.println("°C");
-        int32_t digit = tmp * 100;
-        return digit / 100.0;
-    }
+    ////auto Serial.println("°C");
+    int32_t digit = tmp * 100;
+    return digit / 100.0;
 }
 
 void DT_pt100_init()
@@ -133,24 +95,44 @@ void DT_pt100_loop()
     static uint32_t PT100_callback_time = 0;
     uint32_t now = millis();
     float tmp = 0;
-    if (now - old_time > 1000)
+    if (now - old_time > 1000 / TEMP_NUM)
     {
+        debug(F(AT));
         old_time = now;
-        for (uint8_t num = 0; num < TEMP_NUM; num++)
+
+        // for (uint8_t num = 0; num < TEMP_NUM; num++)
+        // {
+
+        static uint8_t num = 0;
+        if (num < TEMP_NUM)
         {
             tmp = _temp_get(num);
             old_temp[num] = tmp;
+            ++num;
         }
-    }
 
-    if (now - PT100_callback_time >= MQTT_REFRESH)
+        if (num == TEMP_NUM)
+        {
+            num = 0;
+        }
+
+        debug(F(AT));
+    }
+    else if (now - PT100_callback_time >= MQTT_REFRESH / TEMP_NUM)
     {
         PT100_callback_time = now;
         if (pt100_callback != nullptr)
         {
-            for (uint8_t num = 0; num < TEMP_NUM; num++)
+
+            static uint8_t num = 0;
+            if (num < TEMP_NUM)
             {
                 pt100_callback(num + 1, old_temp[num]);
+                ++num;
+            }
+            if (num == TEMP_NUM)
+            {
+                num = 0;
             }
         }
     }

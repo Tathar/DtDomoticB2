@@ -2224,31 +2224,82 @@ void setup()
   memory(true);
 }
 
+enum __attribute__((__packed__)) main_initerlok
+{
+  mi_first,
+  // mi_mqtt,
+  // mi_input,
+  mi_relay,
+  mi_pt100,
+  mi_bme280,
+  mi_ccs811,
+  mi_poele,
+  mi_3voies,
+  mi_last
+};
+
 void loop()
 {
   // debug(AT);
   uint32_t now = millis();
+  static main_initerlok interlock;
 
   debug_wdt_reset(F(AT));
-  ;
 
 #ifdef MQTT
   DT_mqtt_loop();
   // mqtt_publish(false);
 #endif
-  DT_relay_loop();
+
   DT_input_loop();
-  // DT_BME280_loop();
-  // DT_CCS811_loop();
+
+  if (millis() - now < 10)
+  {
+    switch (interlock)
+    {
+    case mi_relay:
+      DT_relay_loop();
+      break;
+
+    case mi_pt100:
 #if TEMP_NUM > 0
-  DT_pt100_loop();
+      DT_pt100_loop();
 #endif
+      break;
+
+    case mi_bme280:
+#ifdef BME_280
+      DT_BME280_loop();
+#endif
+      break;
+
+    case mi_ccs811:
+#ifdef CCS811
+      DT_CCS811_loop()
+#endif
+          break;
+
+    case mi_poele:
 #ifdef POELE
-  DT_Poele_loop();
+      DT_Poele_loop();
 #endif
+      break;
+
+    case mi_3voies:
 #ifdef VANNES
-  DT_3voies_loop();
+      DT_3voies_loop();
 #endif
+      break;
+
+    case mi_last:
+      interlock = mi_first;
+      break;
+
+    default:
+      break;
+    }
+    interlock = main_initerlok(interlock + 1);
+  }
   load();
   memory(false);
   //  DT_fake_ntc_loop();
