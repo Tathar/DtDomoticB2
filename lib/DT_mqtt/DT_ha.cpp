@@ -1,6 +1,8 @@
 #include <DT_ha.h>
 #include <DT_eeprom.h>
 
+#include <DT_mqtt_send.h>
+
 #include <ArduinoJson.h>
 
 #ifdef MQTT
@@ -35,9 +37,9 @@ bool homeassistant(bool start)
         switch (sequance)
         {
         case 0:
-            strlcpy_P(topic, PSTR("homeassistant/sensor/" BOARD_IDENTIFIER "/status/config"), max_topic);
-            strlcpy_P(payload, PSTR("{\"unique_id\":\"" BOARD_IDENTIFIER "-status\",\"name\":\"status\",\"state_topic\":\"DtBoard/" BOARD_IDENTIFIER "/status\",\"device\":{\"identifiers\":\"" BOARD_IDENTIFIER "\",\"manufacturer\":\"" BOARD_MANUFACTURER "\",\"model\":\"" BOARD_MODEL "\",\"name\":\"" BOARD_NAME "\",\"sw_version\":\"" BOARD_SW_VERSION_PRINT "\"}}"), max_payload);
-            DT_mqtt_send(topic, payload);
+            // strlcpy_P(topic, PSTR("homeassistant/sensor/" BOARD_IDENTIFIER "/status/config"), max_topic);
+            // strlcpy_P(payload, PSTR("{\"unique_id\":\"" BOARD_IDENTIFIER "-status\",\"name\":\"status\",\"state_topic\":\"DtBoard/" BOARD_IDENTIFIER "/status\",\"device\":{\"identifiers\":\"" BOARD_IDENTIFIER "\",\"manufacturer\":\"" BOARD_MANUFACTURER "\",\"model\":\"" BOARD_MODEL "\",\"name\":\"" BOARD_NAME "\",\"sw_version\":\"" BOARD_SW_VERSION_PRINT "\"}}"), max_payload);
+            DT_mqtt_send(F("homeassistant/sensor/" BOARD_IDENTIFIER "/status/config"), F("{\"unique_id\":\"" BOARD_IDENTIFIER "-status\",\"name\":\"status\",\"state_topic\":\"DtBoard/" BOARD_IDENTIFIER "/status\",\"device\":{\"identifiers\":\"" BOARD_IDENTIFIER "\",\"manufacturer\":\"" BOARD_MANUFACTURER "\",\"model\":\"" BOARD_MODEL "\",\"name\":\"" BOARD_NAME "\",\"sw_version\":\"" BOARD_SW_VERSION_PRINT "\"}}"));
             // debug(AT);
             /*
                     // heartbeat
@@ -58,14 +60,15 @@ bool homeassistant(bool start)
                     // DT_mqtt_send(topic, payload);
             */
             break;
-
+#ifdef OUF
         case 1:
             if (num < RELAY_NUM)
             {
 
-                snprintf_P(topic, max_topic, PSTR("homeassistant/switch/" BOARD_IDENTIFIER "/relay-%02d/config"), num + 1);
+                // snprintf_P(topic, max_topic, PSTR("homeassistant/switch/" BOARD_IDENTIFIER "/relay-%02d/config"), num + 1);
                 snprintf_P(payload, max_payload, PSTR("{\"~\":\"DtBoard/DTB02-001\",\"uniq_id\":\"" BOARD_IDENTIFIER "-relay-%02d\",\"name\":\"relay-%02d\",\"command_topic\":\"~/relay-%02d/set\",\"stat_t\":\"~/relay-%02d/state\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), num + 1, num + 1, num + 1, num + 1);
-                DT_mqtt_send(topic, payload);
+                // DT_mqtt_send(topic, payload);
+                DT_mqtt_send(F("homeassistant/switch/" BOARD_IDENTIFIER "/relay-%02d/config"), num + 1, payload);
                 num++;
                 sequance--;
             }
@@ -78,9 +81,10 @@ bool homeassistant(bool start)
         case 2: // input
             if (num < INPUT_NUM)
             {
-                sprintf_P(topic, PSTR("homeassistant/binary_sensor/" BOARD_IDENTIFIER "/input-%02d/config"), num + 1);
-                snprintf_P(payload, max_payload, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "\",\"uniq_id\":\"" BOARD_IDENTIFIER "-input-%02d\",\"name\":\"input-%02d\",\"stat_t\":\"~/input-%02d/state\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), num + 1, num + 1, num + 1);
-                DT_mqtt_send(topic, payload);
+                // sprintf_P(topic, PSTR("homeassistant/binary_sensor/" BOARD_IDENTIFIER "/input-%02d/config"), num + 1);
+                // snprintf_P(payload, max_payload, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "\",\"uniq_id\":\"" BOARD_IDENTIFIER "-input-%02d\",\"name\":\"input-%02d\",\"stat_t\":\"~/input-%02d/state\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), num + 1, num + 1, num + 1);
+                // DT_mqtt_send(topic, payload);
+                DT_mqtt_send(F("homeassistant/binary_sensor/" BOARD_IDENTIFIER "/input-%02d/config"), num + 1, F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "\",\"uniq_id\":\"" BOARD_IDENTIFIER "-input-%02d\",\"name\":\"input-%02d\",\"stat_t\":\"~/input-%02d/state\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), num + 1);
 
                 num++;
                 sequance--;
@@ -96,9 +100,10 @@ bool homeassistant(bool start)
             // PT100
             if (num < TEMP_NUM)
             {
-                snprintf_P(topic, max_topic, PSTR("homeassistant/sensor/" BOARD_IDENTIFIER "/pt100-%02d/config"), num + 1);
-                snprintf_P(payload, max_payload, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "\",\"uniq_id\":\"" BOARD_IDENTIFIER "-pt100-%02d\",\"name\":\"pt100-%02d\",\"stat_t\":\"~/pt100-%02d/temperature\",\"dev_cla\":\"temperature\",\"unit_of_meas\":\"°C\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), num + 1, num + 1, num + 1);
-                DT_mqtt_send(topic, payload);
+                // snprintf_P(topic, max_topic, PSTR("homeassistant/sensor/" BOARD_IDENTIFIER "/pt100-%02d/config"), num + 1);
+                // snprintf_P(payload, max_payload, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "\",\"uniq_id\":\"" BOARD_IDENTIFIER "-pt100-%02d\",\"name\":\"pt100-%02d\",\"stat_t\":\"~/pt100-%02d/temperature\",\"dev_cla\":\"temperature\",\"unit_of_meas\":\"°C\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), num + 1, num + 1, num + 1);
+                // DT_mqtt_send(topic, payload);
+                DT_mqtt_send(F("homeassistant/sensor/" BOARD_IDENTIFIER "/pt100-%02d/config"), num + 1, F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "\",\"uniq_id\":\"" BOARD_IDENTIFIER "-pt100-%02d\",\"name\":\"pt100-%02d\",\"stat_t\":\"~/pt100-%02d/temperature\",\"dev_cla\":\"temperature\",\"unit_of_meas\":\"°C\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), num + 1);
 
                 num++;
                 sequance--;
@@ -113,27 +118,30 @@ bool homeassistant(bool start)
             // BME280 temperature
             for (uint8_t num = 0; num < BME280_NUM; ++num)
             {
-                snprintf_P(topic, max_topic, PSTR("homeassistant/sensor/" BOARD_IDENTIFIER "/bme280-temperature-%02d/config"), num + 1);
-                snprintf_P(payload, max_payload, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "\",\"uniq_id\":\"" BOARD_IDENTIFIER "-bme280-temperature-%02d\",\"name\":\"BME280-%02d\",\"stat_t\":\"~/bme280-%02d/temperature\",\"dev_cla\":\"temperature\",\"unit_of_meas\":\"°C\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), num + 1, num + 1, num + 1);
-                DT_mqtt_send(topic, payload);
+                // snprintf_P(topic, max_topic, PSTR("homeassistant/sensor/" BOARD_IDENTIFIER "/bme280-temperature-%02d/config"), num + 1);
+                // snprintf_P(payload, max_payload, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "\",\"uniq_id\":\"" BOARD_IDENTIFIER "-bme280-temperature-%02d\",\"name\":\"BME280-%02d\",\"stat_t\":\"~/bme280-%02d/temperature\",\"dev_cla\":\"temperature\",\"unit_of_meas\":\"°C\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), num + 1, num + 1, num + 1);
+                // DT_mqtt_send(topic, payload);
+                DT_mqtt_send(F("homeassistant/sensor/" BOARD_IDENTIFIER "/bme280-temperature-%02d/config"), num + 1, F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "\",\"uniq_id\":\"" BOARD_IDENTIFIER "-bme280-temperature-%02d\",\"name\":\"BME280-%02d\",\"stat_t\":\"~/bme280-%02d/temperature\",\"dev_cla\":\"temperature\",\"unit_of_meas\":\"°C\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), num + 1);
             }
             break;
         case 5:
             // BME280 humidity
             for (uint8_t num = 0; num < BME280_NUM; ++num)
             {
-                snprintf_P(topic, max_topic, PSTR("homeassistant/sensor/" BOARD_IDENTIFIER "/bme280-humidity-%02d/config"), num + 1);
-                snprintf_P(payload, max_payload, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "\",\"uniq_id\":\"" BOARD_IDENTIFIER "-bme280-humidity-%02d\",\"name\":\"BME280-%02d\",\"stat_t\":\"~/bme280-%02d/humidity\",\"dev_cla\":\"humidity\",\"unit_of_meas\":\"%%\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), num + 1, num + 1, num + 1);
-                DT_mqtt_send(topic, payload);
+                // snprintf_P(topic, max_topic, PSTR("homeassistant/sensor/" BOARD_IDENTIFIER "/bme280-humidity-%02d/config"), num + 1);
+                // snprintf_P(payload, max_payload, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "\",\"uniq_id\":\"" BOARD_IDENTIFIER "-bme280-humidity-%02d\",\"name\":\"BME280-%02d\",\"stat_t\":\"~/bme280-%02d/humidity\",\"dev_cla\":\"humidity\",\"unit_of_meas\":\"%%\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), num + 1, num + 1, num + 1);
+                // DT_mqtt_send(topic, payload);
+                DT_mqtt_send(F("homeassistant/sensor/" BOARD_IDENTIFIER "/bme280-humidity-%02d/config"), num + 1, F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "\",\"uniq_id\":\"" BOARD_IDENTIFIER "-bme280-humidity-%02d\",\"name\":\"BME280-%02d\",\"stat_t\":\"~/bme280-%02d/humidity\",\"dev_cla\":\"humidity\",\"unit_of_meas\":\"%%\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), num + 1);
             }
             break;
         case 6:
             // BME280 pressure
             for (uint8_t num = 0; num < BME280_NUM; ++num)
             {
-                snprintf_P(topic, max_topic, PSTR("homeassistant/sensor/" BOARD_IDENTIFIER "/bme280-pressure-%02d/config"), num + 1);
-                snprintf_P(payload, max_payload, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "\",\"uniq_id\":\"" BOARD_IDENTIFIER "-bme280-pressure-%02d\",\"name\":\"BME280-%02d\",\"stat_t\":\"~/bme280-%02d/pressure\",\"dev_cla\":\"pressure\",\"unit_of_meas\":\"Pa\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), num + 1, num + 1, num + 1);
-                DT_mqtt_send(topic, payload);
+                // snprintf_P(topic, max_topic, PSTR("homeassistant/sensor/" BOARD_IDENTIFIER "/bme280-pressure-%02d/config"), num + 1);
+                // snprintf_P(payload, max_payload, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "\",\"uniq_id\":\"" BOARD_IDENTIFIER "-bme280-pressure-%02d\",\"name\":\"BME280-%02d\",\"stat_t\":\"~/bme280-%02d/pressure\",\"dev_cla\":\"pressure\",\"unit_of_meas\":\"Pa\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), num + 1, num + 1, num + 1);
+                // DT_mqtt_send(topic, payload);
+                DT_mqtt_send(F("homeassistant/sensor/" BOARD_IDENTIFIER "/bme280-pressure-%02d/config"), num + 1, F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "\",\"uniq_id\":\"" BOARD_IDENTIFIER "-bme280-pressure-%02d\",\"name\":\"BME280-%02d\",\"stat_t\":\"~/bme280-%02d/pressure\",\"dev_cla\":\"pressure\",\"unit_of_meas\":\"Pa\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), num + 1);
             }
             break;
         case 7:
@@ -144,6 +152,7 @@ bool homeassistant(bool start)
                 snprintf_P(payload, max_payload, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "\",\"uniq_id\":\"" BOARD_IDENTIFIER "-ccs811-co2-%02d\",\"name\":\"ccs811-%02d\",\"stat_t\":\"~/ccs811-%02d/co2\",\"dev_cla\":\"carbon_dioxide\",\"unit_of_meas\":\"CO2\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), num + 1, num + 1, num + 1);
 
                 DT_mqtt_send(topic, payload);
+                DT_mqtt_send(F, F);
             }
 
             break;
@@ -155,6 +164,7 @@ bool homeassistant(bool start)
                 snprintf_P(topic, max_topic, PSTR("homeassistant/sensor/" BOARD_IDENTIFIER "/ccs811-cov-%02d/config"), num + 1);
                 snprintf_P(payload, max_payload, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "\",\"uniq_id\":\"" BOARD_IDENTIFIER "-ccs811-cov-%02d\",\"name\":\"ccs811-%02d\",\"stat_t\":\"~/ccs811-%02d/cov\",\"dev_cla\":\"pm10\",\"unit_of_meas\":\"ppm\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), num + 1, num + 1, num + 1);
                 DT_mqtt_send(topic, payload);
+                DT_mqtt_send(F, F);
             }
             break;
 
@@ -660,6 +670,7 @@ bool homeassistant(bool start)
             DT_mqtt_send(topic, payload);
 
             break;
+#endif //ouf
         default:
             return true;
             break;
@@ -690,158 +701,153 @@ bool homeassistant(bool start)
     return false;
 }
 
-void MQTT_data_store_P(MQTT_data &self, const char *Topic, const char *Payload)
+void MQTT_data_store_P(MQTT_data &self, const __FlashStringHelper *Topic, const char *Payload)
 {
     self._type = ha_flash_cstr;
     self._topic = Topic;
-    self._cstr = Payload;
+    self._fcstr = reinterpret_cast<const __FlashStringHelper *>(Payload);
 };
 
-void MQTT_data_store_P(MQTT_data &self, const char *Topic, uint8_t num, const char *Payload)
+void MQTT_data_store_P(MQTT_data &self, const __FlashStringHelper *Topic, uint8_t num_t, const char *Payload)
 {
     self._type = ha_flash_cstr_tsprintf;
-    self._num = num;
+    self._num_t = num_t;
     self._topic = Topic;
-    self._cstr = Payload;
+    self._fcstr = reinterpret_cast<const __FlashStringHelper *>(Payload);
 };
 
-void MQTT_data_store(MQTT_data &self, const char *Topic, const char *Payload)
+void MQTT_data_store(MQTT_data &self, const __FlashStringHelper *Topic, const __FlashStringHelper *Payload)
 {
+    self._type = ha_flash_cstr;
+    self._topic = Topic;
+    self._fcstr = Payload;
+};
+
+void MQTT_data_store(MQTT_data &self, const __FlashStringHelper *Topic, uint8_t num_t, const __FlashStringHelper *Payload)
+{
+    self._type = ha_flash_cstr_tsprintf;
+    self._num_t = num_t;
+    self._topic = Topic;
+    self._fcstr = Payload;
+};
+
+void MQTT_data_store(MQTT_data &self, const __FlashStringHelper *Topic, char const *Payload)
+{
+    debug(F(AT));
     self._type = ha_cstr;
     self._topic = Topic;
-    self._cstr = Payload;
+    self._cstr = strdup(Payload);
 };
-void MQTT_data_store(MQTT_data &self, const char *Topic, uint8_t num, const char *Payload)
+void MQTT_data_store(MQTT_data &self, const __FlashStringHelper *Topic, uint8_t num_t, char const *Payload)
 {
+    debug(F(AT));
     self._type = ha_cstr_tsprintf;
-    self._num = num;
+    self._num_t = num_t;
     self._topic = Topic;
-    self._cstr = Payload;
+    self._cstr = strdup(Payload);
 };
-// void MQTT_data_store(MQTT_data &self, const char *Topic, const String &Payload)
-// {
-//     self._type = ha_str;
-//     self._topic = (char *)Topic;
-//     self._str = Payload;
-// };
 
-void MQTT_data_store(MQTT_data &self, const char *Topic, const float Payload)
+void MQTT_data_store(MQTT_data &self, const __FlashStringHelper *Topic, const float Payload)
 {
     self._type = ha_float;
     self._topic = Topic;
     self._float = Payload;
 };
-
-void MQTT_data_store(MQTT_data &self, const char *Topic, uint8_t num, const float Payload)
+void MQTT_data_store(MQTT_data &self, const __FlashStringHelper *Topic, uint8_t num_t, const float Payload)
 {
     self._type = ha_float_tsprintf;
-    self._num = num;
+    self._num_t = num_t;
     self._topic = Topic;
     self._float = Payload;
 };
 
-void MQTT_data_store(MQTT_data &self, const char *Topic,const uint8_t Payload)
+// void MQTT_data_store(MQTT_data &self, const __FlashStringHelper *Topic, const uint8_t Payload)
+// {
+//     self._type = ha_int32_t;
+//     self._topic = Topic;
+//     self._int = Payload;
+// };
+// void MQTT_data_store(MQTT_data &self, const __FlashStringHelper *Topic, uint8_t num_t, const uint8_t Payload)
+// {
+//     self._type = ha_int32_t_tsprintf;
+//     self._num_t = num_t;
+//     self._topic = Topic;
+//     self._int = Payload;
+// };
 
+void MQTT_data_store(MQTT_data &self, const __FlashStringHelper *Topic, const uint16_t Payload)
 {
     self._type = ha_int32_t;
     self._topic = Topic;
     self._int = Payload;
 };
-
-void MQTT_data_store(MQTT_data &self, const char *Topic, uint8_t num, const uint8_t Payload)
+void MQTT_data_store(MQTT_data &self, const __FlashStringHelper *Topic, uint8_t num_t, const uint16_t Payload)
 {
     self._type = ha_int32_t_tsprintf;
-    self._num = num;
+    self._num_t = num_t;
     self._topic = Topic;
     self._int = Payload;
 };
 
-void MQTT_data_store(MQTT_data &self, const char *Topic, const uint16_t Payload)
+void MQTT_data_store(MQTT_data &self, const __FlashStringHelper *Topic, const uint32_t Payload)
 {
     self._type = ha_int32_t;
     self._topic = Topic;
     self._int = Payload;
 };
-
-void MQTT_data_store(MQTT_data &self, const char *Topic, uint8_t num, const uint16_t Payload)
+void MQTT_data_store(MQTT_data &self, const __FlashStringHelper *Topic, uint8_t num_t, const uint32_t Payload)
 {
     self._type = ha_int32_t_tsprintf;
-    self._num = num;
+    self._num_t = num_t;
     self._topic = Topic;
     self._int = Payload;
 };
-
-
-void MQTT_data_store(MQTT_data &self, const char *Topic, const uint32_t Payload)
-{
-    self._type = ha_int32_t;
-    self._topic = Topic;
-    self._int = Payload;
-};
-
-void MQTT_data_store(MQTT_data &self, const char *Topic, uint8_t num, const uint32_t Payload)
-{
-    self._type = ha_int32_t_tsprintf;
-    self._num = num;
-    self._topic = Topic;
-    self._int = Payload;
-};
-
-
 
 void MQTT_data_get(MQTT_data &self, char *topic, int topic_len, char *payload, int payload_len)
 {
     switch (self._type)
     {
     case ha_flash_cstr:
-        strncpy_P(topic, self._topic, topic_len);
-        strncpy_P(payload, self._cstr, payload_len);
+        strncpy_P(topic, reinterpret_cast<const char *>(self._topic), topic_len);
+        strncpy_P(payload, reinterpret_cast<const char *>(self._fcstr), payload_len);
         break;
 
     case ha_cstr:
-        strncpy_P(topic, self._topic, topic_len);
+        strncpy_P(topic, reinterpret_cast<const char *>(self._topic), topic_len);
         strncpy(payload, self._cstr, payload_len);
+        free((void *)self._cstr);
         /* code */
         break;
 
-        // case ha_str:
-        //     strncpy_P(topic, self._topic, topic_len);
-        //     strncpy(payload, self._str.c_str(), payload_len);
-        //     break;
-
     case ha_float:
-        strncpy_P(topic, self._topic, topic_len);
+        strncpy_P(topic, reinterpret_cast<const char *>(self._topic), topic_len);
         dtostrf(self._float, 1, 2, payload);
         break;
 
     case ha_int32_t:
-        strncpy_P(topic, self._topic, topic_len);
+        strncpy_P(topic, reinterpret_cast<const char *>(self._topic), topic_len);
         snprintf_P(payload, payload_len, PSTR("%i"), (int)self._int);
         break;
 
     case ha_flash_cstr_tsprintf:
-        snprintf_P(topic, topic_len, self._topic, self._num);
-        strncpy_P(payload, self._cstr, payload_len);
+        snprintf_P(topic, topic_len, reinterpret_cast<const char *>(self._topic), self._num_t);
+        strncpy_P(payload, reinterpret_cast<const char *>(self._fcstr), payload_len);
         break;
 
     case ha_cstr_tsprintf:
-        snprintf_P(topic, topic_len, self._topic, self._num);
+        snprintf_P(topic, topic_len, reinterpret_cast<const char *>(self._topic), self._num_t);
         strncpy(payload, self._cstr, payload_len);
+        free((void *)self._cstr);
         /* code */
         break;
 
-        // case ha_str:
-        //     strncpy_P(topic, self._topic, topic_len);
-        //     strncpy(payload, self._str.c_str(), payload_len);
-        //     break;
-
     case ha_float_tsprintf:
-        snprintf_P(topic, topic_len, self._topic, self._num);
+        snprintf_P(topic, topic_len, reinterpret_cast<const char *>(self._topic), self._num_t);
         dtostrf(self._float, 1, 2, payload);
         break;
 
     case ha_int32_t_tsprintf:
-        snprintf_P(topic, topic_len, self._topic, self._num);
+        snprintf_P(topic, topic_len, reinterpret_cast<const char *>(self._topic), self._num_t);
         snprintf_P(payload, payload_len, PSTR("%i"), (int)self._int);
         break;
 
@@ -849,8 +855,6 @@ void MQTT_data_get(MQTT_data &self, char *topic, int topic_len, char *payload, i
         break;
     }
 };
-
-
 
 void MQTT_data_debug(MQTT_data &self)
 {

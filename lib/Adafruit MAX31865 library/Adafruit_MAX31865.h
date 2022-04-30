@@ -1,3 +1,15 @@
+/**********Adafruit_MAX31865 modified by Sylvain Boyer 17/02/2021
+ * 
+ * 17/02/2021 - added some code from Jack Davies and J-M-L (arduino forum)
+ *  https://forum.arduino.cc/index.php?topic=703346.msg4772457#msg4772457
+ *    added: readRTDAsync() and temperatureAsync
+ *    this allow to keep the code running rather than being stuck by the delays
+ *  17/02/2021 - Fork from https://github.com/budulinek/Adafruit_MAX31865.git
+ *    the fork contains code improvement to allow continuous measurement rather than single shot measurement
+ *    this will improve reading rate but will cause self heating.
+ *    the code also allow the use of the 50Hz filter with the appropriate delay.
+*/
+
 /***************************************************
   This is a library for the Adafruit PT100/P1000 RTD Sensor w/MAX31865
 
@@ -13,9 +25,10 @@
   Written by Limor Fried/Ladyada for Adafruit Industries.
   BSD license, all text above must be included in any redistribution
  ****************************************************/
-
 #ifndef ADAFRUIT_MAX31865_H
 #define ADAFRUIT_MAX31865_H
+
+//#define MAX31865_DEBUG_LIBRARY
 
 #define MAX31865_CONFIG_REG 0x00
 #define MAX31865_CONFIG_BIAS 0x80
@@ -60,6 +73,8 @@ typedef enum max31865_numwires {
   MAX31865_4WIRE = 0
 } max31865_numwires_t;
 
+enum t_state : byte {STATE1, STATE2, STATE3}; // for asynchronous mode
+
 /*! Interface class for the MAX31865 RTD Sensor reader */
 class Adafruit_MAX31865 {
 public:
@@ -68,11 +83,14 @@ public:
   Adafruit_MAX31865(int8_t spi_cs);
 
   bool begin(max31865_numwires_t x = MAX31865_2WIRE);
-  void reconfigure(void);
 
   uint8_t readFault(void);
   void clearFault(void);
   uint16_t readRTD();
+
+  bool readRTDAsync(uint16_t& rtd); //added by JD modified by Sylvain Boyer
+  float temperatureAsync(float Rt, float RTDnominal, float refResistor); //added by JD
+ 
 
   void setWires(max31865_numwires_t wires);
   void autoConvert(bool b);
@@ -80,6 +98,11 @@ public:
   void enableBias(bool b);
 
   float temperature(float RTDnominal, float refResistor);
+  void setState(t_state new_state);
+
+  #ifdef MAX31865_DEBUG_LIBRARY
+    uint8_t debugConfigRegister(void);
+  #endif
 
 private:
   Adafruit_SPIDevice spi_dev;
@@ -90,6 +113,22 @@ private:
   uint16_t readRegister16(uint8_t addr);
 
   void writeRegister8(uint8_t addr, uint8_t reg);
+  
+  // bias voltage
+  bool bias;
+  
+  // continuous conversion
+  bool continuous;
+  
+  // 50Hz filter
+  bool filter50Hz;     
+
+  //timer for Asynchro Reading
+  uint32_t chrono;   //added Sylvain Boyer
+  // state for asynchronous mode
+  t_state state; //Does static matter?
+
+
 };
 
 #endif

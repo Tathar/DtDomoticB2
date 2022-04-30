@@ -70,7 +70,7 @@ void DT_receve_callback(MQTTClient *client, char topic[], char bytes[], int leng
 
     memory(true);
 }
-
+/*
 bool DT_mqtt_send(const char *topic, const float value)
 {
     // Serial.print(F("DT_mqtt_send "));
@@ -229,7 +229,7 @@ bool DT_mqtt_send(const char *topic, const char *value)
     memory(false);
     return false;
 }
-
+*/
 void init_ethernet()
 {
     debug(F(AT));
@@ -511,46 +511,79 @@ void DT_mqtt_loop()
         }
         else if (send_buffer.usage() > 0)
         {
+#define PAYLOAD_LEN 32
             debug(F(AT));
             char topic[64];
-            char payload[32];
+            char payload[PAYLOAD_LEN];
             MQTT_data data = send_buffer.get();
-            MQTT_data_get(data, topic, 64, payload, 32);
-            mqtt.publish(topic, payload);
             debug(F(AT));
+            MQTT_data_get(data, topic, 64, payload, PAYLOAD_LEN);
+            debug(F(AT));
+            Serial.print(F("send "));
+            Serial.print(topic);
+            Serial.print(F(" = "));
+            Serial.println(payload);
+            uint8_t len = strlen(payload);
+            if (len > PAYLOAD_LEN)
+                len = PAYLOAD_LEN;
+            debug(F(AT));
+            mqtt.publish(topic, payload, len);
+            debug(F(AT));
+            if (send_buffer.usage() == 0)
+            {
+                send_buffer.clean();
+            }
         }
         else if (ret_homeassistant == false)
         {
             // while (mqtt.connected() && mem_config.MQTT_online && ret_homeassistant == false)
             // {
             debug(F(AT));
-            ret = ret_homeassistant = homeassistant(false);
+            ret_homeassistant = homeassistant(false);
             debug(F(AT));
             // debug_wdt_reset();
             // mqtt.loop();
             // }
         }
-        else if (_mqtt_subscribe != nullptr && ret)
+        else
         {
-            debug(F(AT));
-            ret = _mqtt_subscribe(mqtt, false);
-            debug(F(AT));
-            // debug_wdt_reset();
-        }
-        else if (_mqtt_publish != nullptr && ret)
-        {
-            debug(F(AT));
-            ret = _mqtt_publish(false);
-            debug(F(AT));
-            // debug_wdt_reset();
-        }
-        else if (now - time >= MQTT_UPDATE)
-        {
-            time = now;
-            debug(F(AT));
-            if (_mqtt_update != nullptr)
-                _mqtt_update(mqtt, false);
-            debug(F(AT));
+            static uint8_t choix = 0;
+            switch (choix++)
+            {
+            case 0:
+                if (_mqtt_subscribe != nullptr)
+                {
+                    debug(F(AT));
+                    _mqtt_subscribe(mqtt, false);
+                    debug(F(AT));
+                    // debug_wdt_reset();
+                }
+                break;
+            case 1:
+                if (_mqtt_publish != nullptr)
+                {
+                    debug(F(AT));
+                    _mqtt_publish(false);
+                    debug(F(AT));
+                    // debug_wdt_reset();
+                }
+                break;
+            case 2:
+                if (now - time >= MQTT_UPDATE)
+                {
+                    time = now;
+                    debug(F(AT));
+                    if (_mqtt_update != nullptr)
+                        _mqtt_update(mqtt, false);
+                    debug(F(AT));
+                }
+                break;
+
+            default:
+                break;
+            }
+            if (choix == 3)
+                choix = 0;
         }
 
         mem_config.MQTT_online = true; // TODO : ne fonctionne pas si home assistant nes plus en ligne

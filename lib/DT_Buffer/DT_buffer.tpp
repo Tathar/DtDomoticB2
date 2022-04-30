@@ -14,6 +14,11 @@ DT_buffer<T>::~DT_buffer()
 {
     if (buffer != nullptr)
     {
+        while (usage() != 0)
+        {
+            T data = get();
+        }
+
         free(buffer);
         buffer = nullptr;
         buffer_len = tail = head = 0;
@@ -71,14 +76,6 @@ T DT_buffer<T>::get()
         // Serial.println(tail);
 
         ++head;
-        if (head == tail)
-        {
-
-            // Serial.println(F("buffer get free"));
-            free(buffer);
-            buffer = nullptr;
-            buffer_len = head = tail = 0;
-        }
         return ret;
     }
     // debug(AT);
@@ -90,9 +87,67 @@ void DT_buffer<T>::clear()
 {
     if (buffer != nullptr)
     {
+        while (usage() != 0)
+        {
+            T data = get();
+        }
         free(buffer);
         buffer = nullptr;
-        // buffer_len = head = tail = 0;
+        buffer_len = head = tail = 0;
+    }
+}
+
+template <typename T>
+void DT_buffer<T>::clean()
+{
+    if (buffer != nullptr)
+    {
+        if (head == tail)
+        {
+            free(buffer);
+            buffer = nullptr;
+            buffer_len = head = tail = 0;
+        }
+        else
+        {
+            if (avalible() != 0)
+            {
+                uint8_t new_size = usage();
+                // Serial.println(head_offset);
+
+                // Serial.println(F("realloc"));
+                if (tail - head <= 0) // la tete est deriere la queud
+                {
+                    for (uint8_t num = 0; num < (buffer_len - head); ++num)
+                    {
+                        // debug(AT);
+                        uint8_t from_indx = head + num;
+                        uint8_t dest_index = tail + num;
+                        memcpy((void *)&buffer[dest_index], (void *)&buffer[from_indx], sizeof(T));
+                    }
+
+                    head = tail;
+                }
+                else // la tete est devent la queud
+                {
+                    for (uint8_t num = 0; num < (tail - head); ++num)
+                    {
+                        // debug(AT);
+                        uint8_t from_indx = head + num;
+                        uint8_t dest_index = num;
+                        memcpy((void *)&buffer[dest_index], (void *)&buffer[from_indx], sizeof(T));
+                    }
+                    head = 0;
+                    tail = new_size;
+                }
+                buffer_len = new_size;
+
+                buffer = (T *)realloc(buffer, sizeof(T) * new_size);
+            }
+        }
+        free(buffer);
+        buffer = nullptr;
+        buffer_len = head = tail = 0;
     }
 }
 

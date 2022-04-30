@@ -48,8 +48,16 @@ float _temp_get(int num)
         ////auto Serial.print(TEMP_DEFAULT_PT100);
         ////auto Serial.println("°C");
         // max31865[num]->reconfigure();
-        max31865[num]->reconfigure();
+        // max31865[num]->reconfigure();
         return TEMP_DEFAULT_PT100;
+    }
+
+    if (tmp == 0)
+    {
+        ////auto Serial.print(TEMP_DEFAULT_PT100);
+        ////auto Serial.println("°C");
+        // max31865[num]->reconfigure();
+        // max31865[num]->reconfigure();
     }
     ////auto Serial.println("°C");
     int32_t digit = tmp * 100;
@@ -95,30 +103,27 @@ void DT_pt100_loop()
     static uint32_t PT100_callback_time = 0;
     uint32_t now = millis();
     float tmp = 0;
-    if (now - old_time > 1000 / TEMP_NUM)
+    if (now - old_time > 1000)
     {
         debug(F(AT));
-        old_time = now;
 
-        // for (uint8_t num = 0; num < TEMP_NUM; num++)
-        // {
-
-        static uint8_t num = 0;
-        if (num < TEMP_NUM)
+        for (uint8_t num = 0; num < TEMP_NUM; num++)
         {
-            tmp = _temp_get(num);
-            old_temp[num] = tmp;
-            ++num;
-        }
-
-        if (num == TEMP_NUM)
-        {
-            num = 0;
+            uint16_t rtd_value;
+            if (max31865[num]->readRTDAsync(rtd_value))
+            {
+                tmp = max31865[num]->temperatureAsync(rtd_value, 100, TEMP_RREF);
+                if (num == TEMP_NUM - 1)
+                {
+                    old_time = now;
+                }
+                old_temp[num] = tmp;
+            }
         }
 
         debug(F(AT));
     }
-    else if (now - PT100_callback_time >= MQTT_REFRESH / TEMP_NUM)
+    if (now - PT100_callback_time >= MQTT_REFRESH / TEMP_NUM)
     {
         PT100_callback_time = now;
         if (pt100_callback != nullptr)

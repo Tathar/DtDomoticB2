@@ -46,7 +46,7 @@ void debug_wdt_reset(const __FlashStringHelper *var);
 //#define TEMP_NUM 0
 
 // watchdog
-#define WATCHDOG_TIME WDTO_250MS
+#define WATCHDOG_TIME WDTO_1S
 
 #define MQTT
 #ifdef MQTT

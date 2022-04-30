@@ -38,6 +38,7 @@ public:
     void reseve(uint8_t);
 
     void clear();
+    void clean();
 
 private:
     // void DT_buffer::cls_debug();
