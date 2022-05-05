@@ -13,8 +13,9 @@ const char TOPIC_RELAY[] PROGMEM = "homeassistant/switch/" BOARD_IDENTIFIER "/re
 
 bool homeassistant(bool start);
 
-enum __attribute__((__packed__)) MQTT_data_type
+enum __attribute__((__packed__)) type
 {
+    ha_null,
     ha_flash_cstr,
     ha_cstr,
     ha_float,
@@ -26,9 +27,56 @@ enum __attribute__((__packed__)) MQTT_data_type
     ha_flash_cstr_tpsprintf,
     ha_cstr_tpsprintf,
 };
-struct MQTT_data
+
+class MQTT_data
 {
-    MQTT_data_type _type;
+public:
+    ~MQTT_data();
+    void store_P(const __FlashStringHelper *Topic, const char *Payload);
+    void store(const __FlashStringHelper *Topic, const __FlashStringHelper *Payload);
+    void store(const __FlashStringHelper *Topic, char const *Payload);
+    void store(const __FlashStringHelper *Topic, const float Payload);
+    void store(const __FlashStringHelper *Topic, const int8_t Payload);
+    void store(const __FlashStringHelper *Topic, const uint8_t Payload);
+    void store(const __FlashStringHelper *Topic, const uint16_t Payload);
+    void store(const __FlashStringHelper *Topic, const uint32_t Payload);
+
+    void store_P(const __FlashStringHelper *Topic, uint8_t num_t, const char *Payload);
+    void store(const __FlashStringHelper *Topic, uint8_t num_t, const __FlashStringHelper *Payload);
+    void store(const __FlashStringHelper *Topic, uint8_t num_t, char const *Payload);
+    void store(const __FlashStringHelper *Topic, uint8_t num_t, const float Payload);
+    void store(const __FlashStringHelper *Topic, uint8_t num_t, const int8_t Payload);
+    void store(const __FlashStringHelper *Topic, uint8_t num_t, const uint8_t Payload);
+    void store(const __FlashStringHelper *Topic, uint8_t num_t, const uint16_t Payload);
+    void store(const __FlashStringHelper *Topic, uint8_t num_t, const uint32_t Payload);
+
+    void store_P(const __FlashStringHelper *Topic, uint8_t num_t, const char *Payload, uint8_t num_p);
+    void store(const __FlashStringHelper *Topic, uint8_t num_t, const __FlashStringHelper *Payload, uint8_t num_p);
+    void store(const __FlashStringHelper *Topic, uint8_t num_t, const char *Payload, uint8_t num_p);
+
+    void get(char *topic, int topic_len, char *payload, int payload_len);
+
+    void print();
+
+    // template <typename T>
+    // void store(const __FlashStringHelper *Topic, T Payload)
+    // {
+    //     self._type = ha_int32_t;
+    //     self._topic = Topic;
+    //     self._int = Payload;
+    // };
+
+    // template <typename T>
+    // void store(const __FlashStringHelper *Topic, uint8_t num_t, T Payload)
+    // {
+    //     self._type = ha_int32_t_tsprintf;
+    //     self._num_t = num_t;
+    //     self._topic = Topic;
+    //     self._int = Payload;
+    // };
+
+private:
+    type _type;
     uint8_t _num_t;
     const __FlashStringHelper *_topic;
     uint8_t _num_p;
@@ -41,45 +89,45 @@ struct MQTT_data
     };
 };
 
-void MQTT_data_store_P(MQTT_data &self, const __FlashStringHelper *Topic, const char *Payload);
-void MQTT_data_store(MQTT_data &self, const __FlashStringHelper *Topic, const __FlashStringHelper *Payload);
-void MQTT_data_store(MQTT_data &self, const __FlashStringHelper *Topic, char const *Payload);
-void MQTT_data_store(MQTT_data &self, const __FlashStringHelper *Topic, const float Payload);
-void MQTT_data_store(MQTT_data &self, const __FlashStringHelper *Topic, const uint16_t Payload);
-// void MQTT_data_store(MQTT_data &self, const __FlashStringHelper *Topic, const uint8_t Payload);
-void MQTT_data_store(MQTT_data &self, const __FlashStringHelper *Topic, const uint32_t Payload);
-
-void MQTT_data_store_P(MQTT_data &self, const __FlashStringHelper *Topic, uint8_t num_t, const char *Payload);
-void MQTT_data_store(MQTT_data &self, const __FlashStringHelper *Topic, uint8_t num_t, const __FlashStringHelper *Payload);
-void MQTT_data_store(MQTT_data &self, const __FlashStringHelper *Topic, uint8_t num_t, char const *Payload);
-void MQTT_data_store(MQTT_data &self, const __FlashStringHelper *Topic, uint8_t num_t, const float Payload);
-// void MQTT_data_store(MQTT_data &self, const __FlashStringHelper *Topic, uint8_t num_t, const uint8_t Payload);
-void MQTT_data_store(MQTT_data &self, const __FlashStringHelper *Topic, uint8_t num_t, const uint16_t Payload);
-void MQTT_data_store(MQTT_data &self, const __FlashStringHelper *Topic, uint8_t num_t, const uint32_t Payload);
-
-void MQTT_data_store_P(MQTT_data &self, const __FlashStringHelper *Topic, uint8_t num_t, const char *Payload, uint8_t num_p);
-void MQTT_data_store(MQTT_data &self, const __FlashStringHelper *Topic, uint8_t num_t, const __FlashStringHelper *Payload, uint8_t num_p);
-void MQTT_data_store(MQTT_data &self, const __FlashStringHelper *Topic, uint8_t num_t, const char *Payload, uint8_t num_p);
-
-void MQTT_data_get(MQTT_data &self, char *topic, int topic_len, char *payload, int payload_len);
-
-void MQTT_data_debug(MQTT_data &self);
-
-template <typename T>
-void MQTT_data_store(MQTT_data &self, const __FlashStringHelper *Topic, T Payload)
+class MQTT_recv_msg
 {
-    self._type = ha_int32_t;
-    self._topic = Topic;
-    self._int = Payload;
-};
+public:
+    MQTT_recv_msg()
+    {
+        _topic = nullptr;
+        _payload = nullptr;
+        _length = 0;
+    };
 
-template <typename T>
-void MQTT_data_store(MQTT_data &self, const __FlashStringHelper *Topic, uint8_t num_t, T Payload)
-{
-    self._type = ha_int32_t_tsprintf;
-    self._num_t = num_t;
-    self._topic = Topic;
-    self._int = Payload;
+    MQTT_recv_msg(char *topic, char *payload, int length)
+    {
+        _topic = strdup(topic);
+        _payload = (char *)malloc(sizeof(char) * length);
+        memcpy(_payload, payload, length);
+        _length = length;
+    };
+
+    // ~MQTT_recv_msg()
+    // {
+    //     if (_topic != nullptr)
+    //         free(_topic);
+
+    //     if (_payload != nullptr)
+    //         free(_payload);
+    // };
+
+    void clean()
+    {
+        if (_topic != nullptr)
+            free(_topic);
+
+        if (_payload != nullptr)
+            free(_payload);
+    };
+
+    char *_topic;
+    char *_payload;
+    int _length;
 };
 
 // #endif // MQTT

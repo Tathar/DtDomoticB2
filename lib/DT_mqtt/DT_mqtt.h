@@ -5,6 +5,7 @@
 #include <Ethernet.h>
 // #define MQTT_MAX_PACKET_SIZE 512
 #include <DT_buffer.h>
+// #include <CircularBuffer.h>
 #include <MQTT.h>
 
 struct MQTT_data;
@@ -30,5 +31,6 @@ void DT_mqtt_update();
 
 
 extern DT_buffer<MQTT_data> send_buffer;
+// extern CircularBuffer<MQTT_data,20> send_buffer;
 
 #endif

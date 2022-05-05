@@ -1,8 +1,8 @@
 #pragma once
-#include <Arduino.h>
+// #include <Arduino.h>
 
-#include <stdint.h>
-#include <stddef.h>
+// #include <stdint.h>
+// #include <stddef.h>
 // #include <DT_ha.h>
 
 template <typename T>
@@ -24,21 +24,28 @@ public:
     DT_buffer &operator=(const DT_buffer &) = delete;
     DT_buffer &operator=(DT_buffer &&) = delete;
 
-    void append(T &data);
-    T get();
+    void push(T data);
+    T shift();
 
-    uint8_t inline size() const
+    inline uint8_t capacity() const
     {
-        return (buffer_len);
+        return buffer_len;
     };
 
-    uint8_t avalible() const;
-    uint8_t usage() const;
+    inline uint8_t available() const
+    {
+        return buffer_len - count;
+    };
 
-    void reseve(uint8_t);
+    inline uint8_t size() const
+    {
+        return count;
+    };
+
+    void reserve(uint8_t Size);
 
     void clear();
-    void clean();
+    void clean(uint8_t Size);
 
 private:
     // void DT_buffer::cls_debug();
@@ -47,6 +54,7 @@ private:
     uint8_t tail;
     uint8_t head;
     uint8_t buffer_len;
+    uint8_t count;
 };
 
 #include <DT_buffer.tpp>

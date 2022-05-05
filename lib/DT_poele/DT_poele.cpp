@@ -79,7 +79,7 @@ void DT_Poele_loop()
 
     if (now - old >= 1000)
     {
-        debug(F(AT));
+     //220502  debug(F(AT));
         old = now;
         // bool old_ev1 = ev1;
         if (eeprom_config.poele_mode == DT_POELE_NORMAL)
@@ -208,7 +208,7 @@ void DT_Poele_loop()
         DT_relay(MARCHE_POELE, poele);
         DT_relay(RELAY_EV1, ev1);
 
-        debug(F(AT));
+     //220502  debug(F(AT));
     }
 
     if (poele_mode_callback != nullptr && async_call_poele_mode == true)

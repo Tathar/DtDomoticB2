@@ -3,6 +3,7 @@
 #include <DT_eeprom.h>
 #include <DT_ha.h>
 #include <DT_buffer.h>
+// #include <CircularBuffer.h>
 
 #define add0x2(s) 0x##s
 #define toHEX(s) add0x2(s)
@@ -25,9 +26,11 @@ bool (*_mqtt_subscribe)(MQTTClient &mqtt, bool start);
 bool (*_mqtt_publish)(bool start);
 void (*_mqtt_receve)(MQTTClient *client, const char topic[], const char bytes[], const int length);
 
-String rcv_topic;
-String rcv_payload;
+// String rcv_topic;
+// String rcv_payload;
 DT_buffer<MQTT_data> send_buffer;
+DT_buffer<MQTT_recv_msg> recv_buffer;
+// CircularBuffer<MQTT_data,20> send_buffer;
 // uint8_t send_buffer_len;
 // uint8_t send_buffer_read;
 // uint8_t send_buffer_write;
@@ -55,19 +58,24 @@ void DT_mqtt_set_receve_callback(void (*mqtt_receve)(MQTTClient *client, const c
 
 void DT_receve_callback(MQTTClient *client, char topic[], char bytes[], int length)
 {
-    if (rcv_topic.length() > 0)
-    {
-        rcv_topic += F("|");
-        rcv_topic += topic;
-        rcv_payload += F("|");
-        rcv_payload += bytes;
-    }
-    else
-    {
-        rcv_topic = topic;
-        rcv_payload = bytes;
-    }
+    // if (rcv_topic.length() > 0)
+    // {
+    //     rcv_topic += F("|");
+    //     rcv_topic += topic;
+    //     rcv_payload += F("|");
+    //     rcv_payload += bytes;
+    // }
+    // else
+    // {
+    //     rcv_topic = topic;
+    //     rcv_payload = bytes;
+    // }
 
+    debug(F(AT));
+    MQTT_recv_msg recv(topic, bytes, length);
+    debug(F(AT));
+    recv_buffer.push(recv);
+    debug(F(AT));
     memory(true);
 }
 /*
@@ -78,7 +86,7 @@ bool DT_mqtt_send(const char *topic, const float value)
     // Serial.print(F(" -> "));
     // Serial.println(value);
     memory(false);
-    debug(F(AT));
+ //220502  debug(F(AT));
     debug_wdt_reset(F(AT));
     ;
     if (mqtt.connected())
@@ -113,7 +121,7 @@ bool DT_mqtt_send(const char *topic, const unsigned int value)
     // Serial.print(F(" -> "));
     // Serial.println(value);
     memory(false);
-    debug(F(AT));
+ //220502  debug(F(AT));
     if (mqtt.connected())
     {
         // debug(AT);
@@ -144,7 +152,7 @@ bool DT_mqtt_send(const char *topic, const int value)
     // Serial.print(F(" -> "));
     // Serial.println(value);
     memory(false);
-    debug(F(AT));
+ //220502  debug(F(AT));
     if (mqtt.connected())
     {
         // debug(AT);
@@ -175,11 +183,11 @@ bool DT_mqtt_send(const char *topic, const uint32_t value)
     // Serial.print(topic);
     // Serial.print(F(" -> "));
     // Serial.println(value);
-    debug(F(AT));
+ //220502  debug(F(AT));
 
     if (mqtt.connected())
     {
-        debug(F(AT));
+     //220502  debug(F(AT));
         char buffer[32];
         sprintf(buffer, "%" PRIu32, value);
         memory(false);
@@ -209,7 +217,7 @@ bool DT_mqtt_send(const char *topic, const char *value)
     // Serial.print(F(" -> "));
     // Serial.println(value);
 
-    debug(F(AT));
+ //220502  debug(F(AT));
     if (mqtt.connected())
     {
         // debug(AT);
@@ -232,7 +240,7 @@ bool DT_mqtt_send(const char *topic, const char *value)
 */
 void init_ethernet()
 {
-    debug(F(AT));
+    // 220502  debug(F(AT));
     memory(true);
     Ethernet.init(NETWORK_CS);
     byte mac[] = {MAC1, MAC2, MAC3, MAC4, MAC5, MAC6};
@@ -334,10 +342,12 @@ void DT_mqtt_init()
     //  }
     _mqtt_update = nullptr;
     _mqtt_subscribe = nullptr;
-    _mqtt_publish = nullptr,
+    _mqtt_publish = nullptr;
     //  mqtt.setCallback(&test_mqtt_receve);
-        rcv_topic.reserve(32);
-    rcv_payload.reserve(16);
+    send_buffer.reserve(6);
+    send_buffer.reserve(2);
+    // rcv_topic.reserve(32);
+    // rcv_payload.reserve(16);
     // send_buffer = nullptr;
     // send_buffer_len = 0;
     // send_buffer_read = 0;
@@ -376,6 +386,7 @@ void DT_mqtt_loop()
         if (now - keep_alive_timout > 1000)
         {
             send_buffer.clear();
+            send_buffer.reserve(6);
         }
 
         // wdt_enable(WDTO_8S); // watchdog at 8 secdons
@@ -397,8 +408,8 @@ void DT_mqtt_loop()
         }
         else if (now - last_reconnection_time > 5000)
         {
-            debug(F(AT));
-            // Serial.println("DT_mqtt_loop 4");
+            // 220502  debug(F(AT));
+            //  Serial.println("DT_mqtt_loop 4");
             last_reconnection_time = now;
             if (reset && now - reset_time > 60000)
             {
@@ -440,15 +451,15 @@ void DT_mqtt_loop()
 
             if (as_ethernet && link_status)
             {
-                wdt_enable(WDTO_2S);
+                wdt_enable(WDTO_8S);
                 debug_wdt_reset(F(AT));
-                debug(F(AT));
-                // old_link_status = true;
+                // 220502  debug(F(AT));
+                //  old_link_status = true;
                 if (mqtt.connect(MQTT_CLIENT_ID, MQTT_USER, MQTT_PASSWORD, false))
                 {
                     reset_time = 0;
-                    debug(F(AT));
-                    // Serial.print(millis());
+                    // 220502  debug(F(AT));
+                    //  Serial.print(millis());
                     Serial.println(F("MQTT connected"));
                     mem_config.MQTT_online = true; // TODO : ne fonctionne pas si home assistant nes plus en ligne
                     memory(true);
@@ -490,60 +501,69 @@ void DT_mqtt_loop()
 
         // Serial.println(F("loop1"));
         mqtt.loop();
-        if (_mqtt_receve != nullptr && rcv_topic.length() > 0) // traitement du buffer de reception de donnée
+        // if (_mqtt_receve != nullptr && rcv_topic.length() > 0) // traitement du buffer de reception de donnée
+        // {
+        //     // 220502  debug(F(AT));
+        //     int topic_index = rcv_topic.indexOf(F("|"));
+        //     if (topic_index == -1) // only one data in rcv_topic
+        //     {
+        //         _mqtt_receve(&mqtt, rcv_topic.c_str(), rcv_payload.c_str(), rcv_payload.length());
+        //         rcv_topic = "";
+        //         rcv_payload = "";
+        //     }
+        //     else // many data in rcv_topic
+        //     {
+        //         int payload_index = rcv_payload.indexOf(F("|"));
+        //         _mqtt_receve(&mqtt, rcv_topic.substring(0, topic_index - 1).c_str(), rcv_payload.substring(0, payload_index - 1).c_str(), rcv_payload.substring(0, payload_index - 1).length());
+        //         rcv_topic.remove(0, topic_index + 1);
+        //         rcv_payload.remove(0, payload_index + 1);
+        //     }
+        //     // 220502  debug(F(AT));
+        if (_mqtt_receve != nullptr && recv_buffer.size() > 0) // traitement du buffer de reception de donnée
         {
             debug(F(AT));
-            int topic_index = rcv_topic.indexOf(F("|"));
-            if (topic_index == -1) // only one data in rcv_topic
-            {
-                _mqtt_receve(&mqtt, rcv_topic.c_str(), rcv_payload.c_str(), rcv_payload.length());
-                rcv_topic = "";
-                rcv_payload = "";
-            }
-            else // many data in rcv_topic
-            {
-                int payload_index = rcv_payload.indexOf(F("|"));
-                _mqtt_receve(&mqtt, rcv_topic.substring(0, topic_index - 1).c_str(), rcv_payload.substring(0, payload_index - 1).c_str(), rcv_payload.substring(0, payload_index - 1).length());
-                rcv_topic.remove(0, topic_index + 1);
-                rcv_payload.remove(0, payload_index + 1);
-            }
-            debug(F(AT));
+            MQTT_recv_msg recv = recv_buffer.shift();
+            _mqtt_receve(&mqtt, recv._topic, recv._payload, recv._length);
+            recv.clean();
+            send_buffer.clean(2);
         }
-        else if (send_buffer.usage() > 0)
+        else if (send_buffer.size() > 0)
         {
-#define PAYLOAD_LEN 32
-            debug(F(AT));
-            char topic[64];
-            char payload[PAYLOAD_LEN];
-            MQTT_data data = send_buffer.get();
-            debug(F(AT));
-            MQTT_data_get(data, topic, 64, payload, PAYLOAD_LEN);
-            debug(F(AT));
+            // 220502  debug(F(AT));
+            char topic[MAX_TOPIC];
+            char payload[MAX_PAYLOAD];
+            MQTT_data data = send_buffer.shift();
+            data.get(topic, 64, payload, MAX_PAYLOAD);
             Serial.print(F("send "));
             Serial.print(topic);
             Serial.print(F(" = "));
             Serial.println(payload);
-            uint8_t len = strlen(payload);
-            if (len > PAYLOAD_LEN)
-                len = PAYLOAD_LEN;
-            debug(F(AT));
+            uint16_t len = strlen(payload);
+            if (len > MAX_PAYLOAD)
+                len = MAX_PAYLOAD;
             mqtt.publish(topic, payload, len);
-            debug(F(AT));
-            if (send_buffer.usage() == 0)
-            {
-                send_buffer.clean();
-            }
+            // Serial.print(F("Buffer capacity = "));
+            // Serial.println(send_buffer.capacity());
+            // Serial.print(F("Buffer size = "));
+            // Serial.println(send_buffer.size());
+            // Serial.print(F("Buffer available = "));
+            // Serial.println(send_buffer.available());
+            // if (send_buffer.size() == 0)
+            // {
+            send_buffer.clean(6);
+            // }
+            // 220502  debug(F(AT));
         }
         else if (ret_homeassistant == false)
         {
             // while (mqtt.connected() && mem_config.MQTT_online && ret_homeassistant == false)
             // {
-            debug(F(AT));
+            // 220502  debug(F(AT));
             ret_homeassistant = homeassistant(false);
-            debug(F(AT));
-            // debug_wdt_reset();
-            // mqtt.loop();
-            // }
+            // 220502  debug(F(AT));
+            //  debug_wdt_reset();
+            //  mqtt.loop();
+            //  }
         }
         else
         {
@@ -553,29 +573,29 @@ void DT_mqtt_loop()
             case 0:
                 if (_mqtt_subscribe != nullptr)
                 {
-                    debug(F(AT));
+                    // 220502  debug(F(AT));
                     _mqtt_subscribe(mqtt, false);
-                    debug(F(AT));
-                    // debug_wdt_reset();
+                    // 220502  debug(F(AT));
+                    //  debug_wdt_reset();
                 }
                 break;
             case 1:
                 if (_mqtt_publish != nullptr)
                 {
-                    debug(F(AT));
+                    // 220502  debug(F(AT));
                     _mqtt_publish(false);
-                    debug(F(AT));
-                    // debug_wdt_reset();
+                    // 220502  debug(F(AT));
+                    //  debug_wdt_reset();
                 }
                 break;
             case 2:
                 if (now - time >= MQTT_UPDATE)
                 {
                     time = now;
-                    debug(F(AT));
+                    // 220502  debug(F(AT));
                     if (_mqtt_update != nullptr)
                         _mqtt_update(mqtt, false);
-                    debug(F(AT));
+                    // 220502  debug(F(AT));
                 }
                 break;
 

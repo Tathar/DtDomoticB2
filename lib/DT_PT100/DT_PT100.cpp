@@ -105,7 +105,7 @@ void DT_pt100_loop()
     float tmp = 0;
     if (now - old_time > 1000)
     {
-        debug(F(AT));
+     //220502  debug(F(AT));
 
         for (uint8_t num = 0; num < TEMP_NUM; num++)
         {
@@ -121,7 +121,7 @@ void DT_pt100_loop()
             }
         }
 
-        debug(F(AT));
+     //220502  debug(F(AT));
     }
     if (now - PT100_callback_time >= MQTT_REFRESH / TEMP_NUM)
     {

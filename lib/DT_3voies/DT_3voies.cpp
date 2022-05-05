@@ -451,7 +451,7 @@ void DT_3voies_loop()
     }
     else if (now - old_now > 1000 / 3)
     {
-        debug(F(AT));
+        //220502  debug(F(AT));
         old_now = now;
 
         enum DT_3voie

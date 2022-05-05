@@ -24,6 +24,10 @@ void debug_wdt_reset(const __FlashStringHelper *var);
 #define BOARD_SW_VERSION "0.2"
 #define BOARD_IDENTIFIER "DTB02-001"
 
+
+#define MAX_TOPIC 64
+#define MAX_PAYLOAD 272
+
 #ifdef __GIT_HASH__
 #define BOARD_SW_VERSION_PRINT BOARD_SW_VERSION " (" __GIT_HASH__ ")"
 #else
@@ -46,7 +50,7 @@ void debug_wdt_reset(const __FlashStringHelper *var);
 //#define TEMP_NUM 0
 
 // watchdog
-#define WATCHDOG_TIME WDTO_1S
+#define WATCHDOG_TIME WDTO_8S
 
 #define MQTT
 #ifdef MQTT

@@ -1,12 +1,13 @@
-#include <DT_buffer.h>
-#include <DT_ha.h>
-#include <config.h>
+#include "DT_buffer.h"
+// #include <cstdint>
+// #include <stdlib.h>
+// #include <cstring>
 
 template <typename T>
 DT_buffer<T>::DT_buffer()
 {
     buffer = nullptr;
-    buffer_len = tail = head = 0;
+    buffer_len = count = tail = head = 0;
 }
 
 template <typename T>
@@ -14,19 +15,19 @@ DT_buffer<T>::~DT_buffer()
 {
     if (buffer != nullptr)
     {
-        while (usage() != 0)
+        while (available() != 0)
         {
-            T data = get();
+            T data = shift();
         }
 
         free(buffer);
         buffer = nullptr;
-        buffer_len = tail = head = 0;
+        buffer_len = count = tail = head = 0;
     }
 }
 
 template <typename T>
-void DT_buffer<T>::append(T &data)
+void DT_buffer<T>::push(T data)
 {
     // debug(AT);
 
@@ -34,12 +35,12 @@ void DT_buffer<T>::append(T &data)
     // MQTT_data_debug(data);
 
     // debug(AT);
-    reseve(1);
+    reserve(1);
 
-    if (avalible() == 0)
+    if (available() == 0)
         return;
 
-    if (tail == buffer_len)
+    if (tail >= buffer_len)
     {
         tail = 0;
     }
@@ -47,18 +48,32 @@ void DT_buffer<T>::append(T &data)
     buffer[tail] = T(data);
     // MQTT_data_debug(buffer[tail]);
     ++tail;
+    ++count;
+
+    // Serial.print(F("buffer append "));
+    // // MQTT_data_debug(ret);
+    // Serial.print(F("buffer_len = "));
+    // Serial.println(buffer_len);
+    // Serial.print(F(" available = "));
+    // Serial.println(available());
+    // Serial.print(F(" available = "));
+    // Serial.println(available());
+    // Serial.print(F("head = "));
+    // Serial.println(head);
+    // Serial.print(F("tail = "));
+    // Serial.println(tail);
     // debug(AT);
 }
 
 template <typename T>
-T DT_buffer<T>::get()
+T DT_buffer<T>::shift()
 {
     T ret;
-    if (buffer != nullptr)
+    if (buffer != nullptr && count >= 0)
     {
         // debug(AT);
         // cls_debug();
-        if (head == buffer_len)
+        if (head >= buffer_len)
         {
             // debug(AT);
             head = 0;
@@ -66,16 +81,25 @@ T DT_buffer<T>::get()
 
         ret = T(buffer[head]);
 
+        ++head;
+        --count;
+        if (count == 0)
+        {
+            head = tail = 0;
+        }
+
         // Serial.print(F("buffer get "));
-        // MQTT_data_debug(ret);
+        // // MQTT_data_debug(ret);
         // Serial.print(F("buffer_len = "));
         // Serial.println(buffer_len);
+        // Serial.print(F(" available = "));
+        // Serial.println(available());
+        // Serial.print(F(" available = "));
+        // Serial.println(available());
         // Serial.print(F("head = "));
         // Serial.println(head);
         // Serial.print(F("tail = "));
         // Serial.println(tail);
-
-        ++head;
         return ret;
     }
     // debug(AT);
@@ -87,72 +111,70 @@ void DT_buffer<T>::clear()
 {
     if (buffer != nullptr)
     {
-        while (usage() != 0)
-        {
-            T data = get();
-        }
+        // while (available() != 0)
+        // {
+        //     T data = get();
+        // }
         free(buffer);
         buffer = nullptr;
-        buffer_len = head = tail = 0;
+        buffer_len = count = head = tail = 0;
     }
 }
 
 template <typename T>
-void DT_buffer<T>::clean()
+void DT_buffer<T>::clean(uint8_t Size)
 {
     if (buffer != nullptr)
     {
-        if (head == tail)
+        if (available() > Size)
         {
-            free(buffer);
-            buffer = nullptr;
-            buffer_len = head = tail = 0;
-        }
-        else
-        {
-            if (avalible() != 0)
+            uint8_t retract = available() - Size;
+            // Serial.println(head_offset);
+
+            // Serial.println(F("realloc"));
+            if (head == buffer_len) // la tete est deriere la queud
             {
-                uint8_t new_size = usage();
-                // Serial.println(head_offset);
-
-                // Serial.println(F("realloc"));
-                if (tail - head <= 0) // la tete est deriere la queud
-                {
-                    for (uint8_t num = 0; num < (buffer_len - head); ++num)
-                    {
-                        // debug(AT);
-                        uint8_t from_indx = head + num;
-                        uint8_t dest_index = tail + num;
-                        memcpy((void *)&buffer[dest_index], (void *)&buffer[from_indx], sizeof(T));
-                    }
-
-                    head = tail;
-                }
-                else // la tete est devent la queud
-                {
-                    for (uint8_t num = 0; num < (tail - head); ++num)
-                    {
-                        // debug(AT);
-                        uint8_t from_indx = head + num;
-                        uint8_t dest_index = num;
-                        memcpy((void *)&buffer[dest_index], (void *)&buffer[from_indx], sizeof(T));
-                    }
-                    head = 0;
-                    tail = new_size;
-                }
-                buffer_len = new_size;
-
-                buffer = (T *)realloc(buffer, sizeof(T) * new_size);
+                head = 0;
             }
+            else if (head > tail) // la tete est deriere la queud
+            {
+                for (uint8_t num = 0; num < (buffer_len - head); ++num)
+                {
+                    // debug(AT);
+                    uint8_t from_indx = head + num;
+                    uint8_t dest_index = (head - retract) + num;
+                    memcpy((void *)&buffer[dest_index], (void *)&buffer[from_indx], sizeof(T));
+                }
+
+                head -= retract;
+            }
+            // else if (tail < buffer_len - retract)
+            // {
+            //     tail -= retract;
+            // }
+            else if (tail >= buffer_len - retract) // la tete est devent la queud
+            {
+                uint8_t offset = retract - (buffer_len - tail);
+                for (uint8_t num = 0; num < (tail - head); ++num)
+                {
+                    // debug(AT);
+                    uint8_t from_indx = head + num;
+                    uint8_t dest_index = (head - offset ) + num;
+                    memcpy((void *)&buffer[dest_index], (void *)&buffer[from_indx], sizeof(T));
+                }
+                head -= offset;
+                tail -= offset;
+            }
+            buffer_len -= retract;
+
+            buffer = (T *)realloc(buffer, sizeof(T) * buffer_len);
+
         }
-        free(buffer);
-        buffer = nullptr;
-        buffer_len = head = tail = 0;
     }
 }
 
 template <typename T>
-void DT_buffer<T>::reseve(uint8_t Size)
+void DT_buffer<T>::reserve(uint8_t Size)
 {
     // Serial.print(F("buffer reserve "));
     // Serial.println(Size);
@@ -160,40 +182,40 @@ void DT_buffer<T>::reseve(uint8_t Size)
     if (buffer == nullptr)
     {
         // Serial.println(F("nullptr"));
-        // debug(AT);
         buffer = (T *)malloc(sizeof(T) * Size);
         if (buffer != nullptr)
         {
             buffer_len = Size;
-            head = tail = 0;
+            count = head = tail = 0;
         }
     }
     else
     {
-        // debug(AT);
         // cls_debug();
-        // Serial.print(F("avalible =  "));
-        // Serial.println(avalible());
-        if (avalible() < Size)
+        // Serial.print(F("available =  "));
+        // Serial.println(available());
+        if (available() < Size)
         {
-            uint8_t size = Size - avalible();
+            uint8_t extend = Size - available();
             // Serial.println(head_offset);
 
             // Serial.println(F("realloc"));
-            buffer = (T *)realloc(buffer, sizeof(T) * (buffer_len + size));
-            if (tail - head <= 0) // la tete est deriere la queud
+            buffer = (T *)realloc(buffer, sizeof(T) * (buffer_len + extend));
+
+            if (head >= tail && count != 0) // la tete est deriere la queud
             {
+                // Serial.println(F("move head"));
                 for (uint8_t num = 0; num < (buffer_len - head); ++num)
                 {
                     // debug(AT);
                     uint8_t from_indx = buffer_len - 1 - num;
-                    uint8_t dest_index = buffer_len + size - 1 - num;
+                    uint8_t dest_index = buffer_len + extend - 1 - num;
                     memcpy((void *)&buffer[dest_index], (void *)&buffer[from_indx], sizeof(T));
                 }
 
-                head += size;
+                head += extend;
             }
-            buffer_len += size;
+            buffer_len += extend;
         }
     }
 
@@ -205,31 +227,12 @@ void DT_buffer<T>::reseve(uint8_t Size)
     // Serial.println(tail);
 }
 
-template <typename T>
-uint8_t DT_buffer<T>::avalible() const
-{
-    return tail - head < 0 ? head - tail : buffer_len - (tail - head);
-}
-
-template <typename T>
-uint8_t DT_buffer<T>::usage() const
-{
-    return buffer_len - avalible();
-}
-
+// template <typename T>
 // void DT_buffer<T>::cls_debug()
 // {
-//     uint8_t head_offset = head - buffer;
-//     uint8_t tail_offset = tail - buffer;
-//     Serial.print(F("head = "));
-//     Serial.println(head_offset);
-
-//     Serial.print(F("tail = "));
-//     Serial.println(tail_offset);
-
-//     Serial.print(F("free size = "));
-//     if (tail - head <= 0)
-//         Serial.println(head - tail);
-//     else
-//         Serial.println(buffer_len - (tail - head));
+//     printf("head = %i\n", head);
+//     printf("tail = %i\n", tail);
+//     printf("size = %i\n", size());
+//     printf("avalible = %i\n", available());
+//     printf("capacity = %i\n", capacity());
 // }
