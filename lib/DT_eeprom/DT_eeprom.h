@@ -33,7 +33,10 @@ struct Mem_Config
 {
     float C2;         // consigne Temp PCBT
     float C3;         // consigne MCBT
-    bool MQTT_online; //connecte au broker MQTT
+    bool MQTT_online; // connecte au broker MQTT
+#if DIMMER_NUM >= 1
+    uint8_t Dimmer_old_value[DIMMER_NUM]; // Mise a l echelle
+#endif
 };
 struct Eeprom_Config
 {
@@ -76,14 +79,14 @@ struct Eeprom_Config
 
     float ratio_PCBT;
     float ratio_MCBT;
-    uint16_t out_offset_PCBT; //en ms
-    uint16_t out_offset_MCBT; //en ms
-    float in_offset_PCBT;     //en °c
-    float in_offset_MCBT;     //en °c
+    uint16_t out_offset_PCBT; // en ms
+    uint16_t out_offset_MCBT; // en ms
+    float in_offset_PCBT;     // en °c
+    float in_offset_MCBT;     // en °c
 
 #if DIMMER_NUM >= 1
-    uint16_t Dimmer_scale_min[DIMMER_NUM]; //Mise a l echelle
-    uint16_t Dimmer_scale_max[DIMMER_NUM]; //Mise a l echelle
+    uint16_t Dimmer_scale_min[DIMMER_NUM]; // Mise a l echelle
+    uint16_t Dimmer_scale_max[DIMMER_NUM]; // Mise a l echelle
 #endif
 };
 

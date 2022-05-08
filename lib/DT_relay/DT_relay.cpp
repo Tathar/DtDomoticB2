@@ -140,51 +140,42 @@ void DT_relay_loop()
     static uint32_t last = 0;
     uint32_t now = millis();
     uint32_t elapse = now - last;
-    static uint8_t async_num = 0;
-    if (elapse >= RELAY_MIN_TIME)
-    {
-        last = now;
+    static uint8_t async_num_callback = 0;
+    last = now;
 
-        for (uint8_t num = 0; num < RELAY_NUM; ++num)
+    for (uint8_t num = 0; num < RELAY_NUM; ++num)
+    {
+        if (num_delay[num] == 0)
         {
-            if (num_delay[num] == 0)
-            {
-                continue;
-            }
-            else if (num_delay[num] <= elapse)
-            {
-                num_delay[num] = 0;
-                DT_relay(num + 1, false);
-            }
-            else
-            {
-                num_delay[num] -= elapse;
-            }
+            continue;
+        }
+        else if (num_delay[num] <= elapse)
+        {
+            num_delay[num] = 0;
+            DT_relay(num + 1, false);
+        }
+        else
+        {
+            num_delay[num] -= elapse;
         }
     }
 
     if (_callback != NULL)
     {
-        // for (uint8_t num = 0; num < RELAY_NUM; ++num)
-        //{
-        if (async_num < RELAY_NUM - 1)
+        if (async_num_callback < RELAY_NUM - 1)
         {
-            ++async_num;
+            ++async_num_callback;
         }
         else
         {
-            async_num = 0;
+            async_num_callback = 0;
         }
 
-        if (async_call[async_num] == true)
+        if (async_call[async_num_callback] == true)
         {
-            // Serial.print(F("call relay_callback = "));
-            // Serial.println(async_num);
-            async_call[async_num] = false;
-            _callback(async_num + 1, DT_relay_get(async_num + 1));
+            async_call[async_num_callback] = false;
+            _callback(async_num_callback + 1, DT_relay_get(async_num_callback + 1));
         }
-
-        //}
     }
 }
 

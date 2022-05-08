@@ -27,8 +27,6 @@ void DT_Poele_init()
 {
     DT_relay(RELAY_EV1, false);
     poele_mode_callback = nullptr;
-    // poele_C1_callback = nullptr;
-    //  poele_T4_callback = nullptr;
 }
 
 // decision de mise en service du poele en fonction des temperature
@@ -79,9 +77,8 @@ void DT_Poele_loop()
 
     if (now - old >= 1000)
     {
-     //220502  debug(F(AT));
+        // 220502  debug(F(AT));
         old = now;
-        // bool old_ev1 = ev1;
         if (eeprom_config.poele_mode == DT_POELE_NORMAL)
         {
             // mode ECS + Chauffage
@@ -95,9 +92,8 @@ void DT_Poele_loop()
             ev1 = false;
             poele = false;
         }
-        else if (eeprom_config.poele_mode == DT_POELE_ECS)
+        else if (eeprom_config.poele_mode == DT_POELE_ECS) // mode ECS uniquement
         {
-            // mode ECS uniquement
             ev1 = true;
             // temperature envoyer au poele
 
@@ -110,7 +106,6 @@ void DT_Poele_loop()
                 }
                 else if (min(DT_pt100_get(PT100_ECS1), DT_pt100_get(PT100_ECS2)) > (eeprom_config.C5 + eeprom_config.C7))
                 {
-                    // poele = false;
                     poele = true;
                     eeprom_config.poele_mode = DT_POELE_NORMAL;
                 }
@@ -124,7 +119,6 @@ void DT_Poele_loop()
                 }
                 else if (DT_pt100_get(PT100_ECS1) > (eeprom_config.C5 + eeprom_config.C7))
                 {
-                    // poele = false;
                     poele = true;
                     eeprom_config.poele_mode = DT_POELE_NORMAL;
                 }
@@ -138,7 +132,6 @@ void DT_Poele_loop()
                 }
                 else if (DT_pt100_get(PT100_ECS2) > (eeprom_config.C5 + eeprom_config.C7))
                 {
-                    // poele = false;
                     poele = true;
                     eeprom_config.poele_mode = DT_POELE_NORMAL;
                 }
@@ -181,34 +174,34 @@ void DT_Poele_loop()
         // securité
         if (DT_pt100_get(PT100_H_BALON) > POELE_MAX_TEMPERATURE)
         {
-            // temperature envoyer au poele
+            // arret du poele
             poele = false;
         }
         else if (DT_pt100_get(PT100_M_BALON) > POELE_MAX_TEMPERATURE)
         {
-            // temperature envoyer au poele
+            // arret du poele
             poele = false;
         }
         else if (DT_pt100_get(PT100_B_BALON) > POELE_MAX_TEMPERATURE)
         {
-            // temperature envoyer au poele
+            // arret du poele
             poele = false;
         }
         else if (DT_pt100_get(PT100_ECS1) > POELE_MAX_TEMPERATURE)
         {
-            // temperature envoyer au poele
+            // arret du poele
             poele = false;
         }
         else if (DT_pt100_get(PT100_ECS2) > POELE_MAX_TEMPERATURE)
         {
-            // temperature envoyer au poele
+            // arret du poele
             poele = false;
         }
 
         DT_relay(MARCHE_POELE, poele);
         DT_relay(RELAY_EV1, ev1);
 
-     //220502  debug(F(AT));
+        // 220502  debug(F(AT));
     }
 
     if (poele_mode_callback != nullptr && async_call_poele_mode == true)

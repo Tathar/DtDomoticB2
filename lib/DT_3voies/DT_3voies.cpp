@@ -7,8 +7,8 @@
 
 #include <config.h>
 
-// T1 = Temp Ballon					T2 = Temp ECS							T3 = Temp ECS2
-// T5 = Temp Extérieur					T6 = Temp Vanne 3V PCBT					T7 = Temp Vanne 3V MCBT				T8 = Temp Vanne 3V Jacuzzi
+// T1 = Temp Ballon		T2 = Temp ECS			    T3 = Temp ECS2
+// T5 = Temp Extérieur	T6 = Temp Vanne 3V PCBT	    T7 = Temp Vanne 3V MCBT	    T8 = Temp Vanne 3V Jacuzzi
 
 #define NB_VANNE3_VOIES 2
 
@@ -47,11 +47,13 @@ bool async_call_pcbt_pid;
 void (*_callback_mcbt_pid)(const float P, const float I, const float D, const float Out);
 bool async_call_mcbt_pid;
 
+// mise a l'échelle
 float scale(float in, float in_min, float in_max, float out_min, float out_max)
 {
     return ((((in - in_min) / (in_max - in_min)) * (out_max - out_min)) + out_min);
 }
 
+// initioalisation des vanne 3 voies
 void DT_3voies_init()
 {
 
@@ -195,6 +197,7 @@ void DT_3voies_init()
     Output_MCBT = 0;
 }
 
+// boucle principale des vanne 3 voie
 void DT_3voies_loop()
 {
     uint32_t now = millis();
@@ -451,7 +454,7 @@ void DT_3voies_loop()
     }
     else if (now - old_now > 1000 / 3)
     {
-        //220502  debug(F(AT));
+        // 220502  debug(F(AT));
         old_now = now;
 
         enum DT_3voie
@@ -502,6 +505,7 @@ void DT_3voies_loop()
     }
 }
 
+// changement du Mode de fonctionnement de la vanne 3 voie du planché chaffant
 void DT_3voies_PCBT_set_mode(DT_3voies_mode mode)
 {
     eeprom_config.mode_3voies_PCBT = mode;
@@ -536,6 +540,7 @@ void DT_3voies_PCBT_set_mode(DT_3voies_mode mode)
     sauvegardeEEPROM();
 }
 
+// changement du Mode de fonctionnement de la vanne 3 voie du mure chauffant
 void DT_3voies_MCBT_set_mode(DT_3voies_mode mode)
 {
     eeprom_config.mode_3voies_MCBT = mode;
@@ -571,16 +576,19 @@ void DT_3voies_MCBT_set_mode(DT_3voies_mode mode)
     sauvegardeEEPROM();
 }
 
+// recuperation du Mode de fonctionnement de la vanne 3 voie du planché chaffant
 DT_3voies_mode DT_3voies_PCBT_get_mode(void)
 {
     return eeprom_config.mode_3voies_PCBT;
 }
 
+// recuperation du Mode de fonctionnement de la vanne 3 voie du mur chaffant
 DT_3voies_mode DT_3voies_MCBT_get_mode(void)
 {
     return eeprom_config.mode_3voies_MCBT;
 }
 
+// deffinition du coefician Proportionnel de la vanne 3 voie du planché chaffant
 void DT_3voies_PCBT_set_KP(float kp)
 {
     eeprom_config.pid_pcbt.KP = kp;
@@ -589,6 +597,7 @@ void DT_3voies_PCBT_set_KP(float kp)
     pid_pcbt.SetTunings(eeprom_config.pid_pcbt.KP, eeprom_config.pid_pcbt.KI, eeprom_config.pid_pcbt.KD);
 }
 
+// deffinition du coefician Proportionnel de la vanne 3 voie du mur chaffant
 void DT_3voies_MCBT_set_KP(float kp)
 {
     eeprom_config.pid_mcbt.KP = kp;
@@ -597,6 +606,7 @@ void DT_3voies_MCBT_set_KP(float kp)
     pid_mcbt.SetTunings(eeprom_config.pid_mcbt.KP, eeprom_config.pid_mcbt.KI, eeprom_config.pid_mcbt.KD);
 }
 
+// deffinition du coefician d'Integral de la vanne 3 voie du planché chaffant
 void DT_3voies_PCBT_set_KI(float ki)
 {
     eeprom_config.pid_pcbt.KI = ki;
@@ -605,6 +615,7 @@ void DT_3voies_PCBT_set_KI(float ki)
     pid_pcbt.SetTunings(eeprom_config.pid_pcbt.KP, eeprom_config.pid_pcbt.KI, eeprom_config.pid_pcbt.KD);
 }
 
+// deffinition du coefician d'Integral de la vanne 3 voie du mur chaffant
 void DT_3voies_MCBT_set_KI(float ki)
 {
     eeprom_config.pid_mcbt.KI = ki;
@@ -613,6 +624,7 @@ void DT_3voies_MCBT_set_KI(float ki)
     pid_mcbt.SetTunings(eeprom_config.pid_mcbt.KP, eeprom_config.pid_mcbt.KI, eeprom_config.pid_mcbt.KD);
 }
 
+// deffinition du coefician de Dérivation de la vanne 3 voie du planché chaffant
 void DT_3voies_PCBT_set_KD(float kd)
 {
     eeprom_config.pid_pcbt.KD = kd;
@@ -621,6 +633,7 @@ void DT_3voies_PCBT_set_KD(float kd)
     pid_pcbt.SetTunings(eeprom_config.pid_pcbt.KP, eeprom_config.pid_pcbt.KI, eeprom_config.pid_pcbt.KD);
 }
 
+// deffinition du coefician de Dérivation de la vanne 3 voie du mur chaffant
 void DT_3voies_MCBT_set_KD(float kd)
 {
     eeprom_config.pid_mcbt.KD = kd;
@@ -629,6 +642,7 @@ void DT_3voies_MCBT_set_KD(float kd)
     pid_mcbt.SetTunings(eeprom_config.pid_mcbt.KP, eeprom_config.pid_mcbt.KI, eeprom_config.pid_mcbt.KD);
 }
 
+// deffinition du temps cyclique du PID de la vanne 3 voie du planché chaffant
 void DT_3voies_PCBT_set_KT(uint32_t kt)
 {
     eeprom_config.pid_pcbt.KT = kt;
@@ -639,23 +653,24 @@ void DT_3voies_PCBT_set_KT(uint32_t kt)
     pid_pcbt.SetOutputLimits((float)((float)eeprom_config.pid_pcbt.KT * -1.0), (float)eeprom_config.pid_pcbt.KT);
 }
 
+// deffinition du temps cyclique du PID de la vanne 3 voie du mur chaffant
 void DT_3voies_MCBT_set_KT(uint32_t kt)
 {
     eeprom_config.pid_mcbt.KT = kt;
     sauvegardeEEPROM();
-    // set loop time (KT)
     pid_mcbt.SetSampleTimeUs(eeprom_config.pid_mcbt.KT * 1000);
-    // min, max
     pid_mcbt.SetOutputLimits((float)((float)eeprom_config.pid_mcbt.KT * -1.0), (float)eeprom_config.pid_mcbt.KT);
 }
 
+
+// deffinition du sens de fonctionnement du PID de la vanne 3 voie du planché chaffant
 void DT_3voies_PCBT_set_action(QuickPID::Action action)
 {
     eeprom_config.pid_pcbt.action = action;
-    // sauvegardeEEPROM();
     pid_pcbt.SetControllerDirection(eeprom_config.pid_pcbt.action);
 }
 
+// deffinition du sens de fonctionnement du PID de la vanne 3 voie du mure chaffant
 void DT_3voies_MCBT_set_action(QuickPID::Action action)
 {
     eeprom_config.pid_mcbt.action = action;
@@ -663,6 +678,7 @@ void DT_3voies_MCBT_set_action(QuickPID::Action action)
     pid_mcbt.SetControllerDirection(eeprom_config.pid_pcbt.action);
 }
 
+// deffinition du mode fonctionnement du coefician KP de la vanne 3 voie du planché chaffant
 void DT_3voies_PCBT_set_pmode(QuickPID::pMode pMode)
 {
     eeprom_config.pid_pcbt.pmode = pMode;
@@ -670,6 +686,8 @@ void DT_3voies_PCBT_set_pmode(QuickPID::pMode pMode)
     pid_pcbt.SetProportionalMode(eeprom_config.pid_pcbt.pmode);
 }
 
+
+// deffinition du mode fonctionnement du coefician KP de la vanne 3 voie du mur chaffant
 void DT_3voies_MCBT_set_pmode(QuickPID::pMode pMode)
 {
     eeprom_config.pid_mcbt.pmode = pMode;
@@ -677,6 +695,8 @@ void DT_3voies_MCBT_set_pmode(QuickPID::pMode pMode)
     pid_mcbt.SetProportionalMode(eeprom_config.pid_mcbt.pmode);
 }
 
+
+// deffinition du mode fonctionnement du coefician KD de la vanne 3 voie du planché chaffant
 void DT_3voies_PCBT_set_dmode(QuickPID::dMode dMode)
 {
     eeprom_config.pid_pcbt.dmode = dMode;
@@ -684,6 +704,8 @@ void DT_3voies_PCBT_set_dmode(QuickPID::dMode dMode)
     pid_pcbt.SetDerivativeMode(eeprom_config.pid_pcbt.dmode);
 }
 
+
+// deffinition du mode fonctionnement du coefician KD de la vanne 3 voie du mur chaffant
 void DT_3voies_MCBT_set_dmode(QuickPID::dMode dMode)
 {
     eeprom_config.pid_mcbt.dmode = dMode;
@@ -691,6 +713,7 @@ void DT_3voies_MCBT_set_dmode(QuickPID::dMode dMode)
     pid_mcbt.SetDerivativeMode(eeprom_config.pid_mcbt.dmode);
 }
 
+// deffinition du mode de reinitialisation de l'acumulateur KI de la vanne 3 voie du planché chaffant
 void DT_3voies_PCBT_set_iawmode(QuickPID::iAwMode iAwMode)
 {
     eeprom_config.pid_pcbt.iawmode = iAwMode;
@@ -698,6 +721,7 @@ void DT_3voies_PCBT_set_iawmode(QuickPID::iAwMode iAwMode)
     pid_pcbt.SetAntiWindupMode(eeprom_config.pid_pcbt.iawmode);
 }
 
+// deffinition du mode de reinitialisation de l'acumulateur KI de la vanne 3 voie du mur chaffant
 void DT_3voies_MCBT_set_iawmode(QuickPID::iAwMode iAwMode)
 {
     eeprom_config.pid_mcbt.iawmode = iAwMode;

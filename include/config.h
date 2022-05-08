@@ -24,9 +24,8 @@ void debug_wdt_reset(const __FlashStringHelper *var);
 #define BOARD_SW_VERSION "0.2"
 #define BOARD_IDENTIFIER "DTB02-001"
 
-
 #define MAX_TOPIC 64
-#define MAX_PAYLOAD 272
+#define MAX_PAYLOAD 512
 
 #ifdef __GIT_HASH__
 #define BOARD_SW_VERSION_PRINT BOARD_SW_VERSION " (" __GIT_HASH__ ")"
@@ -44,7 +43,12 @@ void debug_wdt_reset(const __FlashStringHelper *var);
 
 // Dimmer
 #define DIMMER_NUM 14 // max 14
-
+#define MIN_CANDLE_TIME 100
+#define MAX_CANDLE_TIME 500
+#define CANDLE_OFSSET_PERCENTE_MIN 0 //en pourcentage
+#define CANDLE_OFSSET_PERCENTE_MAX 10 //en pourcentage
+#define CANDLE_SPEED_MIN 10  // en miliseconde
+#define CANDLE_SPEED_MAX 100 // en miliseconde
 // PT100
 #define TEMP_NUM 3 // 12 ok 13 ko // max 18
 //#define TEMP_NUM 0

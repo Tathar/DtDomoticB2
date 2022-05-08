@@ -4,7 +4,6 @@
 #include <DT_mqtt.h>
 #include <DT_ha.h>
 #include <DT_buffer.h>
-// #include <CircularBuffer.h>
 
 inline void DT_mqtt_send(MQTT_data data)
 {
