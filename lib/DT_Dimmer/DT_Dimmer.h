@@ -7,12 +7,12 @@
 #include "Arduino.h"
 #endif
 
-//init all input/output and values
+// init all input/output and values
 void Dimmer_init(void);
 
 void dimmer_loop();
 
-//update OCR1A counter
+// update OCR1A counter
 void dimmer_debug(void);
 
 // void set_dimmer1(uint8_t percent);
@@ -43,10 +43,12 @@ void dimmer_set(uint8_t num, uint8_t percent, uint8_t time = 0, bool candle = fa
 // //get dimmer 4 value on percent
 // uint8_t get_dimmer4();
 
-//get "num" dimmer value on percent
+// get "num" dimmer value on percent
 
 uint8_t get_dimmer(uint8_t num);
 // uint8_t get_dimmer_old_value(uint8_t num);
 bool get_dimmer_candle(uint8_t num);
+
+void set_dimmer_callback(void (*callback)(const uint8_t num, const uint8_t percent, const bool candle));
 
 #endif

@@ -66,11 +66,14 @@ volatile unsigned int Timer1_count0 = 0;
 volatile unsigned int debug_max_count = 0;
 volatile unsigned int debug_min_count = 512;
 
-volatile uint8_t Dimmer_percent[DIMMER_NUM];    // in Percent
-volatile uint16_t Dimmer_value[DIMMER_NUM];     // in Slice
-volatile uint16_t Dimmer_new_value[DIMMER_NUM]; // in Slice
+volatile uint8_t Dimmer_percent[DIMMER_NUM];     // in Percent
+volatile uint8_t Dimmer_old_percent[DIMMER_NUM]; // in Percent
+volatile uint16_t Dimmer_value[DIMMER_NUM];      // in Slice
+volatile uint16_t Dimmer_new_value[DIMMER_NUM];  // in Slice
 volatile uint16_t Dimmer_time_interval[DIMMER_NUM];
 volatile bool Dimmer_candle[DIMMER_NUM];
+
+void (*_callback_dimmer)(const uint8_t num, const uint8_t percent, const bool candle);
 
 // timer 2 Overflow interrupt service routine
 // ISR(TIMER2_OVF_vect)
@@ -105,9 +108,9 @@ ISR(PCINT0_vect)
     if (!(PINB & _BV(PB0))) // PCINT0 interrupts on FALLING
     {
         TCNT1 = 0; // clear timer1
-        TCNT2 = 0; // cearr timer2
+        TCNT2 = 0; // clear timer2
         TCNT3 = 0; // clear timer3
-        TCNT4 = 0; // cearr timer4
+        TCNT4 = 0; // celar timer4
         TCNT5 = 0; // clear timer5
 
         // if (OCR2A & 0b11111111) // if OCR2A != 0
@@ -162,8 +165,11 @@ ISR(PCINT0_vect)
     }
 }
 
+// initialisation des dimmer
 void Dimmer_init(void)
 {
+
+    _callback_dimmer = nullptr;
 
     pinMode(OPT_1, INPUT); // Point zero
 
@@ -278,6 +284,11 @@ void Dimmer_init(void)
     // delay(20);
 };
 
+// demmarage / extinction du dimmer
+// num : numero du dimmer
+// percent : pourcentage du dimmer (0 pour arret)
+// time : temps de passage a la nouvelle valleur
+// candle : mode bougie (non implémanté)
 void dimmer_set(uint8_t num, uint8_t percent, uint8_t time, bool candle)
 {
     /*Serial.print(F("dimmer_set("));
@@ -329,50 +340,27 @@ void dimmer_set(uint8_t num, uint8_t percent, uint8_t time, bool candle)
     // Serial.println(Dimmer_value[num]);
 }
 
-// uint8_t dimmer_up(uint8_t num)
-// {
-//     // double scale_percent = SCALE(Dimmer_percent[num] + 1, 0, 100, DIMMER_SCALE_MIN, DIMMER_SCALE_MAX);
-//     // uint8_t temp_percent;
-//     Dimmer_percent[num] = Dimmer_percent[num] >= 100 ? 100 : Dimmer_percent[num] + 1;
-//     Dimmer_value[num] = Dimmer_new_value[num] = OCRX(Dimmer_percent[num]);
-//     // config.Dimmer_old_value[num] = Dimmer_percent[num];
-//     return Dimmer_percent[num];
-
-//     // if (Dimmer_candle[num])
-//     //     DtCan_Board_send(config.address, num + 9, CAN_BOARD_DIMMER_CANDLE, Dimmer_percent[num]);
-//     // else
-//     //     DtCan_Board_send(config.address, num + 9, CAN_BOARD_DIMMER, Dimmer_percent[num]);
-// }
-
-// uint8_t dimmer_down(uint8_t num)
-// {
-//     Dimmer_percent[num] = Dimmer_percent[num] = 0 ? 0 : Dimmer_percent[num] - 1;
-//     Dimmer_value[num] = Dimmer_new_value[num] = OCRX(Dimmer_percent[num]);
-//     // config.Dimmer_old_value[num] = Dimmer_percent[num];
-//     return Dimmer_percent[num];
-//     // if (Dimmer_candle[num])
-//     //     DtCan_Board_send(config.address, num + 9, CAN_BOARD_DIMMER_CANDLE, temp_percent);
-//     // else
-//     //     DtCan_Board_send(config.address, num + 9, CAN_BOARD_DIMMER, temp_percent);
-// }
-
+// valeur en pourcentage de fonctionnement du dimmer
+//  num: numero du dimmer
 uint8_t get_dimmer(uint8_t num)
 {
     return Dimmer_percent[num];
 }
 
+// true si le dimmer est en mode bougie
 bool get_dimmer_candle(uint8_t num)
 {
     return Dimmer_candle[num];
 };
 
+// boucle d'execcution du dimmer
 void dimmer_loop()
 {
-    static unsigned long dimmed_speed_time[4] = {0, 0, 0, 0};
+    static unsigned long dimmed_speed_time[DIMMER_NUM];
     static unsigned long dimmer_candle_old_time = 0;
     static unsigned long candle_interval = random(MIN_CANDLE_TIME, MAX_CANDLE_TIME);
 
-    for (uint8_t num = 0; num < 4; num++)
+    for (uint8_t num = 0; num < DIMMER_NUM; num++)
     {
         /// Dimmed start / stop
         if (micros() - dimmed_speed_time[num] >= Dimmer_time_interval[num])
@@ -400,16 +388,32 @@ void dimmer_loop()
             if (Dimmer_candle[num] == true) // FIXME: candle: need test and update
             {
                 dimmer_candle_old_time = millis();
-                uint8_t candle_percent = random(CANDLE_PERCENTE_MIN, CANDLE_PERCENTE_MAX + 1);
+                uint8_t candle_percent = random(CANDLE_OFSSET_PERCENTE_MIN, CANDLE_OFSSET_PERCENTE_MAX + 1);
                 // dimmer_set(num, config.Dimmer_old_value[num] - (uint8_t)((double)config.Dimmer_old_value[num] * (double)candle_percent / (double)100), CANDLE_SPEED);
-                Dimmer_time_interval[num] = CANDLE_SPEED * 10; // convert to microsecond
                 // unsigned int tmp = Dimmer_percent[num] - (uint8_t)((double)Dimmer_percent[num] * (double)candle_percent / (double)100);
                 unsigned int tmp = Dimmer_percent[num] - candle_percent;
                 // scale_percent = SCALE(tmp, 0, 100, DIMMER_SCALE_MIN, DIMMER_SCALE_MAX);
                 Dimmer_new_value[num] = to_ocrx(num, tmp);
-                Dimmer_time_interval[num] = 100;
+                Dimmer_time_interval[num] = random(CANDLE_SPEED_MIN * 10, (CANDLE_SPEED_MAX * 10) + 1); // convert to 0.1ms
                 candle_interval = random(MIN_CANDLE_TIME, MAX_CANDLE_TIME);
             }
         }
     }
+
+    static uint8_t async_num = 0;
+
+    if (_callback_dimmer != nullptr)
+    {
+        _callback_dimmer(async_num + 1, Dimmer_percent[async_num + 1], Dimmer_candle[async_num + 1]);
+
+        if (++async_num == DIMMER_NUM)
+        {
+            async_num = 0;
+        }
+    }
+}
+
+void set_dimmer_callback(void (*callback)(const uint8_t num, const uint8_t percent, const bool candle))
+{
+    _callback_dimmer = callback;
 }

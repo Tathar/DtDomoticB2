@@ -58,23 +58,6 @@ public:
 
     void print();
 
-    // template <typename T>
-    // void store(const __FlashStringHelper *Topic, T Payload)
-    // {
-    //     self._type = ha_int32_t;
-    //     self._topic = Topic;
-    //     self._int = Payload;
-    // };
-
-    // template <typename T>
-    // void store(const __FlashStringHelper *Topic, uint8_t num_t, T Payload)
-    // {
-    //     self._type = ha_int32_t_tsprintf;
-    //     self._num_t = num_t;
-    //     self._topic = Topic;
-    //     self._int = Payload;
-    // };
-
 private:
     type _type;
     uint8_t _num_t;
@@ -106,15 +89,6 @@ public:
         memcpy(_payload, payload, length);
         _length = length;
     };
-
-    // ~MQTT_recv_msg()
-    // {
-    //     if (_topic != nullptr)
-    //         free(_topic);
-
-    //     if (_payload != nullptr)
-    //         free(_payload);
-    // };
 
     void clean()
     {
