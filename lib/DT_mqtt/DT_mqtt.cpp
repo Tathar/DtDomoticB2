@@ -49,9 +49,9 @@ void DT_receve_callback(MQTTClient *client, char topic[], char bytes[], int leng
 {
     debug(F(AT));
     MQTT_recv_msg recv(topic, bytes, length);
-    debug(F(AT));
+    // debug(F(AT));
     recv_buffer.push(recv);
-    debug(F(AT));
+    // debug(F(AT));
     memory(true);
 }
 
@@ -212,7 +212,7 @@ void DT_mqtt_loop()
                 digitalWrite(NETWORK_RESET, HIGH);
                 delay(10);
                 debug_wdt_reset(F(AT));
-                ;
+                // debug_wdt_reset();
                 init_ethernet();
                 reset_time = 0;
                 reset = false;
@@ -234,6 +234,7 @@ void DT_mqtt_loop()
             {
                 wdt_enable(WDTO_8S);
                 debug_wdt_reset(F(AT));
+                // debug_wdt_reset();
                 // 220502  debug(F(AT));
                 if (mqtt.connect(MQTT_CLIENT_ID, MQTT_USER, MQTT_PASSWORD, false))
                 {
@@ -263,6 +264,7 @@ void DT_mqtt_loop()
             // debug(AT);
         }
         debug_wdt_reset(F(AT));
+        // debug_wdt_reset();
         wdt_enable(WATCHDOG_TIME);
     }
     else if (as_ethernet && link_status && mqtt.connected()) // si connecté au serveur MQTT
@@ -310,6 +312,7 @@ void DT_mqtt_loop()
         {
             // 220502  debug(F(AT));
             ret_homeassistant = homeassistant(false);
+            // ret_homeassistant = true;
             // 220502  debug(F(AT));
         }
         else

@@ -7,6 +7,17 @@
 #include "Arduino.h"
 #endif
 
+enum heat_mode
+{
+    none,
+    off,
+    comfort,
+    confort_1,
+    confort_2,
+    eco,
+    sleep
+};
+
 // init all input/output and values
 void Dimmer_init(void);
 
@@ -20,7 +31,9 @@ void dimmer_debug(void);
 // void set_dimmer3(uint8_t percent);
 // void set_dimmer4(uint8_t percent);
 
-void dimmer_set(uint8_t num, uint8_t percent, uint8_t time = 0, bool candle = false);
+void dimmer_set(uint8_t num, uint8_t percent, uint16_t time = 0, bool candle = false);
+void dimmer_set(uint8_t num, bool start, uint16_t time = 0, bool candle = false);
+void dimmer_heat(uint8_t num, heat_mode mode);
 // void dimmer_on(uint8_t num);
 // void dimmer_off(uint8_t num);
 // void dimmer_slow_set(uint8_t num, uint8_t percent);

@@ -43,6 +43,7 @@ void debug_wdt_reset(const __FlashStringHelper *var);
 
 // Dimmer
 #define DIMMER_NUM 14 // max 14
+#define DIMMER_SPEED 100 // en miliseconde
 #define MIN_CANDLE_TIME 100
 #define MAX_CANDLE_TIME 500
 #define CANDLE_OFSSET_PERCENTE_MIN 0 //en pourcentage

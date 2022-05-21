@@ -194,12 +194,12 @@ void dimmer_callback(const uint8_t num, const uint8_t percent, const bool candle
       payload = F("OFF");
     else
       payload = F("ON");
-    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/state"), num, payload);
-    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/bri_state"), num, percent);
+    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/state"), num + 1, payload);
+    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/bri_state"), num + 1, percent);
     if (candle)
-      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/fx_state"), num, F("false"));
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/fx_state"), num + 1, F("CANDLE"));
     else
-      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/fx_state"), num, F("CANDLE"));
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/fx_state"), num + 1, F("NONE"));
   }
 }
 #endif // NUM_DIMMER
@@ -1425,20 +1425,21 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
 {
 
   debug(F(AT));
-  char buffer[56];
+  char buffer[64];
+  char _topic[64];
   memory(false);
   String str_buffer;
   Serial.print("receve topic ");
   Serial.println(topic);
 
   // Copy the payload to the new buffer
-  if (length < 56)
+  if (length < 64)
   {
     memcpy(buffer, payload, length);
     buffer[length] = '\0';
 
-    // auto Serial.print("buffer = ");
-    // auto Serial.println(buffer);
+    Serial.print("buffer = ");
+    Serial.println(buffer);
   }
   else
     return;
@@ -1457,46 +1458,58 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
       DT_relay(num, false);
   }
 #ifdef DIMMER_NUM
-  else if (sscanf_P(topic, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/set"), &num) == 1) // relais
+  else if (sscanf_P(topic, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d"), &num) == 1) // dimmer
   {
-    if (strcmp(buffer, "ON") == 0)
-      dimmer_set(num, mem_config.Dimmer_old_value[num]);
-    else if (strcmp(buffer, "OFF") == 0)
-      dimmer_set(num, 0);
-  }
-  else if (sscanf_P(topic, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/bri_set"), &num) == 1) // relais
-  {
-    bool_value = get_dimmer_candle(num);
-    if (sscanf_P(buffer, PSTR("%" SCNu8), &u8t_value) == 1)
+    Serial.println("dimmer");
+    if (snprintf_P(_topic, 64, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/set"), num) > 0 && strncmp(topic, _topic, 64) == 0)
     {
-      dimmer_set(num, u8t_value, bool_value);
+      Serial.println("set");
+      bool_value = get_dimmer_candle(num - 1);
+      if (strcmp(buffer, "ON") == 0)
+      {
+        dimmer_set(num - 1, true, DIMMER_SPEED, bool_value);
+      }
+      else if (strcmp(buffer, "OFF") == 0)
+        dimmer_set(num - 1, false, DIMMER_SPEED);
     }
-  }
-  else if (sscanf_P(topic, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/fx_set"), &num) == 1) // relais
-  {
-    u8t_value = get_dimmer(num);
-    if (strcmp(buffer, "false") == 0)
+    else if (snprintf_P(_topic, 64, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/bri_set"), num) > 0 && strncmp(topic, _topic, 64) == 0) // dimmer
     {
-      dimmer_set(num, u8t_value, false);
+      Serial.println("bri_set");
+      if (sscanf_P(buffer, PSTR("%" SCNu8), &u8t_value) == 1)
+      {
+        bool_value = get_dimmer_candle(num - 1);
+        dimmer_set(num - 1, u8t_value, DIMMER_SPEED, bool_value);
+      }
     }
-    else if (strcmp(buffer, "CANDLE") == 0)
+    else if (snprintf_P(_topic, 64, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/fx_set"), num) > 0 && strncmp(topic, _topic, 64) == 0) // dimmer
     {
-      dimmer_set(num, u8t_value, true);
+      Serial.println("fx_set");
+      u8t_value = get_dimmer(num - 1);
+      if (strcmp(buffer, "NONE") == 0)
+      {
+        dimmer_set(num - 1, u8t_value, DIMMER_SPEED, false);
+      }
+      else if (strcmp(buffer, "CANDLE") == 0)
+      {
+        dimmer_set(num - 1, u8t_value, DIMMER_SPEED, true);
+      }
     }
-  }
-  else if (sscanf_P(topic, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/min_set"), &num) == 1) // relais
-  {
-    str_buffer = buffer;
-    eeprom_config.Dimmer_scale_min[num - 1] = (uint16_t) str_buffer.toDouble();
-    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/min_state"), (uint16_t) str_buffer.toDouble());
-    sauvegardeEEPROM();
-  }
-  else if (sscanf_P(topic, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/max_set"), &num) == 1) // relais
-  {
-    str_buffer = buffer;
-    eeprom_config.Dimmer_scale_max[num - 1] = (uint16_t) str_buffer.toDouble();
-    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/max_state"), (uint16_t) str_buffer.toDouble());
-    sauvegardeEEPROM();
+    else if (snprintf_P(_topic, 64, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/min_set"), num) > 0 && strncmp(topic, _topic, 64) == 0) // relais
+    {
+      Serial.println("min_set");
+      str_buffer = buffer;
+      eeprom_config.Dimmer_scale_min[num - 1] = (uint16_t)str_buffer.toDouble();
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/min_state"), num, (uint16_t)str_buffer.toDouble());
+      sauvegardeEEPROM();
+    }
+    else if (snprintf_P(_topic, 64, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/max_set"), num) > 0 && strncmp(topic, _topic, 64) == 0) // relais
+    {
+      Serial.println("max_set");
+      str_buffer = buffer;
+      eeprom_config.Dimmer_scale_max[num - 1] = (uint16_t)str_buffer.toDouble();
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/max_state"), num, (uint16_t)str_buffer.toDouble());
+      sauvegardeEEPROM();
+    }
   }
 #endif // DIMMER_NUM
 
@@ -1978,7 +1991,6 @@ void setup()
   DT_mqtt_set_subscribe_callback(mqtt_subscribe);
   DT_mqtt_set_receve_callback(mqtt_receve);
   DT_mqtt_set_publish_callback(mqtt_publish);
-
 #endif // MQTT
 
   Serial.println("starting relay");
@@ -1986,6 +1998,13 @@ void setup()
 #ifdef MQTT
   DT_relay_set_callback(relay_callback);
 #endif // MQTT
+
+  Serial.println("starting dimmer");
+  Dimmer_init();
+#ifdef MQTT
+  set_dimmer_callback(dimmer_callback);
+#endif // MQTT
+
   Serial.println("starting input");
   DT_input_init();
   DT_input_set_callback(input_callback);
@@ -2055,12 +2074,18 @@ void loop()
     interlock = BOOST_PP_COUNTER;
   }
   debug_wdt_reset(F(AT));
+  // debug_wdt_reset();
 
 #ifdef MQTT
   DT_mqtt_loop();
 #endif
 
   DT_input_loop();
+
+#if DIMMER_NUM > 0
+  dimmer_loop();
+#endif
+
   switch (interlock++)
   {
   case BOOST_PP_COUNTER:
