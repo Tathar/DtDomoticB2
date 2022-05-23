@@ -15,7 +15,7 @@ enum heat_mode
     confort_1,
     confort_2,
     eco,
-    sleep
+    sleep // Hors gel
 };
 
 // init all input/output and values
@@ -33,7 +33,7 @@ void dimmer_debug(void);
 
 void dimmer_set(uint8_t num, uint8_t percent, uint16_t time = 0, bool candle = false);
 void dimmer_set(uint8_t num, bool start, uint16_t time = 0, bool candle = false);
-void dimmer_heat(uint8_t num, heat_mode mode);
+void dimmer_set_heat_mode(uint8_t num, heat_mode Mode);
 // void dimmer_on(uint8_t num);
 // void dimmer_off(uint8_t num);
 // void dimmer_slow_set(uint8_t num, uint8_t percent);
@@ -61,6 +61,7 @@ void dimmer_heat(uint8_t num, heat_mode mode);
 uint8_t get_dimmer(uint8_t num);
 // uint8_t get_dimmer_old_value(uint8_t num);
 bool get_dimmer_candle(uint8_t num);
+heat_mode get_heat_mode(uint8_t num);
 
 void set_dimmer_callback(void (*callback)(const uint8_t num, const uint8_t percent, const bool candle));
 

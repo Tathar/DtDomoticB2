@@ -184,11 +184,11 @@ void relay_callback(const uint8_t num, const bool action)
 }
 #endif // MQTT
 
-#ifdef DIMMER_NUM
+#ifdef DIMMER_LIGHT_NUM
 void dimmer_callback(const uint8_t num, const uint8_t percent, const bool candle)
 {
   const __FlashStringHelper *payload;
-  if (num < DIMMER_NUM)
+  if (num < DIMMER_LIGHT_NUM)
   {
     if (percent == 0)
       payload = F("OFF");
@@ -582,10 +582,10 @@ bool mqtt_publish(bool start)
       }
       break;
 
-#if DIMMER_NUM > 0 // dimmer
+#if DIMMER_LIGHT_NUM > 0 // dimmer
 #include BOOST_PP_UPDATE_COUNTER()
     case BOOST_PP_COUNTER:
-      if (num < DIMMER_NUM)
+      if (num < DIMMER_LIGHT_NUM)
       {
         dimmer_callback(num + 1, get_dimmer(num + 1), get_dimmer_candle(num + 1));
         num++;
@@ -599,7 +599,7 @@ bool mqtt_publish(bool start)
 
 #include BOOST_PP_UPDATE_COUNTER()
     case BOOST_PP_COUNTER:
-      if (num < DIMMER_NUM)
+      if (num < DIMMER_LIGHT_NUM)
       {
         DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/min_state"), num + 1, eeprom_config.Dimmer_scale_min[num]);
         num++;
@@ -613,7 +613,7 @@ bool mqtt_publish(bool start)
 
 #include BOOST_PP_UPDATE_COUNTER()
     case BOOST_PP_COUNTER:
-      if (num < DIMMER_NUM)
+      if (num < DIMMER_LIGHT_NUM)
       {
         DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/max_state"), num + 1, eeprom_config.Dimmer_scale_max[num]);
         num++;
@@ -624,7 +624,7 @@ bool mqtt_publish(bool start)
         num = 0;
       }
       break;
-#endif // DIMMER_NUM
+#endif // DIMMER_LIGHT_NUM
 
 #if TEMP_NUM > 0 // PT100
 #include BOOST_PP_UPDATE_COUNTER()
@@ -1082,10 +1082,10 @@ bool mqtt_subscribe(MQTTClient &mqtt, bool start)
       }
       break;
 
-#ifdef DIMMER_NUM
+#ifdef DIMMER_LIGHT_NUM
 #include BOOST_PP_UPDATE_COUNTER()
     case BOOST_PP_COUNTER:
-      if (num < DIMMER_NUM)
+      if (num < DIMMER_LIGHT_NUM)
       {
         snprintf_P(topic, 56, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/set"), num + 1);
         mqtt.subscribe(topic);
@@ -1100,7 +1100,7 @@ bool mqtt_subscribe(MQTTClient &mqtt, bool start)
 
 #include BOOST_PP_UPDATE_COUNTER()
     case BOOST_PP_COUNTER:
-      if (num < DIMMER_NUM)
+      if (num < DIMMER_LIGHT_NUM)
       {
         snprintf_P(topic, 56, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/bri_set"), num + 1);
         mqtt.subscribe(topic);
@@ -1115,7 +1115,7 @@ bool mqtt_subscribe(MQTTClient &mqtt, bool start)
 
 #include BOOST_PP_UPDATE_COUNTER()
     case BOOST_PP_COUNTER:
-      if (num < DIMMER_NUM)
+      if (num < DIMMER_LIGHT_NUM)
       {
         snprintf_P(topic, 56, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/fx_set"), num + 1);
         mqtt.subscribe(topic);
@@ -1130,7 +1130,7 @@ bool mqtt_subscribe(MQTTClient &mqtt, bool start)
 
 #include BOOST_PP_UPDATE_COUNTER()
     case BOOST_PP_COUNTER:
-      if (num < DIMMER_NUM)
+      if (num < DIMMER_LIGHT_NUM)
       {
         snprintf_P(topic, 56, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/min_set"), num + 1);
         mqtt.subscribe(topic);
@@ -1145,7 +1145,7 @@ bool mqtt_subscribe(MQTTClient &mqtt, bool start)
 
 #include BOOST_PP_UPDATE_COUNTER()
     case BOOST_PP_COUNTER:
-      if (num < DIMMER_NUM)
+      if (num < DIMMER_LIGHT_NUM)
       {
         snprintf_P(topic, 56, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/max_set"), num + 1);
         mqtt.subscribe(topic);
@@ -1157,7 +1157,7 @@ bool mqtt_subscribe(MQTTClient &mqtt, bool start)
         num = 0;
       }
       break;
-#endif // DIMMER_NUM
+#endif // DIMMER_LIGHT_NUM
 
 #ifdef POELE
 #include BOOST_PP_UPDATE_COUNTER()
@@ -1457,7 +1457,7 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
     else if (strcmp(buffer, "OFF") == 0)
       DT_relay(num, false);
   }
-#ifdef DIMMER_NUM
+#ifdef DIMMER_LIGHT_NUM
   else if (sscanf_P(topic, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d"), &num) == 1) // dimmer
   {
     Serial.println("dimmer");
@@ -1511,7 +1511,7 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
       sauvegardeEEPROM();
     }
   }
-#endif // DIMMER_NUM
+#endif // DIMMER_LIGHT_NUM
 
 #ifdef POELE
   else if (strcmp(topic, MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/poele/mode/set") == 0) // Mode du Poele
@@ -2082,7 +2082,7 @@ void loop()
 
   DT_input_loop();
 
-#if DIMMER_NUM > 0
+#if DIMMER_LIGHT_NUM > 0
   dimmer_loop();
 #endif
 

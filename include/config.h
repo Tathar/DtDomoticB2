@@ -42,14 +42,22 @@ void debug_wdt_reset(const __FlashStringHelper *var);
 #define INPUT_REFRESH DEBOUNCE_TIME / 2
 
 // Dimmer
-#define DIMMER_NUM 14 // max 14
-#define DIMMER_SPEED 100 // en miliseconde
+#define DIMMER_LIGHT_NUM 10 // max (DIMMER_LIGHT_NUM + DIMMER_HEAT_NUM + (DIMMER_COVER_NUM * 2) ) = 14
+#define DIMMER_SPEED 100    // en miliseconde
 #define MIN_CANDLE_TIME 100
 #define MAX_CANDLE_TIME 500
-#define CANDLE_OFSSET_PERCENTE_MIN 0 //en pourcentage
-#define CANDLE_OFSSET_PERCENTE_MAX 10 //en pourcentage
-#define CANDLE_SPEED_MIN 10  // en miliseconde
-#define CANDLE_SPEED_MAX 100 // en miliseconde
+#define CANDLE_OFSSET_PERCENTE_MIN 0  // en pourcentage
+#define CANDLE_OFSSET_PERCENTE_MAX 10 // en pourcentage
+#define CANDLE_SPEED_MIN 10           // en miliseconde
+#define CANDLE_SPEED_MAX 100          // en miliseconde
+
+#define DIMMER_HEAT_NUM 3 // max (DIMMER_LIGHT_NUM + DIMMER_HEAT_NUM + (DIMMER_COVER_NUM * 2) ) = 14
+
+#define DIMMER_COVER_NUM 1 // max (DIMMER_LIGHT_NUM + DIMMER_HEAT_NUM + (DIMMER_COVER_NUM * 2) ) = 14
+
+// relais
+#define RELAY_COVER_NUM 1 // ralai utilisé pour les volet
+
 // PT100
 #define TEMP_NUM 3 // 12 ok 13 ko // max 18
 //#define TEMP_NUM 0

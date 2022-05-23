@@ -28,14 +28,21 @@ struct Pid
     QuickPID::iAwMode iawmode;
 };
 
+struct Store
+{
+    uint32_t ratio_up;   // ms per percent
+    uint32_t ratio_down; // ms per percent
+    uint32_t backup_pos; // ms per percent
+};
+
 // declaration de la structure de configuration
 struct Mem_Config
 {
     float C2;         // consigne Temp PCBT
     float C3;         // consigne MCBT
     bool MQTT_online; // connecte au broker MQTT
-#if DIMMER_NUM >= 1
-    uint8_t Dimmer_old_value[DIMMER_NUM]; // Mise a l echelle
+#if DIMMER_LIGHT_NUM >= 1
+    uint8_t Dimmer_old_value[DIMMER_LIGHT_NUM]; // Mise a l echelle
 #endif
 };
 struct Eeprom_Config
@@ -84,9 +91,13 @@ struct Eeprom_Config
     float in_offset_PCBT;     // en °c
     float in_offset_MCBT;     // en °c
 
-#if DIMMER_NUM >= 1
-    uint16_t Dimmer_scale_min[DIMMER_NUM]; // Mise a l echelle
-    uint16_t Dimmer_scale_max[DIMMER_NUM]; // Mise a l echelle
+#if DIMMER_LIGHT_NUM >= 1
+    uint16_t Dimmer_scale_min[DIMMER_LIGHT_NUM]; // Mise a l echelle
+    uint16_t Dimmer_scale_max[DIMMER_LIGHT_NUM]; // Mise a l echelle
+#endif
+
+#if DIMMER_COVER_NUM >= 1
+    Store dimmer_store[DIMMER_COVER_NUM];
 #endif
 };
 

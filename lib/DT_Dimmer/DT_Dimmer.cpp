@@ -9,36 +9,29 @@
 
 #include <avr/interrupt.h>
 
-// #define SET_DIMMER15 PORTC |= _BV(PINC0);
-// #define SET_DIMMER16 PORTC |= _BV(PINC1);
+bool default_0 = false;
+volatile unsigned int default_0_count = 0;
 
-// #define CLEAR_DIMMER13 PORTC &= 0b11111110;    // extinction dimmer 3 & 4
-// #define CLEAR_DIMMER14 PORTC &= 0b11111101;    // extinction dimmer 3 & 4
-// #define CLEAR_DIMMER13_14 PORTC &= 0b11111100; // extinction dimmer 3 & 4
+struct dimmer_light
+{
+    uint16_t Dimmer_time;         // in millisecond
+    uint32_t Dimmer_time_start;   // in millisecond
+    uint8_t Dimmer_percent;       // in Percent
+    uint8_t Dimmer_go_percent;    // in Percent
+    uint8_t Dimmer_old_percent;   // in Percent
+    uint8_t Dimmer_start_percent; // in Percent
+    bool Dimmer_candle;
+};
+
+dimmer_light light[DIMMER_LIGHT_NUM];
+
+#if DIMMER_HEAT_NUM > 0
+heat_mode mode[DIMMER_HEAT_NUM];
+#endif // DIMMER_HEAT_NUM
+
 
 #define SCALE(val, in_min, in_max, out_min, out_max) (((double)val - (double)in_min) * ((double)out_max - (double)out_min) / ((double)in_max - (double)in_min)) + out_min
 
-// volatile uint8_t OCR2A_COUNT = 0;
-// volatile uint8_t OCR2B_COUNT = 0;
-// volatile uint8_t TOV2_count = 0;
-
-// const PROGMEM uint16_t ocrx[] = {65535, 16498, 16210, 16090, 15997, 15920, 15849, 15786, 15729, 15674,
-//                                  15636, 15572, 15525, 15480, 15436, 15394, 15339, 15315, 15276, 15238,
-//                                  15201, 15163, 15129, 15083, 15058, 15024, 14990, 14957, 14926, 14892,
-//                                  14868, 14827, 14799, 14766, 14737, 14705, 14676, 14646, 14616, 14571,
-//                                  14555, 14527, 14496, 14468, 14439, 14408, 14379, 14356, 14315, 14292,
-//                                  14263, 14236, 14207, 14178, 14149, 14120, 14100, 14059, 14031, 14003,
-//                                  13972, 13944, 13913, 13883, 13853, 13803, 13794, 13762, 13733, 13700,
-//                                  13669, 13639, 13607, 13588, 13542, 13509, 13475, 13441, 13405, 13370,
-//                                  13336, 13291, 13261, 13223, 13184, 13146, 13105, 13076, 13019, 12974,
-//                                  12927, 12878, 12825, 12770, 12713, 12650, 12579, 12502, 12409, 12308,
-//                                  0};
-
-// const PROGMEM uint16_t ocrx[] = {65535, 16498, 15441, 15002, 14662, 14374, 14119, 13887, 13673, 13472, 13281, 13101, 12930, 12763, 12605, 12449, 12308, 12154, 12011, 11873, 11735, 11602, 11471, 11342, 11217, 11091, 10968, 10848, 10727, 10610, 10475, 10377, 10262, 10148, 10035, 9923, 9810, 9701, 9591, 9492, 9373, 9263, 9155, 9049, 8939, 8835, 8727, 8622, 8514, 8408, 8302, 8212, 8091, 7985, 7877, 7772, 7659, 7557, 7450, 7344, 7236, 7126, 7019, 6891, 6798, 6689, 6576, 6464, 6351, 6237, 6122, 6006, 5908, 5772, 5652, 5531, 5408, 5282, 5157, 5028, 4897, 4764, 4628, 4487, 4331, 4199, 4050, 3894, 3736, 3563, 3398, 3218, 3027, 2836, 2612, 2380, 2125, 1837, 1497, 1058, 0};
-
-// #define OCRX(value) pgm_read_word_near(ocrx + value)
-
-// inline uint16_t to_ocrx(uint8_t dimmer_num, uint8_t percent) __attribute__((always_inline));
 uint16_t to_ocrx(uint8_t dimmer_num, double percent)
 {
     if (percent >= 100)
@@ -197,20 +190,6 @@ inline void activation_ocrx(uint8_t dimmer_num)
     }
 }
 
-bool default_0 = false;
-volatile unsigned int default_0_count = 0;
-
-uint16_t Dimmer_time[DIMMER_NUM];         // in millisecond
-uint32_t Dimmer_time_start[DIMMER_NUM];   // in millisecond
-uint8_t Dimmer_percent[DIMMER_NUM];       // in Percent
-uint8_t Dimmer_go_percent[DIMMER_NUM];    // in Percent
-uint8_t Dimmer_old_percent[DIMMER_NUM];   // in Percent
-uint8_t Dimmer_start_percent[DIMMER_NUM]; // in Percent
-// volatile uint16_t Dimmer_value[DIMMER_NUM];      // in Slice
-// volatile uint16_t Dimmer_new_value[DIMMER_NUM];  // in Slice
-volatile bool Dimmer_candle[DIMMER_NUM];
-// static bool update[DIMMER_NUM];
-
 void set_ocrx(uint8_t dimmer_num, double percent)
 {
     if (percent >= 100)
@@ -218,7 +197,7 @@ void set_ocrx(uint8_t dimmer_num, double percent)
         desativation_ocrx(dimmer_num);
         uint8_t pin = pgm_read_byte(OPT_ARRAY + dimmer_num + 1);
         digitalWrite(pin, HIGH);
-        Dimmer_percent[dimmer_num] = 100;
+        light[dimmer_num].Dimmer_percent = 100;
         // return 0;
     }
     else if (percent == 0)
@@ -226,7 +205,7 @@ void set_ocrx(uint8_t dimmer_num, double percent)
         desativation_ocrx(dimmer_num);
         uint8_t pin = pgm_read_byte(OPT_ARRAY + dimmer_num + 1);
         digitalWrite(pin, LOW);
-        Dimmer_percent[dimmer_num] = 0;
+        light[dimmer_num].Dimmer_percent = 0;
         // return ICR1;
     }
     else
@@ -293,14 +272,14 @@ void set_ocrx(uint8_t dimmer_num, double percent)
             break;
         }
         activation_ocrx(dimmer_num);
-        Dimmer_percent[dimmer_num] = percent;
+        light[dimmer_num].Dimmer_percent = percent;
         // return SCALE(percent, 1, 99, eeprom_config.Dimmer_scale_min[dimmer_num], eeprom_config.Dimmer_scale_max[dimmer_num]);
     }
 
     Serial.print(F("Dimmer_percent["));
     Serial.print(dimmer_num);
     Serial.print(F("] = "));
-    Serial.println(Dimmer_percent[dimmer_num]);
+    Serial.println(light[dimmer_num].Dimmer_percent);
 
     Serial.print(F("ICR5 = "));
     Serial.println(ICR5);
@@ -310,6 +289,83 @@ void set_ocrx(uint8_t dimmer_num, double percent)
 
     Serial.print(F("TCCR5B = "));
     Serial.println(TCCR5B, BIN);
+}
+
+
+#define SET_PIN(port, pin, level) \
+    if (level == LOW)             \
+    {                             \
+        port &= ~_BV(pin);        \
+    }                             \
+    else                          \
+    {                             \
+        port |= _BV(pin);         \
+    }
+
+inline void force_opt(uint8_t dimmer_num, uint8_t level)
+{
+
+    switch (dimmer_num)
+    {
+    case 0: // OPT2 = 46 -> PL3 -> OC5A
+        SET_PIN(PORTL, PL3, level);
+        break;
+
+    case 1: // OPT3 = 3 -> PE5 -> OC3C
+        SET_PIN(PORTE, PE5, level);
+        break;
+
+    case 2: // OPT4 = 6 -> PH3 -> OC4A
+        SET_PIN(PORTH, PH3, level);
+        break;
+
+    case 3: // OPT5 = 8 -> PH5 -> OC4C
+        SET_PIN(PORTH, PH5, level);
+        break;
+
+    case 4: // OPT6 = 12 -> PB6 -> OC1B
+        SET_PIN(PORTB, PB6, level);
+        break;
+
+    case 5: // OPT7 = 2 -> PE4 -> OC3B
+        SET_PIN(PORTE, PE4, level);
+        break;
+
+    case 6: // OPT8 = 45 -> PL4 -> OC5B
+        SET_PIN(PORTL, PL4, level);
+        break;
+
+    case 7: // OPT9 = 5 -> PE3 -> OC3A
+        SET_PIN(PORTE, PE3, level);
+        break;
+
+    case 8:; // OPT10 = 7 -> PH4 -> OC4B
+        SET_PIN(PORTH, PH4, level);
+        break;
+
+    case 9: // OPT11 = 11 -> PB5 -> OC1A
+        SET_PIN(PORTB, PB5, level);
+        break;
+
+    case 10: // OPT12 = 13 -> PB7 -> OC1C
+        SET_PIN(PORTB, PB7, level);
+        break;
+
+    case 11: // OPT13 = 44 -> PL5 -> OC5C
+        SET_PIN(PORTL, PL5, level);
+        break;
+
+    case 12: // OPT14 = 9 -> PH6 -> OC2B
+        SET_PIN(PORTH, PH6, level);
+        break;
+
+    case 13: // OPT15 = 10 -> PB4 -> OC2A
+        SET_PIN(PORTB, PB4, level);
+        break;
+
+    default:
+        break;
+    }
 }
 
 void (*_callback_dimmer)(const uint8_t num, const uint8_t percent, const bool candle);
@@ -353,6 +409,47 @@ void point_zero()
     TCNT4 = 19995; // celar timer4
     TCNT5 = 19995; // clear timer5
 
+#if DIMMER_HEAT_NUM > 0
+    if (PIND & _BV(PD2)) // PCINT0 interrupts on RAISING
+    {
+        for (uint8_t num = 0; num < DIMMER_HEAT_NUM; ++num)
+        {
+            switch (mode[num])
+            {
+            case off:
+                force_opt(num + DIMMER_LIGHT_NUM, HIGH);
+                break;
+
+            case sleep:
+                force_opt(num + DIMMER_LIGHT_NUM, LOW);
+                break;
+
+            default:
+                break;
+            }
+        }
+    }
+    else // PCINT0 interrupts on FAILLING
+    {
+        for (uint8_t num = 0; num < DIMMER_HEAT_NUM; ++num)
+        {
+            switch (mode[num])
+            {
+            case off:
+                force_opt(num + DIMMER_LIGHT_NUM, LOW);
+                break;
+
+            case sleep:
+                force_opt(num + DIMMER_LIGHT_NUM, HIGH);
+                break;
+
+            default:
+                break;
+            }
+        }
+    }
+#endif
+
     ++default_0_count;
 }
 
@@ -362,7 +459,7 @@ void Dimmer_init(void)
 
     _callback_dimmer = nullptr;
 
-    for (uint8_t num = 1; num < DIMMER_NUM; ++num)
+    for (uint8_t num = 1; num < DIMMER_LIGHT_NUM; ++num)
     {
         uint8_t pin = pgm_read_byte(OPT_ARRAY + num);
         pinMode(pin, OUTPUT);
@@ -370,27 +467,41 @@ void Dimmer_init(void)
         digitalWrite(pin, LOW); // extinction du dimmer
     }
 
-    for (uint8_t i = 0; i < DIMMER_NUM; i++) // init variables
+    for (uint8_t i = 0; i < DIMMER_LIGHT_NUM; i++) // init variables
     {
-        Dimmer_percent[i] = 0;
-        Dimmer_old_percent[i] = 100;
+        light[i].Dimmer_percent = 0;
+        light[i].Dimmer_old_percent = 100;
         // Dimmer_value[i] = 65535;
         // Dimmer_new_value[i] = 65535;
         // Dimmer_time_interval[i] = 0;
-        Dimmer_candle[i] = false;
+        light[i].Dimmer_candle = false;
     }
+
+#if DIMMER_HEAT_NUM > 0
+    for (uint8_t num = 1; num < DIMMER_HEAT_NUM; ++num)
+    {
+        uint8_t pin = pgm_read_byte(OPT_ARRAY + DIMMER_LIGHT_NUM + num);
+        pinMode(pin, OUTPUT);
+        desativation_ocrx(num - 1);
+        digitalWrite(pin, LOW); // extinction du dimmer
+    }
+    for (uint8_t num = 0; num < DIMMER_HEAT_NUM; ++num) // init variables
+    {
+        mode[num] = none;
+    }
+#endif // DIMMER_HEAT_NUM > 0
 
     noInterrupts(); // disable all interrupts
 
     // interuption PCINT1  (point zero)
-#if DIMMER_NUM >= 1
+#if DIMMER_LIGHT_NUM >= 1
     // EIMSK = 0b00000100;  // active INT2 interupt
     // EICRA = 0b00100000;
     // EIMSK = 1<<INT2;
     // EICRA = 1<<ISC21;
     pinMode(OPT_1, INPUT); // Point zero
-    // attachInterrupt(digitalPinToInterrupt(19), point_zero, FALLING);
     attachInterrupt(digitalPinToInterrupt(19), point_zero, CHANGE);
+    // attachInterrupt(digitalPinToInterrupt(19), point_zero, RISING);
     // PCMSK0 = 0b00000001; // active pcint at pin 8
 
     TCCR5A = 0b00000010; // PWM mode Fast PWM
@@ -399,28 +510,28 @@ void Dimmer_init(void)
     // ICR5 = 19840;        // Timer5 TOP
     ICR5 = 20000; // Timer5 TOP
 #endif
-#if DIMMER_NUM >= 2
+#if DIMMER_LIGHT_NUM >= 2
     TCCR3A = 0b00000010; // PWM mode Fast PWM
     TCCR3B = 0b00011010; // PWM mode Fast PWM + prescale 8
     TIMSK3 = 0b0000000;  // No interuption
     // ICR3 = 19840;        // Timer3 TOP
     ICR3 = 20000; // Timer3 TOP
 #endif
-#if DIMMER_NUM >= 3
+#if DIMMER_LIGHT_NUM >= 3
     TCCR4A = 0b00000010; // PWM mode Fast PWM
     TCCR4B = 0b00011010; // PWM mode Fast PWM + prescale 8
     TIMSK4 = 0b0000000;  // No interuption
     // ICR4 = 19840;        // Timer4 TOP
     ICR4 = 20000; // Timer4 TOP
 #endif
-#if DIMMER_NUM >= 5
+#if DIMMER_LIGHT_NUM >= 5
     TCCR1A = 0b00000010; // PWM mode Fast PWM
     TCCR1B = 0b00011010; // PWM mode Fast PWM + prescale 8
     TIMSK1 = 0b0000000;  // No interuption
     // ICR1 = 19840;        // Timer1 TOP
     ICR1 = 20000; // Timer1 TOP
 #endif
-#if DIMMER_NUM >= 5
+#if DIMMER_LIGHT_NUM >= 5
     TCCR2A = 0b00000010; // PWM mode Fast PWM
     TCCR2B = 0b00000111; // prescale 1024
     TIMSK2 = 0b0000000;  // No interuption
@@ -447,7 +558,7 @@ void dimmer_set(uint8_t num, uint8_t percent, uint16_t time, bool candle)
     Serial.print(F(", "));
     Serial.print(candle);
     Serial.println(F(")"));*/
-    Dimmer_candle[num] = candle;
+    light[num].Dimmer_candle = candle;
     // uint8_t temp_percent;
     percent = percent >= 100 ? 100 : percent;
     Serial.print(F("dimmer "));
@@ -462,57 +573,57 @@ void dimmer_set(uint8_t num, uint8_t percent, uint16_t time, bool candle)
     // Serial.println(ocrx);
 
     // uint8_t interval;
-    // if (percent > Dimmer_percent[num])
+    // if (percent > light[num].Dimmer_percent)
     // {
-    //     interval = time / (percent - Dimmer_percent[num]);
+    //     interval = time / (percent - light[num].Dimmer_percent);
     // }
     // else
     // {
-    //     interval = time / (Dimmer_percent[num] - percent);
+    //     interval = time / (light[num].Dimmer_percent - percent);
     // }
 
     if (percent != 0 && default_0)
     {
         // Dimmer_value[num] = Dimmer_new_value[num] = to_ocrx(num, percent);
-        // Dimmer_percent[num] = 100;
+        // light[num].Dimmer_percent = 100;
         set_ocrx(num, 100);
-        Dimmer_go_percent[num] = percent;
-        Dimmer_time[num] = 1;
+        light[num].Dimmer_go_percent = percent;
+        light[num].Dimmer_time = 1;
     }
     else if (percent == 0 && default_0)
     {
         // Dimmer_value[num] = Dimmer_new_value[num];
-        // Dimmer_percent[num] = percent;
+        // light[num].Dimmer_percent = percent;
         set_ocrx(num, 0);
-        Dimmer_go_percent[num] = percent;
-        Dimmer_time[num] = 1;
+        light[num].Dimmer_go_percent = percent;
+        light[num].Dimmer_time = 1;
     }
     else if (time == 0)
     {
         // Dimmer_value[num] = Dimmer_new_value[num];
-        // Dimmer_percent[num] = percent;
+        // light[num].Dimmer_percent = percent;
         set_ocrx(num, percent);
-        Dimmer_go_percent[num] = percent;
-        Dimmer_time[num] = 1;
+        light[num].Dimmer_go_percent = percent;
+        light[num].Dimmer_time = 1;
     }
     else
     {
-        Dimmer_time[num] = time;           // in millisecond
-        Dimmer_time_start[num] = millis(); // in millisecond
-        Dimmer_go_percent[num] = percent;
-        Dimmer_start_percent[num] = Dimmer_percent[TEMP_NUM];
+        light[num].Dimmer_time = time;           // in millisecond
+        light[num].Dimmer_time_start = millis(); // in millisecond
+        light[num].Dimmer_go_percent = percent;
+        light[num].Dimmer_start_percent = light[num].Dimmer_percent;
     }
 
     if (percent != 0)
     {
-        Dimmer_old_percent[num] = percent;
+        light[num].Dimmer_old_percent = percent;
     }
 
     // update[num] = true;
 
     // config.Dimmer_old_value[num] = percent <= DIMMER_MIN ? DIMMER_MIN : percent;
 
-    // if (Dimmer_candle[num])
+    // if (light[num].Dimmer_candle)
     //     DtCan_Board_send(config.address, num + 9, CAN_BOARD_DIMMER_CANDLE, percent);
     // else
     //     DtCan_Board_send(config.address, num + 9, CAN_BOARD_DIMMER, percent);
@@ -535,49 +646,73 @@ void dimmer_set(uint8_t num, uint8_t percent, uint16_t time, bool candle)
 void dimmer_set(uint8_t num, bool start, uint16_t time, bool candle)
 {
     if (start)
-        dimmer_set(num, Dimmer_old_percent[num], time, candle);
+        dimmer_set(num, light[num].Dimmer_old_percent, time, candle);
     else
         dimmer_set(num, (uint8_t)0, time, candle);
 }
 
-
-
-void dimmer_heat(uint8_t num, heat_mode mode)
+void dimmer_set_heat_mode(uint8_t num, heat_mode Mode)
 {
-    
-    
+    if (num < DIMMER_HEAT_NUM)
+    {
+        mode[num] = Mode;
+        switch (Mode)
+        {
+        case comfort:
+            force_opt(num + DIMMER_LIGHT_NUM, LOW);
+            break;
+
+        case eco:
+            force_opt(num + DIMMER_LIGHT_NUM, HIGH);
+            break;
+
+        default:
+            break;
+        }
+    }
 }
 
 // valeur en pourcentage de fonctionnement du dimmer
 //  num: numero du dimmer
 uint8_t get_dimmer(uint8_t num)
 {
-    // return Dimmer_percent[num];
+    // return light[num].Dimmer_percent;
     // if (Dimmer_new_value[num] == 65535)
     // {
     //     return 0;
     // }
     // else
     // {
-    //     return Dimmer_old_percent[num];
+    //     return light[num].Dimmer_old_percent;
     // }
-    return Dimmer_go_percent[num];
+    return light[num].Dimmer_go_percent;
+}
+
+// valeur en pourcentage de fonctionnement du dimmer
+//  num: numero du dimmer
+heat_mode get_heat_mode(uint8_t num)
+{
+    if (num < DIMMER_HEAT_NUM)
+    {
+        return (mode[num]);
+    }
+    return heat_mode(none);
 }
 
 // true si le dimmer est en mode bougie
 bool get_dimmer_candle(uint8_t num)
 {
-    return Dimmer_candle[num];
+    return light[num].Dimmer_candle;
 };
 
 // boucle d'execcution du dimmer
 void dimmer_loop()
 {
-    // static unsigned long dimmed_speed_time[DIMMER_NUM];
+    // static unsigned long dimmed_speed_time[DIMMER_LIGHT_NUM];
     // static old_time = 0
     static unsigned long dimmer_candle_old_time = 0;
     static unsigned long candle_interval = random(MIN_CANDLE_TIME, MAX_CANDLE_TIME);
-    // uint16_t Dimmer_time_interval[DIMMER_NUM];
+    // uint16_t Dimmer_time_interval[DIMMER_LIGHT_NUM];
     static unsigned long default_0_time = 0;
 
     if (millis() - default_0_time >= 1000 && !default_0)
@@ -593,49 +728,49 @@ void dimmer_loop()
         }
     }
 
-    for (uint8_t num = 0; num < DIMMER_NUM; num++)
+    for (uint8_t num = 0; num < DIMMER_LIGHT_NUM; num++)
     {
-        uint32_t time_go = Dimmer_time_start[num] + Dimmer_time[num];
+        uint32_t time_go = light[num].Dimmer_time_start + light[num].Dimmer_time;
         /// Dimmed start / stop
         if (millis() <= time_go)
         {
-            // uint8_t percent = SCALE(millis(), Dimmer_time_start[num], Dimmer_time_go[num], Dimmer_start_percent[num], Dimmer_go_percent[num]);
-            uint8_t percent = ((millis() - Dimmer_time_start[num]) * (Dimmer_go_percent[num] - Dimmer_start_percent[num]) / (time_go - Dimmer_time_start[num])) + Dimmer_start_percent[num];
-            // Dimmer_percent[num] = Dimmer_percent[num] >= 99 ? 100 : Dimmer_percent[num] + 1;
-            // Dimmer_value[num] = to_ocrx(num, Dimmer_percent[num]);
+            // uint8_t percent = SCALE(millis(), light[num].Dimmer_time_start, Dimmer_time_go[num], light[num].Dimmer_start_percent, light[num].Dimmer_go_percent);
+            uint8_t percent = ((millis() - light[num].Dimmer_time_start) * (light[num].Dimmer_go_percent - light[num].Dimmer_start_percent) / (time_go - light[num].Dimmer_time_start)) + light[num].Dimmer_start_percent;
+            // light[num] = Dimmer_percent[num] >= 99 ? 100 : Dimmer_percent[num].Dimmer_percent + 1;
+            // Dimmer_value[num] = to_ocrx(num, light[num].Dimmer_percent);
 
             Serial.print(F(" set_ocrx  = "));
             Serial.println(percent);
             set_ocrx(num, percent);
         }
-        else if (Dimmer_time[num] > 1)
+        else if (light[num].Dimmer_time > 1)
         {
-            set_ocrx(num, Dimmer_go_percent[num]);
-            Dimmer_time[num] = 1;
+            set_ocrx(num, light[num].Dimmer_go_percent);
+            light[num].Dimmer_time = 1;
         }
         // else
         // {
-        //     set_ocrx(num, Dimmer_go_percent[num]);
+        //     set_ocrx(num, light[num].Dimmer_go_percent);
         // }
 
         /// Candle
         if (millis() - dimmer_candle_old_time >= candle_interval)
         {
-            if (Dimmer_candle[num] == true) // FIXME: candle: need test and update
+            if (light[num].Dimmer_candle == true) // FIXME: candle: need test and update
             {
                 dimmer_candle_old_time = millis();
                 uint8_t candle_percent = random(CANDLE_OFSSET_PERCENTE_MIN, CANDLE_OFSSET_PERCENTE_MAX + 1);
                 // dimmer_set(num, config.Dimmer_old_value[num] - (uint8_t)((double)config.Dimmer_old_value[num] * (double)candle_percent / (double)100), CANDLE_SPEED);
-                // unsigned int tmp = Dimmer_percent[num] - (uint8_t)((double)Dimmer_percent[num] * (double)candle_percent / (double)100);
-                uint8_t percent_tmp = Dimmer_percent[num] - candle_percent;
+                // unsigned int tmp = light[num] - (uint8_t)((double)Dimmer_percent[num].Dimmer_percent * (double)candle_percent / (double)100);
+                uint8_t percent_tmp = light[num].Dimmer_percent - candle_percent;
                 uint16_t time_tmp = random(CANDLE_SPEED_MIN, CANDLE_SPEED_MAX + 1);
                 // scale_percent = SCALE(tmp, 0, 100, DIMMER_SCALE_MIN, DIMMER_SCALE_MAX);
                 // Dimmer_new_value[num] = to_ocrx(num, tmp);
                 // set_ocrx(num, tmp);
-                Dimmer_time[num] = time_tmp;           // in millisecond
-                Dimmer_time_start[num] = millis(); // in millisecond
-                Dimmer_go_percent[num] = percent_tmp;
-                Dimmer_start_percent[num] = Dimmer_percent[TEMP_NUM];
+                light[num].Dimmer_time = time_tmp;       // in millisecond
+                light[num].Dimmer_time_start = millis(); // in millisecond
+                light[num].Dimmer_start_percent = light[num].Dimmer_percent;
+                light[num].Dimmer_go_percent = percent_tmp;
 
                 // Dimmer_time_interval[num] = random(CANDLE_SPEED_MIN, CANDLE_SPEED_MAX + 1); // convert to 0.1ms
                 candle_interval = random(MIN_CANDLE_TIME, MAX_CANDLE_TIME);
@@ -643,17 +778,79 @@ void dimmer_loop()
         }
     }
 
-    static uint8_t async_num = 0;
+    // HEAT
+    /*
+    gestion des modes confort - 1  et confort - 2
+    */
+#if DIMMER_HEAT_NUM > 0
+    static uint32_t heat_interval = 0;
+    static uint8_t heat_step = 0;
+    if (heat_step == 0 && millis() - heat_interval >= 300000) // toute les 5 minutes (debut de cycle)
+    {
+        heat_interval = millis();
+        heat_step = 1;
+        for (uint8_t num = 0; num < DIMMER_HEAT_NUM; ++num)
+        {
+            switch (mode[num])
+            {
+            case confort_1:
+            case confort_2:
+                force_opt(num + DIMMER_LIGHT_NUM, HIGH);
+                break;
 
+            default:
+                break;
+            }
+        }
+    }
+    else if (heat_step == 1 && millis() - heat_interval >= 3000) // 3 seconde
+    {
+
+        heat_step = 2;
+        for (uint8_t num = 0; num < DIMMER_HEAT_NUM; ++num)
+        {
+            switch (mode[num])
+            {
+            case confort_1:
+                force_opt(num + DIMMER_LIGHT_NUM, LOW);
+                break;
+
+            default:
+                break;
+            }
+        }
+    }
+    else if (heat_step == 2 && millis() - heat_interval >= 7000) // 7 seconde
+    {
+
+        heat_step = 0;
+        for (uint8_t num = 0; num < DIMMER_HEAT_NUM; ++num)
+        {
+            switch (mode[num])
+            {
+            case confort_2:
+                force_opt(num + DIMMER_LIGHT_NUM, LOW);
+                break;
+
+            default:
+                break;
+            }
+        }
+    }
+#endif // DIMMER_HEAT_NUM > 0
+
+
+    // appel du callback
+    static uint8_t async_num = 0;
     if (_callback_dimmer != nullptr)
     {
-        if (Dimmer_time[async_num] == 1)
+        if (light[async_num].Dimmer_time == 1)
         {
-            _callback_dimmer(async_num, get_dimmer(async_num), Dimmer_candle[async_num]);
-            Dimmer_time[async_num] = 0;
+            _callback_dimmer(async_num, get_dimmer(async_num), light[async_num].Dimmer_candle);
+            light[async_num].Dimmer_time = 0;
         }
 
-        if (++async_num == DIMMER_NUM)
+        if (++async_num == DIMMER_LIGHT_NUM)
         {
             async_num = 0;
         }

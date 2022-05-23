@@ -127,18 +127,18 @@ void chargeEEPROM()
                 Serial.println(F("EEPROM version < 6"));
                 eeprom_config.struct_version = 6;
 
-#if DIMMER_NUM >= 1
-                for (uint8_t num; num < DIMMER_NUM; ++num)
+#if DIMMER_LIGHT_NUM >= 1
+                for (uint8_t num; num < DIMMER_LIGHT_NUM; ++num)
                 {
                         if (num < 13)
                         {
-                                eeprom_config.Dimmer_scale_min[num] = 100;   // Mise a l echelle
-                                eeprom_config.Dimmer_scale_max[num] = 15000; // Mise a l echelle
+                                eeprom_config.Dimmer_scale_min[num] = 15000;   // Mise a l echelle
+                                eeprom_config.Dimmer_scale_max[num] = 12000; // Mise a l echelle
                         }
                         else
                         {
-                                eeprom_config.Dimmer_scale_min[num] = 10;  // Mise a l echelle
-                                eeprom_config.Dimmer_scale_max[num] = 200; // Mise a l echelle
+                                eeprom_config.Dimmer_scale_min[num] = 255;  // Mise a l echelle
+                                eeprom_config.Dimmer_scale_max[num] = 156; // Mise a l echelle
                         }
                 }
 #endif
