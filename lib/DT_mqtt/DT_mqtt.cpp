@@ -160,7 +160,6 @@ void DT_mqtt_loop()
     static uint32_t last_reconnection_time = 0;
     static uint32_t reset_time = 0; // for reset network device
     static bool reset = false;      // for reset network device
-    static bool ret_homeassistant = false;
     bool ret = true;
     static uint32_t time = 0;
     // static bool old_link_status = false; // for reset network device
@@ -308,10 +307,10 @@ void DT_mqtt_loop()
             // }
             // 220502  debug(F(AT));
         }
-        else if (ret_homeassistant == false)
+        else if (mem_config.HA_MQTT_CONFIG == false)
         {
             // 220502  debug(F(AT));
-            ret_homeassistant = homeassistant(false);
+            mem_config.HA_MQTT_CONFIG = homeassistant(false);
             // ret_homeassistant = true;
             // 220502  debug(F(AT));
         }

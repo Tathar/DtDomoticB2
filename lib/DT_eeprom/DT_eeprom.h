@@ -38,9 +38,11 @@ struct Store
 // declaration de la structure de configuration
 struct Mem_Config
 {
-    float C2;         // consigne Temp PCBT
-    float C3;         // consigne MCBT
+    float C2; // consigne Temp PCBT
+    float C3; // consigne MCBT
     bool MQTT_online; // connecte au broker MQTT
+    bool HA_online; // Home Assistant
+    bool HA_MQTT_CONFIG; // Home Assistant MQTT configuration
 #if DIMMER_LIGHT_NUM >= 1
     uint8_t Dimmer_old_value[DIMMER_LIGHT_NUM]; // Mise a l echelle
 #endif

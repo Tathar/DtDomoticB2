@@ -28,8 +28,8 @@ void DT_pt100_init()
     pt100_callback = nullptr;
     for (uint8_t num = 0; num < TEMP_NUM; ++num)
     {
-#if DIMMER_LIGHT_NUM >= 1                                                  // si dimmer
-        uint8_t pin = pgm_read_byte(OPT_ARRAY + (DIMMER_LIGHT_NUM + num)); // decallage de 1 lie au dimmer
+#if DIMMER_LIGHT_NUM >= 1                                                      // si dimmer
+        uint8_t pin = pgm_read_byte(OPT_ARRAY + (1 + DIMMER_LIGHT_NUM + num)); // decallage de 1 lie au dimmer
 #else
         uint8_t pin = pgm_read_byte(OPT_ARRAY + num); // pas de decallage sinon
 #endif

@@ -1460,10 +1460,10 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
 #ifdef DIMMER_LIGHT_NUM
   else if (sscanf_P(topic, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d"), &num) == 1) // dimmer
   {
-    Serial.println("dimmer");
+    // Serial.println("dimmer");
     if (snprintf_P(_topic, 64, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/set"), num) > 0 && strncmp(topic, _topic, 64) == 0)
     {
-      Serial.println("set");
+      // Serial.println("set");
       bool_value = get_dimmer_candle(num - 1);
       if (strcmp(buffer, "ON") == 0)
       {
@@ -1474,7 +1474,7 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
     }
     else if (snprintf_P(_topic, 64, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/bri_set"), num) > 0 && strncmp(topic, _topic, 64) == 0) // dimmer
     {
-      Serial.println("bri_set");
+      // Serial.println("bri_set");
       if (sscanf_P(buffer, PSTR("%" SCNu8), &u8t_value) == 1)
       {
         bool_value = get_dimmer_candle(num - 1);
@@ -1483,7 +1483,7 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
     }
     else if (snprintf_P(_topic, 64, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/fx_set"), num) > 0 && strncmp(topic, _topic, 64) == 0) // dimmer
     {
-      Serial.println("fx_set");
+      // Serial.println("fx_set");
       u8t_value = get_dimmer(num - 1);
       if (strcmp(buffer, "NONE") == 0)
       {
@@ -1496,18 +1496,24 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
     }
     else if (snprintf_P(_topic, 64, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/min_set"), num) > 0 && strncmp(topic, _topic, 64) == 0) // relais
     {
-      Serial.println("min_set");
+      // Serial.println("min_set");
       str_buffer = buffer;
       eeprom_config.Dimmer_scale_min[num - 1] = (uint16_t)str_buffer.toDouble();
-      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/min_state"), num, (uint16_t)str_buffer.toDouble());
+      if (eeprom_config.Dimmer_scale_min[num - 1] <= eeprom_config.Dimmer_scale_max[num - 1])
+        eeprom_config.Dimmer_scale_min[num - 1] = eeprom_config.Dimmer_scale_max[num - 1] + 20;
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/min_state"), num, (uint16_t)eeprom_config.Dimmer_scale_min[num - 1]);
+      dimmer_set(num - 1, true, 0);
       sauvegardeEEPROM();
     }
     else if (snprintf_P(_topic, 64, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/max_set"), num) > 0 && strncmp(topic, _topic, 64) == 0) // relais
     {
-      Serial.println("max_set");
+      // Serial.println("max_set");
       str_buffer = buffer;
       eeprom_config.Dimmer_scale_max[num - 1] = (uint16_t)str_buffer.toDouble();
-      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/max_state"), num, (uint16_t)str_buffer.toDouble());
+      if (eeprom_config.Dimmer_scale_max[num - 1] >= eeprom_config.Dimmer_scale_min[num - 1])
+        eeprom_config.Dimmer_scale_max[num - 1] = eeprom_config.Dimmer_scale_min[num - 1] - 20;
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/max_state"), num, (uint16_t)eeprom_config.Dimmer_scale_max[num - 1]);
+      dimmer_set(num - 1, true, 0);
       sauvegardeEEPROM();
     }
   }
@@ -1947,11 +1953,12 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
     if (strcmp(buffer, "online") == 0)
     {
       mqtt_publish(true);
-      mem_config.MQTT_online = true; // TODO : ne fonctionne plus
+      mem_config.HA_online = true; // TODO : ne fonctionne plus
+      mem_config.HA_MQTT_CONFIG = homeassistant(true);
     }
     else if (strcmp(buffer, "offline") == 0)
     {
-      mem_config.MQTT_online = false; // TODO : ne fonctionne plus
+      mem_config.HA_online = false; // TODO : ne fonctionne plus
     }
   }
 
