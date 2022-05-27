@@ -98,8 +98,8 @@ struct Eeprom_Config
     uint16_t Dimmer_scale_max[DIMMER_LIGHT_NUM]; // Mise a l echelle
 #endif
 
-#if DIMMER_COVER_NUM >= 1
-    Store dimmer_store[DIMMER_COVER_NUM];
+#if COVER_NUM >= 1
+    Store dimmer_store[COVER_NUM];
 #endif
 };
 

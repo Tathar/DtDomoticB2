@@ -4,10 +4,6 @@
 #include <Arduino.h>
 #include <config.h>
 
-#define STRINGIFY(x) #x
-#define TOSTRING(x) STRINGIFY(x)
-#define AT __FILE__ ":" TOSTRING(__LINE__)
-
 void debug(const char *var);
 void debug(const __FlashStringHelper *var);
 void memory(bool print);
@@ -27,12 +23,6 @@ void debug_wdt_reset(const __FlashStringHelper *var);
 #define MAX_TOPIC 64
 #define MAX_PAYLOAD 512
 
-#ifdef __GIT_HASH__
-#define BOARD_SW_VERSION_PRINT BOARD_SW_VERSION " (" __GIT_HASH__ ")"
-#else
-#define BOARD_SW_VERSION_PRINT BOARD_SW_VERSION
-#endif
-
 // INPUT
 #define DEBOUNCE_TIME 50
 #define LONG_PUSH_TIME 800
@@ -48,15 +38,15 @@ void debug_wdt_reset(const __FlashStringHelper *var);
 // #define MAX_CANDLE_TIME 1000
 #define CANDLE_OFSSET_PERCENTE_MIN 0  // en pourcentage
 #define CANDLE_OFSSET_PERCENTE_MAX 30 // en pourcentage
-#define CANDLE_SPEED_MIN 250           // en miliseconde
-#define CANDLE_SPEED_MAX 1000          // en miliseconde
+#define CANDLE_SPEED_MIN 250          // en miliseconde
+#define CANDLE_SPEED_MAX 1000         // en miliseconde
 
 #define DIMMER_HEAT_NUM 0 // max (DIMMER_LIGHT_NUM + DIMMER_HEAT_NUM + (DIMMER_COVER_NUM * 2) ) = 14
 
-#define DIMMER_COVER_NUM 0 // max (DIMMER_LIGHT_NUM + DIMMER_HEAT_NUM + (DIMMER_COVER_NUM * 2) ) = 14
+#define DIMMER_COVER_NUM 0 // nombre de volet connecté dimmer : max (DIMMER_LIGHT_NUM + DIMMER_HEAT_NUM + (DIMMER_COVER_NUM * 2) ) = 14
 
 // relais
-#define RELAY_COVER_NUM 1 // ralai utilisé pour les vollet
+#define RELAY_COVER_NUM 1 // nombre de volet connecté au relai
 
 // PT100
 #define TEMP_NUM 3 // 12 ok 13 ko // max 18
@@ -178,5 +168,27 @@ void debug_wdt_reset(const __FlashStringHelper *var);
 
 // Demmarage Poele
 #define MARCHE_POELE 14
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// program variable, do not touch
+
+
+#ifdef __GIT_HASH__
+#define BOARD_SW_VERSION_PRINT BOARD_SW_VERSION " (" __GIT_HASH__ ")"
+#else
+#define BOARD_SW_VERSION_PRINT BOARD_SW_VERSION
+#endif
+
+#define STRINGIFY(x) #x
+#define TOSTRING(x) STRINGIFY(x)
+#define AT __FILE__ ":" TOSTRING(__LINE__)
+
+#if DIMMER_LIGHT_NUM >= 1
+#define DIMMER_LIGHT_NUM_OPT DIMMER_LIGHT_NUM + 1
+#else
+#define DIMMER_LIGHT_NUM_OPT 0
+#endif
+
+#define COVER_NUM DIMMER_COVER_NUM + RELAY_COVER_NUM
 
 #endif

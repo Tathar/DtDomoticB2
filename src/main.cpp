@@ -17,6 +17,7 @@
 #include <DT_mcp.h>
 #include <DT_poele.h>
 #include <DT_eeprom.h>
+#include <DT_cover.h>
 
 #include <avr/wdt.h> //watchdog
 
@@ -184,7 +185,7 @@ void relay_callback(const uint8_t num, const bool action)
 }
 #endif // MQTT
 
-#ifdef DIMMER_LIGHT_NUM
+#if DIMMER_LIGHT_NUM > 0
 void dimmer_callback(const uint8_t num, const uint8_t percent, const bool candle)
 {
   const __FlashStringHelper *payload;
@@ -204,6 +205,38 @@ void dimmer_callback(const uint8_t num, const uint8_t percent, const bool candle
 }
 #endif // NUM_DIMMER
 
+#if COVER_NUM > 0
+void cover_callback(const uint8_t num, const uint8_t percent, const cover_state state)
+{
+  switch (state)
+  {
+  case cover_stopped:
+    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/cover-%02d/state"), num + 1, F("stopped"));
+    break;
+
+  case cover_open:
+    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/cover-%02d/state"), num + 1, F("open"));
+    break;
+
+  case cover_closed:
+    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/cover-%02d/state"), num + 1, F("closed"));
+    break;
+
+  case cover_opening:
+    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/cover-%02d/state"), num + 1, F("opening"));
+    break;
+
+  case cover_closing:
+    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/cover-%02d/state"), num + 1, F("closing"));
+    break;
+
+  default:
+    break;
+  }
+
+  DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/cover-%02d/pos_state"), num + 1, percent);
+}
+#endif
 // envoi de donné MQTT quand une entrée est activée / desactivée
 void input_callback(const uint8_t num, const Bt_Action action)
 {
@@ -1457,7 +1490,7 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
     else if (strcmp(buffer, "OFF") == 0)
       DT_relay(num, false);
   }
-#ifdef DIMMER_LIGHT_NUM
+#if DIMMER_LIGHT_NUM > 0
   else if (sscanf_P(topic, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d"), &num) == 1) // dimmer
   {
     // Serial.println("dimmer");
@@ -1494,7 +1527,7 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
         dimmer_set(num - 1, u8t_value, DIMMER_SPEED, true);
       }
     }
-    else if (snprintf_P(_topic, 64, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/min_set"), num) > 0 && strncmp(topic, _topic, 64) == 0) // relais
+    else if (snprintf_P(_topic, 64, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/min_set"), num) > 0 && strncmp(topic, _topic, 64) == 0) // dimmer
     {
       // Serial.println("min_set");
       str_buffer = buffer;
@@ -1505,7 +1538,7 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
       dimmer_set(num - 1, true, 0);
       sauvegardeEEPROM();
     }
-    else if (snprintf_P(_topic, 64, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/max_set"), num) > 0 && strncmp(topic, _topic, 64) == 0) // relais
+    else if (snprintf_P(_topic, 64, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/max_set"), num) > 0 && strncmp(topic, _topic, 64) == 0) // dimmer
     {
       // Serial.println("max_set");
       str_buffer = buffer;
@@ -1518,6 +1551,37 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
     }
   }
 #endif // DIMMER_LIGHT_NUM
+
+#if COVER_NUM > 0
+  else if (sscanf_P(topic, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/cover-%02d"), &num) == 1) // cover
+  {
+    // Serial.println("dimmer");
+    if (snprintf_P(_topic, 64, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/cover-%02d/set"), num) > 0 && strncmp(topic, _topic, 64) == 0) // cover
+    {
+      // Serial.println("set");
+      if (strcmp(buffer, "STOP") == 0)
+      {
+        DT_cover_stop(num - 1);
+      }
+      else if (strcmp(buffer, "OPEN") == 0)
+      {
+        DT_cover_set(num - 1, 100);
+      }
+      else if (strcmp(buffer, "CLOSE") == 0)
+      {
+        DT_cover_set(num - 1, 0);
+      }
+    }
+    else if (snprintf_P(_topic, 64, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/pos_set"), num) > 0 && strncmp(topic, _topic, 64) == 0) // cover
+    {
+      if (sscanf_P(buffer, PSTR("%" SCNu8), &u8t_value) == 1)
+      {
+        DT_cover_set(num - 1, u8t_value);
+      }
+    }
+  }
+
+#endif // COVER_NUM > 0
 
 #ifdef POELE
   else if (strcmp(topic, MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/poele/mode/set") == 0) // Mode du Poele
@@ -2012,6 +2076,12 @@ void setup()
   set_dimmer_callback(dimmer_callback);
 #endif // MQTT
 
+  Serial.println("starting cover");
+  DT_cover_init();
+#ifdef MQTT
+  DT_cover_set_callback(cover_callback);
+#endif // MQTT
+
   Serial.println("starting input");
   DT_input_init();
   DT_input_set_callback(input_callback);
@@ -2132,6 +2202,14 @@ void loop()
     DT_3voies_loop();
     break;
 #endif
+
+#if COVER_NUM > 0
+#include BOOST_PP_UPDATE_COUNTER()
+  case BOOST_PP_COUNTER:
+    DT_cover_loop();
+    break;
+#endif
+
 
   default:
     interlock = 0;

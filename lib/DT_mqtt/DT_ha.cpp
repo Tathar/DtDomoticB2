@@ -56,7 +56,7 @@ bool homeassistant(bool start)
                         }
                         break;
 
-#ifdef DIMMER_LIGHT_NUM
+#if DIMMER_LIGHT_NUM > 0
 #include BOOST_PP_UPDATE_COUNTER() //declaration des dimmer
                 case BOOST_PP_COUNTER:
                         if (num < DIMMER_LIGHT_NUM)
@@ -125,6 +125,28 @@ bool homeassistant(bool start)
                         }
                         break;
 #endif // DIMMER_LIGHT_NUM
+
+#if COVER_NUM > 0
+#include BOOST_PP_UPDATE_COUNTER()
+                case BOOST_PP_COUNTER:
+                        // PT100
+                        if (num < COVER_NUM)
+                        {
+                                //position_topic
+                                //set_position_topic
+                                //command_topic
+                                //state_topic
+                                snprintf_P(payload, MAX_PAYLOAD, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/cover-%02d\",\"uniq_id\":\"" BOARD_IDENTIFIER "-cover-%02d\",\"name\":\"cover-%02d\",\"command_topic\":\"~/set\",\"stat_t\":\"~/state\",\"pos_t\":\"~/pos_state\",\"set_pos_t\":\"~/pos_set\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), num + 1, num + 1, num + 1);
+                                DT_mqtt_send(F("homeassistant/cover/" BOARD_IDENTIFIER "/cover-%02d/config"), num + 1, payload);
+                                num++;
+                                sequance--;
+                        }
+                        else
+                        {
+                                num = 0;
+                        }
+                        break;
+#endif // COVER_NUM > 0
 
 #include BOOST_PP_UPDATE_COUNTER()
                 case BOOST_PP_COUNTER: // input
