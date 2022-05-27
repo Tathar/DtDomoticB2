@@ -31,7 +31,7 @@ void dimmer_debug(void);
 // void set_dimmer3(uint8_t percent);
 // void set_dimmer4(uint8_t percent);
 
-void dimmer_set(uint8_t num, uint8_t percent, uint16_t time = 0, bool candle = false);
+void dimmer_set(uint8_t num, uint8_t value, uint16_t time = 0, bool candle = false); 
 void dimmer_set(uint8_t num, bool start, uint16_t time = 0, bool candle = false);
 void dimmer_set_heat_mode(uint8_t num, heat_mode Mode);
 // void dimmer_on(uint8_t num);
@@ -58,7 +58,7 @@ void dimmer_set_heat_mode(uint8_t num, heat_mode Mode);
 
 // get "num" dimmer value on percent
 
-uint8_t get_dimmer(uint8_t num);
+uint8_t get_dimmer(uint8_t num); //return value at 255
 // uint8_t get_dimmer_old_value(uint8_t num);
 bool get_dimmer_candle(uint8_t num);
 heat_mode get_heat_mode(uint8_t num);
