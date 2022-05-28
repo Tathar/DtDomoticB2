@@ -190,5 +190,6 @@ void debug_wdt_reset(const __FlashStringHelper *var);
 #endif
 
 #define COVER_NUM DIMMER_COVER_NUM + RELAY_COVER_NUM
+#define RELAY_RESERVED RELAY_COVER_NUM
 
 #endif

@@ -59,6 +59,21 @@ void DT_relay(uint8_t num, bool state)
     }
 #endif // VANNES
 
+#if RELAY_COVER_NUM > 0
+    // interverouillage
+    if (state == true && num - 1 < RELAY_COVER_NUM * 2)
+    {
+        if (num - 1 % 2 == 0 && DT_relay_get(num) == true)
+        {
+            return;
+        }
+        else if (num - 1 % 2 == 1 && DT_relay_get(num - 2) == true)
+        {
+            return;
+        }
+    }
+#endif
+
     if (pin >= 100)
     {
         uint8_t i2c = pin / 100;
