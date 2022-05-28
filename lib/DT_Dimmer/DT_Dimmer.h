@@ -63,6 +63,11 @@ uint8_t get_dimmer(uint8_t num); //return value at 255
 bool get_dimmer_candle(uint8_t num);
 heat_mode get_heat_mode(uint8_t num);
 
+void DT_dimmer_relay(uint8_t num, bool active);
+void DT_dimmer_relay(uint8_t num, uint32_t time);
+bool DT_dimmer_relay_get(uint8_t num);
+
+//void DT_dimmer_relay_set_callback(void (*callback)(const uint8_t num, const bool action));
 void set_dimmer_callback(void (*callback)(const uint8_t num, const uint8_t percent, const bool candle));
 
 #endif

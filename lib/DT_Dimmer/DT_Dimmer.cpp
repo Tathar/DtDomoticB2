@@ -14,8 +14,8 @@ volatile unsigned int default_0_count = 0;
 
 struct dimmer_light
 {
-    uint16_t Dimmer_time;         // in millisecond
-    uint32_t Dimmer_time_start;   // in millisecond
+    uint16_t Dimmer_time;       // in millisecond
+    uint32_t Dimmer_time_start; // in millisecond
     uint8_t Dimmer_value;       // in Percent
     uint8_t Dimmer_go_value;    // in Percent
     uint8_t Dimmer_old_value;   // in Percent
@@ -29,6 +29,10 @@ dimmer_light light[DIMMER_LIGHT_NUM];
 #if DIMMER_HEAT_NUM > 0
 heat_mode mode[DIMMER_HEAT_NUM];
 #endif // DIMMER_HEAT_NUM
+
+#if DIMMER_RELAY_NUM > 0
+uint32_t num_dimmer_delay[DIMMER_RELAY_NUM];
+#endif
 
 #define SCALE(val, in_min, in_max, out_min, out_max) (((double)val - (double)in_min) * ((double)out_max - (double)out_min) / ((double)in_max - (double)in_min)) + out_min
 
@@ -478,16 +482,16 @@ void Dimmer_init(void)
 
     _callback_dimmer = nullptr;
 
-    for (uint8_t num = 1; num < DIMMER_LIGHT_NUM; ++num)
+#if DIMMER_LIGHT_NUM > 0
+    for (uint8_t num = 0; num < DIMMER_LIGHT_NUM; ++num)
     {
-        uint8_t pin = pgm_read_byte(OPT_ARRAY + num);
+        uint8_t pin = pgm_read_byte(OPT_ARRAY + 1 + num);
         pinMode(pin, OUTPUT);
-        desativation_ocrx(num - 1);
+        desativation_ocrx(num);
         digitalWrite(pin, LOW); // extinction du dimmer
     }
 
     pinMode(10, OUTPUT);
-
     digitalWrite(10, LOW); // extinction du dimmer
 
     for (uint8_t i = 0; i < DIMMER_LIGHT_NUM; i++) // init variables
@@ -500,13 +504,14 @@ void Dimmer_init(void)
         // Dimmer_time_interval[i] = 0;
         light[i].Dimmer_candle = false;
     }
+#endif
 
 #if DIMMER_HEAT_NUM > 0
-    for (uint8_t num = 1; num < DIMMER_HEAT_NUM; ++num)
+    for (uint8_t num = 0; num < DIMMER_HEAT_NUM; ++num)
     {
-        uint8_t pin = pgm_read_byte(OPT_ARRAY + DIMMER_LIGHT_NUM + num);
+        uint8_t pin = pgm_read_byte(OPT_ARRAY + 1 + DIMMER_LIGHT_NUM + num);
         pinMode(pin, OUTPUT);
-        desativation_ocrx(num - 1);
+        desativation_ocrx(num);
         digitalWrite(pin, LOW); // extinction du dimmer
     }
     for (uint8_t num = 0; num < DIMMER_HEAT_NUM; ++num) // init variables
@@ -518,7 +523,7 @@ void Dimmer_init(void)
     noInterrupts(); // disable all interrupts
 
     // interuption PCINT1  (point zero)
-#if DIMMER_LIGHT_NUM >= 1
+#if DIMMER_LIGHT_NUM + DIMMER_HEAT_NUM >= 1
     // EIMSK = 0b00000100;  // active INT2 interupt
     // EICRA = 0b00100000;
     // EIMSK = 1<<INT2;
@@ -534,31 +539,41 @@ void Dimmer_init(void)
     // ICR5 = 19840;        // Timer5 TOP
     ICR5 = 20000; // Timer5 TOP
 #endif
-#if DIMMER_LIGHT_NUM >= 2
+
+#if DIMMER_LIGHT_NUM + DIMMER_HEAT_NUM >= 2
     TCCR3A = 0b00000010; // PWM mode Fast PWM
     TCCR3B = 0b00011010; // PWM mode Fast PWM + prescale 8
     TIMSK3 = 0b0000000;  // No interuption
     // ICR3 = 19840;        // Timer3 TOP
     ICR3 = 20000; // Timer3 TOP
 #endif
-#if DIMMER_LIGHT_NUM >= 3
+#if DIMMER_LIGHT_NUM + DIMMER_HEAT_NUM >= 3
     TCCR4A = 0b00000010; // PWM mode Fast PWM
     TCCR4B = 0b00011010; // PWM mode Fast PWM + prescale 8
     TIMSK4 = 0b0000000;  // No interuption
     // ICR4 = 19840;        // Timer4 TOP
     ICR4 = 20000; // Timer4 TOP
 #endif
-#if DIMMER_LIGHT_NUM >= 5
+#if DIMMER_LIGHT_NUM + DIMMER_HEAT_NUM >= 5
     TCCR1A = 0b00000010; // PWM mode Fast PWM
     TCCR1B = 0b00011010; // PWM mode Fast PWM + prescale 8
     TIMSK1 = 0b0000000;  // No interuption
     // ICR1 = 19840;        // Timer1 TOP
     ICR1 = 20000; // Timer1 TOP
 #endif
-#if DIMMER_LIGHT_NUM >= 13
+#if DIMMER_LIGHT_NUM + DIMMER_HEAT_NUM >= 13
     TCCR2A = 0b00000011; // PWM mode Fast PWM
     TCCR2B = 0b00000111; // prescale 1024
     TIMSK2 = 0b0000000;  // No interuption
+#endif
+
+#if DIMMER_RELAY_NUM > 0
+    for (uint8_t num = 0; num < DIMMER_RELAY_NUM; ++num)
+    {
+        uint8_t pin = pgm_read_byte(OPT_ARRAY + DIMMER_RELAY_FIRST_NUM + num);
+        pinMode(pin, OUTPUT);
+        num_dimmer_delay[num] = 0;
+    }
 #endif
 
     interrupts();
@@ -731,6 +746,66 @@ bool get_dimmer_candle(uint8_t num)
     return light[num].Dimmer_candle;
 };
 
+#if DIMMER_RELAY_NUM > 0
+// utilisation des dimmer comme relay
+void DT_dimmer_relay(uint8_t num, bool state)
+{
+    if (num < DIMMER_RELAY_NUM)
+    {
+        uint8_t pin = pgm_read_byte(OPT_ARRAY + DIMMER_RELAY_FIRST_NUM + num);
+
+#if DIMMER_COVER_NUM > 0
+        // interverouillage
+        if (state == true && num < DIMMER_COVER_NUM * 2)
+        {
+            if (num % 2 == 0 && DT_dimmer_relay_get(num + 1) == true)
+            {
+                return;
+            }
+            else if (num % 2 == 1 && DT_dimmer_relay_get(num - 1) == true)
+            {
+                return;
+            }
+        }
+#endif
+
+        if (state)
+        {
+            digitalWrite(pin, HIGH);
+            // async_call[num] = true;
+        }
+        else
+        {
+            digitalWrite(pin, LOW);
+            // async_call[num] = true;
+        }
+    }
+}
+
+bool DT_dimmer_relay_get(uint8_t num)
+{
+    uint8_t pin = pgm_read_byte(OPT_ARRAY + DIMMER_RELAY_FIRST_NUM + num);
+    return digitalRead(pin);
+}
+
+void DT_dimmer_relay(uint8_t num, uint32_t time)
+{
+    if (num < DIMMER_RELAY_NUM)
+    {
+        if (time > 0)
+        {
+            num_dimmer_delay[num] = time;
+            DT_dimmer_relay(num, true);
+        }
+        else
+        {
+            num_dimmer_delay[num] = 0;
+            DT_dimmer_relay(num, false);
+        }
+    }
+}
+#endif // DIMMER_RELAY_NUM > 0
+
 // boucle d'execcution du dimmer
 void dimmer_loop()
 {
@@ -858,6 +933,31 @@ void dimmer_loop()
         }
     }
 #endif // DIMMER_HEAT_NUM > 0
+
+#if DIMMER_RELAY_NUM > 0
+    static uint32_t last = 0;
+    uint32_t now = millis();
+    uint32_t elapse = now - last;
+    static uint8_t async_num_callback = 0;
+    last = now;
+
+    for (uint8_t num = 0; num < DIMMER_RELAY_NUM; ++num)
+    {
+        if (num_dimmer_delay[num] == 0)
+        {
+            continue;
+        }
+        else if (num_dimmer_delay[num] <= elapse)
+        {
+            num_dimmer_delay[num] = 0;
+            DT_dimmer_relay(num, false);
+        }
+        else
+        {
+            num_dimmer_delay[num] -= elapse;
+        }
+    }
+#endif // DIMER_RELAY_NUM > 0
 
     // appel du callback
     static uint8_t async_num = 0;

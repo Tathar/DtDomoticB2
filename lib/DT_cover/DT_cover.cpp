@@ -35,12 +35,6 @@ void (*_cover_callback)(const uint8_t num, const uint8_t percent, const cover_st
 void DT_cover_init()
 {
 #if DIMMER_COVER_NUM > 0
-    for (uint8_t num = 0; num < (DIMMER_COVER_NUM * 2); ++num)
-    {
-        uint8_t pin = pgm_read_byte(OPT_ARRAY + DIMMER_LIGHT_NUM_OPT + DIMMER_HEAT_NUM + num);
-        pinMode(pin, OUTPUT);
-        digitalWrite(pin, LOW); // extinction du dimmer
-    }
     for (uint8_t num = 0; num < DIMMER_COVER_NUM; ++num) // init variables
     {
         cover[num].step = cover_step_stoped;
@@ -86,8 +80,7 @@ void _cover_write(uint8_t num, bool val)
 #if DIMMER_COVER_NUM > 0
     if (num < DIMMER_COVER_NUM * 2)
     {
-        uint8_t pin = pgm_read_byte(OPT_ARRAY + DIMMER_LIGHT_NUM + DIMMER_HEAT_NUM + num);
-        digitalWrite(pin, val);
+        DT_dimmer_relay(num, val);
     }
 #endif // DIMMER_COVER_NUM > 0
 
