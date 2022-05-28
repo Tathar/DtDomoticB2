@@ -127,7 +127,7 @@ void chargeEEPROM()
                 Serial.println(F("EEPROM version < 6"));
                 eeprom_config.struct_version = 6;
 
-#if DIMMER_LIGHT_NUM >= 1
+#if DIMMER_LIGHT_NUM > 0
                 for (uint8_t num; num < DIMMER_LIGHT_NUM; ++num)
                 {
                         if (num < 13)
@@ -140,6 +140,14 @@ void chargeEEPROM()
                                 eeprom_config.Dimmer_scale_min[num] = 255;  // Mise a l echelle
                                 eeprom_config.Dimmer_scale_max[num] = 156; // Mise a l echelle
                         }
+                }
+#endif
+
+#if COVER_NUM > 0
+                for (uint8_t num; num < COVER_NUM; ++num)
+                {
+                                eeprom_config.cover[num].ratio_down = 300;   // ratio temp / 100 a la descente
+                                eeprom_config.cover[num].ratio_up = 300; // ratio temp / 100 a la monté
                 }
 #endif
         }

@@ -8,7 +8,8 @@ enum cover_step
 {
     cover_step_none,
     cover_step_stoped,
-    cover_step_off,
+    cover_step_stoping,
+    cover_step_delay_start,
     cover_step_start,
     cover_step_up,
     cover_step_over_up,
@@ -42,7 +43,7 @@ void DT_cover_init()
     }
     for (uint8_t num = 0; num < DIMMER_COVER_NUM; ++num) // init variables
     {
-        cover[num].step = cover_step_off;
+        cover[num].step = cover_step_stoped;
         cover[num].pos = 0;
         cover[num].go_pos = 0;
         cover[num].mouve_start = 0;
@@ -52,7 +53,7 @@ void DT_cover_init()
 #if RELAY_COVER_NUM > 0
     for (uint8_t num = DIMMER_COVER_NUM; num < (COVER_NUM); ++num) // init variables
     {
-        cover[num].step = cover_step_off;
+        cover[num].step = cover_step_stoped;
         cover[num].pos = 0;
         cover[num].go_pos = 0;
         cover[num].mouve_start = 0;
@@ -66,13 +67,13 @@ void DT_cover_init()
 void DT_cover_set(uint8_t num, uint8_t percent)
 {
     cover[num].go_pos = percent;
-    cover[num].step = cover_step_start;
+    cover[num].step = cover_step_delay_start;
 }
 
 // stop cover
 void DT_cover_stop(uint8_t num)
 {
-    cover[num].step = cover_step_off;
+    cover[num].step = cover_step_stoping;
 }
 
 uint8_t DT_cover_get(uint8_t num)
@@ -91,7 +92,7 @@ void _cover_write(uint8_t num, bool val)
 #endif // DIMMER_COVER_NUM > 0
 
 #if RELAY_COVER_NUM > 0
-    if (num > DIMMER_COVER_NUM * 2 && num < ((COVER_NUM) * 2))
+    if (num > DIMMER_COVER_NUM * 2 && num < ((COVER_NUM)*2))
     {
         DT_relay(num - DIMMER_COVER_NUM, val);
     }
@@ -103,13 +104,19 @@ void DT_cover_loop()
 #if COVER_NUM > 0
     for (uint8_t num = 0; num < DIMMER_COVER_NUM; ++num)
     {
-        if (cover[num].step == cover_step_start) // demande de monté
+        if (cover[num].step == cover_step_delay_start) // arret avent d effectuer une action
+        {
+            _cover_write((num * 2) + 1, LOW); // arret de la descente
+            _cover_write(num * 2, LOW);       // marche de la montée
+            cover[num].mouve_start;
+            cover[num].step = cover_step_start;
+        }
+        else if (cover[num].step == cover_step_start && millis() - cover[num].mouve_start > 250) // demande de monté
         {
             if (cover[num].go_pos > cover[num].pos)
             {
                 _cover_write((num * 2) + 1, LOW); // arret de la descente
-                // _NOP();
-                _cover_write(num * 2, HIGH); // marche de la montée
+                _cover_write(num * 2, HIGH);      // marche de la montée
 
                 cover[num].mouve_start = millis();
                 cover[num].old_pos = cover[num].pos;
@@ -122,8 +129,7 @@ void DT_cover_loop()
             }
             else if (cover[num].go_pos < cover[num].pos)
             {
-                _cover_write((num * 2), LOW); // arret de la monté
-                // _NOP();
+                _cover_write((num * 2), LOW);      // arret de la monté
                 _cover_write((num * 2) + 1, HIGH); // marche de la descente
                 cover[num].mouve_start = millis();
                 cover[num].old_pos = cover[num].pos;
@@ -137,50 +143,62 @@ void DT_cover_loop()
         }
         else if (cover[num].step == cover_step_up) // Monté en cours
         {
-            cover[num].pos = cover[num].old_pos + ((millis() - cover[num].mouve_start) * eeprom_config.dimmer_store[num].ratio_up);
+            cover[num].pos = cover[num].old_pos + ((millis() - cover[num].mouve_start) * eeprom_config.cover[num].ratio_up);
             if (cover[num].pos == cover[num].go_pos)
             {
+                cover[num].old_pos = cover[num].pos;
+
                 if (cover[num].go_pos == 100)
                 {
-                    cover[num].mouve_start = millis();
+                    // cover[num].mouve_start = millis();
                     cover[num].step = cover_step_over_up;
+                    if (_cover_callback != nullptr)
+                    {
+                        _cover_callback(num, cover[num].pos, cover_open);
+                    }
                 }
                 else
                 {
                     _cover_write((num * 2), LOW); // arret de la monté
                     cover[num].step = cover_step_stoped;
-                }
-
-                if (_cover_callback != nullptr)
-                {
-                    _cover_callback(num, cover[num].pos, cover_open);
+                    if (_cover_callback != nullptr)
+                    {
+                        _cover_callback(num, cover[num].pos, cover_stopped);
+                    }
                 }
             }
-            if (_cover_callback != nullptr)
+            else if (_cover_callback != nullptr)
             {
                 _cover_callback(num, cover[num].pos, cover_opening);
             }
         }
         else if (cover[num].step == cover_step_down) // descente en cours
         {
-            cover[num].pos = cover[num].old_pos - ((millis() - cover[num].mouve_start) * eeprom_config.dimmer_store[num].ratio_down);
+            cover[num].pos = cover[num].old_pos - ((millis() - cover[num].mouve_start) * eeprom_config.cover[num].ratio_down);
 
             if (cover[num].pos == cover[num].go_pos)
             {
+                cover[num].old_pos = cover[num].pos;
+
                 if (cover[num].go_pos == 0)
                 {
-                    cover[num].mouve_start = millis();
+                    // cover[num].mouve_start = millis();
                     cover[num].step = cover_step_over_down;
+
+                    if (_cover_callback != nullptr)
+                    {
+                        _cover_callback(num, cover[num].pos, cover_closed);
+                    }
                 }
                 else
                 {
                     _cover_write((num * 2) + 1, LOW); // arret de la descente
                     cover[num].step = cover_step_stoped;
-                }
 
-                if (_cover_callback != nullptr)
-                {
-                    _cover_callback(num, cover[num].pos, cover_closed);
+                    if (_cover_callback != nullptr)
+                    {
+                        _cover_callback(num, cover[num].pos, cover_stopped);
+                    }
                 }
             }
             else if (_cover_callback != nullptr)
@@ -190,13 +208,15 @@ void DT_cover_loop()
         }
         else if (cover[num].step == cover_step_over_up && millis() - cover[num].mouve_start >= 60000) // Monté en cours pendant 1 minute
         {
-            cover[num].step = cover_step_off;
+            _cover_write((num * 2), LOW); // arret de la monté
+            cover[num].step = cover_step_stoped;
         }
         else if (cover[num].step == cover_step_over_down && millis() - cover[num].mouve_start >= 60000) //  descente en cours pendant 1 minute
         {
-            cover[num].step = cover_step_off;
+            _cover_write((num * 2) + 1, LOW); // arret de la descente
+            cover[num].step = cover_step_stoped;
         }
-        else if (cover[num].step == cover_step_off) //  descente en cours pendant 1 minute
+        else if (cover[num].step == cover_step_stoping) //  descente en cours pendant 1 minute
         {
             _cover_write((num * 2), LOW);     // arret de la monté
             _cover_write((num * 2) + 1, LOW); // arret de la descente

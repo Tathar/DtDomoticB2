@@ -1579,6 +1579,22 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
         DT_cover_set(num - 1, u8t_value);
       }
     }
+    else if (snprintf_P(_topic, 64, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/up_set"), num) > 0 && strncmp(topic, _topic, 64) == 0) // time cover up
+    {
+      // Serial.println("max_set");
+      str_buffer = buffer;
+      eeprom_config.cover[num - 1].ratio_up = (uint16_t)(str_buffer.toDouble() / 100);
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/up_state"), num, (uint16_t)(eeprom_config.cover[num - 1].ratio_up * 100));
+      sauvegardeEEPROM();
+    }
+    else if (snprintf_P(_topic, 64, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/down_set"), num) > 0 && strncmp(topic, _topic, 64) == 0) // time cover down
+    {
+      // Serial.println("max_set");
+      str_buffer = buffer;
+      eeprom_config.cover[num - 1].ratio_down = (uint16_t)(str_buffer.toDouble() / 100);
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/down_state"), num, (uint16_t)(eeprom_config.cover[num - 1].ratio_down * 100));
+      sauvegardeEEPROM();
+    }
   }
 
 #endif // COVER_NUM > 0

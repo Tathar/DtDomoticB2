@@ -132,12 +132,42 @@ bool homeassistant(bool start)
                         // PT100
                         if (num < COVER_NUM)
                         {
-                                //position_topic
-                                //set_position_topic
-                                //command_topic
-                                //state_topic
+                                // position_topic
+                                // set_position_topic
+                                // command_topic
+                                // state_topic
                                 snprintf_P(payload, MAX_PAYLOAD, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/cover-%02d\",\"uniq_id\":\"" BOARD_IDENTIFIER "-cover-%02d\",\"name\":\"cover-%02d\",\"command_topic\":\"~/set\",\"stat_t\":\"~/state\",\"pos_t\":\"~/pos_state\",\"set_pos_t\":\"~/pos_set\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), num + 1, num + 1, num + 1);
                                 DT_mqtt_send(F("homeassistant/cover/" BOARD_IDENTIFIER "/cover-%02d/config"), num + 1, payload);
+                                num++;
+                                sequance--;
+                        }
+                        else
+                        {
+                                num = 0;
+                        }
+                        break;
+
+#include BOOST_PP_UPDATE_COUNTER()
+                case BOOST_PP_COUNTER:
+                        if (num < COVER_NUM)
+                        {
+                                snprintf_P(payload, MAX_PAYLOAD, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/cover-%02d\",\"uniq_id\":\"" BOARD_IDENTIFIER "-cover-%02d-up\",\"name\":\"cover-%02d-up-time\",\"stat_t\":\"~/up_state\",\"command_topic\":\"~/up_set\",\"min\":0,\"max\":65535,\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), num + 1, num + 1, num + 1);
+                                DT_mqtt_send(F("homeassistant/number/" BOARD_IDENTIFIER "/dimmer-%02d-MAX/config"), num + 1, payload);
+                                num++;
+                                sequance--;
+                        }
+                        else
+                        {
+                                num = 0;
+                        }
+                        break;
+
+#include BOOST_PP_UPDATE_COUNTER()
+                case BOOST_PP_COUNTER:
+                        if (num < COVER_NUM)
+                        {
+                                snprintf_P(payload, MAX_PAYLOAD, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/cover-%02d\",\"uniq_id\":\"" BOARD_IDENTIFIER "-cover-%02d-down\",\"name\":\"cover-%02d-down-time\",\"stat_t\":\"~/down_state\",\"command_topic\":\"~/down_set\",\"min\":0,\"max\":65535,\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), num + 1, num + 1, num + 1);
+                                DT_mqtt_send(F("homeassistant/number/" BOARD_IDENTIFIER "/dimmer-%02d-MAX/config"), num + 1, payload);
                                 num++;
                                 sequance--;
                         }

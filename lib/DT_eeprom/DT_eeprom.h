@@ -28,11 +28,11 @@ struct Pid
     QuickPID::iAwMode iawmode;
 };
 
-struct Store
+struct Cover
 {
     uint32_t ratio_up;   // ms per percent
     uint32_t ratio_down; // ms per percent
-    uint32_t backup_pos; // ms per percent
+    // uint32_t backup_pos; // ms per percent
 };
 
 // declaration de la structure de configuration
@@ -99,7 +99,7 @@ struct Eeprom_Config
 #endif
 
 #if COVER_NUM >= 1
-    Store dimmer_store[COVER_NUM];
+    Cover cover[COVER_NUM];
 #endif
 };
 
