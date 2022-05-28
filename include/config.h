@@ -120,13 +120,13 @@ void debug_wdt_reset(const __FlashStringHelper *var);
 #define TEMPERATURE_DEFAULT_POELE 85 // en °C (Temperature a la quelle le poele ce met en default)
 #define TEMPS_DEFAULT_PT100_POELE 60000
 
-#define PT100_H_BALON 1
-#define PT100_M_BALON 2
-#define PT100_B_BALON 3
-#define PT100_ECS1 4
-#define PT100_ECS2 5
+#define PT100_H_BALON 0
+#define PT100_M_BALON 1
+#define PT100_B_BALON 2
+#define PT100_ECS1 3
+#define PT100_ECS2 4
 
-#define RELAY_EV1 1
+#define RELAY_EV1 0
 #endif // POELE
 
 // Vanne 3 Voies
@@ -136,29 +136,29 @@ void debug_wdt_reset(const __FlashStringHelper *var);
 #define TMP_EAU_MCBT_MAX 60 // valeur maximum de la consigne de temperature
 #define DBMAC 0.5           // demi bamnde morte pour l'arret des circulateur (en °C)
 
-#define PT100_EXT 6
-#define PT100_3_VOIES_PCBT 7
-#define PT100_3_VOIES_MCBT 8
+#define PT100_EXT 5
+#define PT100_3_VOIES_PCBT 6
+#define PT100_3_VOIES_MCBT 7
 
-#define CIRCULATEUR_PCBT 2
-#define VANNE_PCBT_HOT 3
-#define VANNE_PCBT_COLD 4
+#define CIRCULATEUR_PCBT 1
+#define VANNE_PCBT_HOT 2
+#define VANNE_PCBT_COLD 3
 
-#define CIRCULATEUR_MCBT 5
-#define VANNE_MCBT_HOT 6
-#define VANNE_MCBT_COLD 7
+#define CIRCULATEUR_MCBT 4
+#define VANNE_MCBT_HOT 5
+#define VANNE_MCBT_COLD 6
 
 // Planchée chauffant
 #define MAX_TMP_PLANCHE 27 // en °C
 #define NUM_PLANCHE 4
-#define PT100_PLANCHE_SALON 9
-#define RELAIS_PLANCHE_SALON 8
-#define PT100_PLANCHE_CH_1 10
-#define RELAIS_PLANCHE_CH_1 9
-#define PT100_PLANCHE_CH_2 11
-#define RELAIS_PLANCHE_CH_2 10
-#define PT100_PLANCHE_SDB 12
-#define RELAIS_PLANCHE_SDB 11
+#define PT100_PLANCHE_SALON 8
+#define RELAIS_PLANCHE_SALON 7
+#define PT100_PLANCHE_CH_1 9
+#define RELAIS_PLANCHE_CH_1 8
+#define PT100_PLANCHE_CH_2 10
+#define RELAIS_PLANCHE_CH_2 9
+#define PT100_PLANCHE_SDB 11
+#define RELAIS_PLANCHE_SDB 10
 
 // const float PT100_PLANCHEE[NUM_PLANCHE] PROGMEM = {PT100_PLANCHE_SALON, PT100_PLANCHE_CH_1, PT100_PLANCHE_CH_2, PT100_PLANCHE_SDB};
 // const uint8_t RELAI_PLANCHE[NUM_PLANCHE] PROGMEM = {RELAIS_PLANCHE_SALON, RELAIS_PLANCHE_CH_1, RELAIS_PLANCHE_CH_2, RELAIS_PLANCHE_SDB};
@@ -166,13 +166,13 @@ void debug_wdt_reset(const __FlashStringHelper *var);
 #endif // VANNES
 
 // Circulateur boucle d eau chaude
-#define CIRCULATEUR_ECS 12
+#define CIRCULATEUR_ECS 11
 
 // EV2 ECS
-#define EV2_ECS 13
+#define EV2_ECS 12
 
 // Demmarage Poele
-#define MARCHE_POELE 14
+#define MARCHE_POELE 13
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // program variable, do not touch

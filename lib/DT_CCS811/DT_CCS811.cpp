@@ -70,7 +70,7 @@ void DT_CCS811_loop()
                         {
                             ccs811_co2[num] = value;
                             if (ccs811_callback_co2 != nullptr)
-                                ccs811_callback_co2(num + 1, value);
+                                ccs811_callback_co2(num, value);
                         }
 
                         value = ccs811[num].getTVOC();
@@ -78,7 +78,7 @@ void DT_CCS811_loop()
                         {
                             ccs811_cov[num] = value;
                             if (ccs811_callback_cov != nullptr)
-                                ccs811_callback_cov(num + 1, value);
+                                ccs811_callback_cov(num, value);
                         }
                     }
                     else
@@ -103,16 +103,16 @@ void DT_CCS811_set_callback_cov(void (*callback)(const uint8_t num, const float 
 
 float DT_CCS811_get_co2(const uint8_t num)
 {
-    return ccs811_co2[num - 1];
+    return ccs811_co2[num];
 }
 
 float DT_CCS811_get_cov(const uint8_t num)
 {
-    return ccs811_cov[num - 1];
+    return ccs811_cov[num];
 }
 
 void DT_CCS811_set_environmental_data(uint8_t num, float humidity, float temperature)
 {
-    if (ccs811_active[num - 1])
-        ccs811[num - 1].setEnvironmentalData(humidity, temperature);
+    if (ccs811_active[num])
+        ccs811[num].setEnvironmentalData(humidity, temperature);
 }

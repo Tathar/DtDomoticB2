@@ -72,7 +72,7 @@ void DT_pt100_loop()
             static uint8_t num = 0;
             if (num < TEMP_NUM)
             {
-                pt100_callback(num + 1, old_temp[num]);
+                pt100_callback(num, old_temp[num]);
                 ++num;
             }
             if (num == TEMP_NUM)
@@ -85,9 +85,9 @@ void DT_pt100_loop()
 
 float DT_pt100_get(uint8_t num)
 {
-    if (num - 1 < TEMP_NUM)
+    if (num < TEMP_NUM)
     {
-        return old_temp[num - 1];
+        return old_temp[num];
     }
     else
     {

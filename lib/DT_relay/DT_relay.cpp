@@ -28,7 +28,7 @@ void DT_relay_init()
             pinMode(pin, OUTPUT);
         }
 
-        DT_relay(num + 1, false);
+        DT_relay(num, false);
         num_delay[num] = 0;
         async_call[num] = false;
     }
@@ -36,8 +36,8 @@ void DT_relay_init()
 
 void DT_relay(uint8_t num, bool state)
 {
-    uint8_t pin = pgm_read_byte(RELAY_ARRAY + (num - 1));
-    bool revert = pgm_read_byte(RELAY_REVERT + (num - 1));
+    uint8_t pin = pgm_read_byte(RELAY_ARRAY + num);
+    bool revert = pgm_read_byte(RELAY_REVERT + num);
 
 #ifdef VANNES
     // interverouillage
@@ -61,13 +61,13 @@ void DT_relay(uint8_t num, bool state)
 
 #if RELAY_COVER_NUM > 0
     // interverouillage
-    if (state == true && num - 1 < RELAY_COVER_NUM * 2)
+    if (state == true && num < RELAY_COVER_NUM * 2)
     {
-        if (num - 1 % 2 == 0 && DT_relay_get(num) == true)
+        if (num % 2 == 0 && DT_relay_get(num +1) == true)
         {
             return;
         }
-        else if (num - 1 % 2 == 1 && DT_relay_get(num - 2) == true)
+        else if (num % 2 == 1 && DT_relay_get(num) == true)
         {
             return;
         }
@@ -84,7 +84,7 @@ void DT_relay(uint8_t num, bool state)
             if (mcp[i2c].digitalRead(pin) != HIGH)
             {
                 mcp[i2c].digitalWrite(pin, HIGH);
-                async_call[num - 1] = true;
+                async_call[num] = true;
             }
         }
         else
@@ -92,7 +92,7 @@ void DT_relay(uint8_t num, bool state)
             if (mcp[i2c].digitalRead(pin) != LOW)
             {
                 mcp[i2c].digitalWrite(pin, LOW);
-                async_call[num - 1] = true;
+                async_call[num] = true;
             }
         }
     }
@@ -103,7 +103,7 @@ void DT_relay(uint8_t num, bool state)
             if (digitalRead(pin) != HIGH)
             {
                 digitalWrite(pin, HIGH);
-                async_call[num - 1] = true;
+                async_call[num] = true;
             }
         }
         else
@@ -111,7 +111,7 @@ void DT_relay(uint8_t num, bool state)
             if (digitalRead(pin) != LOW)
             {
                 digitalWrite(pin, LOW);
-                async_call[num - 1] = true;
+                async_call[num] = true;
             }
         }
     }
@@ -119,8 +119,8 @@ void DT_relay(uint8_t num, bool state)
 
 bool DT_relay_get(uint8_t num)
 {
-    uint8_t pin = pgm_read_byte(RELAY_ARRAY + (num - 1));
-    bool revert = pgm_read_byte(RELAY_REVERT + (num - 1));
+    uint8_t pin = pgm_read_byte(RELAY_ARRAY + num);
+    bool revert = pgm_read_byte(RELAY_REVERT + num );
     bool ret;
     if (pin >= 100)
     {
@@ -140,12 +140,12 @@ void DT_relay(uint8_t num, uint32_t time)
 {
     if (time > 0)
     {
-        num_delay[num - 1] = time;
+        num_delay[num] = time;
         DT_relay(num, true);
     }
     else
     {
-        num_delay[num - 1] = 0;
+        num_delay[num] = 0;
         DT_relay(num, false);
     }
 }
@@ -167,7 +167,7 @@ void DT_relay_loop()
         else if (num_delay[num] <= elapse)
         {
             num_delay[num] = 0;
-            DT_relay(num + 1, false);
+            DT_relay(num, false);
         }
         else
         {
@@ -189,7 +189,7 @@ void DT_relay_loop()
         if (async_call[async_num_callback] == true)
         {
             async_call[async_num_callback] = false;
-            _callback(async_num_callback + 1, DT_relay_get(async_num_callback + 1));
+            _callback(async_num_callback, DT_relay_get(async_num_callback));
         }
     }
 }

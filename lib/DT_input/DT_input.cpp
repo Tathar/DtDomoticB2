@@ -72,12 +72,12 @@ void DT_input_init()
 
 uint8_t DT_input_get_pin_stats(int num)
 {
-    return old_pin_stats[num - 1];
+    return old_pin_stats[num];
 }
 
 Bt_Action DT_input_get_stats(int num)
 {
-    return stats[num - 1];
+    return stats[num];
 }
 
 void DT_input_loop()
@@ -144,7 +144,7 @@ void DT_input_loop()
                 stats[num] = IN_PUSHED; // 1
                 if (input_callback != nullptr)
                 {
-                    input_callback(num + 1, stats[num]);
+                    input_callback(num, stats[num]);
                 }
             }
 
@@ -161,7 +161,7 @@ void DT_input_loop()
                 stats[num] = IN_RELEASE;                            // 2
                 if (input_callback != nullptr)
                 {
-                    input_callback(num + 1, stats[num]);
+                    input_callback(num, stats[num]);
                 }
             }
         }
@@ -187,7 +187,7 @@ void DT_input_loop()
                     stats[num] = ret;
                     if (input_callback != nullptr)
                     {
-                        input_callback(num + 1, ret);
+                        input_callback(num, ret);
                     }
                 }
             }
@@ -215,7 +215,7 @@ void DT_input_loop()
                     stats[num] = ret;
                     if (input_callback != nullptr)
                     {
-                        input_callback(num + 1, stats[num]);
+                        input_callback(num, stats[num]);
                     }
                 }
             }
@@ -240,7 +240,7 @@ void DT_input_loop()
                     stats[num] = ret;
                     if (input_callback != nullptr)
                     {
-                        input_callback(num + 1, stats[num]);
+                        input_callback(num, stats[num]);
                     }
                 }
             }
@@ -265,7 +265,7 @@ void DT_input_loop()
                     stats[num] = ret;
                     if (input_callback != nullptr)
                     {
-                        input_callback(num + 1, stats[num]);
+                        input_callback(num, stats[num]);
                     }
                 }
             }

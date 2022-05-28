@@ -195,12 +195,12 @@ void dimmer_callback(const uint8_t num, const uint8_t percent, const bool candle
       payload = F("OFF");
     else
       payload = F("ON");
-    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/state"), num + 1, payload);
-    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/bri_state"), num + 1, percent);
+    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/state"), num, payload);
+    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/bri_state"), num, percent);
     if (candle)
-      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/fx_state"), num + 1, F("CANDLE"));
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/fx_state"), num, F("CANDLE"));
     else
-      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/fx_state"), num + 1, F("NONE"));
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/fx_state"), num, F("NONE"));
   }
 }
 #endif // NUM_DIMMER
@@ -211,30 +211,30 @@ void cover_callback(const uint8_t num, const uint8_t percent, const cover_state 
   switch (state)
   {
   case cover_stopped:
-    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/cover-%02d/state"), num + 1, F("stopped"));
+    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/cover-%02d/state"), num, F("stopped"));
     break;
 
   case cover_open:
-    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/cover-%02d/state"), num + 1, F("open"));
+    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/cover-%02d/state"), num, F("open"));
     break;
 
   case cover_closed:
-    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/cover-%02d/state"), num + 1, F("closed"));
+    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/cover-%02d/state"), num, F("closed"));
     break;
 
   case cover_opening:
-    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/cover-%02d/state"), num + 1, F("opening"));
+    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/cover-%02d/state"), num, F("opening"));
     break;
 
   case cover_closing:
-    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/cover-%02d/state"), num + 1, F("closing"));
+    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/cover-%02d/state"), num, F("closing"));
     break;
 
   default:
     break;
   }
 
-  DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/cover-%02d/pos_state"), num + 1, percent);
+  DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/cover-%02d/pos_state"), num, percent);
 }
 #endif
 // envoi de donné MQTT quand une entrée est activée / desactivée
@@ -591,7 +591,7 @@ bool mqtt_publish(bool start)
     case BOOST_PP_COUNTER:
       if (num < RELAY_NUM)
       {
-        relay_callback(num + 1, DT_relay_get(num + 1));
+        relay_callback(num, DT_relay_get(num));
         num++;
         sequance--;
       }
@@ -605,7 +605,7 @@ bool mqtt_publish(bool start)
     case BOOST_PP_COUNTER:
       if (num < INPUT_NUM)
       {
-        input_callback(num + 1, DT_input_get_stats(num + 1));
+        input_callback(num, DT_input_get_stats(num));
         num++;
         sequance--;
       }
@@ -620,7 +620,7 @@ bool mqtt_publish(bool start)
     case BOOST_PP_COUNTER:
       if (num < DIMMER_LIGHT_NUM)
       {
-        dimmer_callback(num + 1, get_dimmer(num + 1), get_dimmer_candle(num + 1));
+        dimmer_callback(num, get_dimmer(num), get_dimmer_candle(num));
         num++;
         sequance--;
       }
@@ -634,7 +634,7 @@ bool mqtt_publish(bool start)
     case BOOST_PP_COUNTER:
       if (num < DIMMER_LIGHT_NUM)
       {
-        DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/min_state"), num + 1, eeprom_config.Dimmer_scale_min[num]);
+        DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/min_state"), num, eeprom_config.Dimmer_scale_min[num]);
         num++;
         sequance--;
       }
@@ -648,7 +648,7 @@ bool mqtt_publish(bool start)
     case BOOST_PP_COUNTER:
       if (num < DIMMER_LIGHT_NUM)
       {
-        DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/max_state"), num + 1, eeprom_config.Dimmer_scale_max[num]);
+        DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/max_state"), num, eeprom_config.Dimmer_scale_max[num]);
         num++;
         sequance--;
       }
@@ -664,7 +664,7 @@ bool mqtt_publish(bool start)
     case BOOST_PP_COUNTER:
       if (num < TEMP_NUM)
       {
-        pt100_callback(num + 1, DT_pt100_get(num + 1));
+        pt100_callback(num, DT_pt100_get(num));
         num++;
         sequance--;
       }
@@ -1104,7 +1104,7 @@ bool mqtt_subscribe(MQTTClient &mqtt, bool start)
     case BOOST_PP_COUNTER:
       if (num < RELAY_NUM)
       {
-        snprintf_P(topic, 56, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/relay-%02d/set"), num + 1);
+        snprintf_P(topic, 56, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/relay-%02d/set"), num);
         mqtt.subscribe(topic);
         num++;
         sequance--;
@@ -1120,7 +1120,7 @@ bool mqtt_subscribe(MQTTClient &mqtt, bool start)
     case BOOST_PP_COUNTER:
       if (num < DIMMER_LIGHT_NUM)
       {
-        snprintf_P(topic, 56, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/set"), num + 1);
+        snprintf_P(topic, 56, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/set"), num);
         mqtt.subscribe(topic);
         num++;
         sequance--;
@@ -1135,7 +1135,7 @@ bool mqtt_subscribe(MQTTClient &mqtt, bool start)
     case BOOST_PP_COUNTER:
       if (num < DIMMER_LIGHT_NUM)
       {
-        snprintf_P(topic, 56, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/bri_set"), num + 1);
+        snprintf_P(topic, 56, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/bri_set"), num);
         mqtt.subscribe(topic);
         num++;
         sequance--;
@@ -1150,7 +1150,7 @@ bool mqtt_subscribe(MQTTClient &mqtt, bool start)
     case BOOST_PP_COUNTER:
       if (num < DIMMER_LIGHT_NUM)
       {
-        snprintf_P(topic, 56, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/fx_set"), num + 1);
+        snprintf_P(topic, 56, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/fx_set"), num);
         mqtt.subscribe(topic);
         num++;
         sequance--;
@@ -1165,7 +1165,7 @@ bool mqtt_subscribe(MQTTClient &mqtt, bool start)
     case BOOST_PP_COUNTER:
       if (num < DIMMER_LIGHT_NUM)
       {
-        snprintf_P(topic, 56, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/min_set"), num + 1);
+        snprintf_P(topic, 56, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/min_set"), num);
         mqtt.subscribe(topic);
         num++;
         sequance--;
@@ -1180,7 +1180,7 @@ bool mqtt_subscribe(MQTTClient &mqtt, bool start)
     case BOOST_PP_COUNTER:
       if (num < DIMMER_LIGHT_NUM)
       {
-        snprintf_P(topic, 56, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/max_set"), num + 1);
+        snprintf_P(topic, 56, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/max_set"), num);
         mqtt.subscribe(topic);
         num++;
         sequance--;
@@ -1497,56 +1497,56 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
     if (snprintf_P(_topic, 64, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/set"), num) > 0 && strncmp(topic, _topic, 64) == 0)
     {
       // Serial.println("set");
-      bool_value = get_dimmer_candle(num - 1);
+      bool_value = get_dimmer_candle(num);
       if (strcmp(buffer, "ON") == 0)
       {
-        dimmer_set(num - 1, true, DIMMER_SPEED, bool_value);
+        dimmer_set(num, true, DIMMER_SPEED, bool_value);
       }
       else if (strcmp(buffer, "OFF") == 0)
-        dimmer_set(num - 1, false, DIMMER_SPEED);
+        dimmer_set(num, false, DIMMER_SPEED);
     }
     else if (snprintf_P(_topic, 64, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/bri_set"), num) > 0 && strncmp(topic, _topic, 64) == 0) // dimmer
     {
       // Serial.println("bri_set");
       if (sscanf_P(buffer, PSTR("%" SCNu8), &u8t_value) == 1)
       {
-        bool_value = get_dimmer_candle(num - 1);
-        dimmer_set(num - 1, u8t_value, DIMMER_SPEED, bool_value);
+        bool_value = get_dimmer_candle(num);
+        dimmer_set(num, u8t_value, DIMMER_SPEED, bool_value);
       }
     }
     else if (snprintf_P(_topic, 64, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/fx_set"), num) > 0 && strncmp(topic, _topic, 64) == 0) // dimmer
     {
       // Serial.println("fx_set");
-      u8t_value = get_dimmer(num - 1);
+      u8t_value = get_dimmer(num);
       if (strcmp(buffer, "NONE") == 0)
       {
-        dimmer_set(num - 1, u8t_value, DIMMER_SPEED, false);
+        dimmer_set(num, u8t_value, DIMMER_SPEED, false);
       }
       else if (strcmp(buffer, "CANDLE") == 0)
       {
-        dimmer_set(num - 1, u8t_value, DIMMER_SPEED, true);
+        dimmer_set(num, u8t_value, DIMMER_SPEED, true);
       }
     }
     else if (snprintf_P(_topic, 64, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/min_set"), num) > 0 && strncmp(topic, _topic, 64) == 0) // dimmer
     {
       // Serial.println("min_set");
       str_buffer = buffer;
-      eeprom_config.Dimmer_scale_min[num - 1] = (uint16_t)str_buffer.toDouble();
-      if (eeprom_config.Dimmer_scale_min[num - 1] <= eeprom_config.Dimmer_scale_max[num - 1])
-        eeprom_config.Dimmer_scale_min[num - 1] = eeprom_config.Dimmer_scale_max[num - 1] + 20;
-      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/min_state"), num, (uint16_t)eeprom_config.Dimmer_scale_min[num - 1]);
-      dimmer_set(num - 1, true, 0);
+      eeprom_config.Dimmer_scale_min[num] = (uint16_t)str_buffer.toDouble();
+      if (eeprom_config.Dimmer_scale_min[num] <= eeprom_config.Dimmer_scale_max[num])
+        eeprom_config.Dimmer_scale_min[num] = eeprom_config.Dimmer_scale_max[num] + 20;
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/min_state"), num, (uint16_t)eeprom_config.Dimmer_scale_min[num]);
+      dimmer_set(num, true, 0);
       sauvegardeEEPROM();
     }
     else if (snprintf_P(_topic, 64, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/max_set"), num) > 0 && strncmp(topic, _topic, 64) == 0) // dimmer
     {
       // Serial.println("max_set");
       str_buffer = buffer;
-      eeprom_config.Dimmer_scale_max[num - 1] = (uint16_t)str_buffer.toDouble();
-      if (eeprom_config.Dimmer_scale_max[num - 1] >= eeprom_config.Dimmer_scale_min[num - 1])
-        eeprom_config.Dimmer_scale_max[num - 1] = eeprom_config.Dimmer_scale_min[num - 1] - 20;
-      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/max_state"), num, (uint16_t)eeprom_config.Dimmer_scale_max[num - 1]);
-      dimmer_set(num - 1, true, 0);
+      eeprom_config.Dimmer_scale_max[num] = (uint16_t)str_buffer.toDouble();
+      if (eeprom_config.Dimmer_scale_max[num] >= eeprom_config.Dimmer_scale_min[num])
+        eeprom_config.Dimmer_scale_max[num] = eeprom_config.Dimmer_scale_min[num] - 20;
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/max_state"), num, (uint16_t)eeprom_config.Dimmer_scale_max[num]);
+      dimmer_set(num, true, 0);
       sauvegardeEEPROM();
     }
   }
@@ -1561,38 +1561,38 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
       // Serial.println("set");
       if (strcmp(buffer, "STOP") == 0)
       {
-        DT_cover_stop(num - 1);
+        DT_cover_stop(num);
       }
       else if (strcmp(buffer, "OPEN") == 0)
       {
-        DT_cover_set(num - 1, 100);
+        DT_cover_set(num, 100);
       }
       else if (strcmp(buffer, "CLOSE") == 0)
       {
-        DT_cover_set(num - 1, 0);
+        DT_cover_set(num, 0);
       }
     }
     else if (snprintf_P(_topic, 64, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/pos_set"), num) > 0 && strncmp(topic, _topic, 64) == 0) // cover
     {
       if (sscanf_P(buffer, PSTR("%" SCNu8), &u8t_value) == 1)
       {
-        DT_cover_set(num - 1, u8t_value);
+        DT_cover_set(num, u8t_value);
       }
     }
     else if (snprintf_P(_topic, 64, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/up_set"), num) > 0 && strncmp(topic, _topic, 64) == 0) // time cover up
     {
       // Serial.println("max_set");
       str_buffer = buffer;
-      eeprom_config.cover[num - 1].ratio_up = (uint16_t)(str_buffer.toDouble() / 100);
-      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/up_state"), num, (uint16_t)(eeprom_config.cover[num - 1].ratio_up * 100));
+      eeprom_config.cover[num].ratio_up = (uint16_t)(str_buffer.toDouble() / 100);
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/up_state"), num, (uint16_t)(eeprom_config.cover[num].ratio_up * 100));
       sauvegardeEEPROM();
     }
     else if (snprintf_P(_topic, 64, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/down_set"), num) > 0 && strncmp(topic, _topic, 64) == 0) // time cover down
     {
       // Serial.println("max_set");
       str_buffer = buffer;
-      eeprom_config.cover[num - 1].ratio_down = (uint16_t)(str_buffer.toDouble() / 100);
-      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/down_state"), num, (uint16_t)(eeprom_config.cover[num - 1].ratio_down * 100));
+      eeprom_config.cover[num].ratio_down = (uint16_t)(str_buffer.toDouble() / 100);
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/down_state"), num, (uint16_t)(eeprom_config.cover[num].ratio_down * 100));
       sauvegardeEEPROM();
     }
   }

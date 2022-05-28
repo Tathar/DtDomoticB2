@@ -72,7 +72,7 @@ void DT_BME280_loop()
                 {
                     temperature[num] = value;
                     if (bme280_callback_temperature != nullptr)
-                        bme280_callback_temperature(num + 1, value);
+                        bme280_callback_temperature(num, value);
                 }
 
                 value = bme280[num].readPressure();
@@ -80,7 +80,7 @@ void DT_BME280_loop()
                 {
                     pressure[num] = value;
                     if (bme280_callback_pressure != nullptr)
-                        bme280_callback_pressure(num + 1, value);
+                        bme280_callback_pressure(num, value);
                 }
 
                 value = bme280[num].readHumidity();
@@ -88,7 +88,7 @@ void DT_BME280_loop()
                 {
                     humidity[num] = value;
                     if (bme280_callback_humidity != nullptr)
-                        bme280_callback_humidity(num + 1, value);
+                        bme280_callback_humidity(num, value);
                 }
             }
         }
@@ -112,15 +112,15 @@ void DT_BME280_set_callback_pressure(void (*callback)(const uint8_t num, const f
 
 float DT_BME280_get_temperature(const uint8_t num)
 {
-    return temperature[num - 1];
+    return temperature[num];
 }
 
 float DT_BME280_get_humidity(const uint8_t num)
 {
-    return humidity[num - 1];
+    return humidity[num];
 }
 
 float DT_BME280_get_pressure(const uint8_t num)
 {
-    return pressure[num - 1];
+    return pressure[num];
 }
