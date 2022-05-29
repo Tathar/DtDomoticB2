@@ -132,12 +132,12 @@ void chargeEEPROM()
                 {
                         if (num < 13)
                         {
-                                eeprom_config.Dimmer_scale_min[num] = 15000;   // Mise a l echelle
+                                eeprom_config.Dimmer_scale_min[num] = 15000; // Mise a l echelle
                                 eeprom_config.Dimmer_scale_max[num] = 12000; // Mise a l echelle
                         }
                         else
                         {
-                                eeprom_config.Dimmer_scale_min[num] = 255;  // Mise a l echelle
+                                eeprom_config.Dimmer_scale_min[num] = 255; // Mise a l echelle
                                 eeprom_config.Dimmer_scale_max[num] = 156; // Mise a l echelle
                         }
                 }
@@ -146,8 +146,18 @@ void chargeEEPROM()
 #if COVER_NUM > 0
                 for (uint8_t num; num < COVER_NUM; ++num)
                 {
-                                eeprom_config.cover[num].ratio_down = 300;   // ratio temp / 100 a la descente
-                                eeprom_config.cover[num].ratio_up = 300; // ratio temp / 100 a la monté
+                        eeprom_config.cover[num].time_down = 300; // ratio temp / 100 a la descente
+                        eeprom_config.cover[num].time_up = 300;   // ratio temp / 100 a la monté
+                }
+#endif
+
+#if RADIATOR_NUM > 0
+                for (uint8_t num; num < RADIATOR_NUM; ++num)
+                {
+                        eeprom_config.radiator[num].cycle = 600000; // temp de cycle en ms
+                        eeprom_config.radiator[num].KI = 0;         // coeficient d integral
+                        eeprom_config.radiator[num].m10 = 80;       // temp de fonctionnement a -10°c, en pourcentage
+                        eeprom_config.radiator[num].p10 = 20;       // temp de fonctionnement a +10°c, en pourcentage
                 }
 #endif
         }

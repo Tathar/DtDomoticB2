@@ -95,17 +95,19 @@ void _cover_write(uint8_t num, bool val)
 void DT_cover_loop()
 {
 #if COVER_NUM > 0
-    for (uint8_t num = 0; num < DIMMER_COVER_NUM; ++num)
+    for (uint8_t num = 0; num < COVER_NUM; ++num)
     {
         if (cover[num].step == cover_step_delay_start) // arret avent d effectuer une action
         {
+            debug(F("cover_step_delay_start"));
             _cover_write((num * 2) + 1, LOW); // arret de la descente
-            _cover_write(num * 2, LOW);       // marche de la montée
-            cover[num].mouve_start;
+            _cover_write(num * 2, LOW);       // arret de la montée
+            cover[num].mouve_start = millis();
             cover[num].step = cover_step_start;
         }
         else if (cover[num].step == cover_step_start && millis() - cover[num].mouve_start > 250) // demande de monté
         {
+            debug(F("cover_step_start"));
             if (cover[num].go_pos > cover[num].pos)
             {
                 _cover_write((num * 2) + 1, LOW); // arret de la descente
@@ -117,6 +119,7 @@ void DT_cover_loop()
 
                 if (_cover_callback != nullptr)
                 {
+                    debug(F("cover_loop_callback"));
                     _cover_callback(num, cover[num].pos, cover_opening);
                 }
             }
@@ -130,13 +133,15 @@ void DT_cover_loop()
 
                 if (_cover_callback != nullptr)
                 {
+                    debug(F("cover_loop_callback"));
                     _cover_callback(num, cover[num].pos, cover_closing);
                 }
             }
         }
         else if (cover[num].step == cover_step_up) // Monté en cours
         {
-            cover[num].pos = cover[num].old_pos + ((millis() - cover[num].mouve_start) * eeprom_config.cover[num].ratio_up);
+            debug(F("cover_step_up"));
+            cover[num].pos = cover[num].old_pos + ((millis() - cover[num].mouve_start) / (eeprom_config.cover[num].time_up / 100));
             if (cover[num].pos == cover[num].go_pos)
             {
                 cover[num].old_pos = cover[num].pos;
@@ -147,6 +152,7 @@ void DT_cover_loop()
                     cover[num].step = cover_step_over_up;
                     if (_cover_callback != nullptr)
                     {
+                        debug(F("cover_loop_callback"));
                         _cover_callback(num, cover[num].pos, cover_open);
                     }
                 }
@@ -156,18 +162,21 @@ void DT_cover_loop()
                     cover[num].step = cover_step_stoped;
                     if (_cover_callback != nullptr)
                     {
+                        debug(F("cover_loop_callback"));
                         _cover_callback(num, cover[num].pos, cover_stopped);
                     }
                 }
             }
             else if (_cover_callback != nullptr)
             {
+                debug(F("cover_loop_callback"));
                 _cover_callback(num, cover[num].pos, cover_opening);
             }
         }
         else if (cover[num].step == cover_step_down) // descente en cours
         {
-            cover[num].pos = cover[num].old_pos - ((millis() - cover[num].mouve_start) * eeprom_config.cover[num].ratio_down);
+            debug(F("cover_step_down"));
+            cover[num].pos = cover[num].old_pos - ((millis() - cover[num].mouve_start) / (eeprom_config.cover[num].time_down / 100));
 
             if (cover[num].pos == cover[num].go_pos)
             {
@@ -180,6 +189,7 @@ void DT_cover_loop()
 
                     if (_cover_callback != nullptr)
                     {
+                        debug(F("cover_loop_callback"));
                         _cover_callback(num, cover[num].pos, cover_closed);
                     }
                 }
@@ -190,32 +200,38 @@ void DT_cover_loop()
 
                     if (_cover_callback != nullptr)
                     {
+                        debug(F("cover_loop_callback"));
                         _cover_callback(num, cover[num].pos, cover_stopped);
                     }
                 }
             }
             else if (_cover_callback != nullptr)
             {
+                debug(F("cover_loop_callback"));
                 _cover_callback(num, cover[num].pos, cover_closing);
             }
         }
         else if (cover[num].step == cover_step_over_up && millis() - cover[num].mouve_start >= 60000) // Monté en cours pendant 1 minute
         {
+            debug(F("cover_step_over_up"));
             _cover_write((num * 2), LOW); // arret de la monté
             cover[num].step = cover_step_stoped;
         }
         else if (cover[num].step == cover_step_over_down && millis() - cover[num].mouve_start >= 60000) //  descente en cours pendant 1 minute
         {
+            debug(F("cover_step_over_down"));
             _cover_write((num * 2) + 1, LOW); // arret de la descente
             cover[num].step = cover_step_stoped;
         }
         else if (cover[num].step == cover_step_stoping) //  descente en cours pendant 1 minute
         {
+            debug(F("cover_step_stoping"));
             _cover_write((num * 2), LOW);     // arret de la monté
             _cover_write((num * 2) + 1, LOW); // arret de la descente
             cover[num].step = cover_step_stoped;
             if (_cover_callback != nullptr)
             {
+                debug(F("cover_loop_callback"));
                 _cover_callback(num, cover[num].pos, cover_stopped);
             }
         }

@@ -1115,7 +1115,7 @@ bool mqtt_subscribe(MQTTClient &mqtt, bool start)
       }
       break;
 
-#ifdef DIMMER_LIGHT_NUM
+#if DIMMER_LIGHT_NUM > 0
 #include BOOST_PP_UPDATE_COUNTER()
     case BOOST_PP_COUNTER:
       if (num < DIMMER_LIGHT_NUM)
@@ -1191,6 +1191,68 @@ bool mqtt_subscribe(MQTTClient &mqtt, bool start)
       }
       break;
 #endif // DIMMER_LIGHT_NUM
+
+#if COVER_NUM > 0
+#include BOOST_PP_UPDATE_COUNTER()
+    case BOOST_PP_COUNTER:
+      if (num < DIMMER_LIGHT_NUM)
+      {
+        snprintf_P(topic, 56, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/cover-%02d/set"), num);
+        mqtt.subscribe(topic);
+        num++;
+        sequance--;
+      }
+      else
+      {
+        num = 0;
+      }
+      break;
+
+#include BOOST_PP_UPDATE_COUNTER()
+    case BOOST_PP_COUNTER:
+      if (num < DIMMER_LIGHT_NUM)
+      {
+        snprintf_P(topic, 56, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/cover-%02d/pos_set"), num);
+        mqtt.subscribe(topic);
+        num++;
+        sequance--;
+      }
+      else
+      {
+        num = 0;
+      }
+      break;
+
+#include BOOST_PP_UPDATE_COUNTER()
+    case BOOST_PP_COUNTER:
+      if (num < DIMMER_LIGHT_NUM)
+      {
+        snprintf_P(topic, 56, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/cover-%02d/up_set"), num);
+        mqtt.subscribe(topic);
+        num++;
+        sequance--;
+      }
+      else
+      {
+        num = 0;
+      }
+      break;
+
+#include BOOST_PP_UPDATE_COUNTER()
+    case BOOST_PP_COUNTER:
+      if (num < DIMMER_LIGHT_NUM)
+      {
+        snprintf_P(topic, 56, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/cover-%02d/down_set"), num);
+        mqtt.subscribe(topic);
+        num++;
+        sequance--;
+      }
+      else
+      {
+        num = 0;
+      }
+      break;
+#endif // COVER
 
 #ifdef POELE
 #include BOOST_PP_UPDATE_COUNTER()
@@ -1555,10 +1617,10 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
 #if COVER_NUM > 0
   else if (sscanf_P(topic, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/cover-%02d"), &num) == 1) // cover
   {
-    // Serial.println("dimmer");
+    Serial.println("cover");
     if (snprintf_P(_topic, 64, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/cover-%02d/set"), num) > 0 && strncmp(topic, _topic, 64) == 0) // cover
     {
-      // Serial.println("set");
+      Serial.println("set");
       if (strcmp(buffer, "STOP") == 0)
       {
         DT_cover_stop(num);
@@ -1572,27 +1634,30 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
         DT_cover_set(num, 0);
       }
     }
-    else if (snprintf_P(_topic, 64, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/pos_set"), num) > 0 && strncmp(topic, _topic, 64) == 0) // cover
+    else if (snprintf_P(_topic, 64, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/cover-%02d/pos_set"), num) > 0 && strncmp(topic, _topic, 64) == 0) // cover
     {
+      Serial.println("pos_set");
       if (sscanf_P(buffer, PSTR("%" SCNu8), &u8t_value) == 1)
       {
         DT_cover_set(num, u8t_value);
       }
     }
-    else if (snprintf_P(_topic, 64, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/up_set"), num) > 0 && strncmp(topic, _topic, 64) == 0) // time cover up
+    else if (snprintf_P(_topic, 64, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/cover-%02d/up_set"), num) > 0 && strncmp(topic, _topic, 64) == 0) // time cover up
     {
-      // Serial.println("max_set");
+      Serial.print("up_set = ");
       str_buffer = buffer;
-      eeprom_config.cover[num].ratio_up = (uint16_t)(str_buffer.toDouble() / 100);
-      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/up_state"), num, (uint16_t)(eeprom_config.cover[num].ratio_up * 100));
+      eeprom_config.cover[num].time_up = (uint16_t)(str_buffer.toDouble());
+      Serial.println(eeprom_config.cover[num].time_up);
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/cover-%02d/up_state"), num, (eeprom_config.cover[num].time_up));
       sauvegardeEEPROM();
     }
-    else if (snprintf_P(_topic, 64, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/down_set"), num) > 0 && strncmp(topic, _topic, 64) == 0) // time cover down
+    else if (snprintf_P(_topic, 64, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/cover-%02d/down_set"), num) > 0 && strncmp(topic, _topic, 64) == 0) // time cover down
     {
-      // Serial.println("max_set");
+      Serial.print("down_set = ");
       str_buffer = buffer;
-      eeprom_config.cover[num].ratio_down = (uint16_t)(str_buffer.toDouble() / 100);
-      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/down_state"), num, (uint16_t)(eeprom_config.cover[num].ratio_down * 100));
+      eeprom_config.cover[num].time_down = (uint16_t)(str_buffer.toDouble());
+      Serial.println(eeprom_config.cover[num].time_down);
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/cover-%02d/down_state"), num, (eeprom_config.cover[num].time_down));
       sauvegardeEEPROM();
     }
   }
@@ -2225,7 +2290,6 @@ void loop()
     DT_cover_loop();
     break;
 #endif
-
 
   default:
     interlock = 0;

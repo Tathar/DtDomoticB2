@@ -128,8 +128,7 @@ bool homeassistant(bool start)
 
 #if COVER_NUM > 0
 #include BOOST_PP_UPDATE_COUNTER()
-                case BOOST_PP_COUNTER:
-                        // PT100
+                case BOOST_PP_COUNTER: //COVER
                         if (num < COVER_NUM)
                         {
                                 // position_topic
@@ -152,7 +151,7 @@ bool homeassistant(bool start)
                         if (num < COVER_NUM)
                         {
                                 snprintf_P(payload, MAX_PAYLOAD, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/cover-%02d\",\"uniq_id\":\"" BOARD_IDENTIFIER "-cover-%02d-up\",\"name\":\"cover-%02d-up-time\",\"stat_t\":\"~/up_state\",\"command_topic\":\"~/up_set\",\"min\":0,\"max\":65535,\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), num, num, num);
-                                DT_mqtt_send(F("homeassistant/number/" BOARD_IDENTIFIER "/dimmer-%02d-MAX/config"), num, payload);
+                                DT_mqtt_send(F("homeassistant/number/" BOARD_IDENTIFIER "/cover-%02d-up/config"), num, payload);
                                 num++;
                                 sequance--;
                         }
@@ -167,7 +166,7 @@ bool homeassistant(bool start)
                         if (num < COVER_NUM)
                         {
                                 snprintf_P(payload, MAX_PAYLOAD, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/cover-%02d\",\"uniq_id\":\"" BOARD_IDENTIFIER "-cover-%02d-down\",\"name\":\"cover-%02d-down-time\",\"stat_t\":\"~/down_state\",\"command_topic\":\"~/down_set\",\"min\":0,\"max\":65535,\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), num, num, num);
-                                DT_mqtt_send(F("homeassistant/number/" BOARD_IDENTIFIER "/dimmer-%02d-MAX/config"), num, payload);
+                                DT_mqtt_send(F("homeassistant/number/" BOARD_IDENTIFIER "/cover-%02d-down/config"), num, payload);
                                 num++;
                                 sequance--;
                         }
@@ -776,7 +775,7 @@ void MQTT_data::get(char *topic, int topic_len, char *payload, int payload_len)
 
         case ha_int32_t_tsprintf:
                 snprintf_P(topic, topic_len, reinterpret_cast<const char *>(_topic), _num_t);
-                snprintf_P(payload, payload_len, PSTR("%i"), (int)_int);
+                snprintf_P(payload, payload_len, PSTR("%" PRId32 ), (int32_t)_int);
                 break;
 
         default:

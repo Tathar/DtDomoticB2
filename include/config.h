@@ -55,7 +55,7 @@ void debug_wdt_reset(const __FlashStringHelper *var);
 
 // relais
 #define RELAY_COVER_NUM 1    // nombre de volet connecté au relai
-#define RELAY_RADIATOR_NUM 1 // nombre de volet connecté au relai
+#define RELAY_RADIATOR_NUM 0 // nombre de volet connecté au relai
 
 // watchdog
 #define WATCHDOG_TIME WDTO_8S
@@ -198,7 +198,12 @@ void debug_wdt_reset(const __FlashStringHelper *var);
 #define DIMMER_RELAY_LAST_NUM 18 - (TEMP_NUM + TIC_NUM)
 
 #define COVER_NUM DIMMER_COVER_NUM + RELAY_COVER_NUM
-#define RELAY_RESERVED RELAY_COVER_NUM
+
+#define RADIATOR_NUM DIMMER_RADIATOR_NUM + RELAY_RADIATOR_NUM
+#define DIMMER_RADIATOR_FIRST_NUM DIMMER_COVER_NUM
+#define RELAY_RADIATOR_FIRST_NUM RELAY_COVER_NUM
+
+#define RELAY_RESERVED RELAY_COVER_NUM + RELAY_RADIATOR_NUM
 
 #if DIMMER_LIGHT_NUM + DIMMER_HEAT_NUM > 14
 #error "you can use only 14 dimmer"

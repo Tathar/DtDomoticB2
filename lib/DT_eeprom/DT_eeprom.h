@@ -30,18 +30,26 @@ struct Pid
 
 struct Cover
 {
-    uint32_t ratio_up;   // ms per percent
-    uint32_t ratio_down; // ms per percent
+    uint16_t time_up;   // ms per percent
+    uint16_t time_down; // ms per percent
     // uint32_t backup_pos; // ms per percent
+};
+
+struct Radiator
+{
+    float m10;      // temp de fonctionnement a -10°c, en pourcentage
+    float p10;      // temp de fonctionnement a +10°c, en pourcentage
+    float KI;       // coeficient d integral
+    uint32_t cycle; //  temp de cycle en ms
 };
 
 // declaration de la structure de configuration
 struct Mem_Config
 {
-    float C2; // consigne Temp PCBT
-    float C3; // consigne MCBT
-    bool MQTT_online; // connecte au broker MQTT
-    bool HA_online; // Home Assistant
+    float C2;            // consigne Temp PCBT
+    float C3;            // consigne MCBT
+    bool MQTT_online;    // connecte au broker MQTT
+    bool HA_online;      // Home Assistant
     bool HA_MQTT_CONFIG; // Home Assistant MQTT configuration
 #if DIMMER_LIGHT_NUM >= 1
     uint8_t Dimmer_old_value[DIMMER_LIGHT_NUM]; // Mise a l echelle
@@ -100,6 +108,10 @@ struct Eeprom_Config
 
 #if COVER_NUM >= 1
     Cover cover[COVER_NUM];
+#endif
+
+#if RADIATOR_NUM > 0
+    Radiator radiator[RADIATOR_NUM];
 #endif
 };
 
