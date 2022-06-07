@@ -750,35 +750,32 @@ bool get_dimmer_candle(uint8_t num)
 // utilisation des dimmer comme relay
 void DT_dimmer_relay(uint8_t num, bool state)
 {
-    if (num < DIMMER_RELAY_NUM)
-    {
-        uint8_t pin = pgm_read_byte(OPT_ARRAY + DIMMER_RELAY_FIRST_NUM + num);
+    uint8_t pin = pgm_read_byte(OPT_ARRAY + DIMMER_RELAY_FIRST_NUM + num);
 
 #if DIMMER_COVER_NUM > 0
-        // interverouillage
-        if (state == true && num < DIMMER_COVER_NUM * 2)
+    // interverouillage
+    if (state == true && num < DIMMER_COVER_NUM * 2)
+    {
+        if (num % 2 == 0 && DT_dimmer_relay_get(num + 1) == true)
         {
-            if (num % 2 == 0 && DT_dimmer_relay_get(num + 1) == true)
-            {
-                return;
-            }
-            else if (num % 2 == 1 && DT_dimmer_relay_get(num - 1) == true)
-            {
-                return;
-            }
+            return;
         }
+        else if (num % 2 == 1 && DT_dimmer_relay_get(num - 1) == true)
+        {
+            return;
+        }
+    }
 #endif
 
-        if (state)
-        {
-            digitalWrite(pin, HIGH);
-            // async_call[num] = true;
-        }
-        else
-        {
-            digitalWrite(pin, LOW);
-            // async_call[num] = true;
-        }
+    if (state)
+    {
+        digitalWrite(pin, HIGH);
+        // async_call[num] = true;
+    }
+    else
+    {
+        digitalWrite(pin, LOW);
+        // async_call[num] = true;
     }
 }
 

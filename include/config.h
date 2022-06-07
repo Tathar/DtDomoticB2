@@ -2,7 +2,7 @@
 #define CONFIG
 
 #include <Arduino.h>
-#include <config.h>
+#include <pinout.h>
 
 void debug(const char *var);
 void debug(const __FlashStringHelper *var);
@@ -42,12 +42,13 @@ void debug_wdt_reset(const __FlashStringHelper *var);
 #define CANDLE_SPEED_MAX 1000         // en miliseconde
 
 #define DIMMER_HEAT_NUM 0     // Fil pilote : max (DIMMER_LIGHT_NUM + DIMMER_HEAT_NUM + (DIMMER_COVER_NUM * 2) ) = 14
-#define DIMMER_COVER_NUM 0    // nombre de volet connecté au dimmer : max (DIMMER_LIGHT_NUM + DIMMER_HEAT_NUM + (DIMMER_COVER_NUM * 2) ) = 14
-#define DIMMER_RADIATOR_NUM 1 // nombre de radiateur connecté au dimmer : max (DIMMER_LIGHT_NUM + DIMMER_HEAT_NUM + (DIMMER_COVER_NUM * 2) + DIMMER_RADIATOR_NUM ) = 14
+#define DIMMER_COVER_NUM 1    // nombre de volet connecté au dimmer : max (DIMMER_LIGHT_NUM + DIMMER_HEAT_NUM + (DIMMER_COVER_NUM * 2) ) = 14
+#define DIMMER_RADIATOR_NUM 0 // nombre de radiateur connecté au dimmer : max (DIMMER_LIGHT_NUM + DIMMER_HEAT_NUM + (DIMMER_COVER_NUM * 2) + DIMMER_RADIATOR_NUM ) = 14
+const uint8_t DIMMER_RADIATOR_PT100_ARRAY[DIMMER_RADIATOR_NUM] PROGMEM = {};
 
 // PT100
 #define TEMP_NUM 3 // 12 ok 13 ko // max 18
-// #define TEMP_NUM 0
+#define PT100_EXT 5
 
 // TIC
 // téléreléve information client
@@ -55,7 +56,8 @@ void debug_wdt_reset(const __FlashStringHelper *var);
 
 // relais
 #define RELAY_COVER_NUM 1    // nombre de volet connecté au relai
-#define RELAY_RADIATOR_NUM 0 // nombre de volet connecté au relai
+#define RELAY_RADIATOR_NUM 1 // nombre de radiateur connecté au relai
+const uint8_t RELAY_RADIATOR_PT100_ARRAY[RELAY_RADIATOR_NUM] PROGMEM = {0};
 
 // watchdog
 #define WATCHDOG_TIME WDTO_8S
@@ -113,7 +115,7 @@ void debug_wdt_reset(const __FlashStringHelper *var);
 #endif                           // MQTT
 
 // Poele
-#define POELE
+// #define POELE
 #ifdef POELE
 #define MIN_T4 0                     // en °C (fake NTC)
 #define POELE_MAX_TEMPERATURE 85     // en °C (consigne temperature Balon)
@@ -130,13 +132,13 @@ void debug_wdt_reset(const __FlashStringHelper *var);
 #endif // POELE
 
 // Vanne 3 Voies
-#define VANNES
+// #define VANNES
 #ifdef VANNES
 #define TMP_EAU_PCBT_MAX 38 // valeur maximum de la consigne de temperature
 #define TMP_EAU_MCBT_MAX 60 // valeur maximum de la consigne de temperature
 #define DBMAC 0.5           // demi bamnde morte pour l'arret des circulateur (en °C)
 
-#define PT100_EXT 5
+// #define PT100_EXT 5
 #define PT100_3_VOIES_PCBT 6
 #define PT100_3_VOIES_MCBT 7
 
@@ -188,28 +190,34 @@ void debug_wdt_reset(const __FlashStringHelper *var);
 #define AT __FILE__ ":" TOSTRING(__LINE__)
 
 #if DIMMER_LIGHT_NUM + DIMMER_HEAT_NUM > 0
-#define DIMMER_LIGHT_HEAT_NUM_OPT DIMMER_LIGHT_NUM + DIMMER_HEAT_NUM + 1
+#define DIMMER_LIGHT_HEAT_NUM_OPT (DIMMER_LIGHT_NUM + DIMMER_HEAT_NUM + 1)
 #else
 #define DIMMER_LIGHT_HEAT_NUM_OPT 0
 #endif
 
-#define DIMMER_RELAY_NUM 18 - (DIMMER_LIGHT_HEAT_NUM_OPT + TEMP_NUM + TIC_NUM)
+#define DIMMER_RELAY_NUM (18 - (DIMMER_LIGHT_HEAT_NUM_OPT + TEMP_NUM + TIC_NUM))
 #define DIMMER_RELAY_FIRST_NUM DIMMER_LIGHT_HEAT_NUM_OPT
-#define DIMMER_RELAY_LAST_NUM 18 - (TEMP_NUM + TIC_NUM)
+#define DIMMER_RELAY_LAST_NUM (17 - (TEMP_NUM + TIC_NUM))
 
-#define COVER_NUM DIMMER_COVER_NUM + RELAY_COVER_NUM
+#define COVER_NUM (DIMMER_COVER_NUM + RELAY_COVER_NUM)
 
-#define RADIATOR_NUM DIMMER_RADIATOR_NUM + RELAY_RADIATOR_NUM
+#define RADIATOR_NUM (DIMMER_RADIATOR_NUM + RELAY_RADIATOR_NUM)
 #define DIMMER_RADIATOR_FIRST_NUM DIMMER_COVER_NUM
-#define RELAY_RADIATOR_FIRST_NUM RELAY_COVER_NUM
+#define RELAY_RADIATOR_FIRST_NUM (RELAY_COVER_NUM * 2)
 
-#define RELAY_RESERVED RELAY_COVER_NUM + RELAY_RADIATOR_NUM
+#if RADIATOR_NUM > 0
+#ifndef PT100_EXT
+#error "need define PT100_EXT"
+#endif
+#endif
 
-#if DIMMER_LIGHT_NUM + DIMMER_HEAT_NUM > 14
+#define RELAY_RESERVED ((RELAY_COVER_NUM * 2) + RELAY_RADIATOR_NUM)
+
+#if (DIMMER_LIGHT_NUM + DIMMER_HEAT_NUM) > 14
 #error "you can use only 14 dimmer"
 #endif
 
-#if DIMMER_LIGHT_NUM + DIMMER_HEAT_NUM + DIMMER_COVER_NUM + DIMMER_RADIATOR_NUM + TEMP_NUM + TIC_NUM > 18
+#if (DIMMER_LIGHT_HEAT_NUM_OPT + (DIMMER_COVER_NUM * 2) + DIMMER_RADIATOR_NUM + TEMP_NUM + TIC_NUM) > 18
 #error "this board as only 18 OPT connector"
 #endif
 

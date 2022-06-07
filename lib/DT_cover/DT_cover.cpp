@@ -3,6 +3,7 @@
 #include "DT_cover.h"
 #include "DT_eeprom.h"
 #include "DT_relay.h"
+#include "DT_Dimmer.h"
 
 enum cover_step
 {
@@ -34,25 +35,15 @@ void (*_cover_callback)(const uint8_t num, const uint8_t percent, const cover_st
 
 void DT_cover_init()
 {
-#if DIMMER_COVER_NUM > 0
-    for (uint8_t num = 0; num < DIMMER_COVER_NUM; ++num) // init variables
+#if COVER_NUM > 0
+    for (uint8_t num = 0; num < COVER_NUM; ++num) // init variables
     {
         cover[num].step = cover_step_stoped;
         cover[num].pos = 0;
         cover[num].go_pos = 0;
         cover[num].mouve_start = 0;
     }
-#endif // DIMMER_COVER_NUM > 0
-
-#if RELAY_COVER_NUM > 0
-    for (uint8_t num = DIMMER_COVER_NUM; num < (COVER_NUM); ++num) // init variables
-    {
-        cover[num].step = cover_step_stoped;
-        cover[num].pos = 0;
-        cover[num].go_pos = 0;
-        cover[num].mouve_start = 0;
-    }
-#endif // RELAY_COVER_NUM > 0
+#endif // COVER_NUM > 0
 
     _cover_callback = nullptr;
 }
@@ -77,6 +68,12 @@ uint8_t DT_cover_get(uint8_t num)
 
 void _cover_write(uint8_t num, bool val)
 {
+    // debug(F("_cover_write"));
+    // Serial.print("_cover_write(");
+    // Serial.print(num);
+    // Serial.print(",");
+    // Serial.print(val);
+    // Serial.println(")");
 #if DIMMER_COVER_NUM > 0
     if (num < DIMMER_COVER_NUM * 2)
     {
@@ -85,9 +82,15 @@ void _cover_write(uint8_t num, bool val)
 #endif // DIMMER_COVER_NUM > 0
 
 #if RELAY_COVER_NUM > 0
-    if (num > DIMMER_COVER_NUM * 2 && num < ((COVER_NUM)*2))
+    if (num >= (DIMMER_COVER_NUM * 2) && num < (COVER_NUM * 2))
     {
-        DT_relay(num - DIMMER_COVER_NUM, val);
+        // debug(F("RELAY_COVER_NUM"));
+        // Serial.print("DT_relay(");
+        // Serial.print(num - (DIMMER_COVER_NUM * 2));
+        // Serial.print(",");
+        // Serial.print(val);
+        // Serial.println(")");
+        DT_relay(num - (DIMMER_COVER_NUM * 2), val);
     }
 #endif // RELAY_COVER_NUM > 0
 }
@@ -148,7 +151,7 @@ void DT_cover_loop()
 
                 if (cover[num].go_pos == 100)
                 {
-                    // cover[num].mouve_start = millis();
+                    cover[num].mouve_start = millis();
                     cover[num].step = cover_step_over_up;
                     if (_cover_callback != nullptr)
                     {
@@ -184,7 +187,7 @@ void DT_cover_loop()
 
                 if (cover[num].go_pos == 0)
                 {
-                    // cover[num].mouve_start = millis();
+                    cover[num].mouve_start = millis();
                     cover[num].step = cover_step_over_down;
 
                     if (_cover_callback != nullptr)
@@ -236,7 +239,7 @@ void DT_cover_loop()
             }
         }
     }
-#endif // DIMMER_COVER_NUM > 0
+#endif // COVER_NUM > 0
 }
 
 void DT_cover_set_callback(void (*callback)(const uint8_t num, const uint8_t percent, const cover_state state))

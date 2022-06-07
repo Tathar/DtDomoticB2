@@ -40,6 +40,7 @@ struct Radiator
     float m10;      // temp de fonctionnement a -10°c, en pourcentage
     float p10;      // temp de fonctionnement a +10°c, en pourcentage
     float KI;       // coeficient d integral
+    float consigne; // consigne
     uint32_t cycle; //  temp de cycle en ms
 };
 

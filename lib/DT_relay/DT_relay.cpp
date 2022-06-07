@@ -61,13 +61,13 @@ void DT_relay(uint8_t num, bool state)
 
 #if RELAY_COVER_NUM > 0
     // interverouillage
-    if (state == true && num < RELAY_COVER_NUM * 2)
+    if (state == true && num < (RELAY_COVER_NUM * 2))
     {
-        if (num % 2 == 0 && DT_relay_get(num +1) == true)
+        if (num % 2 == 0 && DT_relay_get(num + 1) == true)
         {
             return;
         }
-        else if (num % 2 == 1 && DT_relay_get(num) == true)
+        else if (num % 2 == 1 && DT_relay_get(num - 1) == true)
         {
             return;
         }
@@ -120,7 +120,7 @@ void DT_relay(uint8_t num, bool state)
 bool DT_relay_get(uint8_t num)
 {
     uint8_t pin = pgm_read_byte(RELAY_ARRAY + num);
-    bool revert = pgm_read_byte(RELAY_REVERT + num );
+    bool revert = pgm_read_byte(RELAY_REVERT + num);
     bool ret;
     if (pin >= 100)
     {

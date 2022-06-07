@@ -18,6 +18,7 @@
 #include <DT_poele.h>
 #include <DT_eeprom.h>
 #include <DT_cover.h>
+#include <DT_radiator.h>
 
 #include <avr/wdt.h> //watchdog
 
@@ -2288,6 +2289,13 @@ void loop()
 #include BOOST_PP_UPDATE_COUNTER()
   case BOOST_PP_COUNTER:
     DT_cover_loop();
+    break;
+#endif
+
+#if RADIATOR_NUM > 0
+#include BOOST_PP_UPDATE_COUNTER()
+  case BOOST_PP_COUNTER:
+    DT_radiator_loop();
     break;
 #endif
 
