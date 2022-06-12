@@ -35,8 +35,19 @@ struct Cover
     // uint32_t backup_pos; // ms per percent
 };
 
+enum Radiator_Mode
+{
+    Radiator_Mode_Off,
+    Radiator_Mode_Heating,
+    Radiator_Mode_Cooling,
+    Radiator_Mode_Drying,
+    Radiator_Mode_Idle,
+    Radiator_Mode_Fan
+};
+
 struct Radiator
 {
+    Radiator_Mode mode; // mode de fonctionnement de raditeur
     float m10;      // temp de fonctionnement a -10°c, en pourcentage
     float p10;      // temp de fonctionnement a +10°c, en pourcentage
     float KI;       // coeficient d integral

@@ -45,9 +45,8 @@ void debug_wdt_reset(const __FlashStringHelper *var);
 #define DIMMER_COVER_NUM 1    // nombre de volet connecté au dimmer : max (DIMMER_LIGHT_NUM + DIMMER_HEAT_NUM + (DIMMER_COVER_NUM * 2) ) = 14
 #define DIMMER_RADIATOR_NUM 0 // nombre de radiateur connecté au dimmer : max (DIMMER_LIGHT_NUM + DIMMER_HEAT_NUM + (DIMMER_COVER_NUM * 2) + DIMMER_RADIATOR_NUM ) = 14
 const uint8_t DIMMER_RADIATOR_PT100_ARRAY[DIMMER_RADIATOR_NUM] PROGMEM = {};
-
 // PT100
-#define TEMP_NUM 3 // 12 ok 13 ko // max 18
+#define TEMP_NUM 3 // 12 ok 13 ko // max 18 //TODO: convert to #if TEMP_NUM > 0
 #define PT100_EXT 5
 
 // TIC
@@ -113,6 +112,11 @@ const uint8_t RELAY_RADIATOR_PT100_ARRAY[RELAY_RADIATOR_NUM] PROGMEM = {0};
 #define NETWORK_RESET_TIME 60000 // temp avant reset de la carte reseau en qua d'imposibilité de se connecter (en miliseconde)
 #define MQTT_UPDATE 1000         // in ms
 #endif                           // MQTT
+
+//Home Assistant
+
+#define RADIATOR_HA_MAX_TEMP 22
+#define RADIATOR_HA_MIN_TEMP 15
 
 // Poele
 // #define POELE
@@ -211,6 +215,7 @@ const uint8_t RELAY_RADIATOR_PT100_ARRAY[RELAY_RADIATOR_NUM] PROGMEM = {0};
 #endif
 #endif
 
+#define DIMMER_RELAY_RESERVED ((DIMMER_COVER_NUM * 2) + DIMMER_RADIATOR_NUM)
 #define RELAY_RESERVED ((RELAY_COVER_NUM * 2) + RELAY_RADIATOR_NUM)
 
 #if (DIMMER_LIGHT_NUM + DIMMER_HEAT_NUM) > 14

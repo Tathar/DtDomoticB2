@@ -44,9 +44,23 @@ bool homeassistant(bool start)
                 case BOOST_PP_COUNTER:
                         if (num < RELAY_NUM - RELAY_RESERVED)
                         {
-
                                 snprintf_P(payload, MAX_PAYLOAD, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/relay-%02d\",\"uniq_id\":\"" BOARD_IDENTIFIER "-relay-%02d\",\"name\":\"relay-%02d\",\"command_topic\":\"~/set\",\"stat_t\":\"~/state\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), num + RELAY_RESERVED, num + RELAY_RESERVED, num + RELAY_RESERVED);
                                 DT_mqtt_send(F("homeassistant/switch/" BOARD_IDENTIFIER "/relay-%02d/config"), num + RELAY_RESERVED, payload);
+                                num++;
+                                sequance--;
+                        }
+                        else
+                        {
+                                num = 0;
+                        }
+                        break;
+
+#include BOOST_PP_UPDATE_COUNTER()
+                case BOOST_PP_COUNTER:
+                        if (num < DIMMER_RELAY_NUM - DIMMER_RELAY_RESERVED)
+                        {
+                                snprintf_P(payload, MAX_PAYLOAD, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/dimmer-relay-%02d\",\"uniq_id\":\"" BOARD_IDENTIFIER "-dimmer-relay-%02d\",\"name\":\"dimmer-relay-%02d\",\"command_topic\":\"~/set\",\"stat_t\":\"~/state\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), num + DIMMER_RELAY_FIRST_NUM + DIMMER_RELAY_RESERVED, num + DIMMER_RELAY_FIRST_NUM + DIMMER_RELAY_RESERVED, num + DIMMER_RELAY_FIRST_NUM + DIMMER_RELAY_RESERVED);
+                                DT_mqtt_send(F("homeassistant/switch/" BOARD_IDENTIFIER "/dimmer-relay-%02d/config"), num + DIMMER_RELAY_FIRST_NUM + DIMMER_RELAY_RESERVED, payload);
                                 num++;
                                 sequance--;
                         }
@@ -128,7 +142,7 @@ bool homeassistant(bool start)
 
 #if COVER_NUM > 0
 #include BOOST_PP_UPDATE_COUNTER()
-                case BOOST_PP_COUNTER: //COVER
+                case BOOST_PP_COUNTER: // COVER
                         if (num < COVER_NUM)
                         {
                                 // position_topic
@@ -192,7 +206,7 @@ bool homeassistant(bool start)
                         }
                         break;
 
-#ifdef TEMP_NUM
+#ifdef TEMP_NUM // TODO: convert to #if TEMP_NUM > 0
 #include BOOST_PP_UPDATE_COUNTER()
                 case BOOST_PP_COUNTER:
                         // PT100
@@ -209,6 +223,108 @@ bool homeassistant(bool start)
                         }
                         break;
 #endif // PT100
+
+#if RADIATOR_NUM > 0
+#include BOOST_PP_UPDATE_COUNTER()
+                case BOOST_PP_COUNTER:
+                        // RADIATOR
+                        if (num < RADIATOR_NUM)
+                        {
+
+                                // OK current_temperature_topic = curr_temp_t = F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pt100-%02d/temperature")
+                                // OK action_topic = act_t =(off, heating, cooling, drying, idle, fan) = ~/state
+
+                                // OK temperature_command_topic = temp_cmd_t = ~/temp_set
+                                // OK temperature_state_topic = temp_stat_t = ~/temp_state
+                                // OK temp_step = 0.1
+                                // OK max_temp = RADIATOR_HA_MAX_TEMP
+                                // OK min_temp = RADIATOR_HA_MIN_TEMP
+
+                                // OK modes ([“auto”, “off”, “cool”, “heat”, “dry”, “fan_only”]) = [“off”, “heat”]
+                                // OK mode_command_topic = mode_cmd_t = ~/mode_set
+                                // OK mode_state_topic = mode_stat_t = ~/mode_state
+
+                                // TODO:Radiator preset_modes (eco, away, boost, comfort, home, sleep and activity) = pr_modes
+                                // TODO:Radiator preset_mode_state_topic = pr_mode_stat_t
+                                // TODO:Radiator preset_mode_command_topic = pr_mode_cmd_t
+
+                                uint8_t temp_num = pgm_read_byte(DIMMER_RADIATOR_PT100_ARRAY + num);
+                                snprintf_P(payload, MAX_PAYLOAD, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/radiator-%02d\",\"uniq_id\":\"" BOARD_IDENTIFIER "-radiator-%02d-heat\",\"name\":\"radiator-%02d\",\"curr_temp_t\":\"" MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pt100-%02d\",\"act_t\":\"~/state\",\"temp_cmd_t\":\"~/temp_set\",\"temp_stat_t\":\"~/temp_state\",\"temp_step\":\"0.1\",\"max_temp\":\"RADIATOR_HA_MAX_TEMP\",\"min_temp\":\"RADIATOR_HA_MIN_TEMP\",\"modes\":\"[“off”,“heat”]\",\"mode_cmd_t\":\"~/mode_set\",\"mode_stat_t\":\"~/mode_state\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), num, num, num, temp_num);
+                                DT_mqtt_send(F("homeassistant/climate/" BOARD_IDENTIFIER "/radiator-%02d/config"), num, payload);
+                                num++;
+                                sequance--;
+                        }
+                        else
+                        {
+                                num = 0;
+                        }
+                        break;
+
+#include BOOST_PP_UPDATE_COUNTER()
+                case BOOST_PP_COUNTER:
+                        // RADIATOR
+                        if (num < RADIATOR_NUM)  //temp de cycle
+                        {
+                                snprintf_P(payload, MAX_PAYLOAD, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/radiator-%02d\",\"uniq_id\":\"" BOARD_IDENTIFIER "-radiator-%02d-cycle\",\"name\":\"radiator-%02d-cycle\",\"stat_t\":\"~/cycle-state\",\"command_topic\":\"~/cycle-set\",\"unit_of_meas\":\"ms\",\"min\":100,\"max\":3600000,\"step\":1,\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), num, num, num);
+                                DT_mqtt_send(F("homeassistant/number/" BOARD_IDENTIFIER "/radiator-%02d/config"), num, payload);
+                                num++;
+                                sequance--;
+                        }
+                        else
+                        {
+                                num = 0;
+                        }
+                        break;
+
+#include BOOST_PP_UPDATE_COUNTER()
+                case BOOST_PP_COUNTER:
+                        // RADIATOR
+                        if (num < RADIATOR_NUM)  //-10
+                        {
+                                snprintf_P(payload, MAX_PAYLOAD, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/radiator-%02d\",\"uniq_id\":\"" BOARD_IDENTIFIER "-radiator-%02d-m10\",\"name\":\"radiator-%02d-m10\",\"stat_t\":\"~/m10-state\",\"command_topic\":\"~/m10-set\",\"unit_of_meas\":\"%\",\"min\":0,\"max\":100,\"step\":\"0,01\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), num, num, num);
+                                DT_mqtt_send(F("homeassistant/number/" BOARD_IDENTIFIER "/radiator-%02d/config"), num, payload);
+                                num++;
+                                sequance--;
+                        }
+                        else
+                        {
+                                num = 0;
+                        }
+                        break;
+
+#include BOOST_PP_UPDATE_COUNTER()
+                case BOOST_PP_COUNTER:
+                        // RADIATOR
+                        if (num < RADIATOR_NUM)  //+10
+                        {
+                                snprintf_P(payload, MAX_PAYLOAD, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/radiator-%02d\",\"uniq_id\":\"" BOARD_IDENTIFIER "-radiator-%02d-p10\",\"name\":\"radiator-%02d-p10\",\"stat_t\":\"~/p10-state\",\"command_topic\":\"~/p10-set\",\"unit_of_meas\":\"%\",\"min\":0,\"max\":100,\"step\":\"0,01\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), num, num, num);
+                                DT_mqtt_send(F("homeassistant/number/" BOARD_IDENTIFIER "/radiator-%02d/config"), num, payload);
+                                num++;
+                                sequance--;
+                        }
+                        else
+                        {
+                                num = 0;
+                        }
+                        break;
+
+#include BOOST_PP_UPDATE_COUNTER()
+                case BOOST_PP_COUNTER:
+                        // RADIATOR
+                        if (num < RADIATOR_NUM)  //KI
+                        {
+                                snprintf_P(payload, MAX_PAYLOAD, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/radiator-%02d\",\"uniq_id\":\"" BOARD_IDENTIFIER "-radiator-%02d-KI\",\"name\":\"radiator-%02d-KI\",\"stat_t\":\"~/KI-state\",\"command_topic\":\"~/KI-set\",\"min\":0,\"max\":10000,\"step\":\"0,01\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), num, num, num);
+                                DT_mqtt_send(F("homeassistant/number/" BOARD_IDENTIFIER "/radiator-%02d/config"), num, payload);
+                                num++;
+                                sequance--;
+                        }
+                        else
+                        {
+                                num = 0;
+                        }
+                        break;
+#endif // RADIATOR_NUM
+
 #include BOOST_PP_UPDATE_COUNTER()
                 case BOOST_PP_COUNTER:
                         // BME280 temperature
@@ -296,6 +412,7 @@ bool homeassistant(bool start)
                         DT_mqtt_send(F("homeassistant/number/" BOARD_IDENTIFIER "/C6/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/C6\",\"uniq_id\":\"" BOARD_IDENTIFIER "-C6\",\"name\":\"consigne mode boost (C6)\",\"stat_t\":\"~/state\",\"command_topic\":\"~/set\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
                         break;
 #endif // POELE
+
 #ifdef VANNES
 #include BOOST_PP_UPDATE_COUNTER()
                 case BOOST_PP_COUNTER:
@@ -775,7 +892,7 @@ void MQTT_data::get(char *topic, int topic_len, char *payload, int payload_len)
 
         case ha_int32_t_tsprintf:
                 snprintf_P(topic, topic_len, reinterpret_cast<const char *>(_topic), _num_t);
-                snprintf_P(payload, payload_len, PSTR("%" PRId32 ), (int32_t)_int);
+                snprintf_P(payload, payload_len, PSTR("%" PRId32), (int32_t)_int);
                 break;
 
         default:
