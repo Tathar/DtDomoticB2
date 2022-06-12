@@ -206,13 +206,13 @@ bool homeassistant(bool start)
                         }
                         break;
 
-#ifdef TEMP_NUM // TODO: convert to #if TEMP_NUM > 0
+#if TEMP_NUM > 0
 #include BOOST_PP_UPDATE_COUNTER()
                 case BOOST_PP_COUNTER:
                         // PT100
                         if (num < TEMP_NUM)
                         {
-                                snprintf_P(payload, MAX_PAYLOAD, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "\",\"uniq_id\":\"" BOARD_IDENTIFIER "-pt100-%02d\",\"name\":\"pt100-%02d\",\"stat_t\":\"~/pt100-%02d/temperature\",\"dev_cla\":\"temperature\",\"unit_of_meas\":\"°C\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), num, num, num);
+                                snprintf_P(payload, MAX_PAYLOAD, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "\",\"uniq_id\":\"" BOARD_IDENTIFIER "-pt100-%02d\",\"name\":\"pt100-%02d\",\"stat_t\":\"~/pt100-%02d\",\"dev_cla\":\"temperature\",\"unit_of_meas\":\"°C\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), num, num, num);
                                 DT_mqtt_send(F("homeassistant/sensor/" BOARD_IDENTIFIER "/pt100-%02d/config"), num, payload);
                                 num++;
                                 sequance--;
@@ -231,7 +231,7 @@ bool homeassistant(bool start)
                         if (num < RADIATOR_NUM)
                         {
 
-                                // OK current_temperature_topic = curr_temp_t = F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pt100-%02d/temperature")
+                                // OK current_temperature_topic = curr_temp_t = F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pt100-%02d")
                                 // OK action_topic = act_t =(off, heating, cooling, drying, idle, fan) = ~/state
 
                                 // OK temperature_command_topic = temp_cmd_t = ~/temp_set

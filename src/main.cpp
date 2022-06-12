@@ -396,7 +396,7 @@ void pt100_callback(const uint8_t num, const float temp)
 
   if (mem_config.MQTT_online)
   {
-    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pt100-%02d/temperature"), num, temp);
+    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pt100-%02d"), num, temp);
   }
   memory(false);
 }
