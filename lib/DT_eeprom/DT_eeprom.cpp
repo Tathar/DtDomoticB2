@@ -38,7 +38,6 @@ void chargeEEPROM()
                 need_save = true;
                 Serial.println(F("EEPROM version < 1"));
                 eeprom_config.struct_version = 1;
-                // TODO: mqtt home assistant
                 eeprom_config.poele_mode = DT_POELE_ARRET;
                 eeprom_config.mode_3voies_PCBT = DT_3VOIES_OFF;
                 eeprom_config.mode_3voies_MCBT = DT_3VOIES_OFF;

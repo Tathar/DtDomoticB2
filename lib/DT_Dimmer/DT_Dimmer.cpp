@@ -849,7 +849,7 @@ void dimmer_loop()
         // }
 
         /// Candle
-        if (light[num].Dimmer_candle == true) // FIXME: candle: need test and update
+        if (light[num].Dimmer_candle == true)
         {
 
             if (light[num].Dimmer_go_value == light[num].Dimmer_value)

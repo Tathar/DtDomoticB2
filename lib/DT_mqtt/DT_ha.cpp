@@ -41,7 +41,7 @@ bool homeassistant(bool start)
                         break;
 
 #include BOOST_PP_UPDATE_COUNTER()
-                case BOOST_PP_COUNTER:
+                case BOOST_PP_COUNTER: //relay
                         if (num < RELAY_NUM - RELAY_RESERVED)
                         {
                                 snprintf_P(payload, MAX_PAYLOAD, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/relay-%02d\",\"uniq_id\":\"" BOARD_IDENTIFIER "-relay-%02d\",\"name\":\"relay-%02d\",\"command_topic\":\"~/set\",\"stat_t\":\"~/state\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), num + RELAY_RESERVED, num + RELAY_RESERVED, num + RELAY_RESERVED);
@@ -56,7 +56,7 @@ bool homeassistant(bool start)
                         break;
 
 #include BOOST_PP_UPDATE_COUNTER()
-                case BOOST_PP_COUNTER:
+                case BOOST_PP_COUNTER: //Dimmer_relay
                         if (num < DIMMER_RELAY_NUM - DIMMER_RELAY_RESERVED)
                         {
                                 snprintf_P(payload, MAX_PAYLOAD, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/dimmer-relay-%02d\",\"uniq_id\":\"" BOARD_IDENTIFIER "-dimmer-relay-%02d\",\"name\":\"dimmer-relay-%02d\",\"command_topic\":\"~/set\",\"stat_t\":\"~/state\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), num + DIMMER_RELAY_FIRST_NUM + DIMMER_RELAY_RESERVED, num + DIMMER_RELAY_FIRST_NUM + DIMMER_RELAY_RESERVED, num + DIMMER_RELAY_FIRST_NUM + DIMMER_RELAY_RESERVED);

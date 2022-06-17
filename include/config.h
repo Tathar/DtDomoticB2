@@ -46,7 +46,7 @@ void debug_wdt_reset(const __FlashStringHelper *var);
 #define DIMMER_RADIATOR_NUM 0 // nombre de radiateur connecté au dimmer : max (DIMMER_LIGHT_NUM + DIMMER_HEAT_NUM + (DIMMER_COVER_NUM * 2) + DIMMER_RADIATOR_NUM ) = 14
 const uint8_t DIMMER_RADIATOR_PT100_ARRAY[DIMMER_RADIATOR_NUM] PROGMEM = {};
 // PT100
-#define TEMP_NUM 3 // 12 ok 13 ko // max 18 //TODO: convert to #if TEMP_NUM > 0
+#define TEMP_NUM 3 // 12 ok 13 ko // max 18
 #define PT100_EXT 5
 
 // TIC
