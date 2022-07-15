@@ -185,6 +185,7 @@ void relay_callback(const uint8_t num, const bool action)
   memory(false);
 }
 
+#if DIMMER_RELAY_NUM > 0
 // Dimmer Relay Callback
 // envoie de donnée MQTT quand un relais est activé / désactivé
 void dimmer_relay_callback(const uint8_t num, const bool action)
@@ -208,6 +209,7 @@ void dimmer_relay_callback(const uint8_t num, const bool action)
   }
   memory(false);
 }
+#endif //DIMMER_RELAY_NUM > 0
 #endif // MQTT
 
 #if DIMMER_LIGHT_NUM > 0
@@ -658,7 +660,7 @@ bool mqtt_publish(bool start)
         num = 0;
       }
       break;
-
+#if DIMMER_RELAY_NUM > 0
 #include BOOST_PP_UPDATE_COUNTER()
     case BOOST_PP_COUNTER:
       if (num < DIMMER_RELAY_NUM)
@@ -672,6 +674,7 @@ bool mqtt_publish(bool start)
         num = 0;
       }
       break;
+#endif //DIMMER_RELAY_NUM > 0
 
 #include BOOST_PP_UPDATE_COUNTER()
     case BOOST_PP_COUNTER:
@@ -1267,6 +1270,7 @@ bool mqtt_subscribe(MQTTClient &mqtt, bool start)
       }
       break;
 
+#if DIMMER_RELAY_NUM > 0
 #include BOOST_PP_UPDATE_COUNTER()
     case BOOST_PP_COUNTER:
       if (num < DIMMER_RELAY_NUM)
@@ -1281,6 +1285,7 @@ bool mqtt_subscribe(MQTTClient &mqtt, bool start)
         num = 0;
       }
       break;
+#endif //DIMMER_RELAY_NUM > 0
 
 #if DIMMER_LIGHT_NUM > 0
 #include BOOST_PP_UPDATE_COUNTER()
@@ -1811,6 +1816,7 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
     else if (strcmp(buffer, "OFF") == 0)
       DT_relay(num, false);
   }
+#if DIMMER_RELAY_NUM > 0
   else if (sscanf_P(topic, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-relay-%02d/set"), &num) == 1) // relais
   {
     // auto Serial.print("sscanf = ");
@@ -1821,6 +1827,7 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
     else if (strcmp(buffer, "OFF") == 0)
       DT_dimmer_relay(num, false);
   }
+#endif //DIMMER_RELAY_NUM > 0
 
 #if DIMMER_LIGHT_NUM > 0
   else if (sscanf_P(topic, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d"), &num) == 1) // dimmer
@@ -2482,8 +2489,10 @@ void setup()
   DT_relay_set_callback(relay_callback);
 #endif // MQTT
 
+#if DIMMER_LIGHT_NUM + DIMMER_HEAT_NUM + DIMMER_RELAY_NUM > 0
   Serial.println("starting dimmer");
   Dimmer_init();
+#endif //DIMMER_LIGHT_NUM + DIMMER_HEAT_NUM + DIMMER_RELAY_NUM > 0  
 #ifdef MQTT
 #if DIMMER_LIGHT_NUM > 0
   set_dimmer_callback(dimmer_callback);

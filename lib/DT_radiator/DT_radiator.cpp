@@ -94,7 +94,7 @@ void DT_radiator_set_consigne(uint8_t num, float consigne)
     sauvegardeEEPROM();
 };
 
-float DT_radiator_get_cycle(uint8_t num)
+uint32_t DT_radiator_get_cycle(uint8_t num)
 {
     return eeprom_config.radiator[num].cycle;
 };

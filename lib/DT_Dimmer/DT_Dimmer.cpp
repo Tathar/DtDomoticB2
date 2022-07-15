@@ -3,6 +3,9 @@
 #include "config.h"
 #include "DT_eeprom.h"
 
+
+#if DIMMER_LIGHT_NUM + DIMMER_HEAT_NUM + DIMMER_RELAY_NUM > 0
+
 #define EI_NOTINT0
 #define EI_NOTINT1
 // #include <EnableInterrupt.h>
@@ -977,3 +980,5 @@ void set_dimmer_callback(void (*callback)(const uint8_t num, const uint8_t perce
 {
     _callback_dimmer = callback;
 }
+
+#endif //DIMMER_LIGHT_NUM + DIMMER_HEAT_NUM + DIMMER_RELAY_NUM
