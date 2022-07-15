@@ -5,6 +5,9 @@
 #include "DT_relay.h"
 #include "DT_Dimmer.h"
 
+
+#if COVER_NUM > 0
+
 enum cover_step
 {
     cover_step_none,
@@ -43,9 +46,8 @@ void DT_cover_init()
         cover[num].go_pos = 0;
         cover[num].mouve_start = 0;
     }
-#endif // COVER_NUM > 0
-
     _cover_callback = nullptr;
+#endif // COVER_NUM > 0
 }
 
 // move cover at postiotion "percent"
@@ -246,3 +248,5 @@ void DT_cover_set_callback(void (*callback)(const uint8_t num, const uint8_t per
 {
     _cover_callback = callback;
 }
+
+#endif // COVER_NUM > 0
