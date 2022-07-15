@@ -38,7 +38,7 @@ uint32_t num_dimmer_delay[DIMMER_RELAY_NUM];
 #endif
 
 #define SCALE(val, in_min, in_max, out_min, out_max) (((double)val - (double)in_min) * ((double)out_max - (double)out_min) / ((double)in_max - (double)in_min)) + out_min
-
+/*
 uint16_t to_ocrx(uint8_t num, double value)
 {
     if (value == 255)
@@ -57,7 +57,7 @@ uint16_t to_ocrx(uint8_t num, double value)
         return (SCALE(value, 1, 254, eeprom_config.Dimmer_scale_min[num], eeprom_config.Dimmer_scale_max[num]));
     }
 }
-
+*/
 inline void desativation_ocrx(uint8_t num)
 {
 
@@ -345,6 +345,8 @@ inline void set_ocrx(uint8_t num)
     }
 }
 
+
+#if DIMMER_LIGHT_NUM > 0
 void calc_ocr(uint8_t num, double value)
 {
     if (value == 255)
@@ -387,6 +389,7 @@ void calc_ocr(uint8_t num, double value)
 
     // set_ocrx(num);
 }
+#endif //DIMMER_LIGHT_NUM > 0
 
 void (*_callback_dimmer)(const uint8_t num, const uint8_t percent, const bool candle);
 
@@ -584,6 +587,8 @@ void Dimmer_init(void)
     // delay(20);
 };
 
+
+#if DIMMER_LIGHT_NUM > 0
 // demmarage / extinction du dimmer
 // num : numero du dimmer
 // percent : pourcentage du dimmer (0 pour arret)
@@ -690,6 +695,7 @@ void dimmer_set(uint8_t num, bool start, uint16_t time, bool candle)
     else
         dimmer_set(num, (uint8_t)0, time, candle);
 }
+#endif //DIMMER_LIGHT_NUM > 0
 
 #if DIMMER_HEAT_NUM > 0
 void dimmer_set_heat_mode(uint8_t num, heat_mode Mode)
@@ -829,6 +835,7 @@ void dimmer_loop()
         }
     }
 
+#if DIMMER_LIGHT_NUM > 0
     for (uint8_t num = 0; num < DIMMER_LIGHT_NUM; num++)
     {
         uint32_t time_go = light[num].Dimmer_time_start + (uint32_t)light[num].Dimmer_time;
@@ -872,6 +879,7 @@ void dimmer_loop()
             }
         }
     }
+#endif //DIMMER_LIGHT_NUM
 
     // HEAT
     /*
@@ -938,7 +946,7 @@ void dimmer_loop()
     static uint32_t last = 0;
     uint32_t now = millis();
     uint32_t elapse = now - last;
-    static uint8_t async_num_callback = 0;
+    // static uint8_t async_num_callback = 0;
     last = now;
 
     for (uint8_t num = 0; num < DIMMER_RELAY_NUM; ++num)
