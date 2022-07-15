@@ -2485,7 +2485,9 @@ void setup()
   Serial.println("starting dimmer");
   Dimmer_init();
 #ifdef MQTT
+#if DIMMER_LIGHT_NUM > 0
   set_dimmer_callback(dimmer_callback);
+#endif // DIMMER_LIGHT_NUM
 #endif // MQTT
 
 #if COVER_NUM > 0
