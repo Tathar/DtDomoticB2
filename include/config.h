@@ -32,7 +32,7 @@ void debug_wdt_reset(const __FlashStringHelper *var);
 #define INPUT_REFRESH DEBOUNCE_TIME / 2
 
 // Dimmer
-#define DIMMER_LIGHT_NUM 12 // max (DIMMER_LIGHT_NUM + DIMMER_HEAT_NUM + (DIMMER_COVER_NUM * 2) ) = 14
+#define DIMMER_LIGHT_NUM 0 // max (DIMMER_LIGHT_NUM + DIMMER_HEAT_NUM + (DIMMER_COVER_NUM * 2) ) = 14
 #define DIMMER_SPEED 250    // en miliseconde
 // #define MIN_CANDLE_TIME 250
 // #define MAX_CANDLE_TIME 1000
@@ -42,11 +42,11 @@ void debug_wdt_reset(const __FlashStringHelper *var);
 #define CANDLE_SPEED_MAX 1000         // en miliseconde
 
 #define DIMMER_HEAT_NUM 0     // Fil pilote : max (DIMMER_LIGHT_NUM + DIMMER_HEAT_NUM + (DIMMER_COVER_NUM * 2) ) = 14
-#define DIMMER_COVER_NUM 1    // nombre de volet connecté au dimmer : max (DIMMER_LIGHT_NUM + DIMMER_HEAT_NUM + (DIMMER_COVER_NUM * 2) ) = 14
+#define DIMMER_COVER_NUM 0    // nombre de volet connecté au dimmer : max (DIMMER_LIGHT_NUM + DIMMER_HEAT_NUM + (DIMMER_COVER_NUM * 2) ) = 14
 #define DIMMER_RADIATOR_NUM 0 // nombre de radiateur connecté au dimmer : max (DIMMER_LIGHT_NUM + DIMMER_HEAT_NUM + (DIMMER_COVER_NUM * 2) + DIMMER_RADIATOR_NUM ) = 14
 const uint8_t DIMMER_RADIATOR_PT100_ARRAY[DIMMER_RADIATOR_NUM] PROGMEM = {};
 // PT100
-#define TEMP_NUM 3 // 12 ok 13 ko // max 18
+#define TEMP_NUM 18 // 12 ok 13 ko // max 18
 #define PT100_EXT 5
 
 // TIC
@@ -54,9 +54,9 @@ const uint8_t DIMMER_RADIATOR_PT100_ARRAY[DIMMER_RADIATOR_NUM] PROGMEM = {};
 #define TIC_NUM 0 // number of TIC : max 1
 
 // relais
-#define RELAY_COVER_NUM 1    // nombre de volet connecté au relai
-#define RELAY_RADIATOR_NUM 1 // nombre de radiateur connecté au relai
-const uint8_t RELAY_RADIATOR_PT100_ARRAY[RELAY_RADIATOR_NUM] PROGMEM = {0};
+#define RELAY_COVER_NUM 0    // nombre de volet connecté au relai
+#define RELAY_RADIATOR_NUM 0 // nombre de radiateur connecté au relai
+const uint8_t RELAY_RADIATOR_PT100_ARRAY[RELAY_RADIATOR_NUM] PROGMEM = {};
 
 // watchdog
 #define WATCHDOG_TIME WDTO_8S
@@ -95,14 +95,14 @@ const uint8_t RELAY_RADIATOR_PT100_ARRAY[RELAY_RADIATOR_NUM] PROGMEM = {0};
 #define MASK3 255
 #define MASK4 0
 // MQTT Server
-#define MQTT_IP1 80
-#define MQTT_IP2 11
-#define MQTT_IP3 239
-#define MQTT_IP4 99
+#define MQTT_IP1 192
+#define MQTT_IP2 168
+#define MQTT_IP3 1
+#define MQTT_IP4 2
 // MQTT config
-#define MQTT_CLIENT_ID "Board2"
-#define MQTT_USER "test"
-#define MQTT_PASSWORD "test"
+#define MQTT_CLIENT_ID "Board_chauffage"
+#define MQTT_USER "dtboard"
+#define MQTT_PASSWORD "1MotdePasse"
 #define MQTT_ROOT_TOPIC "DtBoard"
 #define MQTT_WILL_TOPIC MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/status"
 #define MQTT_WILL_QOS 1
@@ -119,7 +119,7 @@ const uint8_t RELAY_RADIATOR_PT100_ARRAY[RELAY_RADIATOR_NUM] PROGMEM = {0};
 #define RADIATOR_HA_MIN_TEMP 15
 
 // Poele
-// #define POELE
+#define POELE
 #ifdef POELE
 #define MIN_T4 0                     // en °C (fake NTC)
 #define POELE_MAX_TEMPERATURE 85     // en °C (consigne temperature Balon)
@@ -136,7 +136,7 @@ const uint8_t RELAY_RADIATOR_PT100_ARRAY[RELAY_RADIATOR_NUM] PROGMEM = {0};
 #endif // POELE
 
 // Vanne 3 Voies
-// #define VANNES
+#define VANNES
 #ifdef VANNES
 #define TMP_EAU_PCBT_MAX 38 // valeur maximum de la consigne de temperature
 #define TMP_EAU_MCBT_MAX 60 // valeur maximum de la consigne de temperature
