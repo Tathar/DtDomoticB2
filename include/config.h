@@ -3,6 +3,7 @@
 
 #include <Arduino.h>
 #include <pinout.h>
+#include <DtFuncGroup.h>
 
 void debug(const char *var);
 void debug(const __FlashStringHelper *var);
@@ -179,6 +180,15 @@ const uint8_t RELAY_RADIATOR_PT100_ARRAY[RELAY_RADIATOR_NUM] PROGMEM = {0};
 
 // Demmarage Poele
 #define MARCHE_POELE 13
+
+//Groupe de Fonction
+
+#define  MAX_FG 1
+const FG_Action FG_CONFIG[MAX_FG] PROGMEM = 
+{
+    {FG_SWITCH_BTN, {0,IN_PUSH}}
+};
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // program variable, do not touch
