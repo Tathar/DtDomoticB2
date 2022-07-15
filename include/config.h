@@ -182,48 +182,5 @@ const uint8_t RELAY_RADIATOR_PT100_ARRAY[RELAY_RADIATOR_NUM] PROGMEM = {0};
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // program variable, do not touch
-
-#ifdef __GIT_HASH__
-#define BOARD_SW_VERSION_PRINT BOARD_SW_VERSION " (" __GIT_HASH__ ")"
-#else
-#define BOARD_SW_VERSION_PRINT BOARD_SW_VERSION
-#endif
-
-#define STRINGIFY(x) #x
-#define TOSTRING(x) STRINGIFY(x)
-#define AT __FILE__ ":" TOSTRING(__LINE__)
-
-#if DIMMER_LIGHT_NUM + DIMMER_HEAT_NUM > 0
-#define DIMMER_LIGHT_HEAT_NUM_OPT (DIMMER_LIGHT_NUM + DIMMER_HEAT_NUM + 1)
-#else
-#define DIMMER_LIGHT_HEAT_NUM_OPT 0
-#endif
-
-#define DIMMER_RELAY_NUM (18 - (DIMMER_LIGHT_HEAT_NUM_OPT + TEMP_NUM + TIC_NUM))
-#define DIMMER_RELAY_FIRST_NUM DIMMER_LIGHT_HEAT_NUM_OPT
-#define DIMMER_RELAY_LAST_NUM (17 - (TEMP_NUM + TIC_NUM))
-
-#define COVER_NUM (DIMMER_COVER_NUM + RELAY_COVER_NUM)
-
-#define RADIATOR_NUM (DIMMER_RADIATOR_NUM + RELAY_RADIATOR_NUM)
-#define DIMMER_RADIATOR_FIRST_NUM DIMMER_COVER_NUM
-#define RELAY_RADIATOR_FIRST_NUM (RELAY_COVER_NUM * 2)
-
-#if RADIATOR_NUM > 0
-#ifndef PT100_EXT
-#error "need define PT100_EXT"
-#endif
-#endif
-
-#define DIMMER_RELAY_RESERVED ((DIMMER_COVER_NUM * 2) + DIMMER_RADIATOR_NUM)
-#define RELAY_RESERVED ((RELAY_COVER_NUM * 2) + RELAY_RADIATOR_NUM)
-
-#if (DIMMER_LIGHT_NUM + DIMMER_HEAT_NUM) > 14
-#error "you can use only 14 dimmer"
-#endif
-
-#if (DIMMER_LIGHT_HEAT_NUM_OPT + (DIMMER_COVER_NUM * 2) + DIMMER_RADIATOR_NUM + TEMP_NUM + TIC_NUM) > 18
-#error "this board as only 18 OPT connector"
-#endif
-
-#endif
+#include <tools.h>
+#endif //CONFIG
