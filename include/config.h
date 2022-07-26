@@ -7,9 +7,9 @@
 void debug(const char *var);
 void debug(const __FlashStringHelper *var);
 void memory(bool print);
-void debug_wdt_reset();
-void debug_wdt_reset(const char *var);
-void debug_wdt_reset(const __FlashStringHelper *var);
+// void debug_wdt_reset();
+// void debug_wdt_reset(const char *var);
+// void debug_wdt_reset(const __FlashStringHelper *var);
 
 #define SAVE_EEPROM 600000 // sauvegarde des données dans l eeprom toute les x ms
 #define MQTT_REFRESH 10000 // temp de rafrechissement du MQTT
@@ -21,7 +21,7 @@ void debug_wdt_reset(const __FlashStringHelper *var);
 #define BOARD_IDENTIFIER "DTB02-001"
 
 #define MAX_TOPIC 64
-#define MAX_PAYLOAD 512
+#define MAX_PAYLOAD 260
 
 // INPUT
 #define DEBOUNCE_TIME 50
@@ -33,7 +33,7 @@ void debug_wdt_reset(const __FlashStringHelper *var);
 
 // Dimmer
 #define DIMMER_LIGHT_NUM 0 // max (DIMMER_LIGHT_NUM + DIMMER_HEAT_NUM + (DIMMER_COVER_NUM * 2) ) = 14
-#define DIMMER_SPEED 250    // en miliseconde
+#define DIMMER_SPEED 250   // en miliseconde
 // #define MIN_CANDLE_TIME 250
 // #define MAX_CANDLE_TIME 1000
 #define CANDLE_OFSSET_PERCENTE_MIN 0  // en pourcentage
@@ -48,6 +48,11 @@ const uint8_t DIMMER_RADIATOR_PT100_ARRAY[DIMMER_RADIATOR_NUM] PROGMEM = {};
 // PT100
 #define TEMP_NUM 18 // 12 ok 13 ko // max 18
 #define PT100_EXT 5
+
+// BME_280
+//#define BME280_NUM 2
+// const uint8_t BME280_ADDRESS_ARRAY[BME280_NUM] PROGMEM = {0x76, 0x77};
+// const uint8_t BME280_CHANNEL_ARRAY[BME280_NUM] PROGMEM = {1, 1};
 
 // TIC
 // téléreléve information client
@@ -113,7 +118,7 @@ const uint8_t RELAY_RADIATOR_PT100_ARRAY[RELAY_RADIATOR_NUM] PROGMEM = {};
 #define MQTT_UPDATE 1000         // in ms
 #endif                           // MQTT
 
-//Home Assistant
+// Home Assistant
 
 #define RADIATOR_HA_MAX_TEMP 22
 #define RADIATOR_HA_MIN_TEMP 15
@@ -165,6 +170,14 @@ const uint8_t RELAY_RADIATOR_PT100_ARRAY[RELAY_RADIATOR_NUM] PROGMEM = {};
 #define RELAIS_PLANCHE_CH_2 9
 #define PT100_PLANCHE_SDB 11
 #define RELAIS_PLANCHE_SDB 10
+#define PT100_PLANCHE_CELIER 14
+#define RELAIS_PLANCHE_CELIER 11
+#define PT100_MUR_CHAUFANT 15
+#define RELAIS_MUR_CHAUFANT 12
+
+#define PT100_SALON 13
+#define PT100_CH1 14
+#define PT100_SDB 15
 
 // const float PT100_PLANCHEE[NUM_PLANCHE] PROGMEM = {PT100_PLANCHE_SALON, PT100_PLANCHE_CH_1, PT100_PLANCHE_CH_2, PT100_PLANCHE_SDB};
 // const uint8_t RELAI_PLANCHE[NUM_PLANCHE] PROGMEM = {RELAIS_PLANCHE_SALON, RELAIS_PLANCHE_CH_1, RELAIS_PLANCHE_CH_2, RELAIS_PLANCHE_SDB};
@@ -183,4 +196,4 @@ const uint8_t RELAY_RADIATOR_PT100_ARRAY[RELAY_RADIATOR_NUM] PROGMEM = {};
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // program variable, do not touch
 #include <tools.h>
-#endif //CONFIG
+#endif // CONFIG
