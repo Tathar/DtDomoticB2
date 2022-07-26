@@ -29,7 +29,7 @@
 
 long int lastReconnectAttempt = 0;
 
-uint32_t watchdog_reset = 0;
+volatile uint32_t watchdog_reset = 0;
 
 void debug(const char *var)
 {
@@ -54,27 +54,30 @@ void debug(const __FlashStringHelper *var)
   Serial.println(now - old_call);
   old_call = now;
 }
-
-void debug_wdt_reset()
+/*
+void debug_wdt_reset(void)
 {
-  watchdog_reset = millis();
   wdt_reset();
+  __asm__("nop\n\t");
+  watchdog_reset = millis();
 }
-
+*/
+/*
 void debug_wdt_reset(const char *var)
 {
+  wdt_reset();
   debug(var);
   watchdog_reset = millis();
-  wdt_reset();
 }
-
+*/
+/*
 void debug_wdt_reset(const __FlashStringHelper *var)
 {
+  wdt_reset();
   debug(var);
   watchdog_reset = millis();
-  wdt_reset();
 }
-
+*/
 extern void *__brkval;
 // calcule de la memoire disponible
 void memory(bool print)
@@ -119,9 +122,10 @@ void load()
 
 #ifdef MQTT
     DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/load_1s"), (float)(load_1s_count / 100.0));
-#endif
+#else
     Serial.print(F("Load 1s = "));
     Serial.println((float)(load_1s_count / 100.0));
+#endif
 
     load_1s_count = 0;
     load_1s_time = now;
@@ -209,7 +213,7 @@ void dimmer_relay_callback(const uint8_t num, const bool action)
   }
   memory(false);
 }
-#endif //DIMMER_RELAY_NUM > 0
+#endif // DIMMER_RELAY_NUM > 0
 #endif // MQTT
 
 #if DIMMER_LIGHT_NUM > 0
@@ -392,9 +396,9 @@ void input_callback(const uint8_t num, const Bt_Action action)
 // envoi de donné MQTT quand une temperature issue d'une PT100 à changée
 void pt100_callback(const uint8_t num, const float temp)
 {
-  debug(F(AT));
+  //  debug(F(AT));
   memory(false);
-  Serial.println("PT100_CALLBACK ");
+  // Serial.println("PT100_CALLBACK ");
 
   if (mem_config.MQTT_online)
   {
@@ -404,11 +408,12 @@ void pt100_callback(const uint8_t num, const float temp)
 }
 #endif // PT100
 
+#if BME280_NUM > 0
 // envoi de donné MQTT quand une temperature issue d'une carte BME280 à changée
 void bme280_callback_temperature(const uint8_t num, const float temperature)
 {
   debug(F(AT));
-  memory(false);
+  // memory(false);
 
   static uint32_t refresh = 0;
   uint32_t now = millis();
@@ -417,14 +422,14 @@ void bme280_callback_temperature(const uint8_t num, const float temperature)
     refresh = now;
     DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/bme280-%02d/temperature"), num, temperature);
   }
-  memory(false);
+  // memory(false);
 }
 
 // envoi de donné MQTT quand une valeur d'humidité issue d'une carte BME280 à changée
 void bme280_callback_humidity(const uint8_t num, const float humidity)
 {
   debug(F(AT));
-  memory(true);
+  // memory(true);
 
   static uint32_t refresh = 0;
   uint32_t now = millis();
@@ -433,14 +438,14 @@ void bme280_callback_humidity(const uint8_t num, const float humidity)
     refresh = now;
     DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/bme280-%02d/humidity"), num, humidity);
   }
-  memory(false);
+  // memory(false);
 }
 
 // envoi de donné MQTT quand la pression issue d'une carte BME280 à changée
 void bme280_callback_pressure(const uint8_t num, const float pressure)
 {
   debug(F(AT));
-  memory(true);
+  // memory(true);
 
   static uint32_t refresh = 0;
   uint32_t now = millis();
@@ -449,8 +454,9 @@ void bme280_callback_pressure(const uint8_t num, const float pressure)
     refresh = now;
     DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/bme280-%02d/pressure"), num, pressure);
   }
-  memory(false);
+  // memory(false);
 }
+#endif //BME280_NUM
 
 // envoi de donné MQTT quand une valeur de CO2 issue d'une carte CSS811 à changée
 void ccs811_callback_co2(const uint8_t num, const float co2)
@@ -527,7 +533,7 @@ void dt3voies_callback(const float C2, const float C3)
   {
     refresh = now;
     // 220502  debug(F(AT));
-    send_buffer.reserve(2);
+    // send_buffer.reserve(2);
     int32_t digit = C2 * 100;
     DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/C2/state"), (float)(digit / 100.0));
 
@@ -547,7 +553,7 @@ void dt3voies_callback_pid_pcbt(const float P, const float I, const float D, con
   {
     refresh = now;
     // 220502  debug(F(AT));
-    send_buffer.reserve(4);
+    // send_buffer.reserve(4);
 
     int32_t digit = P * 100;
     DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/P"), (float)(digit / 100.0));
@@ -572,7 +578,7 @@ void dt3voies_callback_pid_mcbt(const float P, const float I, const float D, con
   {
     // 220502  debug(F(AT));
     refresh = now;
-    send_buffer.reserve(4);
+    // send_buffer.reserve(4);
 
     int32_t digit = P * 100;
     DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/P"), (float)(digit / 100.0));
@@ -598,7 +604,7 @@ void dt_radiator_callback(const uint8_t num, const float out, const float I)
   if (now - refresh >= MQTT_REFRESH && mem_config.MQTT_online)
   {
     refresh = now;
-    send_buffer.reserve(3);
+    // send_buffer.reserve(3);
 
     if (eeprom_config.radiator[num].mode == Radiator_Mode_Off)
     {
@@ -674,7 +680,7 @@ bool mqtt_publish(bool start)
         num = 0;
       }
       break;
-#endif //DIMMER_RELAY_NUM > 0
+#endif // DIMMER_RELAY_NUM > 0
 
 #include BOOST_PP_UPDATE_COUNTER()
     case BOOST_PP_COUNTER:
@@ -1220,7 +1226,7 @@ bool mqtt_publish(bool start)
 // inscription au topic MQTT (necessair a la recption des données par la carte)
 bool mqtt_subscribe(MQTTClient &mqtt, bool start)
 {
-  debug(F(AT));
+  //  debug(F(AT));
   char topic[56];
   memory(false);
   uint32_t now = millis();
@@ -1285,7 +1291,7 @@ bool mqtt_subscribe(MQTTClient &mqtt, bool start)
         num = 0;
       }
       break;
-#endif //DIMMER_RELAY_NUM > 0
+#endif // DIMMER_RELAY_NUM > 0
 
 #if DIMMER_LIGHT_NUM > 0
 #include BOOST_PP_UPDATE_COUNTER()
@@ -1768,6 +1774,11 @@ bool mqtt_subscribe(MQTTClient &mqtt, bool start)
       mqtt.subscribe("homeassistant/status");
       break;
 
+#include BOOST_PP_UPDATE_COUNTER()
+    case BOOST_PP_COUNTER:
+      mqtt_publish(true);
+      break;
+
     default:
       return true;
       break;
@@ -1788,8 +1799,6 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
   char _topic[64];
   memory(false);
   String str_buffer;
-  Serial.print("receve topic ");
-  Serial.println(topic);
 
   // Copy the payload to the new buffer
   if (length < 64)
@@ -1797,7 +1806,9 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
     memcpy(buffer, payload, length);
     buffer[length] = '\0';
 
-    Serial.print("buffer = ");
+    Serial.print(F("receve topic "));
+    Serial.print(topic);
+    Serial.print(" = ");
     Serial.println(buffer);
   }
   else
@@ -1827,7 +1838,7 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
     else if (strcmp(buffer, "OFF") == 0)
       DT_dimmer_relay(num, false);
   }
-#endif //DIMMER_RELAY_NUM > 0
+#endif // DIMMER_RELAY_NUM > 0
 
 #if DIMMER_LIGHT_NUM > 0
   else if (sscanf_P(topic, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d"), &num) == 1) // dimmer
@@ -2101,14 +2112,14 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
   }
   else if (strcmp_P(topic, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/V3/set")) == 0) // V3
   {
-    Serial.print("set V3 = ");
+    // Serial.print(F("set V3 = "));
     str_buffer = buffer;
     eeprom_config.V3 = str_buffer.toFloat();
     Serial.print(eeprom_config.V3);
     DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/V3/state"), eeprom_config.V3);
     sauvegardeEEPROM();
 
-    Serial.println(" ");
+    // Serial.println(" ");
   }
   else if (strcmp_P(topic, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/C4/set")) == 0) // C4
   {
@@ -2452,13 +2463,14 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
 // initialisation de la carte a la mise sous tention
 void setup()
 {
+  wdt_disable();
   // Serial.begin(9600);
   Serial.begin(57600);
   Serial.println(F("starting board"));
   memory(true);
   // auto Serial.println("starting board version " BOARD_SW_VERSION_PRINT);
 
-  Serial.println("Load eeprom");
+  Serial.println(F("Load eeprom"));
   chargeEEPROM();
   memory(false);
 
@@ -2467,9 +2479,10 @@ void setup()
   // Wire.beginTransmission(I2C_MULTIPLEXER_ADDRESS);
   // Wire.write(MCP_CHANNEL); // channel 1
   // Wire.endTransmission();
-
-  Serial.println("init mcp");
+#ifdef I2C_Multiplexeur
+  Serial.println(F("init mcp"));
   DT_mcp_init();
+#endif
 
   memory(false);
 
@@ -2483,16 +2496,16 @@ void setup()
   DT_mqtt_set_publish_callback(mqtt_publish);
 #endif // MQTT
 
-  Serial.println("starting relay");
+  Serial.println(F("starting relay"));
   DT_relay_init();
 #ifdef MQTT
   DT_relay_set_callback(relay_callback);
 #endif // MQTT
 
 #if DIMMER_LIGHT_NUM + DIMMER_HEAT_NUM + DIMMER_RELAY_NUM > 0
-  Serial.println("starting dimmer");
+  Serial.println(F("starting dimmer"));
   Dimmer_init();
-#endif //DIMMER_LIGHT_NUM + DIMMER_HEAT_NUM + DIMMER_RELAY_NUM > 0  
+#endif // DIMMER_LIGHT_NUM + DIMMER_HEAT_NUM + DIMMER_RELAY_NUM > 0
 #ifdef MQTT
 #if DIMMER_LIGHT_NUM > 0
   set_dimmer_callback(dimmer_callback);
@@ -2500,7 +2513,7 @@ void setup()
 #endif // MQTT
 
 #if COVER_NUM > 0
-  Serial.println("starting cover");
+  Serial.println(F("starting cover"));
   DT_cover_init();
 #ifdef MQTT
   DT_cover_set_callback(cover_callback);
@@ -2508,46 +2521,53 @@ void setup()
 #endif // COVER_NUM
 
 #if RADIATOR_NUM > 0
-  Serial.println("starting radiator");
+  Serial.println(F("starting radiator"));
   DT_radiator_init();
 #ifdef MQTT
   DT_radiator_set_callback(dt_radiator_callback);
 #endif // MQTT
 #endif // VANNE
 
-  Serial.println("starting input");
+  Serial.println(F("starting input"));
   DT_input_init();
   DT_input_set_callback(input_callback);
 
 #if TEMP_NUM > 0
-  Serial.println("starting PT100");
+  Serial.println(F("starting PT100"));
   DT_pt100_init();
 #ifdef MQTT
   DT_pt100_set_callback(pt100_callback);
 #endif // MQTT
 #endif // PT100
 
-  Serial.println("starting BME280");
+
+#if BME280_NUM > 0
+
+  Serial.println(F("starting BME280"));
   DT_BME280_init();
 #ifdef MQTT
-  DT_BME280_set_callback_temperature(bme280_callback_temperature);
-  DT_BME280_set_callback_humidity(bme280_callback_humidity);
-  DT_BME280_set_callback_pressure(bme280_callback_pressure);
+DT_BME280_set_callback_temperature(bme280_callback_temperature);
+DT_BME280_set_callback_humidity(bme280_callback_humidity);
+DT_BME280_set_callback_pressure(bme280_callback_pressure);
 #endif // MQTT
+#endif // BME280_NUM
 
-  Serial.println("starting BCCS811");
+
+#if BCC811_NUM > 0
+  Serial.println(F("starting BCC811"));
   DT_CCS811_init();
 #ifdef MQTT
   DT_CCS811_set_callback_co2(ccs811_callback_co2);
   DT_CCS811_set_callback_cov(ccs811_callback_cov);
 #endif // MQTT
+#endif // BCC811_NUM
 
   // auto Serial.println("starting fake_NTC");
   // DT_fake_ntc_init();
   // DT_fake_ntc_callback(fake_ntc_callback);
 
 #ifdef POELE
-  Serial.println("starting Poele");
+  Serial.println(F("starting Poele"));
   DT_Poele_init();
 #ifdef MQTT
   DT_Poele_set_mode_callback(poele_mode_callback);
@@ -2555,7 +2575,7 @@ void setup()
 #endif // POELE
 
 #ifdef VANNES
-  Serial.println("starting 3 voies");
+  Serial.println(F("starting 3 voies"));
   DT_3voies_init();
 #ifdef MQTT
   DT_3voies_set_callback(dt3voies_callback);
@@ -2564,7 +2584,7 @@ void setup()
 #endif // MQTT
 #endif // VANNE
 
-  wdt_enable(WATCHDOG_TIME);
+  //wdt_enable(WATCHDOG_TIME);
   homeassistant(true);
   // Serial.print(millis());
   Serial.println(F("Board started"));
@@ -2577,14 +2597,15 @@ void setup()
 void loop()
 {
   // debug(AT);
+  // debug_wdt_reset(F(AT));
+  // wdt_reset();
+  // debug_wdt_reset();
   uint32_t now = millis();
   static uint16_t interlock = BOOST_PP_COUNTER;
   if (interlock == 0)
   {
     interlock = BOOST_PP_COUNTER;
   }
-  debug_wdt_reset(F(AT));
-  // debug_wdt_reset();
 
 #ifdef MQTT
   DT_mqtt_loop();
@@ -2609,12 +2630,12 @@ void loop()
     break;
 #endif
 
-#ifdef BME_280
+#if BME280_NUM > 0
 #include BOOST_PP_UPDATE_COUNTER()
   case BOOST_PP_COUNTER:
     DT_BME280_loop();
     break;
-#endif
+#endif //BME280_NUM
 
 #ifdef CCS811
 #include BOOST_PP_UPDATE_COUNTER()

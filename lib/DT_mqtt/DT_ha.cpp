@@ -37,14 +37,14 @@ bool homeassistant(bool start)
                 switch (sequance)
                 {
                 case BOOST_PP_COUNTER:
-                        DT_mqtt_send(F("homeassistant/sensor/" BOARD_IDENTIFIER "/status/config"), F("{\"unique_id\":\"" BOARD_IDENTIFIER "-status\",\"name\":\"status\",\"state_topic\":\"DtBoard/" BOARD_IDENTIFIER "/status\",\"device\":{\"identifiers\":\"" BOARD_IDENTIFIER "\",\"manufacturer\":\"" BOARD_MANUFACTURER "\",\"model\":\"" BOARD_MODEL "\",\"name\":\"" BOARD_NAME "\",\"sw_version\":\"" BOARD_SW_VERSION_PRINT "\"}}"));
+                        DT_mqtt_send(F("homeassistant/sensor/" BOARD_IDENTIFIER "/status/config"), F("{\"unique_id\":\"" BOARD_IDENTIFIER "-status\",\"name\":\"status\",\"state_topic\":\"DtBoard/" BOARD_IDENTIFIER "/status\",\"ret\":\"true\",\"device\":{\"identifiers\":\"" BOARD_IDENTIFIER "\",\"manufacturer\":\"" BOARD_MANUFACTURER "\",\"model\":\"" BOARD_MODEL "\",\"name\":\"" BOARD_NAME "\",\"sw_version\":\"" BOARD_SW_VERSION_PRINT "\"}}"));
                         break;
 
 #include BOOST_PP_UPDATE_COUNTER()
-                case BOOST_PP_COUNTER: //relay
+                case BOOST_PP_COUNTER: // relay
                         if (num < RELAY_NUM - RELAY_RESERVED)
                         {
-                                snprintf_P(payload, MAX_PAYLOAD, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/relay-%02d\",\"uniq_id\":\"" BOARD_IDENTIFIER "-relay-%02d\",\"name\":\"relay-%02d\",\"command_topic\":\"~/set\",\"stat_t\":\"~/state\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), num + RELAY_RESERVED, num + RELAY_RESERVED, num + RELAY_RESERVED);
+                                snprintf_P(payload, MAX_PAYLOAD, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/relay-%02d\",\"uniq_id\":\"" BOARD_IDENTIFIER "-relay-%02d\",\"name\":\"relay-%02d\",\"command_topic\":\"~/set\",\"stat_t\":\"~/state\",\"ret\":\"true\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), num + RELAY_RESERVED, num + RELAY_RESERVED, num + RELAY_RESERVED);
                                 DT_mqtt_send(F("homeassistant/switch/" BOARD_IDENTIFIER "/relay-%02d/config"), num + RELAY_RESERVED, payload);
                                 num++;
                                 sequance--;
@@ -56,10 +56,10 @@ bool homeassistant(bool start)
                         break;
 
 #include BOOST_PP_UPDATE_COUNTER()
-                case BOOST_PP_COUNTER: //Dimmer_relay
+                case BOOST_PP_COUNTER: // Dimmer_relay
                         if (num < DIMMER_RELAY_NUM - DIMMER_RELAY_RESERVED)
                         {
-                                snprintf_P(payload, MAX_PAYLOAD, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/dimmer-relay-%02d\",\"uniq_id\":\"" BOARD_IDENTIFIER "-dimmer-relay-%02d\",\"name\":\"dimmer-relay-%02d\",\"command_topic\":\"~/set\",\"stat_t\":\"~/state\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), num + DIMMER_RELAY_FIRST_NUM + DIMMER_RELAY_RESERVED, num + DIMMER_RELAY_FIRST_NUM + DIMMER_RELAY_RESERVED, num + DIMMER_RELAY_FIRST_NUM + DIMMER_RELAY_RESERVED);
+                                snprintf_P(payload, MAX_PAYLOAD, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/dimmer-relay-%02d\",\"uniq_id\":\"" BOARD_IDENTIFIER "-dimmer-relay-%02d\",\"name\":\"dimmer-relay-%02d\",\"ret\":\"true\",\"command_topic\":\"~/set\",\"stat_t\":\"~/state\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), num + DIMMER_RELAY_FIRST_NUM + DIMMER_RELAY_RESERVED, num + DIMMER_RELAY_FIRST_NUM + DIMMER_RELAY_RESERVED, num + DIMMER_RELAY_FIRST_NUM + DIMMER_RELAY_RESERVED);
                                 DT_mqtt_send(F("homeassistant/switch/" BOARD_IDENTIFIER "/dimmer-relay-%02d/config"), num + DIMMER_RELAY_FIRST_NUM + DIMMER_RELAY_RESERVED, payload);
                                 num++;
                                 sequance--;
@@ -205,7 +205,6 @@ bool homeassistant(bool start)
                                 num = 0;
                         }
                         break;
-
 #if TEMP_NUM > 0
 #include BOOST_PP_UPDATE_COUNTER()
                 case BOOST_PP_COUNTER:
@@ -263,7 +262,7 @@ bool homeassistant(bool start)
 #include BOOST_PP_UPDATE_COUNTER()
                 case BOOST_PP_COUNTER:
                         // RADIATOR
-                        if (num < RADIATOR_NUM)  //temp de cycle
+                        if (num < RADIATOR_NUM) // temp de cycle
                         {
                                 snprintf_P(payload, MAX_PAYLOAD, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/radiator-%02d\",\"uniq_id\":\"" BOARD_IDENTIFIER "-radiator-%02d-cycle\",\"name\":\"radiator-%02d-cycle\",\"stat_t\":\"~/cycle-state\",\"command_topic\":\"~/cycle-set\",\"unit_of_meas\":\"ms\",\"min\":100,\"max\":3600000,\"step\":1,\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), num, num, num);
                                 DT_mqtt_send(F("homeassistant/number/" BOARD_IDENTIFIER "/radiator-%02d/config"), num, payload);
@@ -279,7 +278,7 @@ bool homeassistant(bool start)
 #include BOOST_PP_UPDATE_COUNTER()
                 case BOOST_PP_COUNTER:
                         // RADIATOR
-                        if (num < RADIATOR_NUM)  //-10
+                        if (num < RADIATOR_NUM) //-10
                         {
                                 snprintf_P(payload, MAX_PAYLOAD, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/radiator-%02d\",\"uniq_id\":\"" BOARD_IDENTIFIER "-radiator-%02d-m10\",\"name\":\"radiator-%02d-m10\",\"stat_t\":\"~/m10-state\",\"command_topic\":\"~/m10-set\",\"unit_of_meas\":\"%\",\"min\":0,\"max\":100,\"step\":\"0,01\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), num, num, num);
                                 DT_mqtt_send(F("homeassistant/number/" BOARD_IDENTIFIER "/radiator-%02d/config"), num, payload);
@@ -295,7 +294,7 @@ bool homeassistant(bool start)
 #include BOOST_PP_UPDATE_COUNTER()
                 case BOOST_PP_COUNTER:
                         // RADIATOR
-                        if (num < RADIATOR_NUM)  //+10
+                        if (num < RADIATOR_NUM) //+10
                         {
                                 snprintf_P(payload, MAX_PAYLOAD, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/radiator-%02d\",\"uniq_id\":\"" BOARD_IDENTIFIER "-radiator-%02d-p10\",\"name\":\"radiator-%02d-p10\",\"stat_t\":\"~/p10-state\",\"command_topic\":\"~/p10-set\",\"unit_of_meas\":\"%\",\"min\":0,\"max\":100,\"step\":\"0,01\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), num, num, num);
                                 DT_mqtt_send(F("homeassistant/number/" BOARD_IDENTIFIER "/radiator-%02d/config"), num, payload);
@@ -311,7 +310,7 @@ bool homeassistant(bool start)
 #include BOOST_PP_UPDATE_COUNTER()
                 case BOOST_PP_COUNTER:
                         // RADIATOR
-                        if (num < RADIATOR_NUM)  //KI
+                        if (num < RADIATOR_NUM) // KI
                         {
                                 snprintf_P(payload, MAX_PAYLOAD, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/radiator-%02d\",\"uniq_id\":\"" BOARD_IDENTIFIER "-radiator-%02d-KI\",\"name\":\"radiator-%02d-KI\",\"stat_t\":\"~/KI-state\",\"command_topic\":\"~/KI-set\",\"min\":0,\"max\":10000,\"step\":\"0,01\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), num, num, num);
                                 DT_mqtt_send(F("homeassistant/number/" BOARD_IDENTIFIER "/radiator-%02d/config"), num, payload);
@@ -325,6 +324,7 @@ bool homeassistant(bool start)
                         break;
 #endif // RADIATOR_NUM
 
+#if BME280_NUM > 0
 #include BOOST_PP_UPDATE_COUNTER()
                 case BOOST_PP_COUNTER:
                         // BME280 temperature
@@ -352,6 +352,8 @@ bool homeassistant(bool start)
                                 DT_mqtt_send(F("homeassistant/sensor/" BOARD_IDENTIFIER "/bme280-pressure-%02d/config"), num, payload);
                         }
                         break;
+#endif // BME280_NUM
+#if CCS811_NUM > 0
 #include BOOST_PP_UPDATE_COUNTER()
                 case BOOST_PP_COUNTER:
                         // CCS811 CO2
@@ -373,6 +375,7 @@ bool homeassistant(bool start)
                         }
                         break;
 
+#endif // CCS811_NUM
 #ifdef POELE
 #include BOOST_PP_UPDATE_COUNTER()
                 case BOOST_PP_COUNTER:
@@ -723,7 +726,15 @@ bool homeassistant(bool start)
 MQTT_data ::~MQTT_data()
 {
         if (_type == ha_cstr && _cstr != nullptr)
+        {
                 free(_cstr);
+                _cstr = nullptr;
+        }
+        else if (_type == ha_cstr_tsprintf && _cstr != nullptr)
+        {
+                free(_cstr);
+                _cstr = nullptr;
+        }
 }
 
 void MQTT_data::store_P(const __FlashStringHelper *Topic, const char *Payload)
@@ -756,20 +767,38 @@ void MQTT_data::store(const __FlashStringHelper *Topic, uint8_t num_t, const __F
         _fcstr = Payload;
 };
 
-void MQTT_data::store(const __FlashStringHelper *Topic, char const *Payload)
+// void MQTT_data::store(const __FlashStringHelper *Topic, char const *Payload)
+// {
+//         // 220502  debug(F(AT));
+//         _type = ha_cstr;
+//         _topic = Topic;
+//         _cstr = strdup(Payload);
+// };
+
+// void MQTT_data::store(const __FlashStringHelper *Topic, uint8_t num_t, char const *Payload)
+// {
+//         // 220502  debug(F(AT));
+//         _type = ha_cstr_tsprintf;
+//         _num_t = num_t;
+//         _topic = Topic;
+//         _cstr = strdup(Payload);
+// };
+
+void MQTT_data::store(const __FlashStringHelper *Topic, const String Payload)
 {
         // 220502  debug(F(AT));
-        _type = ha_cstr;
+        _type = ha_str;
         _topic = Topic;
-        _cstr = strdup(Payload);
+        _str = Payload;
 };
-void MQTT_data::store(const __FlashStringHelper *Topic, uint8_t num_t, char const *Payload)
+
+void MQTT_data::store(const __FlashStringHelper *Topic, uint8_t num_t, const String Payload)
 {
         // 220502  debug(F(AT));
-        _type = ha_cstr_tsprintf;
+        _type = ha_str_tsprintf;
         _num_t = num_t;
         _topic = Topic;
-        _cstr = strdup(Payload);
+        _str = Payload;
 };
 
 void MQTT_data::store(const __FlashStringHelper *Topic, const float Payload)
@@ -778,6 +807,7 @@ void MQTT_data::store(const __FlashStringHelper *Topic, const float Payload)
         _topic = Topic;
         _float = Payload;
 };
+
 void MQTT_data::store(const __FlashStringHelper *Topic, uint8_t num_t, const float Payload)
 {
         _type = ha_float_tsprintf;
@@ -845,7 +875,7 @@ void MQTT_data::store(const __FlashStringHelper *Topic, uint8_t num_t, const uin
 void MQTT_data::get(char *topic, int topic_len, char *payload, int payload_len)
 {
         // 220502  debug(F(AT));
-        Serial.println(_type);
+        // Serial.println(_type);
         switch (_type)
         {
         case ha_flash_cstr:
@@ -860,6 +890,14 @@ void MQTT_data::get(char *topic, int topic_len, char *payload, int payload_len)
                         strncpy(payload, _cstr, payload_len);
                         free((void *)_cstr);
                         _cstr = nullptr;
+                }
+                break;
+
+        case ha_str:
+                strncpy_P(topic, reinterpret_cast<const char *>(_topic), topic_len);
+                if ((_str.length() + 1) < payload_len)
+                {
+                        payload = strncpy(payload, _str.c_str(), _str.length() + 1);
                 }
                 break;
 
@@ -882,7 +920,16 @@ void MQTT_data::get(char *topic, int topic_len, char *payload, int payload_len)
                 snprintf_P(topic, topic_len, reinterpret_cast<const char *>(_topic), _num_t);
                 strncpy(payload, _cstr, payload_len);
                 free((void *)_cstr);
+                _cstr = nullptr;
                 /* code */
+                break;
+
+        case ha_str_tsprintf:
+                snprintf_P(topic, topic_len, reinterpret_cast<const char *>(_topic), _num_t);
+                if ((_str.length() + 1) < payload_len)
+                {
+                        payload = strncpy(payload, _str.c_str(), _str.length() + 1);
+                }
                 break;
 
         case ha_float_tsprintf:
@@ -898,6 +945,21 @@ void MQTT_data::get(char *topic, int topic_len, char *payload, int payload_len)
         default:
                 strncpy_P(topic, PSTR("Error"), topic_len);
                 strncpy_P(payload, PSTR("Error"), payload_len);
+        }
+
+        static uint16_t payload_size = 0;
+        if (strlen(payload) > payload_size)
+        {
+                payload_size = strlen(payload);
+                Serial.print(F("max payload = "));
+                Serial.println(payload_size);
+        }
+        static uint16_t topic_size = 0;
+        if (strlen(topic) > topic_size)
+        {
+                topic_size = strlen(topic);
+                Serial.print(F("max topic = "));
+                Serial.println(topic_size);
         }
 };
 

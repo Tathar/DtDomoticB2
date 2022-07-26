@@ -28,9 +28,11 @@ void DT_input_init()
 
     pinMode(MCP_PIN_INTERUPT, INPUT_PULLUP);
 
+#ifdef INTERNAL_INPUT_I2C
     Wire.beginTransmission(I2C_MULTIPLEXER_ADDRESS);
     Wire.write(MCP_CHANNEL);
     Wire.endTransmission();
+#endif
 
     // Wire.requestFrom(I2C_MULTIPLEXER_ADDRESS, 1);
     // if (!Wire.available())
@@ -48,12 +50,14 @@ void DT_input_init()
         bool revert = pgm_read_byte(INPUT_REVERT + num);
         if (pin >= 100)
         {
+#ifdef INTERNAL_INPUT_I2C
             uint8_t i2c = pin / 100;
             pin -= i2c * 100;
             i2c -= 1;
             mcp[i2c].pinMode(pin, INPUT);
             mcp[i2c].setupInterrupts(false, true, HIGH);
             mcp[i2c].setupInterruptPin(pin, CHANGE);
+#endif
         }
         else
         {
@@ -84,17 +88,21 @@ void DT_input_loop()
 {
     uint32_t now = millis();
 
+#ifdef INTERNAL_INPUT_I2C
     Wire.beginTransmission(I2C_MULTIPLEXER_ADDRESS);
     Wire.write(MCP_CHANNEL);
     Wire.endTransmission();
+#endif
 
     bool as_interrupt = false;
 
+#ifdef INTERNAL_INPUT_I2C
     if (!digitalRead(MCP_PIN_INTERUPT))
     {
         as_interrupt = true;
         // Serial.println(F("MCP Interrupt"));
     }
+#endif
 
     for (uint8_t num = 0; num < INPUT_NUM; ++num)
     {
@@ -107,6 +115,7 @@ void DT_input_loop()
 
         if (pin >= 100)
         {
+#ifdef INTERNAL_INPUT_I2C
             if (as_interrupt) // si interuption (pullup)
             {
 
@@ -123,6 +132,7 @@ void DT_input_loop()
             {
                 pin_stats = revert == false ? old_pin_stats[num] : !old_pin_stats[num];
             }
+#endif
         }
         else
         {

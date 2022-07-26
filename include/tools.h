@@ -44,4 +44,21 @@
 #error "this board as only 18 OPT connector"
 #endif
 
-#endif //TOOLS_H
+#ifndef I2C_Multiplexeur
+#undef INTERNAL_INPUT_I2C
+#undef INTERNAL_OUTPUT_I2C
+#endif
+
+#ifndef INTERNAL_INPUT_I2C
+#undef INPUT_NUM
+#define INPUT_NUM 16
+#endif
+
+#ifndef INTERNAL_OUTPUT_I2C
+#undef OUTPUT_NUM
+#define OUTPUT_NUM 16
+#endif 
+
+int i2c_channel_to_multiplexer(int channel);
+
+#endif // TOOLS_H

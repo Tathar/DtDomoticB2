@@ -1,7 +1,7 @@
 #include <DT_BME280.h>
-#include <pinout.h>
-
-// #include <Adafruit_Sensor.h>
+#include <config.h>
+#if BME280_NUM > 0
+#include <Adafruit_Sensor.h>
 #include <Adafruit_BME280.h>
 
 Adafruit_BME280 bme280[BME280_NUM];
@@ -21,25 +21,28 @@ void DT_BME280_init()
     bme280_callback_pressure = nullptr;
     for (uint8_t num = 0; num < BME280_NUM; ++num)
     {
-        uint16_t address = pgm_read_byte(BME280_ADDRESS + num);
-        uint8_t i2c_number = pgm_read_byte(BME280_ADDRESS + num);
+        uint8_t address = pgm_read_byte(BME280_ADDRESS_ARRAY + num);
+        uint8_t i2c_channel = pgm_read_byte(BME280_CHANNEL_ARRAY + num);
+        Serial.println(address, 16);
+        Serial.println(i2c_channel);
+        Serial.println(i2c_channel_to_multiplexer(i2c_channel), 2);
 
-        // Wire.beginTransmission(I2C_MULTIPLEXER_ADDRESS); //change I2C channel
-        // Wire.write(1 << (i2c_number - 1));
-        // Wire.endTransmission();
-       //auto Serial.println(address, HEX);
-       //auto Serial.println(i2c_number);
+        Wire.beginTransmission(I2C_MULTIPLEXER_ADDRESS); // change I2C channel
+        Wire.write(i2c_channel_to_multiplexer(i2c_channel));
+        Wire.endTransmission();
+        // auto Serial.println(address, HEX);
+        // auto Serial.println(i2c_number);
         unsigned status = bme280[num].begin(address);
 
         if (!status)
         {
-           //auto Serial.println("Could not find a valid BME280 sensor, check wiring, address, sensor ID!");
-           //auto Serial.print("SensorID was: 0x");
-           //auto Serial.println(bme280[num].sensorID(), 16);
-           //auto Serial.print("        ID of 0xFF probably means a bad address, a BMP 180 or BMP 085\n");
-           //auto Serial.print("   ID of 0x56-0x58 represents a BMP 280,\n");
-           //auto Serial.print("        ID of 0x60 represents a BME 280.\n");
-           //auto Serial.print("        ID of 0x61 represents a BME 680.\n");
+            Serial.println(F("Could not find a valid BME280 sensor, check wiring, address, sensor ID!"));
+            Serial.print(F("SensorID was: 0x"));
+            Serial.println(bme280[num].sensorID(), 16);
+            Serial.print(F("        ID of 0xFF probably means a bad address, a BMP 180 or BMP 085\n"));
+            Serial.print(F("   ID of 0x56-0x58 represents a BMP 280,\n"));
+            Serial.print(F("        ID of 0x60 represents a BME 280.\n"));
+            Serial.print(F("        ID of 0x61 represents a BME 680.\n"));
             bme280_active[num] = false;
         }
         else
@@ -61,10 +64,10 @@ void DT_BME280_loop()
         {
             if (bme280_active[num])
             {
-                uint8_t i2c_number = pgm_read_byte(BME280_ADDRESS + num);
+                uint8_t i2c_channel = pgm_read_byte(BME280_CHANNEL_ARRAY + num);
 
-                Wire.beginTransmission(I2C_MULTIPLEXER_ADDRESS); //change I2C channel
-                Wire.write(1 << (i2c_number - 1));
+                Wire.beginTransmission(I2C_MULTIPLEXER_ADDRESS); // change I2C channel
+                Wire.write(i2c_channel_to_multiplexer(i2c_channel));
                 Wire.endTransmission();
 
                 float value = bme280[num].readTemperature();
@@ -124,3 +127,4 @@ float DT_BME280_get_pressure(const uint8_t num)
 {
     return pressure[num];
 }
+#endif // BME280_NUM

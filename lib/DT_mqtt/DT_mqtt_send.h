@@ -3,13 +3,14 @@
 #include <DT_eeprom.h>
 #include <DT_mqtt.h>
 #include <DT_ha.h>
-#include <DT_buffer.h>
+// #include <DT_buffer.h>
+#include <CircularBuffer.h>
 
 inline void DT_mqtt_send(MQTT_data data)
 {
     if (mem_config.MQTT_online)
     {
-        send_buffer.push(data);
+        send_buffer.unshift(data);
     }
 }
 
@@ -22,7 +23,7 @@ inline void DT_mqtt_send(const __FlashStringHelper *topic, T payload)
     if (mem_config.MQTT_online)
     {
         send.store(topic, payload);
-        send_buffer.push(send);
+        send_buffer.unshift(send);
     }
     memory(false);
 }
@@ -36,7 +37,7 @@ inline void DT_mqtt_send(const __FlashStringHelper *topic, uint8_t num, T payloa
     {
         MQTT_data send;
         send.store(topic, num, payload);
-        send_buffer.push(send);
+        send_buffer.unshift(send);
     }
     memory(false);
 }

@@ -17,7 +17,9 @@ void DT_mcp_init()
         if (!mcp[mcp_num].begin_I2C(i2c))
         {
             {
-                Serial.println(F("MCP23008 Init Error."));
+                Serial.print(F("MCP23008 "));
+                Serial.print( mcp_num );
+                Serial.println(F(" Init Error."));
             }
         }
     }

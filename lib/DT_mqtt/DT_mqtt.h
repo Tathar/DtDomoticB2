@@ -3,7 +3,8 @@
 
 #include <SPI.h>
 #include <Ethernet.h>
-#include <DT_buffer.h>
+// #include <DT_buffer.h>
+#include <CircularBuffer.h>
 #include <MQTT.h>
 
 struct MQTT_data;
@@ -18,6 +19,7 @@ void DT_mqtt_set_publish_callback(bool (*mqtt_publish)(bool start));
 void DT_mqtt_set_receve_callback(void (*mqtt_receve)(MQTTClient *client, const char topic[], const char bytes[], const int length));
 void DT_mqtt_update();
 
-extern DT_buffer<MQTT_data> send_buffer;
+// extern DT_buffer<MQTT_data> send_buffer;
+extern CircularBuffer<MQTT_data, 10> send_buffer;
 
 #endif

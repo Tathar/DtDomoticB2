@@ -18,10 +18,12 @@ enum __attribute__((__packed__)) type
     ha_null,
     ha_flash_cstr,
     ha_cstr,
+    ha_str,
     ha_float,
     ha_int32_t,
     ha_flash_cstr_tsprintf,
     ha_cstr_tsprintf,
+    ha_str_tsprintf,
     ha_float_tsprintf,
     ha_int32_t_tsprintf,
     ha_flash_cstr_tpsprintf,
@@ -34,7 +36,8 @@ public:
     ~MQTT_data();
     void store_P(const __FlashStringHelper *Topic, const char *Payload);
     void store(const __FlashStringHelper *Topic, const __FlashStringHelper *Payload);
-    void store(const __FlashStringHelper *Topic, char const *Payload);
+    // void store(const __FlashStringHelper *Topic, char const *Payload);
+    void store(const __FlashStringHelper *Topic, const String Payload);
     void store(const __FlashStringHelper *Topic, const float Payload);
     void store(const __FlashStringHelper *Topic, const int8_t Payload);
     void store(const __FlashStringHelper *Topic, const uint8_t Payload);
@@ -43,7 +46,8 @@ public:
 
     void store_P(const __FlashStringHelper *Topic, uint8_t num_t, const char *Payload);
     void store(const __FlashStringHelper *Topic, uint8_t num_t, const __FlashStringHelper *Payload);
-    void store(const __FlashStringHelper *Topic, uint8_t num_t, char const *Payload);
+    // void store(const __FlashStringHelper *Topic, uint8_t num_t, char const *Payload);
+    void store(const __FlashStringHelper *Topic, uint8_t num_t, const String Payload);
     void store(const __FlashStringHelper *Topic, uint8_t num_t, const float Payload);
     void store(const __FlashStringHelper *Topic, uint8_t num_t, const int8_t Payload);
     void store(const __FlashStringHelper *Topic, uint8_t num_t, const uint8_t Payload);
@@ -63,6 +67,7 @@ private:
     uint8_t _num_t;
     const __FlashStringHelper *_topic;
     uint8_t _num_p;
+    String _str;
     union
     {
         const __FlashStringHelper *_fcstr;

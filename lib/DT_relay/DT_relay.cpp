@@ -18,10 +18,12 @@ void DT_relay_init()
 
         if (pin >= 100)
         {
+#ifdef INTERNAL_OUTPUT_I2C
             uint8_t i2c = pin / 100;
             pin -= i2c * 100;
             i2c -= 1;
             mcp[i2c].pinMode(pin, OUTPUT);
+#endif
         }
         else
         {
@@ -76,6 +78,7 @@ void DT_relay(uint8_t num, bool state)
 
     if (pin >= 100)
     {
+#ifdef INTERNAL_OUTPUT_I2C
         uint8_t i2c = pin / 100;
         pin -= i2c * 100;
         i2c -= 1;
@@ -95,6 +98,8 @@ void DT_relay(uint8_t num, bool state)
                 async_call[num] = true;
             }
         }
+
+#endif
     }
     else
     {
@@ -122,12 +127,16 @@ bool DT_relay_get(uint8_t num)
     uint8_t pin = pgm_read_byte(RELAY_ARRAY + num);
     bool revert = pgm_read_byte(RELAY_REVERT + num);
     bool ret;
+
     if (pin >= 100)
     {
+#ifdef INTERNAL_OUTPUT_I2C
         uint8_t i2c = pin / 100;
         pin -= i2c * 100;
         i2c -= 1;
         ret = mcp[i2c].digitalRead(pin);
+
+#endif
     }
     else
     {
