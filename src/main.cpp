@@ -387,7 +387,10 @@ void input_callback(const uint8_t num, const Bt_Action action)
       break;
     }
   }
+
+#ifdef MQTT
   DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/input-%02d/state"), num, payload);
+#endif
   memory(false);
 }
 
@@ -456,7 +459,7 @@ void bme280_callback_pressure(const uint8_t num, const float pressure)
   }
   // memory(false);
 }
-#endif //BME280_NUM
+#endif // BME280_NUM
 
 // envoi de donné MQTT quand une valeur de CO2 issue d'une carte CSS811 à changée
 void ccs811_callback_co2(const uint8_t num, const float co2)
@@ -2540,18 +2543,16 @@ void setup()
 #endif // MQTT
 #endif // PT100
 
-
 #if BME280_NUM > 0
 
   Serial.println(F("starting BME280"));
   DT_BME280_init();
 #ifdef MQTT
-DT_BME280_set_callback_temperature(bme280_callback_temperature);
-DT_BME280_set_callback_humidity(bme280_callback_humidity);
-DT_BME280_set_callback_pressure(bme280_callback_pressure);
+  DT_BME280_set_callback_temperature(bme280_callback_temperature);
+  DT_BME280_set_callback_humidity(bme280_callback_humidity);
+  DT_BME280_set_callback_pressure(bme280_callback_pressure);
 #endif // MQTT
 #endif // BME280_NUM
-
 
 #if BCC811_NUM > 0
   Serial.println(F("starting BCC811"));
@@ -2584,8 +2585,10 @@ DT_BME280_set_callback_pressure(bme280_callback_pressure);
 #endif // MQTT
 #endif // VANNE
 
-  //wdt_enable(WATCHDOG_TIME);
+// wdt_enable(WATCHDOG_TIME);
+#ifdef MQTT
   homeassistant(true);
+#endif
   // Serial.print(millis());
   Serial.println(F("Board started"));
   Serial.print(F("version: "));
@@ -2635,7 +2638,7 @@ void loop()
   case BOOST_PP_COUNTER:
     DT_BME280_loop();
     break;
-#endif //BME280_NUM
+#endif // BME280_NUM
 
 #ifdef CCS811
 #include BOOST_PP_UPDATE_COUNTER()

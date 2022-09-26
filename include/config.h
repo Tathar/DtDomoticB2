@@ -50,9 +50,9 @@ const uint8_t DIMMER_RADIATOR_PT100_ARRAY[DIMMER_RADIATOR_NUM] PROGMEM = {};
 #define PT100_EXT 5
 
 // BME_280
-//#define BME280_NUM 2
-// const uint8_t BME280_ADDRESS_ARRAY[BME280_NUM] PROGMEM = {0x76, 0x77};
-// const uint8_t BME280_CHANNEL_ARRAY[BME280_NUM] PROGMEM = {1, 1};
+#define BME280_NUM 2
+const uint8_t BME280_ADDRESS_ARRAY[BME280_NUM] PROGMEM = {0x76, 0x77};
+const uint8_t BME280_CHANNEL_ARRAY[BME280_NUM] PROGMEM = {1, 1};
 
 // TIC
 // téléreléve information client
@@ -66,7 +66,7 @@ const uint8_t RELAY_RADIATOR_PT100_ARRAY[RELAY_RADIATOR_NUM] PROGMEM = {};
 // watchdog
 #define WATCHDOG_TIME WDTO_8S
 
-#define MQTT
+//#define MQTT
 #ifdef MQTT
 // buffer
 #define BUFFER_SIZE 65
@@ -124,7 +124,7 @@ const uint8_t RELAY_RADIATOR_PT100_ARRAY[RELAY_RADIATOR_NUM] PROGMEM = {};
 #define RADIATOR_HA_MIN_TEMP 15
 
 // Poele
-#define POELE
+// #define POELE
 #ifdef POELE
 #define MIN_T4 0                     // en °C (fake NTC)
 #define POELE_MAX_TEMPERATURE 85     // en °C (consigne temperature Balon)
@@ -141,7 +141,7 @@ const uint8_t RELAY_RADIATOR_PT100_ARRAY[RELAY_RADIATOR_NUM] PROGMEM = {};
 #endif // POELE
 
 // Vanne 3 Voies
-#define VANNES
+// #define VANNES
 #ifdef VANNES
 #define TMP_EAU_PCBT_MAX 38 // valeur maximum de la consigne de temperature
 #define TMP_EAU_MCBT_MAX 60 // valeur maximum de la consigne de temperature
