@@ -30,6 +30,12 @@ void DT_BME280_init()
         Wire.beginTransmission(I2C_MULTIPLEXER_ADDRESS); // change I2C channel
         Wire.write(i2c_channel_to_multiplexer(i2c_channel));
         Wire.endTransmission();
+
+
+        // Wire.beginTransmission(I2C_MULTIPLEXER_ADDRESS);
+        // Wire.write(MCP_CHANNEL);
+        // Wire.endTransmission();
+
         // auto Serial.println(address, HEX);
         // auto Serial.println(i2c_number);
         unsigned status = bme280[num].begin(address);

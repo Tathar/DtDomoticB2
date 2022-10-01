@@ -44,8 +44,8 @@ bool homeassistant(bool start)
                 case BOOST_PP_COUNTER: // relay
                         if (num < RELAY_NUM - RELAY_RESERVED)
                         {
-                                snprintf_P(payload, MAX_PAYLOAD, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/relay-%02d\",\"uniq_id\":\"" BOARD_IDENTIFIER "-relay-%02d\",\"name\":\"relay-%02d\",\"command_topic\":\"~/set\",\"stat_t\":\"~/state\",\"ret\":\"true\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), num + RELAY_RESERVED, num + RELAY_RESERVED, num + RELAY_RESERVED);
-                                DT_mqtt_send(F("homeassistant/switch/" BOARD_IDENTIFIER "/relay-%02d/config"), num + RELAY_RESERVED, payload);
+                                snprintf_P(payload, MAX_PAYLOAD, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/relay-%02d\",\"uniq_id\":\"" BOARD_IDENTIFIER "-relay-%02d\",\"name\":\"relay-%02d\",\"command_topic\":\"~/set\",\"stat_t\":\"~/state\",\"ret\":\"true\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), num + RELAY_RESERVED + 1, num + RELAY_RESERVED + 1, num + RELAY_RESERVED + 1);
+                                DT_mqtt_send(F("homeassistant/switch/" BOARD_IDENTIFIER "/relay-%02d/config"), num + RELAY_RESERVED + 1, payload);
                                 num++;
                                 sequance--;
                         }
@@ -59,8 +59,8 @@ bool homeassistant(bool start)
                 case BOOST_PP_COUNTER: // Dimmer_relay
                         if (num < DIMMER_RELAY_NUM - DIMMER_RELAY_RESERVED)
                         {
-                                snprintf_P(payload, MAX_PAYLOAD, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/dimmer-relay-%02d\",\"uniq_id\":\"" BOARD_IDENTIFIER "-dimmer-relay-%02d\",\"name\":\"dimmer-relay-%02d\",\"ret\":\"true\",\"command_topic\":\"~/set\",\"stat_t\":\"~/state\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), num + DIMMER_RELAY_FIRST_NUM + DIMMER_RELAY_RESERVED, num + DIMMER_RELAY_FIRST_NUM + DIMMER_RELAY_RESERVED, num + DIMMER_RELAY_FIRST_NUM + DIMMER_RELAY_RESERVED);
-                                DT_mqtt_send(F("homeassistant/switch/" BOARD_IDENTIFIER "/dimmer-relay-%02d/config"), num + DIMMER_RELAY_FIRST_NUM + DIMMER_RELAY_RESERVED, payload);
+                                snprintf_P(payload, MAX_PAYLOAD, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/dimmer-relay-%02d\",\"uniq_id\":\"" BOARD_IDENTIFIER "-dimmer-relay-%02d\",\"name\":\"dimmer-relay-%02d\",\"ret\":\"true\",\"command_topic\":\"~/set\",\"stat_t\":\"~/state\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), num + DIMMER_RELAY_FIRST_NUM + DIMMER_RELAY_RESERVED + 1, num + DIMMER_RELAY_FIRST_NUM + DIMMER_RELAY_RESERVED + 1, num + DIMMER_RELAY_FIRST_NUM + DIMMER_RELAY_RESERVED + 1);
+                                DT_mqtt_send(F("homeassistant/switch/" BOARD_IDENTIFIER "/dimmer-relay-%02d/config"), num + DIMMER_RELAY_FIRST_NUM + DIMMER_RELAY_RESERVED + 1, payload);
                                 num++;
                                 sequance--;
                         }
@@ -75,8 +75,8 @@ bool homeassistant(bool start)
                 case BOOST_PP_COUNTER:
                         if (num < DIMMER_LIGHT_NUM)
                         {
-                                snprintf_P(payload, MAX_PAYLOAD, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/dimmer-%02d\",\"uniq_id\":\"" BOARD_IDENTIFIER "-dimmer-%02d\",\"name\":\"dimmer-%02d\",\"command_topic\":\"~/set\",\"stat_t\":\"~/state\",\"bri_cmd_t\":\"~/bri_set\",\"bri_stat_t\":\"~/bri_state\",\"bri_scl\":\"255\",\"fx_list\":[\"NONE\",\"CANDLE\"],\"fx_stat_t\":\"~/fx_state\",\"fx_cmd_t\":\"~/fx_set\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), num, num, num);
-                                DT_mqtt_send(F("homeassistant/light/" BOARD_IDENTIFIER "/dimmer-%02d/config"), num, payload);
+                                snprintf_P(payload, MAX_PAYLOAD, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/dimmer-%02d\",\"uniq_id\":\"" BOARD_IDENTIFIER "-dimmer-%02d\",\"name\":\"dimmer-%02d\",\"command_topic\":\"~/set\",\"stat_t\":\"~/state\",\"bri_cmd_t\":\"~/bri_set\",\"bri_stat_t\":\"~/bri_state\",\"bri_scl\":\"255\",\"fx_list\":[\"NONE\",\"CANDLE\"],\"fx_stat_t\":\"~/fx_state\",\"fx_cmd_t\":\"~/fx_set\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), num + 1, num + 1, num + 1);
+                                DT_mqtt_send(F("homeassistant/light/" BOARD_IDENTIFIER "/dimmer-%02d/config"), num + 1, payload);
                                 num++;
                                 sequance--;
                         }
@@ -93,15 +93,15 @@ bool homeassistant(bool start)
                         {
                                 if (num < 12)
                                 {
-                                        snprintf_P(payload, MAX_PAYLOAD, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/dimmer-%02d\",\"uniq_id\":\"" BOARD_IDENTIFIER "-dimmer-%02d-MIN\",\"name\":\"dimmer-%02d-MIN\",\"stat_t\":\"~/min_state\",\"command_topic\":\"~/min_set\",\"min\":0,\"max\":19840,\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), num, num, num);
-                                        DT_mqtt_send(F("homeassistant/number/" BOARD_IDENTIFIER "/dimmer-%02d-MIN/config"), num, payload);
+                                        snprintf_P(payload, MAX_PAYLOAD, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/dimmer-%02d\",\"uniq_id\":\"" BOARD_IDENTIFIER "-dimmer-%02d-MIN\",\"name\":\"dimmer-%02d-MIN\",\"stat_t\":\"~/min_state\",\"command_topic\":\"~/min_set\",\"min\":0,\"max\":19840,\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), num + 1, num + 1, num + 1);
+                                        DT_mqtt_send(F("homeassistant/number/" BOARD_IDENTIFIER "/dimmer-%02d-MIN/config"), num + 1, payload);
                                         num++;
                                         sequance--;
                                 }
                                 else
                                 {
-                                        snprintf_P(payload, MAX_PAYLOAD, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/dimmer-%02d\",\"uniq_id\":\"" BOARD_IDENTIFIER "-dimmer-%02d-MIN\",\"name\":\"dimmer-%02d-MIN\",\"stat_t\":\"~/min_state\",\"command_topic\":\"~/min_set\",\"min\":0,\"max\":255,\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), num, num, num);
-                                        DT_mqtt_send(F("homeassistant/number/" BOARD_IDENTIFIER "/dimmer-%02d-MIN/config"), num, payload);
+                                        snprintf_P(payload, MAX_PAYLOAD, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/dimmer-%02d\",\"uniq_id\":\"" BOARD_IDENTIFIER "-dimmer-%02d-MIN\",\"name\":\"dimmer-%02d-MIN\",\"stat_t\":\"~/min_state\",\"command_topic\":\"~/min_set\",\"min\":0,\"max\":255,\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), num + 1, num + 1, num + 1);
+                                        DT_mqtt_send(F("homeassistant/number/" BOARD_IDENTIFIER "/dimmer-%02d-MIN/config"), num + 1, payload);
                                         num++;
                                         sequance--;
                                 }
@@ -120,15 +120,15 @@ bool homeassistant(bool start)
 
                                 if (num < 12)
                                 {
-                                        snprintf_P(payload, MAX_PAYLOAD, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/dimmer-%02d\",\"uniq_id\":\"" BOARD_IDENTIFIER "-dimmer-%02d-MAX\",\"name\":\"dimmer-%02d-MAX\",\"stat_t\":\"~/max_state\",\"command_topic\":\"~/max_set\",\"min\":0,\"max\":19840,\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), num, num, num);
-                                        DT_mqtt_send(F("homeassistant/number/" BOARD_IDENTIFIER "/dimmer-%02d-MAX/config"), num, payload);
+                                        snprintf_P(payload, MAX_PAYLOAD, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/dimmer-%02d\",\"uniq_id\":\"" BOARD_IDENTIFIER "-dimmer-%02d-MAX\",\"name\":\"dimmer-%02d-MAX\",\"stat_t\":\"~/max_state\",\"command_topic\":\"~/max_set\",\"min\":0,\"max\":19840,\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), num + 1, num + 1, num + 1);
+                                        DT_mqtt_send(F("homeassistant/number/" BOARD_IDENTIFIER "/dimmer-%02d-MAX/config"), num + 1, payload);
                                         num++;
                                         sequance--;
                                 }
                                 else
                                 {
-                                        snprintf_P(payload, MAX_PAYLOAD, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/dimmer-%02d\",\"uniq_id\":\"" BOARD_IDENTIFIER "-dimmer-%02d-MAX\",\"name\":\"dimmer-%02d-MAX\",\"stat_t\":\"~/max_state\",\"command_topic\":\"~/max_set\",\"min\":0,\"max\":255,\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), num, num, num);
-                                        DT_mqtt_send(F("homeassistant/number/" BOARD_IDENTIFIER "/dimmer-%02d-MAX/config"), num, payload);
+                                        snprintf_P(payload, MAX_PAYLOAD, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/dimmer-%02d\",\"uniq_id\":\"" BOARD_IDENTIFIER "-dimmer-%02d-MAX\",\"name\":\"dimmer-%02d-MAX\",\"stat_t\":\"~/max_state\",\"command_topic\":\"~/max_set\",\"min\":0,\"max\":255,\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), num + 1, num + 1, num + 1);
+                                        DT_mqtt_send(F("homeassistant/number/" BOARD_IDENTIFIER "/dimmer-%02d-MAX/config"), num + 1, payload);
                                         num++;
                                         sequance--;
                                 }
@@ -149,8 +149,8 @@ bool homeassistant(bool start)
                                 // set_position_topic
                                 // command_topic
                                 // state_topic
-                                snprintf_P(payload, MAX_PAYLOAD, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/cover-%02d\",\"uniq_id\":\"" BOARD_IDENTIFIER "-cover-%02d\",\"name\":\"cover-%02d\",\"command_topic\":\"~/set\",\"stat_t\":\"~/state\",\"pos_t\":\"~/pos_state\",\"set_pos_t\":\"~/pos_set\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), num, num, num);
-                                DT_mqtt_send(F("homeassistant/cover/" BOARD_IDENTIFIER "/cover-%02d/config"), num, payload);
+                                snprintf_P(payload, MAX_PAYLOAD, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/cover-%02d\",\"uniq_id\":\"" BOARD_IDENTIFIER "-cover-%02d\",\"name\":\"cover-%02d\",\"command_topic\":\"~/set\",\"stat_t\":\"~/state\",\"pos_t\":\"~/pos_state\",\"set_pos_t\":\"~/pos_set\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), num + 1, num + 1, num + 1);
+                                DT_mqtt_send(F("homeassistant/cover/" BOARD_IDENTIFIER "/cover-%02d/config"), num + 1, payload);
                                 num++;
                                 sequance--;
                         }
@@ -164,8 +164,8 @@ bool homeassistant(bool start)
                 case BOOST_PP_COUNTER:
                         if (num < COVER_NUM)
                         {
-                                snprintf_P(payload, MAX_PAYLOAD, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/cover-%02d\",\"uniq_id\":\"" BOARD_IDENTIFIER "-cover-%02d-up\",\"name\":\"cover-%02d-up-time\",\"stat_t\":\"~/up_state\",\"command_topic\":\"~/up_set\",\"min\":0,\"max\":65535,\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), num, num, num);
-                                DT_mqtt_send(F("homeassistant/number/" BOARD_IDENTIFIER "/cover-%02d-up/config"), num, payload);
+                                snprintf_P(payload, MAX_PAYLOAD, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/cover-%02d\",\"uniq_id\":\"" BOARD_IDENTIFIER "-cover-%02d-up\",\"name\":\"cover-%02d-up-time\",\"stat_t\":\"~/up_state\",\"command_topic\":\"~/up_set\",\"min\":0,\"max\":65535,\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), num + 1, num + 1, num + 1);
+                                DT_mqtt_send(F("homeassistant/number/" BOARD_IDENTIFIER "/cover-%02d-up/config"), num + 1, payload);
                                 num++;
                                 sequance--;
                         }
@@ -179,8 +179,8 @@ bool homeassistant(bool start)
                 case BOOST_PP_COUNTER:
                         if (num < COVER_NUM)
                         {
-                                snprintf_P(payload, MAX_PAYLOAD, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/cover-%02d\",\"uniq_id\":\"" BOARD_IDENTIFIER "-cover-%02d-down\",\"name\":\"cover-%02d-down-time\",\"stat_t\":\"~/down_state\",\"command_topic\":\"~/down_set\",\"min\":0,\"max\":65535,\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), num, num, num);
-                                DT_mqtt_send(F("homeassistant/number/" BOARD_IDENTIFIER "/cover-%02d-down/config"), num, payload);
+                                snprintf_P(payload, MAX_PAYLOAD, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/cover-%02d\",\"uniq_id\":\"" BOARD_IDENTIFIER "-cover-%02d-down\",\"name\":\"cover-%02d-down-time\",\"stat_t\":\"~/down_state\",\"command_topic\":\"~/down_set\",\"min\":0,\"max\":65535,\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), num + 1, num + 1, num + 1);
+                                DT_mqtt_send(F("homeassistant/number/" BOARD_IDENTIFIER "/cover-%02d-down/config"), num + 1, payload);
                                 num++;
                                 sequance--;
                         }
@@ -195,8 +195,8 @@ bool homeassistant(bool start)
                 case BOOST_PP_COUNTER: // input
                         if (num < INPUT_NUM)
                         {
-                                snprintf_P(payload, MAX_PAYLOAD, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "\",\"uniq_id\":\"" BOARD_IDENTIFIER "-input-%02d\",\"name\":\"input-%02d\",\"stat_t\":\"~/input-%02d/state\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), num, num, num);
-                                DT_mqtt_send(F("homeassistant/binary_sensor/" BOARD_IDENTIFIER "/input-%02d/config"), num, payload);
+                                snprintf_P(payload, MAX_PAYLOAD, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "\",\"uniq_id\":\"" BOARD_IDENTIFIER "-input-%02d\",\"name\":\"input-%02d\",\"stat_t\":\"~/input-%02d/state\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), num + 1, num + 1, num + 1);
+                                DT_mqtt_send(F("homeassistant/binary_sensor/" BOARD_IDENTIFIER "/input-%02d/config"), num + 1, payload);
                                 num++;
                                 sequance--;
                         }
@@ -211,8 +211,8 @@ bool homeassistant(bool start)
                         // PT100
                         if (num < TEMP_NUM)
                         {
-                                snprintf_P(payload, MAX_PAYLOAD, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "\",\"uniq_id\":\"" BOARD_IDENTIFIER "-pt100-%02d\",\"name\":\"pt100-%02d\",\"stat_t\":\"~/pt100-%02d\",\"dev_cla\":\"temperature\",\"unit_of_meas\":\"°C\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), num, num, num);
-                                DT_mqtt_send(F("homeassistant/sensor/" BOARD_IDENTIFIER "/pt100-%02d/config"), num, payload);
+                                snprintf_P(payload, MAX_PAYLOAD, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "\",\"uniq_id\":\"" BOARD_IDENTIFIER "-pt100-%02d\",\"name\":\"pt100-%02d\",\"stat_t\":\"~/pt100-%02d\",\"dev_cla\":\"temperature\",\"unit_of_meas\":\"°C\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), num + 1 , num + 1, num + 1);
+                                DT_mqtt_send(F("homeassistant/sensor/" BOARD_IDENTIFIER "/pt100-%02d/config"), num+1, payload);
                                 num++;
                                 sequance--;
                         }

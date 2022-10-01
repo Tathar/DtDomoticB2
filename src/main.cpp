@@ -184,7 +184,7 @@ void relay_callback(const uint8_t num, const bool action)
     {
       payload = F("OFF");
     }
-    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/relay-%02d/state"), num, payload);
+    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/relay-%02d/state"), num+1, payload);
   }
   memory(false);
 }
@@ -209,7 +209,7 @@ void dimmer_relay_callback(const uint8_t num, const bool action)
     {
       payload = F("OFF");
     }
-    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-relay-%02d/state"), num + DIMMER_RELAY_FIRST_NUM, payload);
+    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-relay-%02d/state"), num + DIMMER_RELAY_FIRST_NUM + 1, payload);
   }
   memory(false);
 }
@@ -226,12 +226,12 @@ void dimmer_callback(const uint8_t num, const uint8_t percent, const bool candle
       payload = F("OFF");
     else
       payload = F("ON");
-    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/state"), num, payload);
-    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/bri_state"), num, percent);
+    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/state"), num + 1, payload);
+    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/bri_state"), num + 1, percent);
     if (candle)
-      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/fx_state"), num, F("CANDLE"));
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/fx_state"), num + 1, F("CANDLE"));
     else
-      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/fx_state"), num, F("NONE"));
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/fx_state"), num + 1, F("NONE"));
   }
 }
 #endif // NUM_DIMMER
@@ -242,30 +242,30 @@ void cover_callback(const uint8_t num, const uint8_t percent, const cover_state 
   switch (state)
   {
   case cover_stopped:
-    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/cover-%02d/state"), num, F("stopped"));
+    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/cover-%02d/state"), num + 1, F("stopped"));
     break;
 
   case cover_open:
-    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/cover-%02d/state"), num, F("open"));
+    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/cover-%02d/state"), num + 1, F("open"));
     break;
 
   case cover_closed:
-    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/cover-%02d/state"), num, F("closed"));
+    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/cover-%02d/state"), num + 1, F("closed"));
     break;
 
   case cover_opening:
-    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/cover-%02d/state"), num, F("opening"));
+    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/cover-%02d/state"), num + 1, F("opening"));
     break;
 
   case cover_closing:
-    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/cover-%02d/state"), num, F("closing"));
+    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/cover-%02d/state"), num + 1, F("closing"));
     break;
 
   default:
     break;
   }
 
-  DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/cover-%02d/pos_state"), num, percent);
+  DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/cover-%02d/pos_state"), num + 1, percent);
 }
 #endif
 // envoi de donné MQTT quand une entrée est activée / desactivée
@@ -389,7 +389,7 @@ void input_callback(const uint8_t num, const Bt_Action action)
   }
 
 #ifdef MQTT
-  DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/input-%02d/state"), num, payload);
+  DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/input-%02d/state"), num + 1, payload);
 #endif
   memory(false);
 }
@@ -405,7 +405,7 @@ void pt100_callback(const uint8_t num, const float temp)
 
   if (mem_config.MQTT_online)
   {
-    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pt100-%02d"), num, temp);
+    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pt100-%02d"), num+1, temp);
   }
   memory(false);
 }
@@ -423,7 +423,7 @@ void bme280_callback_temperature(const uint8_t num, const float temperature)
   if (now - refresh >= MQTT_REFRESH && mem_config.MQTT_online)
   {
     refresh = now;
-    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/bme280-%02d/temperature"), num, temperature);
+    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/bme280-%02d/temperature"), num + 1, temperature);
   }
   // memory(false);
 }
@@ -439,7 +439,7 @@ void bme280_callback_humidity(const uint8_t num, const float humidity)
   if (now - refresh >= MQTT_REFRESH && mem_config.MQTT_online)
   {
     refresh = now;
-    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/bme280-%02d/humidity"), num, humidity);
+    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/bme280-%02d/humidity"), num + 1, humidity);
   }
   // memory(false);
 }
@@ -455,7 +455,7 @@ void bme280_callback_pressure(const uint8_t num, const float pressure)
   if (now - refresh >= MQTT_REFRESH && mem_config.MQTT_online)
   {
     refresh = now;
-    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/bme280-%02d/pressure"), num, pressure);
+    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/bme280-%02d/pressure"), num + 1, pressure);
   }
   // memory(false);
 }
@@ -472,7 +472,7 @@ void ccs811_callback_co2(const uint8_t num, const float co2)
   if (now - refresh >= MQTT_REFRESH && mem_config.MQTT_online)
   {
     refresh = now;
-    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/ccs811-%02d/co2"), num, co2);
+    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/ccs811-%02d/co2"), num + 1, co2);
   }
   memory(false);
 }
@@ -487,7 +487,7 @@ void ccs811_callback_cov(const uint8_t num, const float cov)
   if (now - refresh >= MQTT_REFRESH && mem_config.MQTT_online)
   {
     refresh = now;
-    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/ccs811-%02d/cov"), num, cov);
+    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/ccs811-%02d/cov"), num + 1, cov);
   }
   memory(false);
 }
@@ -718,7 +718,7 @@ bool mqtt_publish(bool start)
     case BOOST_PP_COUNTER:
       if (num < DIMMER_LIGHT_NUM)
       {
-        DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/min_state"), num, eeprom_config.Dimmer_scale_min[num]);
+        DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/min_state"), num + 1, eeprom_config.Dimmer_scale_min[num]);
         num++;
         sequance--;
       }
@@ -732,7 +732,7 @@ bool mqtt_publish(bool start)
     case BOOST_PP_COUNTER:
       if (num < DIMMER_LIGHT_NUM)
       {
-        DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/max_state"), num, eeprom_config.Dimmer_scale_max[num]);
+        DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/max_state"), num + 1, eeprom_config.Dimmer_scale_max[num]);
         num++;
         sequance--;
       }
@@ -748,7 +748,7 @@ bool mqtt_publish(bool start)
     case BOOST_PP_COUNTER: // RADIATOR consigne
       if (num < DIMMER_LIGHT_NUM)
       {
-        DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/radiator-%02d/temp_state"), num, DT_radiator_get_consigne(num));
+        DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/radiator-%02d/temp_state"), num + 1, DT_radiator_get_consigne(num));
         num++;
         sequance--;
       }
@@ -764,11 +764,11 @@ bool mqtt_publish(bool start)
       {
         if (eeprom_config.radiator[num].mode == Radiator_Mode_Off)
         {
-          DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/radiator-%02d/mode_state"), num, F("off"));
+          DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/radiator-%02d/mode_state"), num + 1, F("off"));
         }
         else if (eeprom_config.radiator[num].mode == Radiator_Mode_Heating)
         {
-          DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/radiator-%02d/mode_state"), num, F("heat"));
+          DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/radiator-%02d/mode_state"), num + 1, F("heat"));
         }
         num++;
         sequance--;
@@ -783,7 +783,7 @@ bool mqtt_publish(bool start)
     case BOOST_PP_COUNTER: // RADIATOR cycle
       if (num < DIMMER_LIGHT_NUM)
       {
-        DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/radiator-%02d/cycle-state"), num, DT_radiator_get_cycle(num));
+        DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/radiator-%02d/cycle-state"), num + 1, DT_radiator_get_cycle(num));
         num++;
         sequance--;
       }
@@ -797,7 +797,7 @@ bool mqtt_publish(bool start)
     case BOOST_PP_COUNTER: // RADIATOR M10
       if (num < DIMMER_LIGHT_NUM)
       {
-        DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/radiator-%02d/m10-state"), num, DT_radiator_get_M10(num));
+        DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/radiator-%02d/m10-state"), num + 1, DT_radiator_get_M10(num));
         num++;
         sequance--;
       }
@@ -811,7 +811,7 @@ bool mqtt_publish(bool start)
     case BOOST_PP_COUNTER: // RADIATOR P10
       if (num < DIMMER_LIGHT_NUM)
       {
-        DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/radiator-%02d//KI-state"), num, DT_radiator_get_KI(num));
+        DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/radiator-%02d//KI-state"), num + 1, DT_radiator_get_KI(num));
         num++;
         sequance--;
       }
@@ -1268,7 +1268,7 @@ bool mqtt_subscribe(MQTTClient &mqtt, bool start)
     case BOOST_PP_COUNTER:
       if (num < RELAY_NUM)
       {
-        snprintf_P(topic, 56, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/relay-%02d/set"), num);
+        snprintf_P(topic, 56, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/relay-%02d/set"), num + 1);
         mqtt.subscribe(topic);
         num++;
         sequance--;
@@ -1284,7 +1284,7 @@ bool mqtt_subscribe(MQTTClient &mqtt, bool start)
     case BOOST_PP_COUNTER:
       if (num < DIMMER_RELAY_NUM)
       {
-        snprintf_P(topic, 56, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-relay-%02d/set"), num);
+        snprintf_P(topic, 56, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-relay-%02d/set"), num + 1);
         mqtt.subscribe(topic);
         num++;
         sequance--;
@@ -1301,7 +1301,7 @@ bool mqtt_subscribe(MQTTClient &mqtt, bool start)
     case BOOST_PP_COUNTER:
       if (num < DIMMER_LIGHT_NUM)
       {
-        snprintf_P(topic, 56, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/set"), num);
+        snprintf_P(topic, 56, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/set"), num + 1);
         mqtt.subscribe(topic);
         num++;
         sequance--;
@@ -1316,7 +1316,7 @@ bool mqtt_subscribe(MQTTClient &mqtt, bool start)
     case BOOST_PP_COUNTER:
       if (num < DIMMER_LIGHT_NUM)
       {
-        snprintf_P(topic, 56, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/bri_set"), num);
+        snprintf_P(topic, 56, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/bri_set"), num + 1);
         mqtt.subscribe(topic);
         num++;
         sequance--;
@@ -1331,7 +1331,7 @@ bool mqtt_subscribe(MQTTClient &mqtt, bool start)
     case BOOST_PP_COUNTER:
       if (num < DIMMER_LIGHT_NUM)
       {
-        snprintf_P(topic, 56, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/fx_set"), num);
+        snprintf_P(topic, 56, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/fx_set"), num + 1);
         mqtt.subscribe(topic);
         num++;
         sequance--;
@@ -1346,7 +1346,7 @@ bool mqtt_subscribe(MQTTClient &mqtt, bool start)
     case BOOST_PP_COUNTER:
       if (num < DIMMER_LIGHT_NUM)
       {
-        snprintf_P(topic, 56, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/min_set"), num);
+        snprintf_P(topic, 56, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/min_set"), num + 1);
         mqtt.subscribe(topic);
         num++;
         sequance--;
@@ -1361,7 +1361,7 @@ bool mqtt_subscribe(MQTTClient &mqtt, bool start)
     case BOOST_PP_COUNTER:
       if (num < DIMMER_LIGHT_NUM)
       {
-        snprintf_P(topic, 56, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/max_set"), num);
+        snprintf_P(topic, 56, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/max_set"), num + 1);
         mqtt.subscribe(topic);
         num++;
         sequance--;
@@ -1378,7 +1378,7 @@ bool mqtt_subscribe(MQTTClient &mqtt, bool start)
     case BOOST_PP_COUNTER:
       if (num < DIMMER_LIGHT_NUM)
       {
-        snprintf_P(topic, 56, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/cover-%02d/set"), num);
+        snprintf_P(topic, 56, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/cover-%02d/set"), num + 1);
         mqtt.subscribe(topic);
         num++;
         sequance--;
@@ -1393,7 +1393,7 @@ bool mqtt_subscribe(MQTTClient &mqtt, bool start)
     case BOOST_PP_COUNTER:
       if (num < DIMMER_LIGHT_NUM)
       {
-        snprintf_P(topic, 56, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/cover-%02d/pos_set"), num);
+        snprintf_P(topic, 56, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/cover-%02d/pos_set"), num + 1);
         mqtt.subscribe(topic);
         num++;
         sequance--;
@@ -1408,7 +1408,7 @@ bool mqtt_subscribe(MQTTClient &mqtt, bool start)
     case BOOST_PP_COUNTER:
       if (num < DIMMER_LIGHT_NUM)
       {
-        snprintf_P(topic, 56, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/cover-%02d/up_set"), num);
+        snprintf_P(topic, 56, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/cover-%02d/up_set"), num + 1);
         mqtt.subscribe(topic);
         num++;
         sequance--;
@@ -1423,7 +1423,7 @@ bool mqtt_subscribe(MQTTClient &mqtt, bool start)
     case BOOST_PP_COUNTER:
       if (num < DIMMER_LIGHT_NUM)
       {
-        snprintf_P(topic, 56, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/cover-%02d/down_set"), num);
+        snprintf_P(topic, 56, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/cover-%02d/down_set"), num + 1);
         mqtt.subscribe(topic);
         num++;
         sequance--;
@@ -1440,7 +1440,7 @@ bool mqtt_subscribe(MQTTClient &mqtt, bool start)
     case BOOST_PP_COUNTER:
       if (num < DIMMER_LIGHT_NUM)
       {
-        snprintf_P(topic, 56, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/radiator-%02d/temp_set"), num);
+        snprintf_P(topic, 56, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/radiator-%02d/temp_set"), num + 1);
         mqtt.subscribe(topic);
         num++;
         sequance--;
@@ -1455,7 +1455,7 @@ bool mqtt_subscribe(MQTTClient &mqtt, bool start)
     case BOOST_PP_COUNTER:
       if (num < DIMMER_LIGHT_NUM)
       {
-        snprintf_P(topic, 56, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/radiator-%02d/mode_set"), num);
+        snprintf_P(topic, 56, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/radiator-%02d/mode_set"), num + 1);
         mqtt.subscribe(topic);
         num++;
         sequance--;
@@ -1470,7 +1470,7 @@ bool mqtt_subscribe(MQTTClient &mqtt, bool start)
     case BOOST_PP_COUNTER:
       if (num < DIMMER_LIGHT_NUM)
       {
-        snprintf_P(topic, 56, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/radiator-%02d/cycle-set"), num);
+        snprintf_P(topic, 56, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/radiator-%02d/cycle-set"), num + 1);
         mqtt.subscribe(topic);
         num++;
         sequance--;
@@ -1485,7 +1485,7 @@ bool mqtt_subscribe(MQTTClient &mqtt, bool start)
     case BOOST_PP_COUNTER:
       if (num < DIMMER_LIGHT_NUM)
       {
-        snprintf_P(topic, 56, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/radiator-%02d/m10-set"), num);
+        snprintf_P(topic, 56, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/radiator-%02d/m10-set"), num + 1);
         mqtt.subscribe(topic);
         num++;
         sequance--;
@@ -1500,7 +1500,7 @@ bool mqtt_subscribe(MQTTClient &mqtt, bool start)
     case BOOST_PP_COUNTER:
       if (num < DIMMER_LIGHT_NUM)
       {
-        snprintf_P(topic, 56, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/radiator-%02d/p10-set"), num);
+        snprintf_P(topic, 56, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/radiator-%02d/p10-set"), num + 1);
         mqtt.subscribe(topic);
         num++;
         sequance--;
@@ -1515,7 +1515,7 @@ bool mqtt_subscribe(MQTTClient &mqtt, bool start)
     case BOOST_PP_COUNTER:
       if (num < DIMMER_LIGHT_NUM)
       {
-        snprintf_P(topic, 56, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/radiator-%02d/KI-set"), num);
+        snprintf_P(topic, 56, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/radiator-%02d/KI-set"), num + 1);
         mqtt.subscribe(topic);
         num++;
         sequance--;
@@ -1826,9 +1826,9 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
     // auto Serial.println(num);
 
     if (strcmp(buffer, "ON") == 0)
-      DT_relay(num, true);
+      DT_relay(num - 1, true);
     else if (strcmp(buffer, "OFF") == 0)
-      DT_relay(num, false);
+      DT_relay(num - 1, false);
   }
 #if DIMMER_RELAY_NUM > 0
   else if (sscanf_P(topic, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-relay-%02d/set"), &num) == 1) // relais
@@ -1837,9 +1837,9 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
     // auto Serial.println(num);
 
     if (strcmp(buffer, "ON") == 0)
-      DT_dimmer_relay(num, true);
+      DT_dimmer_relay(num - 1, true);
     else if (strcmp(buffer, "OFF") == 0)
-      DT_dimmer_relay(num, false);
+      DT_dimmer_relay(num - 1, false);
   }
 #endif // DIMMER_RELAY_NUM > 0
 
@@ -1853,53 +1853,53 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
       bool_value = get_dimmer_candle(num);
       if (strcmp(buffer, "ON") == 0)
       {
-        dimmer_set(num, true, DIMMER_SPEED, bool_value);
+        dimmer_set(num-1, true, DIMMER_SPEED, bool_value);
       }
       else if (strcmp(buffer, "OFF") == 0)
-        dimmer_set(num, false, DIMMER_SPEED);
+        dimmer_set(num-1, false, DIMMER_SPEED);
     }
     else if (snprintf_P(_topic, 64, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/bri_set"), num) > 0 && strncmp(topic, _topic, 64) == 0) // dimmer
     {
       // Serial.println("bri_set");
       if (sscanf_P(buffer, PSTR("%" SCNu8), &u8t_value) == 1)
       {
-        bool_value = get_dimmer_candle(num);
-        dimmer_set(num, u8t_value, DIMMER_SPEED, bool_value);
+        bool_value = get_dimmer_candle(num-1);
+        dimmer_set(num-1, u8t_value, DIMMER_SPEED, bool_value);
       }
     }
     else if (snprintf_P(_topic, 64, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/fx_set"), num) > 0 && strncmp(topic, _topic, 64) == 0) // dimmer
     {
       // Serial.println("fx_set");
-      u8t_value = get_dimmer(num);
+      u8t_value = get_dimmer(num-1);
       if (strcmp(buffer, "NONE") == 0)
       {
-        dimmer_set(num, u8t_value, DIMMER_SPEED, false);
+        dimmer_set(num-1, u8t_value, DIMMER_SPEED, false);
       }
       else if (strcmp(buffer, "CANDLE") == 0)
       {
-        dimmer_set(num, u8t_value, DIMMER_SPEED, true);
+        dimmer_set(num-1, u8t_value, DIMMER_SPEED, true);
       }
     }
     else if (snprintf_P(_topic, 64, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/min_set"), num) > 0 && strncmp(topic, _topic, 64) == 0) // dimmer
     {
       // Serial.println("min_set");
       str_buffer = buffer;
-      eeprom_config.Dimmer_scale_min[num] = (uint16_t)str_buffer.toDouble();
-      if (eeprom_config.Dimmer_scale_min[num] <= eeprom_config.Dimmer_scale_max[num])
-        eeprom_config.Dimmer_scale_min[num] = eeprom_config.Dimmer_scale_max[num] + 20;
-      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/min_state"), num, (uint16_t)eeprom_config.Dimmer_scale_min[num]);
-      dimmer_set(num, true, 0);
+      eeprom_config.Dimmer_scale_min[num-1] = (uint16_t)str_buffer.toDouble();
+      if (eeprom_config.Dimmer_scale_min[num-1] <= eeprom_config.Dimmer_scale_max[num-1])
+        eeprom_config.Dimmer_scale_min[num-1] = eeprom_config.Dimmer_scale_max[num-1] + 20;
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/min_state"), num, (uint16_t)eeprom_config.Dimmer_scale_min[num-1]);
+      dimmer_set(num-1, true, 0);
       sauvegardeEEPROM();
     }
     else if (snprintf_P(_topic, 64, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/max_set"), num) > 0 && strncmp(topic, _topic, 64) == 0) // dimmer
     {
       // Serial.println("max_set");
       str_buffer = buffer;
-      eeprom_config.Dimmer_scale_max[num] = (uint16_t)str_buffer.toDouble();
-      if (eeprom_config.Dimmer_scale_max[num] >= eeprom_config.Dimmer_scale_min[num])
-        eeprom_config.Dimmer_scale_max[num] = eeprom_config.Dimmer_scale_min[num] - 20;
-      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/max_state"), num, (uint16_t)eeprom_config.Dimmer_scale_max[num]);
-      dimmer_set(num, true, 0);
+      eeprom_config.Dimmer_scale_max[num-1] = (uint16_t)str_buffer.toDouble();
+      if (eeprom_config.Dimmer_scale_max[num-1] >= eeprom_config.Dimmer_scale_min[num-1])
+        eeprom_config.Dimmer_scale_max[num-1] = eeprom_config.Dimmer_scale_min[num-1] - 20;
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/max_state"), num, (uint16_t)eeprom_config.Dimmer_scale_max[num-1]);
+      dimmer_set(num-1, true, 0);
       sauvegardeEEPROM();
     }
   }
@@ -1914,15 +1914,15 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
       Serial.println(F("set"));
       if (strcmp(buffer, "STOP") == 0)
       {
-        DT_cover_stop(num);
+        DT_cover_stop(num-1);
       }
       else if (strcmp(buffer, "OPEN") == 0)
       {
-        DT_cover_set(num, 100);
+        DT_cover_set(num-1, 100);
       }
       else if (strcmp(buffer, "CLOSE") == 0)
       {
-        DT_cover_set(num, 0);
+        DT_cover_set(num-1, 0);
       }
     }
     else if (snprintf_P(_topic, 64, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/cover-%02d/pos_set"), num) > 0 && strncmp(topic, _topic, 64) == 0) // cover
@@ -1930,25 +1930,25 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
       Serial.println(F("pos_set"));
       if (sscanf_P(buffer, PSTR("%" SCNu8), &u8t_value) == 1)
       {
-        DT_cover_set(num, u8t_value);
+        DT_cover_set(num-1, u8t_value);
       }
     }
     else if (snprintf_P(_topic, 64, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/cover-%02d/up_set"), num) > 0 && strncmp(topic, _topic, 64) == 0) // time cover up
     {
       Serial.print(F("up_set = "));
       str_buffer = buffer;
-      eeprom_config.cover[num].time_up = (uint16_t)(str_buffer.toDouble());
-      Serial.println(eeprom_config.cover[num].time_up);
-      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/cover-%02d/up_state"), num, (eeprom_config.cover[num].time_up));
+      eeprom_config.cover[num-1].time_up = (uint16_t)(str_buffer.toDouble());
+      Serial.println(eeprom_config.cover[num-1].time_up);
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/cover-%02d/up_state"), num, (eeprom_config.cover[num-1].time_up));
       sauvegardeEEPROM();
     }
     else if (snprintf_P(_topic, 64, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/cover-%02d/down_set"), num) > 0 && strncmp(topic, _topic, 64) == 0) // time cover down
     {
       Serial.print(F("down_set = "));
       str_buffer = buffer;
-      eeprom_config.cover[num].time_down = (uint16_t)(str_buffer.toDouble());
-      Serial.println(eeprom_config.cover[num].time_down);
-      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/cover-%02d/down_state"), num, (eeprom_config.cover[num].time_down));
+      eeprom_config.cover[num-1].time_down = (uint16_t)(str_buffer.toDouble());
+      Serial.println(eeprom_config.cover[num-1].time_down);
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/cover-%02d/down_state"), num, (eeprom_config.cover[num-1].time_down));
       sauvegardeEEPROM();
     }
   }
@@ -1963,20 +1963,20 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
     {
       Serial.println(F("temp_set"));
       str_buffer = buffer;
-      DT_radiator_set_consigne(num, str_buffer.toFloat());
-      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/radiator-%02d/temp_state"), num, DT_radiator_get_consigne(num));
+      DT_radiator_set_consigne(num-1, str_buffer.toFloat());
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/radiator-%02d/temp_state"), num, DT_radiator_get_consigne(num-1));
     }
     else if (snprintf_P(_topic, 64, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/radiator-%02d/mode_set"), num) > 0 && strncmp(topic, _topic, 64) == 0) // radiator mode
     {
       Serial.println(F("mode_set"));
       if (strcmp(buffer, "off") == 0)
       {
-        DT_radiator_set_mode(num, Radiator_Mode_Off);
+        DT_radiator_set_mode(num-1, Radiator_Mode_Off);
         DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/radiator-%02d/mode_state"), num, F("off"));
       }
       else if (strcmp(buffer, "heat") == 0)
       {
-        DT_radiator_set_mode(num, Radiator_Mode_Heating);
+        DT_radiator_set_mode(num-1, Radiator_Mode_Heating);
         DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/radiator-%02d/mode_state"), num, F("heat"));
       }
     }
@@ -1984,32 +1984,32 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
     {
       Serial.print(F("cycle-set = "));
       str_buffer = buffer;
-      DT_radiator_set_cycle(num, (uint32_t)(str_buffer.toInt()));
-      Serial.println(DT_radiator_get_cycle(num));
+      DT_radiator_set_cycle(num-1, (uint32_t)(str_buffer.toInt()));
+      Serial.println(DT_radiator_get_cycle(num-1));
       DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/radiator-%02d/cycle-state"), num, DT_radiator_get_cycle(num));
     }
     else if (snprintf_P(_topic, 64, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/radiator-%02d/m10-set"), num) > 0 && strncmp(topic, _topic, 64) == 0) // radiator M10
     {
       Serial.print(F("m10-set = "));
       str_buffer = buffer;
-      DT_radiator_set_M10(num, str_buffer.toFloat());
-      Serial.println(DT_radiator_get_M10(num));
+      DT_radiator_set_M10(num-1, str_buffer.toFloat());
+      Serial.println(DT_radiator_get_M10(num-1));
       DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/radiator-%02d/m10-state"), num, DT_radiator_get_M10(num));
     }
     else if (snprintf_P(_topic, 64, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/radiator-%02d/p10-set"), num) > 0 && strncmp(topic, _topic, 64) == 0) // radiator P10
     {
       Serial.print(F("p10-set = "));
       str_buffer = buffer;
-      DT_radiator_set_P10(num, str_buffer.toFloat());
-      Serial.println(DT_radiator_get_P10(num));
+      DT_radiator_set_P10(num-1, str_buffer.toFloat());
+      Serial.println(DT_radiator_get_P10(num-1));
       DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/radiator-%02d/m10-state"), num, DT_radiator_get_P10(num));
     }
     else if (snprintf_P(_topic, 64, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/radiator-%02d/KI-set"), num) > 0 && strncmp(topic, _topic, 64) == 0) // radiator P10
     {
       Serial.print(F("KI-set = "));
       str_buffer = buffer;
-      DT_radiator_set_KI(num, str_buffer.toFloat());
-      Serial.println(DT_radiator_get_KI(num));
+      DT_radiator_set_KI(num-1, str_buffer.toFloat());
+      Serial.println(DT_radiator_get_KI(num-1));
       DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/radiator-%02d/m10-state"), num, DT_radiator_get_KI(num));
     }
   }
