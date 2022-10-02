@@ -55,5 +55,7 @@ void DT_3voies_set_callback(void (*callback)(const float C2, const float C3));
 
 void DT_3voies_mcbt_set_callback_pid(void (*callback_pcbt_pid)(const float P, const float I, const float D, const float Out));
 void DT_3voies_pcbt_set_callback_pid(void (*callback_mcbt_pid)(const float P, const float I, const float D, const float Out));
+void DT_3voies_set_callback_avg_temp(void (*callback_avg_temp)(const float temp));
+
 
 #endif

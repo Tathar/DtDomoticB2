@@ -2,6 +2,7 @@
 #include <DT_input.h>
 #include <DT_PT100.h>
 #include <DT_relay.h>
+#include <CircularBuffer.h>
 
 #include <DT_eeprom.h>
 
@@ -47,6 +48,59 @@ bool async_call_pcbt_pid;
 void (*_callback_mcbt_pid)(const float P, const float I, const float D, const float Out);
 bool async_call_mcbt_pid;
 
+void (*_callback_avg_temp)(const float temp);
+
+CircularBuffer<float, 24> temp_buffer;
+
+float get_temp_moyen()
+{
+    float ret = 0;
+    uint8_t diviseur = 24;
+    for (uint8_t x = 0; x < 24; ++x)
+    {
+        if (temp_buffer[x] != 0)
+        {
+            ret += temp_buffer[x];
+        }
+        else
+        {
+            diviseur--;
+        }
+    }
+    return ret / diviseur;
+};
+
+// fournie la temperature exterieur moyenné en fonction du decalage choisie
+float get_temp_ext()
+{
+    if (DT_pt100_get(PT100_EXT) > get_temp_moyen() + eeprom_config.in_offset_avg_temp)
+    {
+        return get_temp_moyen() + eeprom_config.in_offset_avg_temp;
+    }
+    else if (DT_pt100_get(PT100_EXT) < get_temp_moyen() - eeprom_config.in_offset_avg_temp)
+    {
+        return get_temp_moyen() - eeprom_config.in_offset_avg_temp;
+    }
+    else
+    {
+        return DT_pt100_get(PT100_EXT);
+    }
+};
+
+void calc_temp_moyen()
+{
+    uint32_t now = millis();
+    static uint32_t time = 0;
+    if (now - time > 3600000)
+    {
+        temp_buffer.push(DT_pt100_get(PT100_EXT));
+        if (_callback_avg_temp != nullptr)
+        {
+            _callback_avg_temp(get_temp_moyen());
+        }
+    }
+};
+
 // mise a l'échelle
 float scale(float in, float in_min, float in_max, float out_min, float out_max)
 {
@@ -60,6 +114,9 @@ void DT_3voies_init()
     _callback_3_voies = nullptr;
     _callback_pcbt_pid = nullptr;
     _callback_mcbt_pid = nullptr;
+
+    calc_temp_moyen();
+
     // calcule des consignes de temperature
     if (eeprom_config.mode_3voies_PCBT == DT_3VOIES_DEMMARAGE)
     {
@@ -205,6 +262,7 @@ void DT_3voies_loop()
     static float old_C2 = 0;
     static float old_C3 = 0;
 
+    calc_temp_moyen();
     // calcule des consignes de temperature
     if (eeprom_config.mode_3voies_PCBT == DT_3VOIES_DEMMARAGE)
     {
@@ -662,7 +720,6 @@ void DT_3voies_MCBT_set_KT(uint32_t kt)
     pid_mcbt.SetOutputLimits((float)((float)eeprom_config.pid_mcbt.KT * -1.0), (float)eeprom_config.pid_mcbt.KT);
 }
 
-
 // deffinition du sens de fonctionnement du PID de la vanne 3 voie du planché chaffant
 void DT_3voies_PCBT_set_action(QuickPID::Action action)
 {
@@ -686,7 +743,6 @@ void DT_3voies_PCBT_set_pmode(QuickPID::pMode pMode)
     pid_pcbt.SetProportionalMode(eeprom_config.pid_pcbt.pmode);
 }
 
-
 // deffinition du mode fonctionnement du coefician KP de la vanne 3 voie du mur chaffant
 void DT_3voies_MCBT_set_pmode(QuickPID::pMode pMode)
 {
@@ -695,7 +751,6 @@ void DT_3voies_MCBT_set_pmode(QuickPID::pMode pMode)
     pid_mcbt.SetProportionalMode(eeprom_config.pid_mcbt.pmode);
 }
 
-
 // deffinition du mode fonctionnement du coefician KD de la vanne 3 voie du planché chaffant
 void DT_3voies_PCBT_set_dmode(QuickPID::dMode dMode)
 {
@@ -703,7 +758,6 @@ void DT_3voies_PCBT_set_dmode(QuickPID::dMode dMode)
     sauvegardeEEPROM();
     pid_pcbt.SetDerivativeMode(eeprom_config.pid_pcbt.dmode);
 }
-
 
 // deffinition du mode fonctionnement du coefician KD de la vanne 3 voie du mur chaffant
 void DT_3voies_MCBT_set_dmode(QuickPID::dMode dMode)
@@ -807,6 +861,10 @@ void DT_3voies_mcbt_set_callback_pid(void (*callback_mcbt_pid)(const float P, co
 void DT_3voies_pcbt_set_callback_pid(void (*callback_pcbt_pid)(const float P, const float I, const float D, const float Out))
 {
     _callback_pcbt_pid = callback_pcbt_pid;
+}
+void DT_3voies_set_callback_avg_temp(void (*callback_avg_temp)(const float temp))
+{
+    _callback_avg_temp = callback_avg_temp;
 }
 
 // get consigne temp PCBT

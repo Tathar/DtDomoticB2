@@ -48,11 +48,11 @@ enum Radiator_Mode
 struct Radiator
 {
     Radiator_Mode mode; // mode de fonctionnement de raditeur
-    float m10;      // temp de fonctionnement a -10°c, en pourcentage
-    float p10;      // temp de fonctionnement a +10°c, en pourcentage
-    float KI;       // coeficient d integral
-    float consigne; // consigne
-    uint32_t cycle; //  temp de cycle en ms
+    float m10;          // temp de fonctionnement a -10°c, en pourcentage
+    float p10;          // temp de fonctionnement a +10°c, en pourcentage
+    float KI;           // coeficient d integral
+    float consigne;     // consigne
+    uint32_t cycle;     //  temp de cycle en ms
 };
 
 // declaration de la structure de configuration
@@ -108,10 +108,11 @@ struct Eeprom_Config
 
     float ratio_PCBT;
     float ratio_MCBT;
-    uint16_t out_offset_PCBT; // en ms
-    uint16_t out_offset_MCBT; // en ms
-    float in_offset_PCBT;     // en °c
-    float in_offset_MCBT;     // en °c
+    uint16_t out_offset_PCBT;   // en ms
+    uint16_t out_offset_MCBT;   // en ms
+    float in_offset_PCBT;       // en °c
+    float in_offset_MCBT;       // en °c
+    uint8_t in_offset_avg_temp; // en °C
 
 #if DIMMER_LIGHT_NUM >= 1
     uint16_t Dimmer_scale_min[DIMMER_LIGHT_NUM]; // Mise a l echelle

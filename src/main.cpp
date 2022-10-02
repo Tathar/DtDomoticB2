@@ -462,7 +462,6 @@ void bme280_callback_pressure(const uint8_t num, const float pressure)
 }
 #endif // BME280_NUM
 
-
 #if CCS811_NUM > 0
 // envoi de donné MQTT quand une valeur de CO2 issue d'une carte CCS811 à changée
 void ccs811_callback_co2(const uint8_t num, const float co2)
@@ -647,6 +646,14 @@ void dt3voies_callback_pid_mcbt(const float P, const float I, const float D, con
     DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/OUT"), (float)(digit / 100.0));
     // 220502  debug(F(AT));
   }
+  memory(false);
+}
+
+// retour des valeurs de la temperature moyenné
+void dt3voies_callback_avg_temp(const float temp)
+{
+  memory(false);
+  DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/avg-temp/state"), (float)temp);
   memory(false);
 }
 #endif // VANNES
@@ -1827,6 +1834,11 @@ bool mqtt_subscribe(MQTTClient &mqtt, bool start)
 
 #include BOOST_PP_UPDATE_COUNTER()
     case BOOST_PP_COUNTER:
+      mqtt.subscribe(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/avg-temp/offset/set");
+      break;
+
+#include BOOST_PP_UPDATE_COUNTER()
+    case BOOST_PP_COUNTER:
       // HomeAssistant
       mqtt.subscribe("homeassistant/status");
       break;
@@ -2498,6 +2510,14 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
     sauvegardeEEPROM();
   }
 
+  else if (strcmp(topic, MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/avg-temp/offset/set") == 0) // OFFSET_MCBT_IN
+  {
+    str_buffer = buffer;
+    eeprom_config.in_offset_MCBT = str_buffer.toInt();
+    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/avg-temp/offset/state"), eeprom_config.in_offset_avg_temp);
+    sauvegardeEEPROM();
+  }
+
 #endif                                                 // VANNES
   else if (strcmp(topic, "homeassistant/status") == 0) // Home Assistant Online / Offline
   {
@@ -2647,6 +2667,7 @@ void setup()
   DT_3voies_set_callback(dt3voies_callback);
   DT_3voies_pcbt_set_callback_pid(dt3voies_callback_pid_pcbt);
   DT_3voies_mcbt_set_callback_pid(dt3voies_callback_pid_mcbt);
+  DT_3voies_set_callback_avg_temp(dt3voies_callback_avg_temp);
 #endif // MQTT
 #endif // VANNE
 

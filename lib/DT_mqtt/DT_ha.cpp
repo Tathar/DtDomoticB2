@@ -698,6 +698,18 @@ bool homeassistant(bool start)
                         // Offset MCBT IN
                         DT_mqtt_send(F("homeassistant/number/" BOARD_IDENTIFIER "/offset-mcbt-in/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/mcbt/offset-in\",\"uniq_id\":\"" BOARD_IDENTIFIER "-offset-mcbt-in\",\"name\":\"Decalage consigne MCBT\",\"stat_t\":\"~/state\",\"command_topic\":\"~/set\",\"min\":-100,\"max\":100,\"step\":0.01,\"dev_cla\":\"temperature\",\"unit_of_meas\":\"°C\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
                         break;
+
+#include BOOST_PP_UPDATE_COUNTER()
+                case BOOST_PP_COUNTER:
+                        //  temperature moyenne
+                        DT_mqtt_send(F("homeassistant/sensor/" BOARD_IDENTIFIER "/avg-temp/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/avg-temp\",\"uniq_id\":\"" BOARD_IDENTIFIER "-avg-temp\",\"name\":\"Temperature moyenne\",\"stat_t\":\"~/state\",\"dev_cla\":\"temperature\",\"unit_of_meas\":\"°C\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
+                        break;
+
+#include BOOST_PP_UPDATE_COUNTER()
+                case BOOST_PP_COUNTER:
+                        //  decalage temperature moyenne
+                        DT_mqtt_send(F("homeassistant/number/" BOARD_IDENTIFIER "/offset-avg-temp/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/avg-temp/offset\",\"uniq_id\":\"" BOARD_IDENTIFIER "-offset-mcbt-in\",\"name\":\"Decalage consigne MCBT\",\"stat_t\":\"~/state\",\"command_topic\":\"~/set\",\"min\":-100,\"max\":100,\"step\":0.01,\"dev_cla\":\"temperature\",\"unit_of_meas\":\"°C\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
+                        break;
 #endif // VANNES
 #include BOOST_PP_UPDATE_COUNTER()
                 case BOOST_PP_COUNTER:
