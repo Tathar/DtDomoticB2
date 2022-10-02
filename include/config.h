@@ -50,11 +50,25 @@ const uint8_t DIMMER_RADIATOR_PT100_ARRAY[DIMMER_RADIATOR_NUM] PROGMEM = {};
 #define PT100_EXT 5
 
 // BME_280
-#define BME280_NUM 2
-#ifdef BME280_NUM 
+#define BME280_NUM 1
+#if BME280_NUM > 0
 const uint8_t BME280_ADDRESS_ARRAY[BME280_NUM] PROGMEM = {0x76};
 const uint8_t BME280_CHANNEL_ARRAY[BME280_NUM] PROGMEM = {2};
 #endif
+
+// CCS_811
+#define CCS811_NUM 2
+#if CCS811_NUM > 0
+const uint8_t CCS811_ADDRESS_ARRAY[CCS811_NUM] PROGMEM = {0x5A,0X5B};
+const uint8_t CCS811_CHANNEL_ARRAY[CCS811_NUM] PROGMEM = {2,2};
+#endif
+
+// SCD4X
+#define SCD4X_NUM 1
+#if SCD4X_NUM > 0
+const uint8_t SCD4X_CHANNEL_ARRAY[SCD4X_NUM] PROGMEM = {2};
+#endif
+
 
 // TIC
 // téléreléve information client

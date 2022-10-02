@@ -376,6 +376,37 @@ bool homeassistant(bool start)
                         break;
 
 #endif // CCS811_NUM
+#if SCD4X_NUM > 0
+#include BOOST_PP_UPDATE_COUNTER()
+                case BOOST_PP_COUNTER:
+                        // SCD4X temperature
+                        for (uint8_t num = 0; num < SCD4X_NUM; ++num)
+                        {
+                                snprintf_P(payload, MAX_PAYLOAD, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "\",\"uniq_id\":\"" BOARD_IDENTIFIER "-scd4x-temperature-%02d\",\"name\":\"scd4x-%02d\",\"stat_t\":\"~/scd4x-%02d/temperature\",\"dev_cla\":\"temperature\",\"unit_of_meas\":\"\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), num +1, num +1, num +1);
+                                Serial.println(payload);
+                                DT_mqtt_send(F("homeassistant/sensor/" BOARD_IDENTIFIER "/scd4x-temperature-%02d/config"), num +1, payload);
+                        }
+                        break;
+#include BOOST_PP_UPDATE_COUNTER()
+                case BOOST_PP_COUNTER:
+                        // SCD4X humidity
+                        for (uint8_t num = 0; num < SCD4X_NUM; ++num)
+                        {
+                                snprintf_P(payload, MAX_PAYLOAD, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "\",\"uniq_id\":\"" BOARD_IDENTIFIER "-scd4x-humidity-%02d\",\"name\":\"scd4x-%02d\",\"stat_t\":\"~/scd4x-%02d/humidity\",\"dev_cla\":\"humidity\",\"unit_of_meas\":\"%%\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), num +1, num +1, num +1);
+                                DT_mqtt_send(F("homeassistant/sensor/" BOARD_IDENTIFIER "/scd4x-humidity-%02d/config"), num +1, payload);
+                        }
+                        break;
+#include BOOST_PP_UPDATE_COUNTER()
+                case BOOST_PP_COUNTER:
+                        // SCD4X co2
+                        for (uint8_t num = 0; num < SCD4X_NUM; ++num)
+                        {
+                                snprintf_P(payload, MAX_PAYLOAD, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "\",\"uniq_id\":\"" BOARD_IDENTIFIER "-scd4x-co2-%02d\",\"name\":\"scd4x-%02d\",\"stat_t\":\"~/scd4x-%02d/co2\",\"dev_cla\":\"carbon_dioxide\",\"unit_of_meas\":\"ppm\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), num +1, num +1, num +1);
+                                Serial.println(payload);
+                                DT_mqtt_send(F("homeassistant/sensor/" BOARD_IDENTIFIER "/scd4x-co2-%02d/config"), num +1, payload);
+                        }
+                        break;
+#endif // SCD4X_NUM
 #ifdef POELE
 #include BOOST_PP_UPDATE_COUNTER()
                 case BOOST_PP_COUNTER:

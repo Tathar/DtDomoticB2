@@ -74,11 +74,6 @@ const uint8_t OPT_ARRAY[18] PROGMEM = {OPT_1, OPT_2, OPT_3, OPT_4, OPT_5, OPT_6,
 // const uint8_t DIMMER_ARRAY[14] PROGMEM = {OPT_2, OPT_3, OPT_4, OPT_5, OPT_6, OPT_7, OPT_8, OPT_9, OPT_10, OPT_11, OPT_12, OPT_13, OPT_14, OPT_15};
 
 
-// sonde cov CCS811
-#define CCS811_NUM 2
-const uint8_t CCS811_ADDRESS[CCS811_NUM] PROGMEM = {0x5A, 0x5B};
-const uint8_t CCS811_I2C[CCS811_NUM] PROGMEM = {2, 2};
-
 // reseau
 #define NETWORK_CS 40
 #define NETWORK_RESET 49

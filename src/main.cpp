@@ -14,6 +14,7 @@
 #include <DT_ha.h>
 #include <DT_BME280.h>
 #include <DT_CCS811.h>
+#include <DT_SCD4X.h>
 #include <DT_mcp.h>
 #include <DT_poele.h>
 #include <DT_eeprom.h>
@@ -184,7 +185,7 @@ void relay_callback(const uint8_t num, const bool action)
     {
       payload = F("OFF");
     }
-    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/relay-%02d/state"), num+1, payload);
+    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/relay-%02d/state"), num + 1, payload);
   }
   memory(false);
 }
@@ -405,7 +406,7 @@ void pt100_callback(const uint8_t num, const float temp)
 
   if (mem_config.MQTT_online)
   {
-    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pt100-%02d"), num+1, temp);
+    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pt100-%02d"), num + 1, temp);
   }
   memory(false);
 }
@@ -461,7 +462,9 @@ void bme280_callback_pressure(const uint8_t num, const float pressure)
 }
 #endif // BME280_NUM
 
-// envoi de donné MQTT quand une valeur de CO2 issue d'une carte CSS811 à changée
+
+#if CCS811_NUM > 0
+// envoi de donné MQTT quand une valeur de CO2 issue d'une carte CCS811 à changée
 void ccs811_callback_co2(const uint8_t num, const float co2)
 {
   debug(F(AT));
@@ -477,7 +480,7 @@ void ccs811_callback_co2(const uint8_t num, const float co2)
   memory(false);
 }
 
-// envoi de donné MQTT quand une valeur de COV issue d'une carte CSS811 à changée
+// envoi de donné MQTT quand une valeur de COV issue d'une carte CCS811 à changée
 void ccs811_callback_cov(const uint8_t num, const float cov)
 {
   // debug(AT);
@@ -491,6 +494,57 @@ void ccs811_callback_cov(const uint8_t num, const float cov)
   }
   memory(false);
 }
+#endif
+
+#if SCD4X_NUM > 0
+// envoi de donné MQTT quand une temperature issue d'une carte SCD4X à changée
+void scd4x_callback_temperature(const uint8_t num, const float temperature)
+{
+  debug(F(AT));
+  // memory(false);
+
+  static uint32_t refresh = 0;
+  uint32_t now = millis();
+  if (now - refresh >= MQTT_REFRESH && mem_config.MQTT_online)
+  {
+    refresh = now;
+    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/scd4x-%02d/temperature"), num + 1, temperature);
+  }
+  // memory(false);
+}
+
+// envoi de donné MQTT quand une valeur d'humidité issue d'une carte SCD4X à changée
+void scd4x_callback_humidity(const uint8_t num, const float humidity)
+{
+  debug(F(AT));
+  // memory(true);
+
+  static uint32_t refresh = 0;
+  uint32_t now = millis();
+  if (now - refresh >= MQTT_REFRESH && mem_config.MQTT_online)
+  {
+    refresh = now;
+    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/scd4x-%02d/humidity"), num + 1, humidity);
+  }
+  // memory(false);
+}
+
+// envoi de donné MQTT quand le CO2 issue d'une carte SCD4X à changée
+void scd4x_callback_co2(const uint8_t num, const float pressure)
+{
+  debug(F(AT));
+  // memory(true);
+
+  static uint32_t refresh = 0;
+  uint32_t now = millis();
+  if (now - refresh >= MQTT_REFRESH && mem_config.MQTT_online)
+  {
+    refresh = now;
+    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/scd4x-%02d/co2"), num + 1, pressure);
+  }
+  // memory(false);
+}
+#endif // SCD4X_NUM
 
 // envoi de donné MQTT quand le Mode de fonctionnement du poele change
 #ifdef POELE
@@ -1853,53 +1907,53 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
       bool_value = get_dimmer_candle(num);
       if (strcmp(buffer, "ON") == 0)
       {
-        dimmer_set(num-1, true, DIMMER_SPEED, bool_value);
+        dimmer_set(num - 1, true, DIMMER_SPEED, bool_value);
       }
       else if (strcmp(buffer, "OFF") == 0)
-        dimmer_set(num-1, false, DIMMER_SPEED);
+        dimmer_set(num - 1, false, DIMMER_SPEED);
     }
     else if (snprintf_P(_topic, 64, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/bri_set"), num) > 0 && strncmp(topic, _topic, 64) == 0) // dimmer
     {
       // Serial.println("bri_set");
       if (sscanf_P(buffer, PSTR("%" SCNu8), &u8t_value) == 1)
       {
-        bool_value = get_dimmer_candle(num-1);
-        dimmer_set(num-1, u8t_value, DIMMER_SPEED, bool_value);
+        bool_value = get_dimmer_candle(num - 1);
+        dimmer_set(num - 1, u8t_value, DIMMER_SPEED, bool_value);
       }
     }
     else if (snprintf_P(_topic, 64, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/fx_set"), num) > 0 && strncmp(topic, _topic, 64) == 0) // dimmer
     {
       // Serial.println("fx_set");
-      u8t_value = get_dimmer(num-1);
+      u8t_value = get_dimmer(num - 1);
       if (strcmp(buffer, "NONE") == 0)
       {
-        dimmer_set(num-1, u8t_value, DIMMER_SPEED, false);
+        dimmer_set(num - 1, u8t_value, DIMMER_SPEED, false);
       }
       else if (strcmp(buffer, "CANDLE") == 0)
       {
-        dimmer_set(num-1, u8t_value, DIMMER_SPEED, true);
+        dimmer_set(num - 1, u8t_value, DIMMER_SPEED, true);
       }
     }
     else if (snprintf_P(_topic, 64, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/min_set"), num) > 0 && strncmp(topic, _topic, 64) == 0) // dimmer
     {
       // Serial.println("min_set");
       str_buffer = buffer;
-      eeprom_config.Dimmer_scale_min[num-1] = (uint16_t)str_buffer.toDouble();
-      if (eeprom_config.Dimmer_scale_min[num-1] <= eeprom_config.Dimmer_scale_max[num-1])
-        eeprom_config.Dimmer_scale_min[num-1] = eeprom_config.Dimmer_scale_max[num-1] + 20;
-      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/min_state"), num, (uint16_t)eeprom_config.Dimmer_scale_min[num-1]);
-      dimmer_set(num-1, true, 0);
+      eeprom_config.Dimmer_scale_min[num - 1] = (uint16_t)str_buffer.toDouble();
+      if (eeprom_config.Dimmer_scale_min[num - 1] <= eeprom_config.Dimmer_scale_max[num - 1])
+        eeprom_config.Dimmer_scale_min[num - 1] = eeprom_config.Dimmer_scale_max[num - 1] + 20;
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/min_state"), num, (uint16_t)eeprom_config.Dimmer_scale_min[num - 1]);
+      dimmer_set(num - 1, true, 0);
       sauvegardeEEPROM();
     }
     else if (snprintf_P(_topic, 64, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/max_set"), num) > 0 && strncmp(topic, _topic, 64) == 0) // dimmer
     {
       // Serial.println("max_set");
       str_buffer = buffer;
-      eeprom_config.Dimmer_scale_max[num-1] = (uint16_t)str_buffer.toDouble();
-      if (eeprom_config.Dimmer_scale_max[num-1] >= eeprom_config.Dimmer_scale_min[num-1])
-        eeprom_config.Dimmer_scale_max[num-1] = eeprom_config.Dimmer_scale_min[num-1] - 20;
-      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/max_state"), num, (uint16_t)eeprom_config.Dimmer_scale_max[num-1]);
-      dimmer_set(num-1, true, 0);
+      eeprom_config.Dimmer_scale_max[num - 1] = (uint16_t)str_buffer.toDouble();
+      if (eeprom_config.Dimmer_scale_max[num - 1] >= eeprom_config.Dimmer_scale_min[num - 1])
+        eeprom_config.Dimmer_scale_max[num - 1] = eeprom_config.Dimmer_scale_min[num - 1] - 20;
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/max_state"), num, (uint16_t)eeprom_config.Dimmer_scale_max[num - 1]);
+      dimmer_set(num - 1, true, 0);
       sauvegardeEEPROM();
     }
   }
@@ -1914,15 +1968,15 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
       Serial.println(F("set"));
       if (strcmp(buffer, "STOP") == 0)
       {
-        DT_cover_stop(num-1);
+        DT_cover_stop(num - 1);
       }
       else if (strcmp(buffer, "OPEN") == 0)
       {
-        DT_cover_set(num-1, 100);
+        DT_cover_set(num - 1, 100);
       }
       else if (strcmp(buffer, "CLOSE") == 0)
       {
-        DT_cover_set(num-1, 0);
+        DT_cover_set(num - 1, 0);
       }
     }
     else if (snprintf_P(_topic, 64, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/cover-%02d/pos_set"), num) > 0 && strncmp(topic, _topic, 64) == 0) // cover
@@ -1930,25 +1984,25 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
       Serial.println(F("pos_set"));
       if (sscanf_P(buffer, PSTR("%" SCNu8), &u8t_value) == 1)
       {
-        DT_cover_set(num-1, u8t_value);
+        DT_cover_set(num - 1, u8t_value);
       }
     }
     else if (snprintf_P(_topic, 64, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/cover-%02d/up_set"), num) > 0 && strncmp(topic, _topic, 64) == 0) // time cover up
     {
       Serial.print(F("up_set = "));
       str_buffer = buffer;
-      eeprom_config.cover[num-1].time_up = (uint16_t)(str_buffer.toDouble());
-      Serial.println(eeprom_config.cover[num-1].time_up);
-      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/cover-%02d/up_state"), num, (eeprom_config.cover[num-1].time_up));
+      eeprom_config.cover[num - 1].time_up = (uint16_t)(str_buffer.toDouble());
+      Serial.println(eeprom_config.cover[num - 1].time_up);
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/cover-%02d/up_state"), num, (eeprom_config.cover[num - 1].time_up));
       sauvegardeEEPROM();
     }
     else if (snprintf_P(_topic, 64, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/cover-%02d/down_set"), num) > 0 && strncmp(topic, _topic, 64) == 0) // time cover down
     {
       Serial.print(F("down_set = "));
       str_buffer = buffer;
-      eeprom_config.cover[num-1].time_down = (uint16_t)(str_buffer.toDouble());
-      Serial.println(eeprom_config.cover[num-1].time_down);
-      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/cover-%02d/down_state"), num, (eeprom_config.cover[num-1].time_down));
+      eeprom_config.cover[num - 1].time_down = (uint16_t)(str_buffer.toDouble());
+      Serial.println(eeprom_config.cover[num - 1].time_down);
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/cover-%02d/down_state"), num, (eeprom_config.cover[num - 1].time_down));
       sauvegardeEEPROM();
     }
   }
@@ -1963,20 +2017,20 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
     {
       Serial.println(F("temp_set"));
       str_buffer = buffer;
-      DT_radiator_set_consigne(num-1, str_buffer.toFloat());
-      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/radiator-%02d/temp_state"), num, DT_radiator_get_consigne(num-1));
+      DT_radiator_set_consigne(num - 1, str_buffer.toFloat());
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/radiator-%02d/temp_state"), num, DT_radiator_get_consigne(num - 1));
     }
     else if (snprintf_P(_topic, 64, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/radiator-%02d/mode_set"), num) > 0 && strncmp(topic, _topic, 64) == 0) // radiator mode
     {
       Serial.println(F("mode_set"));
       if (strcmp(buffer, "off") == 0)
       {
-        DT_radiator_set_mode(num-1, Radiator_Mode_Off);
+        DT_radiator_set_mode(num - 1, Radiator_Mode_Off);
         DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/radiator-%02d/mode_state"), num, F("off"));
       }
       else if (strcmp(buffer, "heat") == 0)
       {
-        DT_radiator_set_mode(num-1, Radiator_Mode_Heating);
+        DT_radiator_set_mode(num - 1, Radiator_Mode_Heating);
         DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/radiator-%02d/mode_state"), num, F("heat"));
       }
     }
@@ -1984,32 +2038,32 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
     {
       Serial.print(F("cycle-set = "));
       str_buffer = buffer;
-      DT_radiator_set_cycle(num-1, (uint32_t)(str_buffer.toInt()));
-      Serial.println(DT_radiator_get_cycle(num-1));
+      DT_radiator_set_cycle(num - 1, (uint32_t)(str_buffer.toInt()));
+      Serial.println(DT_radiator_get_cycle(num - 1));
       DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/radiator-%02d/cycle-state"), num, DT_radiator_get_cycle(num));
     }
     else if (snprintf_P(_topic, 64, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/radiator-%02d/m10-set"), num) > 0 && strncmp(topic, _topic, 64) == 0) // radiator M10
     {
       Serial.print(F("m10-set = "));
       str_buffer = buffer;
-      DT_radiator_set_M10(num-1, str_buffer.toFloat());
-      Serial.println(DT_radiator_get_M10(num-1));
+      DT_radiator_set_M10(num - 1, str_buffer.toFloat());
+      Serial.println(DT_radiator_get_M10(num - 1));
       DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/radiator-%02d/m10-state"), num, DT_radiator_get_M10(num));
     }
     else if (snprintf_P(_topic, 64, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/radiator-%02d/p10-set"), num) > 0 && strncmp(topic, _topic, 64) == 0) // radiator P10
     {
       Serial.print(F("p10-set = "));
       str_buffer = buffer;
-      DT_radiator_set_P10(num-1, str_buffer.toFloat());
-      Serial.println(DT_radiator_get_P10(num-1));
+      DT_radiator_set_P10(num - 1, str_buffer.toFloat());
+      Serial.println(DT_radiator_get_P10(num - 1));
       DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/radiator-%02d/m10-state"), num, DT_radiator_get_P10(num));
     }
     else if (snprintf_P(_topic, 64, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/radiator-%02d/KI-set"), num) > 0 && strncmp(topic, _topic, 64) == 0) // radiator P10
     {
       Serial.print(F("KI-set = "));
       str_buffer = buffer;
-      DT_radiator_set_KI(num-1, str_buffer.toFloat());
-      Serial.println(DT_radiator_get_KI(num-1));
+      DT_radiator_set_KI(num - 1, str_buffer.toFloat());
+      Serial.println(DT_radiator_get_KI(num - 1));
       DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/radiator-%02d/m10-state"), num, DT_radiator_get_KI(num));
     }
   }
@@ -2554,14 +2608,25 @@ void setup()
 #endif // MQTT
 #endif // BME280_NUM
 
-#if BCC811_NUM > 0
-  Serial.println(F("starting BCC811"));
+#if CCS811_NUM > 0
+  Serial.println(F("starting CCS811"));
   DT_CCS811_init();
 #ifdef MQTT
   DT_CCS811_set_callback_co2(ccs811_callback_co2);
   DT_CCS811_set_callback_cov(ccs811_callback_cov);
 #endif // MQTT
 #endif // BCC811_NUM
+
+#if SCD4X_NUM > 0
+
+  Serial.println(F("starting SCD4X"));
+  DT_SCD4X_init();
+#ifdef MQTT
+  DT_SCD4X_set_callback_temperature(scd4x_callback_temperature);
+  DT_SCD4X_set_callback_humidity(scd4x_callback_humidity);
+  DT_SCD4X_set_callback_co2(scd4x_callback_co2);
+#endif // MQTT
+#endif // SCD4X_NUM
 
   // auto Serial.println("starting fake_NTC");
   // DT_fake_ntc_init();
@@ -2640,11 +2705,19 @@ void loop()
     break;
 #endif // BME280_NUM
 
-#ifdef CCS811
+#if CCS811_NUM > 0
 #include BOOST_PP_UPDATE_COUNTER()
   case BOOST_PP_COUNTER:
-    DT_CCS811_loop() break;
+    DT_CCS811_loop();
+    break;
 #endif
+
+#if SCD4X_NUM > 0
+#include BOOST_PP_UPDATE_COUNTER()
+  case BOOST_PP_COUNTER:
+    DT_SCD4X_loop();
+    break;
+#endif // SCD4X_NUM
 
 #ifdef POELE
 #include BOOST_PP_UPDATE_COUNTER()
