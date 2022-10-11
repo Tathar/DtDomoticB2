@@ -689,7 +689,7 @@ void dt_radiator_callback(const uint8_t num, const float out, const float I)
   }
   memory(false);
 }
-#endif // VANNES
+#endif // RADIATOR_NUM
 
 // envoie en MQTT de l'ensamble des donnée de la carte
 bool mqtt_publish(bool start)
@@ -1266,6 +1266,12 @@ bool mqtt_publish(bool start)
     case BOOST_PP_COUNTER:
       // OFFSET_MCBT
       DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/offset-in/state"), eeprom_config.in_offset_MCBT);
+      break;
+
+#include BOOST_PP_UPDATE_COUNTER()
+    case BOOST_PP_COUNTER:
+      // TEMPERATURE MOYENNE
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/avg-temp/state"), DT_3voies_get_temp_moyen()); 
       break;
 #endif // vanne
 
@@ -2513,7 +2519,7 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
   else if (strcmp(topic, MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/avg-temp/offset/set") == 0) // OFFSET_MCBT_IN
   {
     str_buffer = buffer;
-    eeprom_config.in_offset_MCBT = str_buffer.toInt();
+    eeprom_config.in_offset_avg_temp = str_buffer.toInt();
     DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/avg-temp/offset/state"), eeprom_config.in_offset_avg_temp);
     sauvegardeEEPROM();
   }

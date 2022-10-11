@@ -33,7 +33,7 @@ void DT_pt100_init()
 #else
         uint8_t pin = pgm_read_byte(OPT_ARRAY + num); // pas de decallage sinon
 #endif
-        old_temp[num] = 0;
+        old_temp[num] = TEMP_DEFAULT_PT100;
         pinMode(pin, OUTPUT);
         digitalWrite(pin, HIGH);
         max31865[num] = new Adafruit_MAX31865(pin);

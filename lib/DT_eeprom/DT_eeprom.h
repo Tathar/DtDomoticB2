@@ -112,7 +112,7 @@ struct Eeprom_Config
     uint16_t out_offset_MCBT;   // en ms
     float in_offset_PCBT;       // en °c
     float in_offset_MCBT;       // en °c
-    uint8_t in_offset_avg_temp; // en °C
+    uint8_t in_offset_avg_temp; // en °C //fourchette pour la quelle on utilise la temperature exterieur reel (non moyené) 
 
 #if DIMMER_LIGHT_NUM >= 1
     uint16_t Dimmer_scale_min[DIMMER_LIGHT_NUM]; // Mise a l echelle

@@ -52,34 +52,40 @@ void (*_callback_avg_temp)(const float temp);
 
 CircularBuffer<float, 24> temp_buffer;
 
-float get_temp_moyen()
+float DT_3voies_get_temp_moyen()
 {
     float ret = 0;
-    uint8_t diviseur = 24;
-    for (uint8_t x = 0; x < 24; ++x)
+    // for (uint8_t x = 0; x < 24; ++x)
+    // {
+    //     if (temp_buffer[x] != TEMP_DEFAULT_PT100)
+    //     {
+    //         ret += temp_buffer[x];
+    //         diviseur++;
+    //     }
+    // }
+    
+    for (uint8_t x = 0; x < temp_buffer.size(); ++x)
     {
-        if (temp_buffer[x] != 0)
-        {
             ret += temp_buffer[x];
-        }
-        else
-        {
-            diviseur--;
-        }
     }
-    return ret / diviseur;
+
+    if (temp_buffer.size() != 0 )
+        return ret / (float) temp_buffer.size();
+    else 
+        return TEMP_DEFAULT_PT100;
+
 };
 
 // fournie la temperature exterieur moyenné en fonction du decalage choisie
 float get_temp_ext()
 {
-    if (DT_pt100_get(PT100_EXT) > get_temp_moyen() + eeprom_config.in_offset_avg_temp)
+    if (DT_pt100_get(PT100_EXT) > DT_3voies_get_temp_moyen() + eeprom_config.in_offset_avg_temp)
     {
-        return get_temp_moyen() + eeprom_config.in_offset_avg_temp;
+        return DT_3voies_get_temp_moyen() + eeprom_config.in_offset_avg_temp;
     }
-    else if (DT_pt100_get(PT100_EXT) < get_temp_moyen() - eeprom_config.in_offset_avg_temp)
+    else if (DT_pt100_get(PT100_EXT) < DT_3voies_get_temp_moyen() - eeprom_config.in_offset_avg_temp)
     {
-        return get_temp_moyen() - eeprom_config.in_offset_avg_temp;
+        return DT_3voies_get_temp_moyen() - eeprom_config.in_offset_avg_temp;
     }
     else
     {
@@ -91,12 +97,15 @@ void calc_temp_moyen()
 {
     uint32_t now = millis();
     static uint32_t time = 0;
-    if (now - time > 3600000)
+    static bool init = false;
+    if (DT_pt100_get(PT100_EXT) != TEMP_DEFAULT_PT100 && (init == false || now - time > 3600000))
     {
+        init = true;
+        time = now;
         temp_buffer.push(DT_pt100_get(PT100_EXT));
         if (_callback_avg_temp != nullptr)
         {
-            _callback_avg_temp(get_temp_moyen());
+            _callback_avg_temp(DT_3voies_get_temp_moyen());
         }
     }
 };
@@ -114,6 +123,12 @@ void DT_3voies_init()
     _callback_3_voies = nullptr;
     _callback_pcbt_pid = nullptr;
     _callback_mcbt_pid = nullptr;
+    _callback_avg_temp = nullptr;
+
+    // for (uint8_t x = 0; x < 24; ++x)
+    // {
+    //      temp_buffer.push(TEMP_DEFAULT_PT100);
+    // }
 
     calc_temp_moyen();
 
