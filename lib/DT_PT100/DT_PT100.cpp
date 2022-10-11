@@ -59,7 +59,12 @@ void DT_pt100_loop()
                 {
                     old_time = now;
                 }
-                old_temp[num] = tmp;
+
+                if (tmp > MIN_DEFAULT_PT100 && tmp < MAX_DEFAULT_PT100)
+                {
+                    old_temp[num] = tmp;
+                }
+                
             }
         }
     }
