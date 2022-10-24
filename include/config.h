@@ -179,17 +179,17 @@ const uint8_t RELAY_RADIATOR_PT100_ARRAY[RELAY_RADIATOR_NUM] PROGMEM = {};
 #define MAX_TMP_PLANCHE 27 // en °C
 #define NUM_PLANCHE 4
 #define PT100_PLANCHE_SALON 8
-#define RELAIS_PLANCHE_SALON 7
+//#define RELAIS_PLANCHE_SALON 
 #define PT100_PLANCHE_CH_1 9
-#define RELAIS_PLANCHE_CH_1 8
+// #define RELAIS_PLANCHE_CH_1 
 #define PT100_PLANCHE_CH_2 10
-#define RELAIS_PLANCHE_CH_2 9
+// #define RELAIS_PLANCHE_CH_2 
 #define PT100_PLANCHE_SDB 11
-#define RELAIS_PLANCHE_SDB 10
+// #define RELAIS_PLANCHE_SDB 
 #define PT100_PLANCHE_CELIER 14
-#define RELAIS_PLANCHE_CELIER 11
+// #define RELAIS_PLANCHE_CELIER 
 #define PT100_MUR_CHAUFANT 15
-#define RELAIS_MUR_CHAUFANT 12
+// #define RELAIS_MUR_CHAUFANT 
 
 #define PT100_SALON 13
 #define PT100_CH1 14
@@ -208,6 +208,17 @@ const uint8_t RELAY_RADIATOR_PT100_ARRAY[RELAY_RADIATOR_NUM] PROGMEM = {};
 
 // Demmarage Poele
 #define MARCHE_POELE 13
+
+//jeux de lumière
+#define JEUX_LUMIERE_1 8
+#define JEUX_LUMIERE_2 9
+#define JEUX_LUMIERE_3 10
+#define JEUX_LUMIERE_4 14
+#define JEUX_LUMIERE_5 15
+
+
+
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // program variable, do not touch
