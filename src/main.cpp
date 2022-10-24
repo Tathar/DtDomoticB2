@@ -401,8 +401,8 @@ void input_callback(const uint8_t num, const Bt_Action action)
 void pt100_callback(const uint8_t num, const float temp)
 {
   //  debug(F(AT));
-  memory(false);
-  // Serial.println("PT100_CALLBACK ");
+  //memory(false);
+  //Serial.println("PT100_CALLBACK ");
 
   if (mem_config.MQTT_online)
   {
