@@ -407,6 +407,26 @@ bool homeassistant(bool start)
                         }
                         break;
 #endif // SCD4X_NUM
+
+#if CPT_PULSE_INPUT > 0
+#include BOOST_PP_UPDATE_COUNTER()
+                case BOOST_PP_COUNTER:
+                        // input pulse counter
+                        if (num < CPT_PULSE_INPUT)
+                        {
+                                snprintf_P(payload, MAX_PAYLOAD, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "\",\"uniq_id\":\"" BOARD_IDENTIFIER "-counter-%02d\",\"name\":\"counter-%02d\",\"stat_t\":\"~/counter-%02d\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), num +1, num +1, num +1);
+                                DT_mqtt_send(F("homeassistant/sensor/" BOARD_IDENTIFIER "/counter-%02d/config"), num +1, payload);
+                                num++;
+                                sequance--;
+                        }
+                        else
+                        {
+                                num = 0;
+                        }
+                        break;
+
+#endif // CPT_PULSE_INPUT
+
 #ifdef POELE
 #include BOOST_PP_UPDATE_COUNTER()
                 case BOOST_PP_COUNTER:

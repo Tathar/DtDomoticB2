@@ -79,6 +79,10 @@ const uint8_t SCD4X_CHANNEL_ARRAY[SCD4X_NUM] PROGMEM = {2};
 #define RELAY_RADIATOR_NUM 0 // nombre de radiateur connecté au relai
 const uint8_t RELAY_RADIATOR_PT100_ARRAY[RELAY_RADIATOR_NUM] PROGMEM = {};
 
+// cpt_pulse_input
+#define CPT_PULSE_INPUT 3    // nombre de compteur d'impulsion
+const uint8_t CPT_PULSE_INPUT_ARRAY[CPT_PULSE_INPUT] PROGMEM = {0, 1, 2};
+
 // watchdog
 #define WATCHDOG_TIME WDTO_8S
 

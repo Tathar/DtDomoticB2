@@ -20,6 +20,7 @@
 #include <DT_eeprom.h>
 #include <DT_cover.h>
 #include <DT_radiator.h>
+#include <DT_cpt_pulse_input.h>
 
 #include <avr/wdt.h> //watchdog
 
@@ -401,8 +402,8 @@ void input_callback(const uint8_t num, const Bt_Action action)
 void pt100_callback(const uint8_t num, const float temp)
 {
   //  debug(F(AT));
-  //memory(false);
-  //Serial.println("PT100_CALLBACK ");
+  // memory(false);
+  // Serial.println("PT100_CALLBACK ");
 
   if (mem_config.MQTT_online)
   {
@@ -544,6 +545,17 @@ void scd4x_callback_co2(const uint8_t num, const float pressure)
   // memory(false);
 }
 #endif // SCD4X_NUM
+
+#if CPT_PULSE_INPUT > 0
+// envoi de donné MQTT quand compteur a évolué
+void cpt_pulse_input_callback(const uint8_t num, const uint32_t counter)
+{
+  debug(F(AT));
+  // memory(true);
+  DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/counter-%02d"), num + 1, counter);
+  // memory(false);
+}
+#endif // CPT_PULSE_INPUT
 
 // envoi de donné MQTT quand le Mode de fonctionnement du poele change
 #ifdef POELE
@@ -890,6 +902,22 @@ bool mqtt_publish(bool start)
       if (num < TEMP_NUM)
       {
         pt100_callback(num, DT_pt100_get(num));
+        num++;
+        sequance--;
+      }
+      else
+      {
+        num = 0;
+      }
+      break;
+#endif
+
+#if CPT_PULSE_INPUT > 0 // input pulse counter
+#include BOOST_PP_UPDATE_COUNTER()
+    case BOOST_PP_COUNTER:
+      if (num < CPT_PULSE_INPUT)
+      {
+        cpt_pulse_input_callback(num, DT_cpt_pulse_input_get(num));
         num++;
         sequance--;
       }
@@ -1271,7 +1299,7 @@ bool mqtt_publish(bool start)
 #include BOOST_PP_UPDATE_COUNTER()
     case BOOST_PP_COUNTER:
       // TEMPERATURE MOYENNE
-      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/avg-temp/state"), DT_3voies_get_temp_moyen()); 
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/avg-temp/state"), DT_3voies_get_temp_moyen());
       break;
 #endif // vanne
 
@@ -1293,7 +1321,7 @@ bool mqtt_publish(bool start)
   return false;
 }
 
-// inscription au topic MQTT (necessair a la recption des données par la carte)
+// inscription au topic MQTT (necessaire a la recption des données par la carte)
 bool mqtt_subscribe(MQTTClient &mqtt, bool start)
 {
   //  debug(F(AT));
@@ -2654,6 +2682,15 @@ void setup()
 #endif // MQTT
 #endif // SCD4X_NUM
 
+#if CPT_PULSE_INPUT > 0
+
+  Serial.println(F("starting cpt_pulse_input"));
+  DT_cpt_pulse_input_init();
+#ifdef MQTT
+  DT_cpt_pulse_input_set_callback(cpt_pulse_input_callback);
+#endif // MQTT
+#endif // CPT_PULSE_INPUT
+
   // auto Serial.println("starting fake_NTC");
   // DT_fake_ntc_init();
   // DT_fake_ntc_callback(fake_ntc_callback);
@@ -2745,6 +2782,14 @@ void loop()
     DT_SCD4X_loop();
     break;
 #endif // SCD4X_NUM
+
+
+#if CPT_PULSE_INPUT > 0
+#include BOOST_PP_UPDATE_COUNTER()
+  case BOOST_PP_COUNTER:
+    DT_cpt_pulse_input_loop();
+    break;
+#endif // CPT_PULSE_INPUT
 
 #ifdef POELE
 #include BOOST_PP_UPDATE_COUNTER()
