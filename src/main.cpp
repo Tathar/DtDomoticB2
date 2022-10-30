@@ -274,7 +274,7 @@ void cover_callback(const uint8_t num, const uint8_t percent, const cover_state 
 void input_callback(const uint8_t num, const Bt_Action action)
 {
   debug(F(AT));
-  const __FlashStringHelper *payload;
+  // const __FlashStringHelper *payload;
   memory(false);
 
   if (mem_config.MQTT_online)
@@ -288,7 +288,8 @@ void input_callback(const uint8_t num, const Bt_Action action)
       // Serial.println("ON");
 #ifdef MQTT
       // DT_mqtt_send(topic, "ON");
-      payload = F("ON");
+      // payload = F("ON");
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/input-%02d/state"), num + 1, F("ON"));
 #endif
       break;
 
@@ -296,7 +297,8 @@ void input_callback(const uint8_t num, const Bt_Action action)
       // Serial.println("OFF");
 #ifdef MQTT
       // DT_mqtt_send(topic, "OFF");
-      payload = F("OFF");
+      // payload = F("OFF");
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/input-%02d/state"), num + 1, F("OFF"));
 #endif
       break;
 
@@ -389,10 +391,6 @@ void input_callback(const uint8_t num, const Bt_Action action)
       break;
     }
   }
-
-#ifdef MQTT
-  DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/input-%02d/state"), num + 1, payload);
-#endif
   memory(false);
 }
 
@@ -2749,6 +2747,10 @@ void loop()
   dimmer_loop();
 #endif
 
+#if CPT_PULSE_INPUT > 0
+  DT_cpt_pulse_input_loop();
+#endif // CPT_PULSE_INPUT
+
   switch (interlock++)
   {
   case BOOST_PP_COUNTER:
@@ -2782,14 +2784,6 @@ void loop()
     DT_SCD4X_loop();
     break;
 #endif // SCD4X_NUM
-
-
-#if CPT_PULSE_INPUT > 0
-#include BOOST_PP_UPDATE_COUNTER()
-  case BOOST_PP_COUNTER:
-    DT_cpt_pulse_input_loop();
-    break;
-#endif // CPT_PULSE_INPUT
 
 #ifdef POELE
 #include BOOST_PP_UPDATE_COUNTER()

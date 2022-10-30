@@ -990,7 +990,7 @@ void MQTT_data::get(char *topic, int topic_len, char *payload, int payload_len)
         {
         case ha_flash_cstr:
                 strncpy_P(topic, reinterpret_cast<const char *>(_topic), topic_len);
-                strncpy_P(payload, reinterpret_cast<const char *>(_fcstr), payload_len);
+                strlcpy_P(payload, reinterpret_cast<const char *>(_fcstr), payload_len);
                 break;
 
         case ha_cstr:

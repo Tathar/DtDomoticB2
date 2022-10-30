@@ -4,7 +4,7 @@
 #include "config.h"
 
 uint32_t counter[CPT_PULSE_INPUT];
-bool cpt_front[CPT_PULSE_INPUT];
+uint8_t cpt_front[CPT_PULSE_INPUT];
 
 void (*_cpt_pulse_input_callback)(const uint8_t num, const uint32_t counter) = nullptr;
 
@@ -14,26 +14,32 @@ void DT_cpt_pulse_input_init()
     for (uint8_t i = 0; i < CPT_PULSE_INPUT; ++i)
     {
         counter[i] = 0;
+        cpt_front[i] = LOW;
     }
 };
 
 void DT_cpt_pulse_input_loop()
 {
-    bool value = false;
     for (uint8_t i = 0; i < CPT_PULSE_INPUT; ++i)
     {
-        if (cpt_front[i] == false && DT_input_get_pin_stats(pgm_read_byte(CPT_PULSE_INPUT_ARRAY + i) == true))
+        if (cpt_front[i] == LOW && DT_input_get_pin_stats(pgm_read_byte(CPT_PULSE_INPUT_ARRAY + i)) == HIGH)
         {
-            cpt_front[i] = true;
+            cpt_front[i] = HIGH;
             counter[i] += 1;
+            // Serial.print(F("cpt_pulse_input_callback("));
+            // Serial.print(i);
+            // Serial.print(F(", "));
+            // Serial.print(counter[i]);
+            // Serial.println(F(")"));
             if (_cpt_pulse_input_callback != nullptr)
             {
-                _cpt_pulse_input_callback(i,counter[i]);
+                _cpt_pulse_input_callback(i, counter[i]);
             }
         }
-        else if (cpt_front[i] == true && DT_input_get_pin_stats(pgm_read_byte(CPT_PULSE_INPUT_ARRAY + i) == false))
+        else if (cpt_front[i] == HIGH && DT_input_get_pin_stats(pgm_read_byte(CPT_PULSE_INPUT_ARRAY + i)) == LOW)
         {
-            cpt_front[i] = false;
+            // Serial.print("cpt_pulse_input front off");
+            cpt_front[i] = LOW;
         }
     }
 }

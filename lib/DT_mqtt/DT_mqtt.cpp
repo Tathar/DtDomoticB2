@@ -313,6 +313,8 @@ void DT_mqtt_loop()
                 Serial.println(len);
             }
 
+            Serial.print(F("send buffer size = "));
+            Serial.println(send_buffer.size());
             // }
             // Serial.print(F("Buffer capacity = "));
             // Serial.println(send_buffer.capacity());
