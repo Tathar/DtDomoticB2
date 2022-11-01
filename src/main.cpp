@@ -21,6 +21,7 @@
 #include <DT_cover.h>
 #include <DT_radiator.h>
 #include <DT_cpt_pulse_input.h>
+#include <DT_ecs.h>
 
 #include <avr/wdt.h> //watchdog
 
@@ -2812,6 +2813,15 @@ void loop()
     DT_radiator_loop();
     break;
 #endif
+
+#ifdef RELAY_ECS1
+#ifdef RELAY_ECS2
+#include BOOST_PP_UPDATE_COUNTER()
+  case BOOST_PP_COUNTER:
+    DT_ecs_loop();
+    break;
+#endif RELAY_ECS2
+#endif RELAY_ECS1
 
   default:
     interlock = 0;
