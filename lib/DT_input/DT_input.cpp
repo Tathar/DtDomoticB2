@@ -54,9 +54,13 @@ void DT_input_init()
             uint8_t i2c = pin / 100;
             pin -= i2c * 100;
             i2c -= 1;
-            mcp[i2c].pinMode(pin, INPUT);
-            mcp[i2c].setupInterrupts(false, true, HIGH);
-            mcp[i2c].setupInterruptPin(pin, CHANGE);
+            // mcp[i2c].pinMode(pin, INPUT);
+            // mcp[i2c].setupInterrupts(false, true, HIGH);
+            // mcp[i2c].setupInterruptPin(pin, CHANGE);
+
+            DT_mcp_pinMode(i2c, pin, INPUT);
+            DT_mcp_setupInterrupts(i2c, false, true, HIGH);
+            DT_mcp_setupInterruptPin(i2c, pin, CHANGE);
 #endif
         }
         else
@@ -88,11 +92,11 @@ void DT_input_loop()
 {
     uint32_t now = millis();
 
-#ifdef INTERNAL_INPUT_I2C
-    Wire.beginTransmission(I2C_MULTIPLEXER_ADDRESS);
-    Wire.write(MCP_CHANNEL);
-    Wire.endTransmission();
-#endif
+    // #ifdef INTERNAL_INPUT_I2C
+    //     Wire.beginTransmission(I2C_MULTIPLEXER_ADDRESS);
+    //     Wire.write(MCP_CHANNEL);
+    //     Wire.endTransmission();
+    // #endif
 
     bool as_interrupt = false;
 
@@ -124,7 +128,8 @@ void DT_input_loop()
                 uint8_t i2c = pin / 100;
                 pin -= i2c * 100;
                 i2c -= 1;
-                pin_stats = mcp[i2c].digitalRead(pin);
+                // pin_stats = mcp[i2c].digitalRead(pin);
+                pin_stats = DT_mcp_digitalRead(i2c, pin);
                 // Serial.println(pin);
                 // Serial.println(i2c);
             }
@@ -166,7 +171,7 @@ void DT_input_loop()
                     push_count[num] = 0;
 
                 debounce_start_time[num] = now;                     // demmarage du timer de debounce
-                input_front[num] = 0;                                     // mise a zero du front d appuie long
+                input_front[num] = 0;                               // mise a zero du front d appuie long
                 multiple_push_start_time[num] = now == 0 ? 1 : now; // demarage du timer d appuie multiple
                 stats[num] = IN_RELEASE;                            // 2
                 if (input_callback != nullptr)

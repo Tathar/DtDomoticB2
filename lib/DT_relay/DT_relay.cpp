@@ -22,7 +22,8 @@ void DT_relay_init()
             uint8_t i2c = pin / 100;
             pin -= i2c * 100;
             i2c -= 1;
-            mcp[i2c].pinMode(pin, OUTPUT);
+            // mcp[i2c].pinMode(pin, OUTPUT);
+            DT_mcp_pinMode(i2c, pin, OUTPUT);
 #endif
         }
         else
@@ -82,19 +83,28 @@ void DT_relay(uint8_t num, bool state)
         uint8_t i2c = pin / 100;
         pin -= i2c * 100;
         i2c -= 1;
+
+        Wire.beginTransmission(I2C_MULTIPLEXER_ADDRESS);
+        Wire.write(MCP_CHANNEL);
+        Wire.endTransmission();
+
         if ((state && !revert) || (!state && revert))
         {
-            if (mcp[i2c].digitalRead(pin) != HIGH)
+            // if (mcp[i2c].digitalRead(pin) != HIGH)
+            if (DT_mcp_digitalRead(i2c, pin) != HIGH)
             {
-                mcp[i2c].digitalWrite(pin, HIGH);
+                // mcp[i2c].digitalWrite(pin, HIGH);
+                DT_mcp_digitalWrite(i2c, pin, HIGH);
                 async_call[num] = true;
             }
         }
         else
         {
-            if (mcp[i2c].digitalRead(pin) != LOW)
+            // if (mcp[i2c].digitalRead(pin) != LOW)
+            if (DT_mcp_digitalRead(i2c, pin) != LOW)
             {
-                mcp[i2c].digitalWrite(pin, LOW);
+                // mcp[i2c].digitalWrite(pin, LOW);
+                DT_mcp_digitalWrite(i2c, pin, LOW);
                 async_call[num] = true;
             }
         }
@@ -134,7 +144,9 @@ bool DT_relay_get(uint8_t num)
         uint8_t i2c = pin / 100;
         pin -= i2c * 100;
         i2c -= 1;
-        ret = mcp[i2c].digitalRead(pin);
+
+        // ret = mcp[i2c].digitalRead(pin);
+        ret = DT_mcp_digitalRead(i2c, pin);
 
 #endif
     }
