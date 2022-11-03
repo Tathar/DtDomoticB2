@@ -241,7 +241,7 @@ void DT_mqtt_loop()
                 //wdt_reset();
                 // debug_wdt_reset();
                 // 220502  debug(F(AT));
-                if (mqtt.connect(MQTT_CLIENT_ID, MQTT_USER, MQTT_PASSWORD, false))
+                if (!mqtt.connected() && mqtt.connect(MQTT_CLIENT_ID, MQTT_USER, MQTT_PASSWORD, false))
                 {
                     reset_time = 0;
                     // 220502  debug(F(AT));
