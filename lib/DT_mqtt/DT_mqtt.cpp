@@ -161,7 +161,7 @@ void DT_mqtt_loop()
 {
     // debug(AT);
     // debug_wdt_reset();
-    //wdt_reset();
+    // wdt_reset();
     static uint32_t last_reconnection_time = 0;
     static uint32_t reset_time = 0; // for reset network device
     static bool reset = false;      // for reset network device
@@ -170,212 +170,220 @@ void DT_mqtt_loop()
     // static bool old_link_status = false; // for reset network device
     uint32_t now = millis();
     // Serial.println("DT_mqtt_loop start");
-    link_status = (Ethernet.linkStatus() == LinkON); // verification de l'etat de connection de la carte reseau
 
     // Serial.println("DT_mqtt_loop 2");
-    if (as_ethernet && (!mqtt.connected() || !link_status)) // si pas de connection reseau ou pas connecté au serveur MQTT
+    if (as_ethernet)
     {
+        link_status = (Ethernet.linkStatus() == LinkON); // verification de l'etat de connection de la carte reseau
+        if ((!mqtt.connected() || !link_status))         // si pas de connection reseau ou pas connecté au serveur MQTT
+        {
 
-        static uint32_t keep_alive_timout = 0;
-        if (mem_config.MQTT_online)
-        {
-            mem_config.MQTT_online = false;
-            keep_alive_timout = now;
-            // Serial.println("DT_mqtt_loop 1");
-        }
-
-        // nettoyage du buffer d'envois si deconnecté depusi plus de 1 seconde
-        if (now - keep_alive_timout > 1000)
-        {
-            send_buffer.clear();
-            // send_buffer.reserve(6);
-        }
-
-        // wdt_enable(WDTO_8S); // watchdog at 8 secdons
-        //  wdt_disable();
-        if (reset_time == 0)
-        {
-            // Serial.println("DT_mqtt_loop 2");
-            reset_time = now;
-        }
-        else if (reset_time != 0 && !reset && now - reset_time > NETWORK_RESET_TIME)
-        {
-            Serial.println(F("reset network board"));
-            digitalWrite(NETWORK_RESET, LOW);
-            last_reconnection_time = now;
-            reset = true;
-            reset_time = now;
-        }
-        else if (now - last_reconnection_time > 5000)
-        {
-            // 220502  debug(F(AT));
-            last_reconnection_time = now;
-            if (reset && now - reset_time > 60000)
+            static uint32_t keep_alive_timout = 0;
+            if (mem_config.MQTT_online)
             {
-                Serial.println(F("restart network"));
-                digitalWrite(NETWORK_RESET, HIGH);
-                delay(10);
-                // debug_wdt_reset(F(AT));
-                //wdt_reset();
-                // debug_wdt_reset();
-                init_ethernet();
-                reset_time = 0;
-                reset = false;
+                mem_config.MQTT_online = false;
+                keep_alive_timout = now;
+                // Serial.println("DT_mqtt_loop 1");
             }
-            else if (reset)
+
+            // nettoyage du buffer d'envois si deconnecté depusi plus de 1 seconde
+            if (now - keep_alive_timout > 1000)
             {
-                return;
+                send_buffer.clear();
+                // send_buffer.reserve(6);
             }
-            // Attempt to reconnect
 
-            Serial.print(F("start MQTT connection "));
-
-            if (!link_status)
-                Serial.println(F("(Link OFF)"));
-            else
-                Serial.println(F("(Link ON)"));
-
-            if (as_ethernet && link_status)
+            // wdt_enable(WDTO_8S); // watchdog at 8 secdons
+            //  wdt_disable();
+            if (reset_time == 0)
             {
-                //wdt_enable(WDTO_8S);
-                // debug_wdt_reset(F(AT));
-                //wdt_reset();
-                // debug_wdt_reset();
+                // Serial.println("DT_mqtt_loop 2");
+                reset_time = now;
+            }
+            else if (reset_time != 0 && !reset && now - reset_time > NETWORK_RESET_TIME)
+            {
+                Serial.println(F("reset network board"));
+                digitalWrite(NETWORK_RESET, LOW);
+                last_reconnection_time = now;
+                reset = true;
+                reset_time = now;
+            }
+            else if (now - last_reconnection_time > 5000)
+            {
                 // 220502  debug(F(AT));
-                if (!mqtt.connected() && mqtt.connect(MQTT_CLIENT_ID, MQTT_USER, MQTT_PASSWORD, false))
+                last_reconnection_time = now;
+                if (reset && now - reset_time > 60000)
                 {
+                    Serial.println(F("restart network"));
+                    digitalWrite(NETWORK_RESET, HIGH);
+                    delay(10);
+                    // debug_wdt_reset(F(AT));
+                    // wdt_reset();
+                    // debug_wdt_reset();
+                    init_ethernet();
                     reset_time = 0;
-                    // 220502  debug(F(AT));
-                    Serial.println(F("MQTT connected"));
-                    mem_config.MQTT_online = true; // TODO : ne fonctionne pas si home assistant nes plus en ligne
-                    memory(true);
-                    // Once connected, publish an announcement and resubscribe...
-                    if (_mqtt_subscribe != nullptr)
-                        _mqtt_subscribe(mqtt, true);
-                    reset_time = 0; // desactivation du compteur de reset
-
-                    // debug(AT);
+                    reset = false;
                 }
+                else if (reset)
+                {
+                    return;
+                }
+                // Attempt to reconnect
+
+                Serial.print(F("start MQTT connection "));
+
+                if (!link_status)
+                    Serial.println(F("(Link OFF)"));
                 else
-                { // si echec affichage erreur
-                    Serial.print(F(" ECHEC, rc="));
-                    Serial.print(mqtt.returnCode());
-                    Serial.print(F(" le="));
-                    Serial.print(mqtt.lastError());
-                    Serial.println(F(" nouvelle tentative dans 5 secondes"));
-                }
-            }
-            Serial.print(F("mqtt elapse time = "));
-            Serial.println(millis() - now);
-            // debug(AT);
-        }
-        // debug_wdt_reset(F(AT));
-        //wdt_reset();
-        // debug_wdt_reset();
-        //wdt_enable(WATCHDOG_TIME);
-    }
-    else if (as_ethernet && link_status && mqtt.connected()) // si connecté au serveur MQTT
-    {
+                    Serial.println(F("(Link ON)"));
 
-        //wdt_reset();
-        if (reset_time != 0)
-            reset_time = 0;
-        mqtt.loop();
-        // 220502  debug(F(AT));
-        if (_mqtt_receve != nullptr && recv_buffer.size() > 0) // traitement du buffer de reception de donnée
-        {
-            debug(F(AT));
-            MQTT_recv_msg recv = recv_buffer.pop();
-            _mqtt_receve(&mqtt, recv._topic, recv._payload, recv._length);
-            recv.clean();
-            // send_buffer.clean(2);
-        }
-        else if (send_buffer.size() > 0)
-        {
-            // 220502  debug(F(AT));
-            char topic[MAX_TOPIC];
-            char payload[MAX_PAYLOAD];
-            MQTT_data data = send_buffer.shift();
-            data.get(topic, 64, payload, MAX_PAYLOAD);
-            Serial.print(F("send "));
-            Serial.print(topic);
-            Serial.print(F(" = "));
-            Serial.println(payload);
-            uint16_t len = strlen(payload);
-            if (len < MAX_PAYLOAD)
-            {
-                mqtt.publish(topic, payload, len);
-                //debug(F(AT));
+                if (as_ethernet && link_status)
+                {
+                    // wdt_enable(WDTO_8S);
+                    //  debug_wdt_reset(F(AT));
+                    // wdt_reset();
+                    //  debug_wdt_reset();
+                    //  220502  debug(F(AT));
+                    if (!mqtt.connected() && mqtt.connect(MQTT_CLIENT_ID, MQTT_USER, MQTT_PASSWORD, false))
+                    {
+                        // wdt_enable(WDTO_8S);
+                        //  debug_wdt_reset(F(AT));
+                        // wdt_reset();
+                        //  debug_wdt_reset();
+                        //  220502  debug(F(AT));
+                        reset_time = 0;
+                        // 220502  debug(F(AT));
+                        Serial.println(F("MQTT connected"));
+                        mem_config.MQTT_online = true; // TODO : ne fonctionne pas si home assistant nes plus en ligne
+                        memory(true);
+                        // Once connected, publish an announcement and resubscribe...
+                        if (_mqtt_subscribe != nullptr)
+                            _mqtt_subscribe(mqtt, true);
+                        reset_time = 0; // desactivation du compteur de reset
+
+                        // debug(AT);
+                    }
+                    else
+                    { // si echec affichage erreur
+                        Serial.print(F(" ECHEC, rc="));
+                        Serial.print(mqtt.returnCode());
+                        Serial.print(F(" le="));
+                        Serial.print(mqtt.lastError());
+                        Serial.println(F(" nouvelle tentative dans 5 secondes"));
+                    }
+                }
+                Serial.print(F("mqtt elapse time = "));
+                Serial.println(millis() - now);
+                // debug(AT);
             }
-            else
+            // debug_wdt_reset(F(AT));
+            // wdt_reset();
+            // debug_wdt_reset();
+            // wdt_enable(WATCHDOG_TIME);
+        }
+        else if (as_ethernet && link_status && mqtt.connected()) // si connecté au serveur MQTT
+        {
+
+            // wdt_reset();
+            if (reset_time != 0)
+                reset_time = 0;
+            mqtt.loop();
+            // 220502  debug(F(AT));
+            if (_mqtt_receve != nullptr && recv_buffer.size() > 0) // traitement du buffer de reception de donnée
             {
                 debug(F(AT));
-                Serial.print(F("len > MAX_PAYLOAD len = "));
-                Serial.println(len);
+                MQTT_recv_msg recv = recv_buffer.pop();
+                _mqtt_receve(&mqtt, recv._topic, recv._payload, recv._length);
+                recv.clean();
+                // send_buffer.clean(2);
             }
-
-            Serial.print(F("send buffer size = "));
-            Serial.println(send_buffer.size());
-            // }
-            // Serial.print(F("Buffer capacity = "));
-            // Serial.println(send_buffer.capacity());
-            // Serial.print(F("Buffer size = "));
-            // Serial.println(send_buffer.size());
-            // Serial.print(F("Buffer available = "));
-            // Serial.println(send_buffer.available());
-            // if (send_buffer.size() == 0)
-            // {
-            // send_buffer.clean(6);
-            // }
-            // debug(F(AT));
-        }
-        else if (mem_config.HA_MQTT_CONFIG == false)
-        {
-            // 220502  debug(F(AT));
-            mem_config.HA_MQTT_CONFIG = homeassistant(false);
-            // ret_homeassistant = true;
-            // 220502  debug(F(AT));
-        }
-        else
-        {
-            static uint8_t choix = 0;
-            switch (choix++)
+            else if (send_buffer.size() > 0)
             {
-            case 0:
-                if (_mqtt_subscribe != nullptr)
+                // 220502  debug(F(AT));
+                char topic[MAX_TOPIC];
+                char payload[MAX_PAYLOAD];
+                MQTT_data data = send_buffer.shift();
+                data.get(topic, 64, payload, MAX_PAYLOAD);
+                Serial.print(F("send "));
+                Serial.print(topic);
+                Serial.print(F(" = "));
+                Serial.println(payload);
+                uint16_t len = strlen(payload);
+                if (len < MAX_PAYLOAD)
                 {
-                    // 220502  debug(F(AT));
-                    _mqtt_subscribe(mqtt, false);
-                    // 220502  debug(F(AT));
+                    mqtt.publish(topic, payload, len);
+                    // debug(F(AT));
                 }
-                break;
-            case 1:
-                if (_mqtt_publish != nullptr)
+                else
                 {
-                    // 220502  debug(F(AT));
-                    _mqtt_publish(false);
-                    // 220502  debug(F(AT));
+                    debug(F(AT));
+                    Serial.print(F("len > MAX_PAYLOAD len = "));
+                    Serial.println(len);
                 }
-                break;
-            case 2:
-                if (now - time >= MQTT_UPDATE)
-                {
-                    time = now;
-                    // 220502  debug(F(AT));
-                    if (_mqtt_update != nullptr)
-                        _mqtt_update(mqtt, false);
-                    // 220502  debug(F(AT));
-                }
-                break;
 
-            default:
-                break;
+                Serial.print(F("send buffer size = "));
+                Serial.println(send_buffer.size());
+                // }
+                // Serial.print(F("Buffer capacity = "));
+                // Serial.println(send_buffer.capacity());
+                // Serial.print(F("Buffer size = "));
+                // Serial.println(send_buffer.size());
+                // Serial.print(F("Buffer available = "));
+                // Serial.println(send_buffer.available());
+                // if (send_buffer.size() == 0)
+                // {
+                // send_buffer.clean(6);
+                // }
+                // debug(F(AT));
             }
-            if (choix == 3)
-                choix = 0;
-        }
+            else if (mem_config.HA_MQTT_CONFIG == false)
+            {
+                // 220502  debug(F(AT));
+                mem_config.HA_MQTT_CONFIG = homeassistant(false);
+                // ret_homeassistant = true;
+                // 220502  debug(F(AT));
+            }
+            else
+            {
+                static uint8_t choix = 0;
+                switch (choix++)
+                {
+                case 0:
+                    if (_mqtt_subscribe != nullptr)
+                    {
+                        // 220502  debug(F(AT));
+                        _mqtt_subscribe(mqtt, false);
+                        // 220502  debug(F(AT));
+                    }
+                    break;
+                case 1:
+                    if (_mqtt_publish != nullptr)
+                    {
+                        // 220502  debug(F(AT));
+                        _mqtt_publish(false);
+                        // 220502  debug(F(AT));
+                    }
+                    break;
+                case 2:
+                    if (now - time >= MQTT_UPDATE)
+                    {
+                        time = now;
+                        // 220502  debug(F(AT));
+                        if (_mqtt_update != nullptr)
+                            _mqtt_update(mqtt, false);
+                        // 220502  debug(F(AT));
+                    }
+                    break;
 
-        mem_config.MQTT_online = true; // TODO : ne fonctionne pas si home assistant nes plus en ligne
+                default:
+                    break;
+                }
+                if (choix == 3)
+                    choix = 0;
+            }
+
+            mem_config.MQTT_online = true; // TODO : ne fonctionne pas si home assistant nes plus en ligne
+        }
     }
 
     memory(false);
