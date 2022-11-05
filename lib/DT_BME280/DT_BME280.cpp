@@ -80,7 +80,7 @@ void DT_BME280_loop()
                 if (value != temperature[num])
                 {
                     temperature[num] = value;
-                    Serial.print(F("temperature = "));
+                    Serial.print(F("BME280 temperature = "));
                     Serial.println(value);
                     if (bme280_callback_temperature != nullptr)
                         bme280_callback_temperature(num, value);

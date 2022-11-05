@@ -14,7 +14,7 @@
 IPAddress server(MQTT_IP1, MQTT_IP2, MQTT_IP3, MQTT_IP4);
 EthernetClient ethClient;
 MQTTClient mqtt(512);
-bool as_ethernet;
+bool as_ethernet = false;
 bool link_status;
 
 bool (*_mqtt_update)(MQTTClient &mqtt, bool start);
@@ -114,6 +114,7 @@ void DT_mqtt_init()
 {
     // debug(AT);
     // auto Serial.println("start network");
+    mem_config.MQTT_online = false;
     memory(true);
     pinMode(NETWORK_RESET, OUTPUT);
     digitalWrite(NETWORK_RESET, HIGH);
