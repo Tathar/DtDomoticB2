@@ -53,6 +53,8 @@ void DT_receve_callback(MQTTClient *client, char topic[], char bytes[], int leng
     MQTT_recv_msg recv(topic, bytes, length);
     // debug(F(AT));
     recv_buffer.unshift(recv);
+    Serial.print(F("recv_buffer.len() = "));
+    Serial.println(recv_buffer.size());
     // debug(F(AT));
     memory(true);
 }
@@ -61,6 +63,11 @@ void init_ethernet()
 {
     // 220502  debug(F(AT));
     memory(true);
+    pinMode(NETWORK_RESET, OUTPUT);
+    digitalWrite(NETWORK_RESET, LOW);
+    delay(500);
+    digitalWrite(NETWORK_RESET, HIGH);
+
     Ethernet.init(NETWORK_CS);
     byte mac[] = {MAC1, MAC2, MAC3, MAC4, MAC5, MAC6};
 #ifdef DHCP
@@ -116,8 +123,6 @@ void DT_mqtt_init()
     // auto Serial.println("start network");
     mem_config.MQTT_online = false;
     memory(true);
-    pinMode(NETWORK_RESET, OUTPUT);
-    digitalWrite(NETWORK_RESET, HIGH);
 
     Serial.println(F("start network"));
     init_ethernet();
@@ -281,9 +286,11 @@ void DT_mqtt_loop()
             // debug_wdt_reset();
             // wdt_enable(WATCHDOG_TIME);
         }
-        else if (as_ethernet && link_status && mqtt.connected()) // si connecté au serveur MQTT
+        // else if (as_ethernet && link_status && mqtt.connected()) // si connecté au serveur MQTT
+        else if (mqtt.connected()) // si connecté au serveur MQTT
         {
 
+            mem_config.MQTT_online = true; // TODO : ne fonctionne pas si home assistant nes plus en ligne
             // wdt_reset();
             if (reset_time != 0)
                 reset_time = 0;
@@ -381,8 +388,6 @@ void DT_mqtt_loop()
                 if (choix == 3)
                     choix = 0;
             }
-
-            mem_config.MQTT_online = true; // TODO : ne fonctionne pas si home assistant nes plus en ligne
         }
     }
 

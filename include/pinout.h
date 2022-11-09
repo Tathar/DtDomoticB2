@@ -56,10 +56,14 @@ const uint8_t MCP_ADDRESS[MCP_NUM] PROGMEM = {0x20, 0x21, 0x22, 0x23};
 // sortie relay
 #define RELAY_MIN_TIME 10
 #define RELAY_NUM 32
-const uint8_t RELAY_ARRAY[RELAY_NUM] PROGMEM = {23, 25, 27, 29, 31, 33, 35, 37, 22, 24, 26, 28, 30, 32, 34, 36, 100, 101, 102, 103, 104, 105, 106, 107, 200, 201, 202, 203, 204, 205, 206, 207};
-const bool RELAY_REVERT[RELAY_NUM] PROGMEM = {false, false, false, false, false, false, false, false, true, true, true, true, false, true, true, true, true, true, true, false, false, false, false, false, false, false, false, false, false, false, false, false};
-
-
+const uint8_t RELAY_ARRAY[RELAY_NUM] PROGMEM = {23, 25, 27, 29, 31, 33, 35, 37,
+                                                22, 24, 26, 28, 30, 32, 34, 36,
+                                                100, 101, 102, 103, 104, 105, 106, 107,
+                                                200, 201, 202, 203, 204, 205, 206, 207};
+const bool RELAY_REVERT[RELAY_NUM] PROGMEM = {false, false, false, false, false, false, false, false,
+                                              true, true, true, true, false, true, true, true,
+                                              true, true, true, false, false, false, false, false,
+                                              false, false, false, false, false, false, false, false};
 
 // input 12V 230V
 #define INPUT_NUM 32
@@ -73,11 +77,9 @@ const uint8_t OPT_ARRAY[18] PROGMEM = {OPT_1, OPT_2, OPT_3, OPT_4, OPT_5, OPT_6,
 // Dimmer
 // const uint8_t DIMMER_ARRAY[14] PROGMEM = {OPT_2, OPT_3, OPT_4, OPT_5, OPT_6, OPT_7, OPT_8, OPT_9, OPT_10, OPT_11, OPT_12, OPT_13, OPT_14, OPT_15};
 
-
 // reseau
 #define NETWORK_CS 40
 #define NETWORK_RESET 49
-
 
 // // Fake NTC (Digital pot)
 
