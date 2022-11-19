@@ -2183,6 +2183,7 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
   {
     str_buffer = buffer;
     DT_3voies_set_C2(str_buffer.toFloat());
+    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/C2/state"), DT_3voies_get_C2());
   }
   else if (strcmp(topic, MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/mode/set") == 0) // Mode de la vannes 3 voie MCBT
   {
@@ -2543,7 +2544,7 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
     sauvegardeEEPROM();
   }
 
-  else if (strcmp(topic, MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/avg-temp/offset/set") == 0) // OFFSET_MCBT_IN
+  else if (strcmp(topic, MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/avg-temp/offset/set") == 0) // OFFSET_AVG_TEMP
   {
     str_buffer = buffer;
     eeprom_config.in_offset_avg_temp = str_buffer.toInt();
@@ -2820,8 +2821,8 @@ void loop()
   case BOOST_PP_COUNTER:
     DT_ecs_loop();
     break;
-#endif RELAY_ECS2
-#endif RELAY_ECS1
+#endif //RELAY_ECS2
+#endif //RELAY_ECS1
 
   default:
     interlock = 0;
