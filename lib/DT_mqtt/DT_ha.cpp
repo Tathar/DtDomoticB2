@@ -455,6 +455,40 @@ bool homeassistant(bool start)
                         break;
 #endif // SCD4X_NUM
 
+#if HDC1080_NUM > 0
+#include BOOST_PP_UPDATE_COUNTER()
+                case BOOST_PP_COUNTER:
+                        // HDC1080 temperature
+                        if (num < HDC1080_NUM)
+                        {
+                                snprintf_P(payload, MAX_PAYLOAD, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "\",\"uniq_id\":\"" BOARD_IDENTIFIER "-hdc1080-temperature-%02d\",\"name\":\"hdc1080-%02d\",\"stat_t\":\"~/hdc1080-%02d/temperature\",\"dev_cla\":\"temperature\",\"unit_of_meas\":\"\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), num + 1, num + 1, num + 1);
+                                Serial.println(payload);
+                                DT_mqtt_send(F("homeassistant/sensor/" BOARD_IDENTIFIER "/hdc1080-temperature-%02d/config"), num + 1, payload);
+                                num++;
+                                sequance--;
+                        }
+                        else
+                        {
+                                num = 0;
+                        }
+                        break;
+#include BOOST_PP_UPDATE_COUNTER()
+                case BOOST_PP_COUNTER:
+                        // HDC1080 humidity
+                        if (num < HDC1080_NUM)
+                        {
+                                snprintf_P(payload, MAX_PAYLOAD, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "\",\"uniq_id\":\"" BOARD_IDENTIFIER "-hdc1080-humidity-%02d\",\"name\":\"hdc1080-%02d\",\"stat_t\":\"~/hdc1080-%02d/humidity\",\"dev_cla\":\"humidity\",\"unit_of_meas\":\"%%\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), num + 1, num + 1, num + 1);
+                                DT_mqtt_send(F("homeassistant/sensor/" BOARD_IDENTIFIER "/hdc1080-humidity-%02d/config"), num + 1, payload);
+                                num++;
+                                sequance--;
+                        }
+                        else
+                        {
+                                num = 0;
+                        }
+                        break;
+#endif // HDC1080_NUM
+
 #if CPT_PULSE_INPUT > 0
 #include BOOST_PP_UPDATE_COUNTER()
                 case BOOST_PP_COUNTER:

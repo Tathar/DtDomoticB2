@@ -15,6 +15,7 @@
 #include <DT_BME280.h>
 #include <DT_CCS811.h>
 #include <DT_SCD4X.h>
+#include <DT_HDC1080.h>
 #include <DT_mcp.h>
 #include <DT_poele.h>
 #include <DT_eeprom.h>
@@ -544,6 +545,40 @@ void scd4x_callback_co2(const uint8_t num, const float pressure)
   // memory(false);
 }
 #endif // SCD4X_NUM
+
+#if HDC1080_NUM > 0
+// envoi de donné MQTT quand une temperature issue d'une carte HDC1080 à changée
+void hdc1080_callback_temperature(const uint8_t num, const float temperature)
+{
+  debug(F(AT));
+  // memory(false);
+
+  static uint32_t refresh = 0;
+  uint32_t now = millis();
+  if (now - refresh >= MQTT_REFRESH && mem_config.MQTT_online)
+  {
+    refresh = now;
+    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/hdc1080-%02d/temperature"), num + 1, temperature);
+  }
+  // memory(false);
+}
+
+// envoi de donné MQTT quand une valeur d'humidité issue d'une carte HDC1080 à changée
+void hdc1080_callback_humidity(const uint8_t num, const float humidity)
+{
+  debug(F(AT));
+  // memory(true);
+
+  static uint32_t refresh = 0;
+  uint32_t now = millis();
+  if (now - refresh >= MQTT_REFRESH && mem_config.MQTT_online)
+  {
+    refresh = now;
+    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/hdc1080-%02d/humidity"), num + 1, humidity);
+  }
+  // memory(false);
+}
+#endif // HDC1080_NUM
 
 #if CPT_PULSE_INPUT > 0
 // envoi de donné MQTT quand compteur a évolué
@@ -2682,6 +2717,16 @@ void setup()
 #endif // MQTT
 #endif // SCD4X_NUM
 
+#if HDC1080_NUM > 0
+
+  Serial.println(F("starting HDC1080"));
+  DT_HDC1080_init();
+#ifdef MQTT
+  DT_HDC1080_set_callback_temperature(hdc1080_callback_temperature);
+  DT_HDC1080_set_callback_humidity(hdc1080_callback_humidity);
+#endif // MQTT
+#endif // HDC1080_NUM
+
 #if CPT_PULSE_INPUT > 0
 
   Serial.println(F("starting cpt_pulse_input"));
@@ -2787,6 +2832,13 @@ void loop()
     break;
 #endif // SCD4X_NUM
 
+#if HDC1080_NUM > 0
+#include BOOST_PP_UPDATE_COUNTER()
+  case BOOST_PP_COUNTER:
+    DT_HDC1080_loop();
+    break;
+#endif // HDC1080_NUM
+
 #ifdef POELE
 #include BOOST_PP_UPDATE_COUNTER()
   case BOOST_PP_COUNTER:
@@ -2821,8 +2873,8 @@ void loop()
   case BOOST_PP_COUNTER:
     DT_ecs_loop();
     break;
-#endif //RELAY_ECS2
-#endif //RELAY_ECS1
+#endif // RELAY_ECS2
+#endif // RELAY_ECS1
 
   default:
     interlock = 0;

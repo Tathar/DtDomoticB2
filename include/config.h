@@ -67,7 +67,14 @@ const uint8_t CCS811_CHANNEL_ARRAY[CCS811_NUM] PROGMEM = {2,2};
 #define SCD4X_NUM 1
 #if SCD4X_NUM > 0
 const uint8_t SCD4X_CHANNEL_ARRAY[SCD4X_NUM] PROGMEM = {2};
+#endif// SCD4X
+
+#define HDC1080_NUM 1
+#if HDC1080_NUM > 0
+const uint8_t HDC1080_CHANNEL_ARRAY[SCD4X_NUM] PROGMEM = {2};
 #endif
+
+
 
 
 // TIC
