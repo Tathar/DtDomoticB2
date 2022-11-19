@@ -47,7 +47,7 @@ void memory(bool print);
 const uint8_t DIMMER_RADIATOR_PT100_ARRAY[DIMMER_RADIATOR_NUM] PROGMEM = {};
 // PT100
 #define TEMP_NUM 18 // max 18 //TODO: bug if TEMP_NUM != 18 
-#define PT100_EXT 5
+#define PT100_EXT 4
 
 // BME_280
 #define BME280_NUM 1
@@ -155,13 +155,13 @@ const uint8_t CPT_PULSE_INPUT_ARRAY[CPT_PULSE_INPUT] PROGMEM = {0, 1, 2, 3, 4, 5
 #define PT100_M_BALON 1
 #define PT100_B_BALON 2
 
-#define RELAY_ECS1 16
-#define RELAY_ECS2 17
+#define RELAY_ECS1 19
+#define RELAY_ECS2 20
 
 #define PT100_ECS1 3
 #define PT100_ECS2 4
 
-#define RELAY_EV1 0
+#define RELAY_EV1 24 //relay ECS
 #endif // POELE
 
 // Vanne 3 Voies
@@ -172,16 +172,16 @@ const uint8_t CPT_PULSE_INPUT_ARRAY[CPT_PULSE_INPUT] PROGMEM = {0, 1, 2, 3, 4, 5
 #define DBMAC 0.5           // demi bamnde morte pour l'arret des circulateur (en °C)
 
 // #define PT100_EXT 5
-#define PT100_3_VOIES_PCBT 6
+#define PT100_3_VOIES_PCBT 3
 #define PT100_3_VOIES_MCBT 7
 
-#define CIRCULATEUR_PCBT 1
-#define VANNE_PCBT_HOT 2
-#define VANNE_PCBT_COLD 3
+#define CIRCULATEUR_PCBT 17
+#define VANNE_PCBT_HOT 0
+#define VANNE_PCBT_COLD 1
 
-#define CIRCULATEUR_MCBT 4
-#define VANNE_MCBT_HOT 5
-#define VANNE_MCBT_COLD 6
+#define CIRCULATEUR_MCBT 18
+#define VANNE_MCBT_HOT 2
+#define VANNE_MCBT_COLD 3
 
 // Planchée chauffant
 #define MAX_TMP_PLANCHE 27 // en °C
@@ -215,7 +215,7 @@ const uint8_t CPT_PULSE_INPUT_ARRAY[CPT_PULSE_INPUT] PROGMEM = {0, 1, 2, 3, 4, 5
 #define EV2_ECS 12
 
 // Demmarage Poele
-#define MARCHE_POELE 13
+#define MARCHE_POELE 21
 
 //jeux de lumière
 #define JEUX_LUMIERE_1 8
@@ -225,7 +225,7 @@ const uint8_t CPT_PULSE_INPUT_ARRAY[CPT_PULSE_INPUT] PROGMEM = {0, 1, 2, 3, 4, 5
 #define JEUX_LUMIERE_5 15
 
 
-
+#define ALIM 16
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
