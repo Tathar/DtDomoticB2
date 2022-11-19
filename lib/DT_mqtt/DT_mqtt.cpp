@@ -266,6 +266,8 @@ void DT_mqtt_loop()
                             _mqtt_subscribe(mqtt, true);
                         reset_time = 0; // desactivation du compteur de reset
 
+                        mem_config.HA_MQTT_CONFIG = homeassistant(false);
+
                         // debug(AT);
                     }
                     else
@@ -315,7 +317,7 @@ void DT_mqtt_loop()
                 Serial.print(topic);
                 Serial.print(F(" = "));
                 Serial.println(payload);
-                uint16_t len = strlen(payload);
+                int len = strlen(payload);
                 if (len < MAX_PAYLOAD)
                 {
                     mqtt.publish(topic, payload, len);
