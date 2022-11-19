@@ -46,8 +46,8 @@ void memory(bool print);
 #define DIMMER_RADIATOR_NUM 0 // nombre de radiateur connecté au dimmer : max (DIMMER_LIGHT_NUM + DIMMER_HEAT_NUM + (DIMMER_COVER_NUM * 2) + DIMMER_RADIATOR_NUM ) = 14
 const uint8_t DIMMER_RADIATOR_PT100_ARRAY[DIMMER_RADIATOR_NUM] PROGMEM = {};
 // PT100
-#define TEMP_NUM 18 // max 18 //TODO: bug if TEMP_NUM != 18 
-#define PT100_EXT 4
+#define TEMP_NUM 18 // max 18 //TODO: bug if TEMP_NUM != 18
+#define PT100_EXT 6
 
 // BME_280
 #define BME280_NUM 1
@@ -59,23 +59,21 @@ const uint8_t BME280_CHANNEL_ARRAY[BME280_NUM] PROGMEM = {2};
 // CCS_811
 #define CCS811_NUM 2
 #if CCS811_NUM > 0
-const uint8_t CCS811_ADDRESS_ARRAY[CCS811_NUM] PROGMEM = {0x5A,0X5B};
-const uint8_t CCS811_CHANNEL_ARRAY[CCS811_NUM] PROGMEM = {2,2};
+const uint8_t CCS811_ADDRESS_ARRAY[CCS811_NUM] PROGMEM = {0x5A, 0X5B};
+const uint8_t CCS811_CHANNEL_ARRAY[CCS811_NUM] PROGMEM = {2, 2};
 #endif
 
 // SCD4X
 #define SCD4X_NUM 1
 #if SCD4X_NUM > 0
 const uint8_t SCD4X_CHANNEL_ARRAY[SCD4X_NUM] PROGMEM = {2};
-#endif// SCD4X
+#endif // SCD4X
 
-#define HDC1080_NUM 1
+// HDC1080
+#define HDC1080_NUM 2
 #if HDC1080_NUM > 0
-const uint8_t HDC1080_CHANNEL_ARRAY[SCD4X_NUM] PROGMEM = {2};
+const uint8_t HDC1080_CHANNEL_ARRAY[HDC1080_NUM] PROGMEM = {1, 2};
 #endif
-
-
-
 
 // TIC
 // téléreléve information client
@@ -87,8 +85,8 @@ const uint8_t HDC1080_CHANNEL_ARRAY[SCD4X_NUM] PROGMEM = {2};
 const uint8_t RELAY_RADIATOR_PT100_ARRAY[RELAY_RADIATOR_NUM] PROGMEM = {};
 
 // cpt_pulse_input
-#define CPT_PULSE_INPUT 6    // nombre de compteur d'impulsion
-const uint8_t CPT_PULSE_INPUT_ARRAY[CPT_PULSE_INPUT] PROGMEM = {0, 1, 2, 3, 4, 5};
+#define CPT_PULSE_INPUT 6 // nombre de compteur d'impulsion
+const uint8_t CPT_PULSE_INPUT_ARRAY[CPT_PULSE_INPUT] PROGMEM = {6, 1, 2, 3, 4, 5};
 
 // watchdog
 #define WATCHDOG_TIME WDTO_8S
@@ -165,11 +163,11 @@ const uint8_t CPT_PULSE_INPUT_ARRAY[CPT_PULSE_INPUT] PROGMEM = {0, 1, 2, 3, 4, 5
 #define RELAY_ECS1 19
 #define RELAY_ECS2 20
 
-#define PT100_ECS1 3
-#define PT100_ECS2 4
+#define PT100_ECS1 7
+#define PT100_ECS2 8
 
-#define RELAY_EV1 24 //relay ECS
-#endif // POELE
+#define RELAY_EV1 24 // relay ECS
+#endif               // POELE
 
 // Vanne 3 Voies
 #define VANNES
@@ -180,7 +178,7 @@ const uint8_t CPT_PULSE_INPUT_ARRAY[CPT_PULSE_INPUT] PROGMEM = {0, 1, 2, 3, 4, 5
 
 // #define PT100_EXT 5
 #define PT100_3_VOIES_PCBT 3
-#define PT100_3_VOIES_MCBT 7
+#define PT100_3_VOIES_MCBT 4
 
 #define CIRCULATEUR_PCBT 17
 #define VANNE_PCBT_HOT 0
@@ -194,17 +192,17 @@ const uint8_t CPT_PULSE_INPUT_ARRAY[CPT_PULSE_INPUT] PROGMEM = {0, 1, 2, 3, 4, 5
 #define MAX_TMP_PLANCHE 27 // en °C
 #define NUM_PLANCHE 4
 #define PT100_PLANCHE_SALON 8
-//#define RELAIS_PLANCHE_SALON 
+//#define RELAIS_PLANCHE_SALON
 #define PT100_PLANCHE_CH_1 9
-// #define RELAIS_PLANCHE_CH_1 
+// #define RELAIS_PLANCHE_CH_1
 #define PT100_PLANCHE_CH_2 10
-// #define RELAIS_PLANCHE_CH_2 
+// #define RELAIS_PLANCHE_CH_2
 #define PT100_PLANCHE_SDB 11
-// #define RELAIS_PLANCHE_SDB 
+// #define RELAIS_PLANCHE_SDB
 #define PT100_PLANCHE_CELIER 14
-// #define RELAIS_PLANCHE_CELIER 
+// #define RELAIS_PLANCHE_CELIER
 #define PT100_MUR_CHAUFANT 15
-// #define RELAIS_MUR_CHAUFANT 
+// #define RELAIS_MUR_CHAUFANT
 
 #define PT100_SALON 13
 #define PT100_CH1 14
@@ -224,16 +222,14 @@ const uint8_t CPT_PULSE_INPUT_ARRAY[CPT_PULSE_INPUT] PROGMEM = {0, 1, 2, 3, 4, 5
 // Demmarage Poele
 #define MARCHE_POELE 21
 
-//jeux de lumière
+// jeux de lumière
 #define JEUX_LUMIERE_1 8
 #define JEUX_LUMIERE_2 9
 #define JEUX_LUMIERE_3 10
 #define JEUX_LUMIERE_4 14
 #define JEUX_LUMIERE_5 15
 
-
 #define ALIM 16
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // program variable, do not touch
