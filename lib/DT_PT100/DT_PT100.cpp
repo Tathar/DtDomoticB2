@@ -15,8 +15,39 @@ void (*pt100_callback)(const uint8_t num, const float temp);
 float _temp_get(int num)
 {
     float tmp = max31865[num]->temperature(100, TEMP_RREF);
+    // uint8_t fault = max31865[num]->readFault();
     if (tmp < MIN_DEFAULT_PT100 || tmp > MAX_DEFAULT_PT100)
+    // if (fault)
     {
+        // Serial.print(F("fault PT100 "));
+        // Serial.print(num);
+        // Serial.print(F(" "));
+        // if (fault & MAX31865_FAULT_HIGHTHRESH)
+        // {
+        //     Serial.println(F("RTD High Threshold"));
+        // }
+        // if (fault & MAX31865_FAULT_LOWTHRESH)
+        // {
+        //     Serial.println(F("RTD Low Threshold"));
+        // }
+        // if (fault & MAX31865_FAULT_REFINLOW)
+        // {
+        //     Serial.println(F("REFIN- > 0.85 x Bias"));
+        // }
+        // if (fault & MAX31865_FAULT_REFINHIGH)
+        // {
+        //     Serial.println(F("REFIN- < 0.85 x Bias - FORCE- open"));
+        // }
+        // if (fault & MAX31865_FAULT_RTDINLOW)
+        // {
+        //     Serial.println(F("RTDIN- < 0.85 x Bias - FORCE- open"));
+        // }
+        // if (fault & MAX31865_FAULT_OVUV)
+        // {
+        //     Serial.println(F("Under/Over voltage"));
+        // }
+        // max31865[num]->clearFault();
+
         return TEMP_DEFAULT_PT100;
     }
     int32_t digit = tmp * 100;
@@ -28,7 +59,7 @@ void DT_pt100_init()
     pt100_callback = nullptr;
     for (uint8_t num = 0; num < TEMP_NUM; ++num)
     {
-#if DIMMER_RELAY_LAST_NUM > 0                                                    // si dimmer
+#if DIMMER_RELAY_LAST_NUM > 0                                                       // si dimmer
         uint8_t pin = pgm_read_byte(OPT_ARRAY + (DIMMER_RELAY_LAST_NUM + 1 + num)); // decallage de 1 lie au point zero des dimmers
 #else
         uint8_t pin = pgm_read_byte(OPT_ARRAY + num); // pas de decallage sinon
@@ -64,20 +95,25 @@ void DT_pt100_loop()
                 {
                     old_temp[num] = tmp;
                 }
-                
             }
         }
     }
     if (now - PT100_callback_time >= MQTT_REFRESH / TEMP_NUM)
     {
         PT100_callback_time = now;
-        if (pt100_callback != nullptr)
+        // if (pt100_callback != nullptr)
         {
 
             static uint8_t num = 0;
             if (num < TEMP_NUM)
             {
-                pt100_callback(num, old_temp[num]);
+                Serial.print(F("PT100 "));
+                Serial.print(num);
+                Serial.print(F(" = "));
+                Serial.println(old_temp[num]);
+
+                if (pt100_callback != nullptr)
+                    pt100_callback(num, old_temp[num]);
                 ++num;
             }
             if (num == TEMP_NUM)
