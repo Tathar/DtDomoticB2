@@ -125,6 +125,8 @@ void DT_3voies_init()
     _callback_mcbt_pid = nullptr;
     _callback_avg_temp = nullptr;
 
+    mem_config.C2 = 0;
+    mem_config.C3 = 0;
     // for (uint8_t x = 0; x < 24; ++x)
     // {
     //      temp_buffer.push(TEMP_DEFAULT_PT100);
@@ -149,7 +151,8 @@ void DT_3voies_init()
     }
     else
     {
-        mem_config.C2 = scale(DT_pt100_get(PT100_EXT), -10, 10, eeprom_config.C8, eeprom_config.C9);
+        //mem_config.C2 = scale(DT_pt100_get(PT100_EXT), -10, 10, eeprom_config.C8, eeprom_config.C9);
+        mem_config.C2 = scale(get_temp_ext(), -10, 10, eeprom_config.C8, eeprom_config.C9);
     }
 
     if (eeprom_config.mode_3voies_MCBT == DT_3VOIES_DEMMARAGE)
@@ -168,7 +171,8 @@ void DT_3voies_init()
     }
     else
     {
-        mem_config.C3 = scale(DT_pt100_get(PT100_EXT), -10, 10, eeprom_config.C10, eeprom_config.C11);
+        // mem_config.C3 = scale(DT_pt100_get(PT100_EXT), -10, 10, eeprom_config.C10, eeprom_config.C11);
+        mem_config.C3 = scale(get_temp_ext(), -10, 10, eeprom_config.C10, eeprom_config.C11);
     }
 
     // KP, KI, KD
@@ -406,7 +410,7 @@ void DT_3voies_loop()
     else if ((eeprom_config.mode_3voies_PCBT != DT_3VOIES_OFF) && (mem_config.C2 > (eeprom_config.C_PCBT_MIN + eeprom_config.V3)))
     {
         DT_relay(CIRCULATEUR_PCBT, true); // demmarage du circulateur
-        Output_PCBT = 0;
+        //Output_PCBT = 0;
         pid_pcbt.SetMode(QuickPID::Control::automatic); // demmarage de la vanne 3
     }
     else if ((eeprom_config.mode_3voies_PCBT == DT_3VOIES_OFF))
@@ -427,7 +431,7 @@ void DT_3voies_loop()
     else if ((eeprom_config.mode_3voies_MCBT != DT_3VOIES_OFF) && (mem_config.C3 > (eeprom_config.C_MCBT_MIN + eeprom_config.V3)))
     {
         DT_relay(CIRCULATEUR_MCBT, true); // demmarage du circulateur
-        Output_MCBT = 0;
+        //Output_MCBT = 0;
         pid_mcbt.SetMode(QuickPID::Control::automatic); // demmarage de la vanne 3 voie
     }
     else if ((eeprom_config.mode_3voies_MCBT == DT_3VOIES_OFF))
