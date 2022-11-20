@@ -24,7 +24,6 @@ void DT_HDC1080_init()
         Wire.beginTransmission(I2C_MULTIPLEXER_ADDRESS); // change I2C channel
         Wire.write(i2c_channel_to_multiplexer(i2c_channel));
         Wire.endTransmission();
-
         // Wire.beginTransmission(I2C_MULTIPLEXER_ADDRESS);
         // Wire.write(MCP_CHANNEL);
         // Wire.endTransmission();
@@ -50,12 +49,12 @@ void DT_HDC1080_loop()
             Wire.write(i2c_channel_to_multiplexer(i2c_channel));
             Wire.endTransmission();
 
+            HDC1080[num].computeTempHumidityAsync();
+
             float value = HDC1080[num].getTemp_async();
             if (value != hdc1080_temperature[num])
             {
                 hdc1080_temperature[num] = value;
-                Serial.print(F("HDC1080 temperature = "));
-                Serial.println(value);
                 if (HDC1080_callback_temperature != nullptr)
                     HDC1080_callback_temperature(num, value);
             }

@@ -15,14 +15,16 @@ public:
 	HDC1080JS();
 	void config();
 
+	void computeTempHumidityAsync();
+
 	float getTemp_async();
 	float getRelativeHumidity_async();
 
 private:
-	uint32_t time_temp;
-	uint32_t time_humidity;
-	float old_temp;
-	float old_humidity;
+	uint32_t time;
+	float temp;
+	float humidity;
+
 	void writeRegister(uint8_t address, uint16_t value);
 };
 #endif

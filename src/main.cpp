@@ -558,7 +558,7 @@ void hdc1080_callback_temperature(const uint8_t num, const float temperature)
   if (now - refresh >= MQTT_REFRESH && mem_config.MQTT_online)
   {
     refresh = now;
-    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/hdc1080-%02d/temperature"), num + 1, temperature);
+    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/hdc1080-%02d/temp"), num + 1, temperature);
   }
   // memory(false);
 }

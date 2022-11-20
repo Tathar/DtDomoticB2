@@ -31,7 +31,7 @@ bool homeassistant(bool start)
         else if (sequance == BOOST_PP_COUNTER)
                 Serial.println(F("homeassistant"));
 
-        if (now - time >= 50)
+        if (now - time >= 100)
         {
                 time = now;
                 switch (sequance)
@@ -411,7 +411,7 @@ bool homeassistant(bool start)
                         // SCD4X temperature
                         if (num < SCD4X_NUM)
                         {
-                                snprintf_P(payload, MAX_PAYLOAD, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "\",\"uniq_id\":\"" BOARD_IDENTIFIER "-scd4x-temperature-%02d\",\"name\":\"scd4x-%02d\",\"stat_t\":\"~/scd4x-%02d/temperature\",\"dev_cla\":\"temperature\",\"unit_of_meas\":\"\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), num + 1, num + 1, num + 1);
+                                snprintf_P(payload, MAX_PAYLOAD, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "\",\"uniq_id\":\"" BOARD_IDENTIFIER "-scd4x-temperature-%02d\",\"name\":\"scd4x-%02d\",\"stat_t\":\"~/scd4x-%02d/temperature\",\"dev_cla\":\"temperature\",\"unit_of_meas\":\"°C\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), num + 1, num + 1, num + 1);
                                 Serial.println(payload);
                                 DT_mqtt_send(F("homeassistant/sensor/" BOARD_IDENTIFIER "/scd4x-temperature-%02d/config"), num + 1, payload);
                                 num++;
@@ -461,9 +461,9 @@ bool homeassistant(bool start)
                         // HDC1080 temperature
                         if (num < HDC1080_NUM)
                         {
-                                snprintf_P(payload, MAX_PAYLOAD, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "\",\"uniq_id\":\"" BOARD_IDENTIFIER "-hdc1080-temperature-%02d\",\"name\":\"hdc1080-%02d\",\"stat_t\":\"~/hdc1080-%02d/temperature\",\"dev_cla\":\"temperature\",\"unit_of_meas\":\"\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), num + 1, num + 1, num + 1);
+                                snprintf_P(payload, MAX_PAYLOAD, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "\",\"uniq_id\":\"" BOARD_IDENTIFIER "-hdc1080-temp-%02d\",\"name\":\"hdc1080-%02d\",\"stat_t\":\"~/hdc1080-%02d/temp\",\"dev_cla\":\"temperature\",\"unit_of_meas\":\"°C\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), num + 1, num + 1, num + 1);
                                 Serial.println(payload);
-                                DT_mqtt_send(F("homeassistant/sensor/" BOARD_IDENTIFIER "/hdc1080-temperature-%02d/config"), num + 1, payload);
+                                DT_mqtt_send(F("homeassistant/sensor/" BOARD_IDENTIFIER "/hdc1080-temp-%02d/config"), num + 1, payload);
                                 num++;
                                 sequance--;
                         }
