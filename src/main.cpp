@@ -1335,6 +1335,13 @@ bool mqtt_publish(bool start)
       // TEMPERATURE MOYENNE
       DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/avg-temp/state"), DT_3voies_get_temp_moyen());
       break;
+
+#include BOOST_PP_UPDATE_COUNTER()
+    case BOOST_PP_COUNTER:
+      // TEMPERATURE MOYENNE
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/avg-temp/offset/state"), eeprom_config.in_offset_avg_temp);
+      break;
+
 #endif // vanne
 
 #include BOOST_PP_UPDATE_COUNTER()
