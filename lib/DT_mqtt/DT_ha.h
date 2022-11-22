@@ -41,6 +41,7 @@ public:
     void store(const __FlashStringHelper *Topic, const float Payload);
     void store(const __FlashStringHelper *Topic, const int8_t Payload);
     void store(const __FlashStringHelper *Topic, const uint8_t Payload);
+    void store(const __FlashStringHelper *Topic, const int16_t Payload);
     void store(const __FlashStringHelper *Topic, const uint16_t Payload);
     void store(const __FlashStringHelper *Topic, const uint32_t Payload);
 

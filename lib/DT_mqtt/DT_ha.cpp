@@ -779,13 +779,13 @@ bool homeassistant(bool start)
 #include BOOST_PP_UPDATE_COUNTER()
                 case BOOST_PP_COUNTER:
                         // Offset PCBT OUT
-                        DT_mqtt_send(F("homeassistant/number/" BOARD_IDENTIFIER "/offset-pcbt-out/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/pcbt/offset-out\",\"uniq_id\":\"" BOARD_IDENTIFIER "-offset-pcbt-out\",\"name\":\"Decalage Sortie PCBT\",\"stat_t\":\"~/state\",\"command_topic\":\"~/set\",\"min\":-32768,\"max\":32767,\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
+                        DT_mqtt_send(F("homeassistant/number/" BOARD_IDENTIFIER "/inhib-pcbt-out/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/pcbt/inhib-out\",\"uniq_id\":\"" BOARD_IDENTIFIER "-inhib-pcbt-out\",\"name\":\"inhibition Sortie PCBT\",\"stat_t\":\"~/state\",\"command_topic\":\"~/set\",\"min\":0,\"max\":32767,\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
                         break;
 
 #include BOOST_PP_UPDATE_COUNTER()
                 case BOOST_PP_COUNTER:
                         // Offset MCBT OUT
-                        DT_mqtt_send(F("homeassistant/number/" BOARD_IDENTIFIER "/offset-mcbt-out/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/mcbt/offset-out\",\"uniq_id\":\"" BOARD_IDENTIFIER "-offset-mcbt-out\",\"name\":\"Decalage Sortie MCBT\",\"stat_t\":\"~/state\",\"command_topic\":\"~/set\",\"min\":0,\"max\":65534,\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
+                        DT_mqtt_send(F("homeassistant/number/" BOARD_IDENTIFIER "/inhib-mcbt-out/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/mcbt/inhib-out\",\"uniq_id\":\"" BOARD_IDENTIFIER "-inhib-mcbt-out\",\"name\":\"inhibition Sortie MCBT\",\"stat_t\":\"~/state\",\"command_topic\":\"~/set\",\"min\":0,\"max\":32767,\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
                         break;
 
 #include BOOST_PP_UPDATE_COUNTER()
@@ -984,6 +984,13 @@ void MQTT_data::store(const __FlashStringHelper *Topic, uint8_t num_t, const uin
 {
         _type = ha_int32_t_tsprintf;
         _num_t = num_t;
+        _topic = Topic;
+        _int = Payload;
+};
+
+void MQTT_data::store(const __FlashStringHelper *Topic, const int16_t Payload)
+{
+        _type = ha_int32_t;
         _topic = Topic;
         _int = Payload;
 };

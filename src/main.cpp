@@ -1309,13 +1309,13 @@ bool mqtt_publish(bool start)
 #include BOOST_PP_UPDATE_COUNTER()
     case BOOST_PP_COUNTER:
       // OFFSET_PCBT
-      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/offset-out/state"), eeprom_config.out_offset_PCBT);
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/inhib-out/state"), eeprom_config.out_inhib_PCBT);
       break;
 
 #include BOOST_PP_UPDATE_COUNTER()
     case BOOST_PP_COUNTER:
       // OFFSET_MCBT
-      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/offset-out/state"), eeprom_config.out_offset_MCBT);
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/inhib-out/state"), eeprom_config.out_inhib_MCBT);
       break;
 
 #include BOOST_PP_UPDATE_COUNTER()
@@ -1888,12 +1888,12 @@ bool mqtt_subscribe(MQTTClient &mqtt, bool start)
 #include BOOST_PP_UPDATE_COUNTER()
     case BOOST_PP_COUNTER:
       // OFFSET OUT
-      mqtt.subscribe(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/offset-out/set");
+      mqtt.subscribe(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/inhib-out/set");
       break;
 
 #include BOOST_PP_UPDATE_COUNTER()
     case BOOST_PP_COUNTER:
-      mqtt.subscribe(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/offset-out/set");
+      mqtt.subscribe(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/inhib-out/set");
       break;
 
 #include BOOST_PP_UPDATE_COUNTER()
@@ -2554,19 +2554,19 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
     sauvegardeEEPROM();
   }
 
-  else if (strcmp(topic, MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/offset-out/set") == 0) // OFFSET_PCBT_OUT
+  else if (strcmp(topic, MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/inhib-out/set") == 0) // OFFSET_PCBT_OUT
   {
     str_buffer = buffer;
-    eeprom_config.out_offset_PCBT = str_buffer.toInt();
-    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/offset-out/state"), eeprom_config.out_offset_PCBT);
+    eeprom_config.out_inhib_PCBT = str_buffer.toInt();
+    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/inhib-out/state"), eeprom_config.out_inhib_PCBT);
     sauvegardeEEPROM();
   }
 
-  else if (strcmp(topic, MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/offset-out/set") == 0) // OFFSET_MCBT_OUT
+  else if (strcmp(topic, MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/inhib-out/set") == 0) // OFFSET_MCBT_OUT
   {
     str_buffer = buffer;
-    eeprom_config.out_offset_MCBT = str_buffer.toInt();
-    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/offset-out/state"), eeprom_config.out_offset_MCBT);
+    eeprom_config.out_inhib_MCBT = str_buffer.toInt();
+    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/inhib-out/state"), eeprom_config.out_inhib_MCBT);
     sauvegardeEEPROM();
   }
 

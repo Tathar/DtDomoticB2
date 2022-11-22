@@ -493,7 +493,12 @@ void DT_3voies_loop()
             {
                 Output_PCBT /= eeprom_config.ratio_PCBT;
             }
-            Output_PCBT += eeprom_config.out_offset_PCBT;
+            
+            if (Output_PCBT < eeprom_config.out_inhib_PCBT)
+            {
+                Output_PCBT = 0;
+            }
+            // Output_PCBT += eeprom_config.out_offset_PCBT;
             DT_relay(VANNE_PCBT_HOT, (uint32_t)(Output_PCBT)); // activation de la vanne
         }
         else
@@ -502,7 +507,13 @@ void DT_3voies_loop()
             {
                 Output_PCBT /= (eeprom_config.ratio_PCBT * -1);
             }
-            Output_PCBT -= eeprom_config.out_offset_PCBT;
+            
+            if (Output_PCBT > (eeprom_config.out_inhib_PCBT * -1) )
+            {
+                Output_PCBT = 0;
+            }
+
+            // Output_PCBT -= eeprom_config.out_offset_PCBT;
             DT_relay(VANNE_PCBT_COLD, (uint32_t)(Output_PCBT * -1)); // activation de la vanne
         }
         async_call_pcbt_pid = true;
@@ -515,7 +526,13 @@ void DT_3voies_loop()
             {
                 Output_MCBT /= eeprom_config.ratio_MCBT;
             }
-            Output_MCBT += eeprom_config.out_offset_MCBT;
+            
+            if (Output_MCBT < eeprom_config.out_inhib_MCBT)
+            {
+                Output_MCBT = 0;
+            }
+
+            // Output_MCBT += eeprom_config.out_offset_MCBT;
             DT_relay(VANNE_MCBT_HOT, (uint32_t)(Output_MCBT)); // activation de la vanne
         }
         else
@@ -524,7 +541,13 @@ void DT_3voies_loop()
             {
                 Output_MCBT /= eeprom_config.ratio_MCBT * -1;
             }
-            Output_MCBT -= eeprom_config.out_offset_MCBT;
+            
+            if (Output_MCBT > (eeprom_config.out_inhib_MCBT * -1 ))
+            {
+                Output_MCBT = 0;
+            }
+
+            // Output_MCBT -= eeprom_config.out_offset_MCBT;
             DT_relay(VANNE_MCBT_COLD, (uint32_t)(Output_MCBT * -1)); // activation de la vanne
         }
         async_call_mcbt_pid = true;

@@ -104,8 +104,8 @@ void chargeEEPROM()
                 Serial.println(F("EEPROM version < 4"));
                 eeprom_config.struct_version = 4;
 
-                eeprom_config.out_offset_PCBT = 0;
-                eeprom_config.out_offset_MCBT = 0;
+                eeprom_config.out_inhib_PCBT = 0;
+                eeprom_config.out_inhib_MCBT = 0;
         }
 
         // Valeurs par défaut struct_version == 5
