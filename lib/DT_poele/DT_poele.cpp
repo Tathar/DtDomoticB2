@@ -30,15 +30,14 @@ void DT_Poele_init()
 }
 
 // decision de mise en service du poele en fonction des temperature
-bool marche_poele_ballon_normal(uint32_t now)
+bool marche_poele_ballon_normal(bool actuel, uint32_t now)
 {
-    static bool ret = false;
     // mise en marche du poele en fonction de la consigne MCBT
     if (DT_pt100_get(PT100_H_BALON) > 0)
     {
         if (DT_pt100_get(PT100_H_BALON) < (mem_config.C3 + eeprom_config.V2)) // temp haut balon  < consigne MCBT + reserve temp
         {
-            ret = true;
+            actuel = true;
         }
     }
 
@@ -47,7 +46,7 @@ bool marche_poele_ballon_normal(uint32_t now)
     {
         if (DT_pt100_get(PT100_M_BALON) < (mem_config.C2 + eeprom_config.V2)) // temp milieu balon  < consigne PCBT + reserve temp
         {
-            ret = true;
+            actuel = true;
         }
     }
 
@@ -56,23 +55,23 @@ bool marche_poele_ballon_normal(uint32_t now)
     {
         if (DT_pt100_get(PT100_B_BALON) > (max(mem_config.C2, mem_config.C3) + eeprom_config.C7)) // temp bas balon > maximum consigne PCBT ou consigne MCBT  + bande morte Poele
         {
-            ret = false;
+            actuel = false;
         }
         temp_default_pt100_B = now;
     }
     else if (now - temp_default_pt100_B > TEMPS_DEFAULT_PT100_POELE)
     {
-        ret = false;
+        actuel = false;
     }
 
-    return ret;
+    return actuel;
 }
 
 void DT_Poele_loop()
 {
     uint32_t now = millis();
     static uint32_t old = 0;
-    static bool poele = false;
+    bool poele = DT_relay_get(MARCHE_POELE);
     static bool ev1 = false;
 
     if (now - old >= 1000)
@@ -84,7 +83,7 @@ void DT_Poele_loop()
             // mode ECS + Chauffage
             ev1 = false;
             // marche poele
-            poele = marche_poele_ballon_normal(now);
+            poele = marche_poele_ballon_normal(poele, now);
         }
         else if (eeprom_config.poele_mode == DT_POELE_ARRET)
         {
