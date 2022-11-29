@@ -103,10 +103,11 @@ void DT_Poele_loop()
                 {
                     poele = true;
                 }
-                else if (min(DT_pt100_get(PT100_ECS1), DT_pt100_get(PT100_ECS2)) > (eeprom_config.C5 + eeprom_config.C7))
+                else if (min(DT_pt100_get(PT100_ECS1), DT_pt100_get(PT100_ECS2)) > eeprom_config.C5)
                 {
                     poele = true;
-                    eeprom_config.poele_mode = DT_POELE_NORMAL;
+                    // eeprom_config.poele_mode = DT_POELE_NORMAL;
+                    DT_Poele_set_mode(DT_POELE_NORMAL);
                 }
                 temp_default_pt100_ECS = now;
             }
@@ -116,10 +117,11 @@ void DT_Poele_loop()
                 {
                     poele = true;
                 }
-                else if (DT_pt100_get(PT100_ECS1) > (eeprom_config.C5 + eeprom_config.C7))
+                else if (DT_pt100_get(PT100_ECS1) > eeprom_config.C5)
                 {
                     poele = true;
-                    eeprom_config.poele_mode = DT_POELE_NORMAL;
+                    // eeprom_config.poele_mode = DT_POELE_NORMAL;
+                    DT_Poele_set_mode(DT_POELE_NORMAL);
                 }
                 temp_default_pt100_ECS = now;
             }
@@ -129,10 +131,11 @@ void DT_Poele_loop()
                 {
                     poele = true;
                 }
-                else if (DT_pt100_get(PT100_ECS2) > (eeprom_config.C5 + eeprom_config.C7))
+                else if (DT_pt100_get(PT100_ECS2) > eeprom_config.C5)
                 {
                     poele = true;
-                    eeprom_config.poele_mode = DT_POELE_NORMAL;
+                    // eeprom_config.poele_mode = DT_POELE_NORMAL;
+                    DT_Poele_set_mode(DT_POELE_NORMAL);
                 }
                 temp_default_pt100_ECS = now;
             }
@@ -160,7 +163,8 @@ void DT_Poele_loop()
                 else if (DT_pt100_get(PT100_B_BALON) >= eeprom_config.V1) // temp bas balon > consigne mode force
                 {
                     poele = false;
-                    eeprom_config.poele_mode = DT_POELE_NORMAL;
+                    // eeprom_config.poele_mode = DT_POELE_NORMAL;
+                    DT_Poele_set_mode(DT_POELE_NORMAL);
                 }
                 temp_default_pt100_B = now;
             }
