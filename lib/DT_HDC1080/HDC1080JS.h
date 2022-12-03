@@ -25,6 +25,6 @@ private:
 	float temp;
 	float humidity;
 
-	void writeRegister(uint8_t address, uint16_t value);
+	void writeRegister(uint8_t address, uint8_t value);
 };
 #endif

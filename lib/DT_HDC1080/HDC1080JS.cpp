@@ -15,11 +15,12 @@ void HDC1080JS::config()
 	writeRegister(0x02, 0x10);
 }
 
-void HDC1080JS::writeRegister(uint8_t address, uint16_t value)
+void HDC1080JS::writeRegister(uint8_t address, uint8_t value)
 {
 	Wire.beginTransmission(ADDR);
 	Wire.write(address);
 	Wire.write(value);
+	Wire.write(0);
 	Wire.endTransmission();
 }
 
@@ -33,7 +34,7 @@ void HDC1080JS::computeTempHumidityAsync()
 		Wire.endTransmission();
 		time = millis();
 	}
-	else if (millis() - time > 15) // delay(15);
+	else if (millis() - time > 50 ) // delay(15);
 	{
 		Wire.requestFrom(ADDR, 4);
 		uint16_t temperatureRaw = temperatureRaw << 8 | Wire.read();
@@ -42,7 +43,7 @@ void HDC1080JS::computeTempHumidityAsync()
 		humidityRaw = humidityRaw << 8 | Wire.read();
 		// (rawTemp/2^16)*165 - 40
 		temp = ((float)temperatureRaw) * 165 / 65536 - 40;
-		humidity = ((float)humidityRaw) * 100 / 65536;
+		humidity = ((float)humidityRaw) * 100.0 / 65536.0;
 		time = 0;
 	}
 }
