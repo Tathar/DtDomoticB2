@@ -58,11 +58,13 @@ struct Radiator
 // declaration de la structure de configuration
 struct Mem_Config
 {
-    float C2;            // consigne Temp PCBT
-    float C3;            // consigne MCBT
-    bool MQTT_online;    // connecte au broker MQTT
-    bool HA_online;      // Home Assistant
-    bool HA_MQTT_CONFIG; // Home Assistant MQTT configuration
+    float C2;                     // consigne Temp PCBT
+    float C3;                     // consigne MCBT
+    bool MQTT_online = false;     // connecte au broker MQTT
+    bool HA_online = false;       // Home Assistant
+    bool ha_mqtt_config = false;  // Home Assistant MQTT configuration
+    bool ha_mqtt_publish = false; // Home Assistant MQTT configuration
+    bool ha_mqtt_subscribe = false; // Home Assistant MQTT configuration
 #if DIMMER_LIGHT_NUM >= 1
     uint8_t Dimmer_old_value[DIMMER_LIGHT_NUM]; // Mise a l echelle
 #endif
@@ -108,11 +110,11 @@ struct Eeprom_Config
 
     float ratio_PCBT;
     float ratio_MCBT;
-    int16_t out_inhib_PCBT;   // en ms
-    int16_t out_inhib_MCBT;   // en ms
+    int16_t out_inhib_PCBT;     // en ms
+    int16_t out_inhib_MCBT;     // en ms
     float in_offset_PCBT;       // en °c
     float in_offset_MCBT;       // en °c
-    uint8_t in_offset_avg_temp; // en °C //fourchette pour la quelle on utilise la temperature exterieur reel (non moyené) 
+    uint8_t in_offset_avg_temp; // en °C //fourchette pour la quelle on utilise la temperature exterieur reel (non moyené)
 
 #if DIMMER_LIGHT_NUM >= 1
     uint16_t Dimmer_scale_min[DIMMER_LIGHT_NUM]; // Mise a l echelle
