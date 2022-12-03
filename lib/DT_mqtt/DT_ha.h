@@ -59,7 +59,7 @@ public:
     void store(const __FlashStringHelper *Topic, uint8_t num_t, const __FlashStringHelper *Payload, uint8_t num_p);
     void store(const __FlashStringHelper *Topic, uint8_t num_t, const char *Payload, uint8_t num_p);
 
-    void get(char *topic, int topic_len, char *payload, int payload_len);
+    void get(char *topic, int topic_len, char *payload, unsigned int payload_len);
 
     void print();
 

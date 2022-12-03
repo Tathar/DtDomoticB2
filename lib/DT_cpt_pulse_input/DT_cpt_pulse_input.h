@@ -5,6 +5,7 @@
 
 void DT_cpt_pulse_input_init();
 void DT_cpt_pulse_input_loop();
+void DT_cpt_pulse_input_reset(const uint8_t num);
 void DT_cpt_pulse_input_set_callback(void (*callback)(const uint8_t num, const uint32_t counter));
 uint32_t DT_cpt_pulse_input_get(uint8_t num);
 

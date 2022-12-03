@@ -330,7 +330,9 @@ bool homeassistant(bool start)
                         // BME280 temperature
                         if (num < BME280_NUM)
                         {
-                                snprintf_P(payload, MAX_PAYLOAD, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "\",\"uniq_id\":\"" BOARD_IDENTIFIER "-bme280-temperature-%02d\",\"name\":\"BME280-%02d\",\"stat_t\":\"~/bme280-%02d/temperature\",\"dev_cla\":\"temperature\",\"unit_of_meas\":\"°C\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), num, num, num);
+                                snprintf_P(payload, MAX_PAYLOAD, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "\",\"uniq_id\":\"" BOARD_IDENTIFIER "-bme280-temp-%02d\",\"name\":\"BME280-%02d\",\"stat_t\":\"~/bme280-%02d/temp\",\"dev_cla\":\"temperature\",\"unit_of_meas\":\"°C\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), num, num, num);
+                                payload[MAX_PAYLOAD - 1] = '\0';
+                                Serial.println(payload);
                                 DT_mqtt_send(F("homeassistant/sensor/" BOARD_IDENTIFIER "/bme280-temperature-%02d/config"), num, payload);
                                 num++;
                                 sequance--;
@@ -346,6 +348,8 @@ bool homeassistant(bool start)
                         if (num < BME280_NUM)
                         {
                                 snprintf_P(payload, MAX_PAYLOAD, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "\",\"uniq_id\":\"" BOARD_IDENTIFIER "-bme280-humidity-%02d\",\"name\":\"BME280-%02d\",\"stat_t\":\"~/bme280-%02d/humidity\",\"dev_cla\":\"humidity\",\"unit_of_meas\":\"%%\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), num, num, num);
+                                payload[MAX_PAYLOAD - 1] = '\0';
+                                Serial.println(payload);
                                 DT_mqtt_send(F("homeassistant/sensor/" BOARD_IDENTIFIER "/bme280-humidity-%02d/config"), num, payload);
                                 num++;
                                 sequance--;
@@ -361,6 +365,7 @@ bool homeassistant(bool start)
                         if (num < BME280_NUM)
                         {
                                 snprintf_P(payload, MAX_PAYLOAD, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "\",\"uniq_id\":\"" BOARD_IDENTIFIER "-bme280-pressure-%02d\",\"name\":\"BME280-%02d\",\"stat_t\":\"~/bme280-%02d/pressure\",\"dev_cla\":\"pressure\",\"unit_of_meas\":\"Pa\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), num, num, num);
+                                payload[MAX_PAYLOAD - 1] = '\0';
                                 DT_mqtt_send(F("homeassistant/sensor/" BOARD_IDENTIFIER "/bme280-pressure-%02d/config"), num, payload);
                                 num++;
                                 sequance--;
@@ -497,6 +502,22 @@ bool homeassistant(bool start)
                         {
                                 snprintf_P(payload, MAX_PAYLOAD, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "\",\"uniq_id\":\"" BOARD_IDENTIFIER "-counter-%02d\",\"name\":\"counter-%02d\",\"stat_t\":\"~/counter-%02d\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), num + 1, num + 1, num + 1);
                                 DT_mqtt_send(F("homeassistant/sensor/" BOARD_IDENTIFIER "/counter-%02d/config"), num + 1, payload);
+                                num++;
+                                sequance--;
+                        }
+                        else
+                        {
+                                num = 0;
+                        }
+                        break;
+
+#include BOOST_PP_UPDATE_COUNTER()
+                case BOOST_PP_COUNTER:
+                        // input pulse counter
+                        if (num < CPT_PULSE_INPUT)
+                        {
+                                snprintf_P(payload, MAX_PAYLOAD, PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "\",\"uniq_id\":\"" BOARD_IDENTIFIER "-counter-%02d-btn\",\"name\":\"reset-counter-%02d\",\"command_topic\":\"~/counter-%02d/btn\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"), num + 1, num + 1, num + 1);
+                                DT_mqtt_send(F("homeassistant/button/" BOARD_IDENTIFIER "/counter-%02d-btn/config"), num + 1, payload);
                                 num++;
                                 sequance--;
                         }
@@ -930,7 +951,6 @@ void MQTT_data::store(const __FlashStringHelper *Topic, uint8_t num_t, const __F
 
 void MQTT_data::store(const __FlashStringHelper *Topic, const String Payload)
 {
-        // 220502  debug(F(AT));
         _type = ha_str;
         _topic = Topic;
         _str = Payload;
@@ -938,11 +958,15 @@ void MQTT_data::store(const __FlashStringHelper *Topic, const String Payload)
 
 void MQTT_data::store(const __FlashStringHelper *Topic, uint8_t num_t, const String Payload)
 {
-        // 220502  debug(F(AT));
+        debug(F(AT));
+        Serial.println(Payload);
         _type = ha_str_tsprintf;
         _num_t = num_t;
         _topic = Topic;
+        memory(true);
         _str = Payload;
+        memory(true);
+        Serial.println(_str);
 };
 
 void MQTT_data::store(const __FlashStringHelper *Topic, const float Payload)
@@ -1023,7 +1047,7 @@ void MQTT_data::store(const __FlashStringHelper *Topic, uint8_t num_t, const uin
         _int = Payload;
 };
 
-void MQTT_data::get(char *topic, int topic_len, char *payload, int payload_len)
+void MQTT_data::get(char *topic, int topic_len, char *payload, unsigned int payload_len)
 {
         // 220502  debug(F(AT));
         // Serial.println(_type);
@@ -1032,10 +1056,12 @@ void MQTT_data::get(char *topic, int topic_len, char *payload, int payload_len)
         case ha_flash_cstr:
                 strncpy_P(topic, reinterpret_cast<const char *>(_topic), topic_len);
                 strlcpy_P(payload, reinterpret_cast<const char *>(_fcstr), payload_len);
+                debug(F(AT));
                 break;
 
         case ha_cstr:
                 strncpy_P(topic, reinterpret_cast<const char *>(_topic), topic_len);
+                debug(F(AT));
                 if (_cstr != nullptr)
                 {
                         strncpy(payload, _cstr, payload_len);
@@ -1046,6 +1072,8 @@ void MQTT_data::get(char *topic, int topic_len, char *payload, int payload_len)
 
         case ha_str:
                 strncpy_P(topic, reinterpret_cast<const char *>(_topic), topic_len);
+                debug(F(AT));
+                Serial.println(_str);
                 if ((_str.length() + 1) < payload_len)
                 {
                         payload = strncpy(payload, _str.c_str(), _str.length() + 1);
@@ -1076,10 +1104,14 @@ void MQTT_data::get(char *topic, int topic_len, char *payload, int payload_len)
                 break;
 
         case ha_str_tsprintf:
+                debug(F(AT));
                 snprintf_P(topic, topic_len, reinterpret_cast<const char *>(_topic), _num_t);
+                Serial.println(_str);
                 if ((_str.length() + 1) < payload_len)
                 {
+                        debug(F(AT));
                         payload = strncpy(payload, _str.c_str(), _str.length() + 1);
+                        Serial.println(_str);
                 }
                 break;
 
