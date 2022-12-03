@@ -1,6 +1,12 @@
 #ifndef DT_3VOIES
 #define DT_3VOIES
-#include <Arduino.h>
+
+#ifdef UNIT_TEST
+#include "ArduinoFake.h"
+#else
+#include "Arduino.h"
+#endif
+
 #include <QuickPID.h>
 
 enum __attribute__((__packed__)) DT_3voies_mode
