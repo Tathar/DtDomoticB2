@@ -20,6 +20,6 @@ void DT_mqtt_set_receve_callback(void (*mqtt_receve)(MQTTClient *client, const c
 void DT_mqtt_update();
 
 // extern DT_buffer<MQTT_data> send_buffer;
-extern CircularBuffer<MQTT_data, 10> send_buffer;
+extern CircularBuffer<MQTT_data, 5> send_buffer;
 
 #endif

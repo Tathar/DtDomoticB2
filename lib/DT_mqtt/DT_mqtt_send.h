@@ -10,7 +10,11 @@ inline void DT_mqtt_send(MQTT_data data)
 {
     if (mem_config.MQTT_online)
     {
-        send_buffer.unshift(data);
+            if (!send_buffer.unshift(data))
+            {
+                Serial.println(F("buffer overwrite"));
+            }
+        
     }
 }
 
@@ -23,7 +27,10 @@ inline void DT_mqtt_send(const __FlashStringHelper *topic, T payload)
     if (mem_config.MQTT_online)
     {
         send.store(topic, payload);
-        send_buffer.unshift(send);
+        if (!send_buffer.unshift(send))
+        {
+            Serial.println(F("buffer overwrite"));
+        }
     }
     memory(false);
 }
@@ -33,11 +40,14 @@ inline void DT_mqtt_send(const __FlashStringHelper *topic, uint8_t num, T payloa
 {
     memory(false);
     // debug(F(AT));
+    MQTT_data send;
     if (mem_config.MQTT_online)
     {
-        MQTT_data send;
         send.store(topic, num, payload);
-        send_buffer.unshift(send);
+        if (!send_buffer.unshift(send))
+        {
+            Serial.println(F("buffer overwrite"));
+        }
     }
     memory(false);
 }

@@ -24,7 +24,7 @@ void (*_mqtt_receve)(MQTTClient *client, const char topic[], const char bytes[],
 
 // DT_buffer<MQTT_data> send_buffer;
 // DT_buffer<MQTT_recv_msg> recv_buffer;
-CircularBuffer<MQTT_data, 10> send_buffer;
+CircularBuffer<MQTT_data, 5> send_buffer;
 CircularBuffer<MQTT_recv_msg, 10> recv_buffer;
 
 void DT_mqtt_set_update_callback(bool (*mqtt_update)(MQTTClient &mqtt, bool start))
@@ -170,7 +170,7 @@ void DT_mqtt_loop()
     static uint32_t last_reconnection_time = 0;
     static uint32_t reset_time = 0; // for reset network device
     static bool reset = false;      // for reset network device
-    bool ret = true;
+    // bool ret = true;
     static uint32_t time = 0;
     // static bool old_link_status = false; // for reset network device
     uint32_t now = millis();
@@ -263,10 +263,10 @@ void DT_mqtt_loop()
                         memory(true);
                         // Once connected, publish an announcement and resubscribe...
                         if (_mqtt_subscribe != nullptr)
-                            _mqtt_subscribe(mqtt, true);
+                            mem_config.ha_mqtt_subscribe = _mqtt_subscribe(mqtt, true);
                         reset_time = 0; // desactivation du compteur de reset
 
-                        mem_config.HA_MQTT_CONFIG = homeassistant(false);
+                        mem_config.ha_mqtt_config = homeassistant(false);
 
                         // debug(AT);
                     }
@@ -308,47 +308,50 @@ void DT_mqtt_loop()
             }
             else if (send_buffer.size() > 0)
             {
-                // 220502  debug(F(AT));
-                char topic[MAX_TOPIC];
-                char payload[MAX_PAYLOAD];
-                MQTT_data data = send_buffer.shift();
-                data.get(topic, 64, payload, MAX_PAYLOAD);
-                Serial.print(F("send "));
-                Serial.print(topic);
-                Serial.print(F(" = "));
-                Serial.println(payload);
-                int len = strlen(payload);
-                if (len < MAX_PAYLOAD)
+                while (send_buffer.size() > 0)
                 {
-                    mqtt.publish(topic, payload, len);
+                    // 220502  debug(F(AT));
+                    char topic[MAX_TOPIC];
+                    char payload[MAX_PAYLOAD];
+                    MQTT_data data = send_buffer.shift();
+                    data.get(topic, 64, payload, MAX_PAYLOAD);
+                    Serial.print(F("send "));
+                    Serial.print(topic);
+                    Serial.print(F(" = "));
+                    Serial.println(payload);
+                    int len = strlen(payload);
+                    if (len < MAX_PAYLOAD)
+                    {
+                        mqtt.publish(topic, payload, len);
+                        // debug(F(AT));
+                    }
+                    else
+                    {
+                        debug(F(AT));
+                        Serial.print(F("len > MAX_PAYLOAD len = "));
+                        Serial.println(len);
+                    }
+
+                    Serial.print(F("send buffer size = "));
+                    Serial.println(send_buffer.size());
+                    // }
+                    // Serial.print(F("Buffer capacity = "));
+                    // Serial.println(send_buffer.capacity());
+                    // Serial.print(F("Buffer size = "));
+                    // Serial.println(send_buffer.size());
+                    // Serial.print(F("Buffer available = "));
+                    // Serial.println(send_buffer.available());
+                    // if (send_buffer.size() == 0)
+                    // {
+                    // send_buffer.clean(6);
+                    // }
                     // debug(F(AT));
                 }
-                else
-                {
-                    debug(F(AT));
-                    Serial.print(F("len > MAX_PAYLOAD len = "));
-                    Serial.println(len);
-                }
-
-                Serial.print(F("send buffer size = "));
-                Serial.println(send_buffer.size());
-                // }
-                // Serial.print(F("Buffer capacity = "));
-                // Serial.println(send_buffer.capacity());
-                // Serial.print(F("Buffer size = "));
-                // Serial.println(send_buffer.size());
-                // Serial.print(F("Buffer available = "));
-                // Serial.println(send_buffer.available());
-                // if (send_buffer.size() == 0)
-                // {
-                // send_buffer.clean(6);
-                // }
-                // debug(F(AT));
             }
-            else if (mem_config.HA_MQTT_CONFIG == false)
+            else if (mem_config.ha_mqtt_config == false)
             {
                 // 220502  debug(F(AT));
-                mem_config.HA_MQTT_CONFIG = homeassistant(false);
+                mem_config.ha_mqtt_config = homeassistant(false);
                 // ret_homeassistant = true;
                 // 220502  debug(F(AT));
             }
@@ -361,7 +364,7 @@ void DT_mqtt_loop()
                     if (_mqtt_subscribe != nullptr)
                     {
                         // 220502  debug(F(AT));
-                        _mqtt_subscribe(mqtt, false);
+                        mem_config.ha_mqtt_subscribe = _mqtt_subscribe(mqtt, false);
                         // 220502  debug(F(AT));
                     }
                     break;
@@ -369,7 +372,7 @@ void DT_mqtt_loop()
                     if (_mqtt_publish != nullptr)
                     {
                         // 220502  debug(F(AT));
-                        _mqtt_publish(false);
+                        mem_config.ha_mqtt_publish = _mqtt_publish(false);
                         // 220502  debug(F(AT));
                     }
                     break;

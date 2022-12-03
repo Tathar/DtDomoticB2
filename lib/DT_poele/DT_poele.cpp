@@ -1,5 +1,5 @@
 #include <DT_poele.h>
-#include <DT_input.h>
+// #include <DT_input.h>
 #include <DT_PT100.h>
 #include <DT_relay.h>
 // #include <DT_fake_ntc.h>
@@ -142,7 +142,8 @@ void DT_Poele_loop()
             else if (now - temp_default_pt100_ECS >= TEMPS_DEFAULT_PT100_POELE)
             {
                 // marche poele
-                poele = false;
+                poele = true;
+                DT_Poele_set_mode(DT_POELE_NORMAL);
             }
         }
         else if (eeprom_config.poele_mode == DT_POELE_FORCE)
@@ -171,6 +172,7 @@ void DT_Poele_loop()
             else if (now - temp_default_pt100_B > TEMPS_DEFAULT_PT100_POELE)
             {
                 poele = false;
+                DT_Poele_set_mode(DT_POELE_NORMAL);
             }
         }
 

@@ -168,11 +168,19 @@ void load()
 }
 
 #ifdef MQTT
-
+inline bool can_send()
+{
+  if (mem_config.MQTT_online && mem_config.ha_mqtt_config && mem_config.ha_mqtt_publish && mem_config.ha_mqtt_subscribe)
+  {
+    return true;
+  }
+  return false;
+}
 // Relay Callback
 // envoie de donnée MQTT quand un relais est activé / désactivé
 void relay_callback(const uint8_t num, const bool action)
 {
+
   // char topic[56];
   const __FlashStringHelper *payload;
   debug(F(AT));
@@ -425,7 +433,7 @@ void bme280_callback_temperature(const uint8_t num, const float temperature)
   if (now - refresh >= MQTT_REFRESH && mem_config.MQTT_online)
   {
     refresh = now;
-    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/bme280-%02d/temperature"), num + 1, temperature);
+    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/bme280-%02d/temp"), num + 1, temperature);
   }
   // memory(false);
 }
@@ -752,6 +760,11 @@ bool mqtt_publish(bool start)
   }
   else if (sequance == BOOST_PP_COUNTER)
     Serial.println(F("mqtt_publish"));
+
+  if (mem_config.ha_mqtt_config == false) // on attand la fin de l envoie de la configuration home assistant
+  {
+    return false;
+  }
 
   uint32_t now = millis();
   if (now - time >= 50)
@@ -1512,7 +1525,7 @@ bool mqtt_subscribe(MQTTClient &mqtt, bool start)
 #if COVER_NUM > 0
 #include BOOST_PP_UPDATE_COUNTER()
     case BOOST_PP_COUNTER:
-      if (num < DIMMER_LIGHT_NUM)
+      if (num < COVER_NUM)
       {
         snprintf_P(topic, 56, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/cover-%02d/set"), num + 1);
         mqtt.subscribe(topic);
@@ -1527,7 +1540,7 @@ bool mqtt_subscribe(MQTTClient &mqtt, bool start)
 
 #include BOOST_PP_UPDATE_COUNTER()
     case BOOST_PP_COUNTER:
-      if (num < DIMMER_LIGHT_NUM)
+      if (num < COVER_NUM)
       {
         snprintf_P(topic, 56, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/cover-%02d/pos_set"), num + 1);
         mqtt.subscribe(topic);
@@ -1542,7 +1555,7 @@ bool mqtt_subscribe(MQTTClient &mqtt, bool start)
 
 #include BOOST_PP_UPDATE_COUNTER()
     case BOOST_PP_COUNTER:
-      if (num < DIMMER_LIGHT_NUM)
+      if (num < COVER_NUM)
       {
         snprintf_P(topic, 56, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/cover-%02d/up_set"), num + 1);
         mqtt.subscribe(topic);
@@ -1557,7 +1570,7 @@ bool mqtt_subscribe(MQTTClient &mqtt, bool start)
 
 #include BOOST_PP_UPDATE_COUNTER()
     case BOOST_PP_COUNTER:
-      if (num < DIMMER_LIGHT_NUM)
+      if (num < COVER_NUM)
       {
         snprintf_P(topic, 56, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/cover-%02d/down_set"), num + 1);
         mqtt.subscribe(topic);
@@ -1574,7 +1587,7 @@ bool mqtt_subscribe(MQTTClient &mqtt, bool start)
 #if RADIATOR_NUM > 0
 #include BOOST_PP_UPDATE_COUNTER()
     case BOOST_PP_COUNTER:
-      if (num < DIMMER_LIGHT_NUM)
+      if (num < RADIATOR_NUM)
       {
         snprintf_P(topic, 56, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/radiator-%02d/temp_set"), num + 1);
         mqtt.subscribe(topic);
@@ -1589,7 +1602,7 @@ bool mqtt_subscribe(MQTTClient &mqtt, bool start)
 
 #include BOOST_PP_UPDATE_COUNTER()
     case BOOST_PP_COUNTER:
-      if (num < DIMMER_LIGHT_NUM)
+      if (num < RADIATOR_NUM)
       {
         snprintf_P(topic, 56, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/radiator-%02d/mode_set"), num + 1);
         mqtt.subscribe(topic);
@@ -1604,7 +1617,7 @@ bool mqtt_subscribe(MQTTClient &mqtt, bool start)
 
 #include BOOST_PP_UPDATE_COUNTER()
     case BOOST_PP_COUNTER:
-      if (num < DIMMER_LIGHT_NUM)
+      if (num < RADIATOR_NUM)
       {
         snprintf_P(topic, 56, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/radiator-%02d/cycle-set"), num + 1);
         mqtt.subscribe(topic);
@@ -1619,7 +1632,7 @@ bool mqtt_subscribe(MQTTClient &mqtt, bool start)
 
 #include BOOST_PP_UPDATE_COUNTER()
     case BOOST_PP_COUNTER:
-      if (num < DIMMER_LIGHT_NUM)
+      if (num < RADIATOR_NUM)
       {
         snprintf_P(topic, 56, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/radiator-%02d/m10-set"), num + 1);
         mqtt.subscribe(topic);
@@ -1634,7 +1647,7 @@ bool mqtt_subscribe(MQTTClient &mqtt, bool start)
 
 #include BOOST_PP_UPDATE_COUNTER()
     case BOOST_PP_COUNTER:
-      if (num < DIMMER_LIGHT_NUM)
+      if (num < RADIATOR_NUM)
       {
         snprintf_P(topic, 56, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/radiator-%02d/p10-set"), num + 1);
         mqtt.subscribe(topic);
@@ -1649,7 +1662,7 @@ bool mqtt_subscribe(MQTTClient &mqtt, bool start)
 
 #include BOOST_PP_UPDATE_COUNTER()
     case BOOST_PP_COUNTER:
-      if (num < DIMMER_LIGHT_NUM)
+      if (num < RADIATOR_NUM)
       {
         snprintf_P(topic, 56, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/radiator-%02d/KI-set"), num + 1);
         mqtt.subscribe(topic);
@@ -1662,6 +1675,23 @@ bool mqtt_subscribe(MQTTClient &mqtt, bool start)
       }
       break;
 #endif // RADIATOR_NUM
+
+#if CPT_PULSE_INPUT > 0
+#include BOOST_PP_UPDATE_COUNTER()
+    case BOOST_PP_COUNTER:
+      if (num < CPT_PULSE_INPUT)
+      {
+        snprintf_P(topic, 56, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/counter-%02d/btn"), num + 1);
+        mqtt.subscribe(topic);
+        num++;
+        sequance--;
+      }
+      else
+      {
+        num = 0;
+      }
+      break;
+#endif // CPT_PULSE_INPUT
 
 #ifdef POELE
 #include BOOST_PP_UPDATE_COUNTER()
@@ -1920,7 +1950,7 @@ bool mqtt_subscribe(MQTTClient &mqtt, bool start)
 
 #include BOOST_PP_UPDATE_COUNTER()
     case BOOST_PP_COUNTER:
-      mqtt_publish(true);
+      mem_config.ha_mqtt_publish = mqtt_publish(true);
       break;
 
     default:
@@ -1960,7 +1990,7 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
 
   int num = 0;
   uint8_t u8t_value = 0;
-  bool bool_value = false;
+  // bool bool_value = false;
   if (sscanf_P(topic, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/relay-%02d/set"), &num) == 1) // relais
   {
     // auto Serial.print("sscanf = ");
@@ -2156,6 +2186,14 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
   }
 
 #endif // RADIATOR_NUM > 0
+
+#if CPT_PULSE_INPUT > 0
+  else if (sscanf_P(topic, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/counter-%02d/btn"), &num) == 1) // counter reset
+  {
+    Serial.println(F("counter reset"));
+    DT_cpt_pulse_input_reset(num - 1);
+  }
+#endif // CPT_PULSE_INPUT > 0
 
 #ifdef POELE
   else if (strcmp(topic, MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/poele/mode/set") == 0) // Mode du Poele
@@ -2599,9 +2637,9 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
   {
     if (strcmp(buffer, "online") == 0)
     {
-      mqtt_publish(true);
+      mem_config.ha_mqtt_publish = mqtt_publish(true);
       mem_config.HA_online = true; // TODO : ne fonctionne plus
-      mem_config.HA_MQTT_CONFIG = homeassistant(true);
+      mem_config.ha_mqtt_config = homeassistant(true);
     }
     else if (strcmp(buffer, "offline") == 0)
     {
