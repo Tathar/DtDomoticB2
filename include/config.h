@@ -64,9 +64,9 @@ const uint8_t CCS811_CHANNEL_ARRAY[CCS811_NUM] PROGMEM = {2};
 #endif
 
 // SCD4X
-#define SCD4X_NUM 2
+#define SCD4X_NUM 3
 #if SCD4X_NUM > 0
-const uint8_t SCD4X_CHANNEL_ARRAY[SCD4X_NUM] PROGMEM = {1,2};
+const uint8_t SCD4X_CHANNEL_ARRAY[SCD4X_NUM] PROGMEM = {1,2,3};
 #endif // SCD4X
 
 // HDC1080
