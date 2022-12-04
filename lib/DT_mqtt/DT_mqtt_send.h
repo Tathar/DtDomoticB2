@@ -6,16 +6,17 @@
 // #include <DT_buffer.h>
 #include <CircularBuffer.h>
 
-inline void DT_mqtt_send(MQTT_data data)
+inline void DT_mqtt_send(MQTT_data* data)
 {
-    if (mem_config.MQTT_online)
+    if (mem_config.MQTT_online && !send_buffer.isFull())
     {
-            if (!send_buffer.unshift(data))
-            {
-                Serial.println(F("buffer overwrite"));
-            }
-        
+        send_buffer.unshift(data);
     }
+    else
+    {
+        Serial.println(F("send buffer is full"));
+    }
+    memory(false);
 }
 
 template <typename T>
@@ -23,14 +24,16 @@ inline void DT_mqtt_send(const __FlashStringHelper *topic, T payload)
 {
     memory(false);
     // debug(F(AT));
-    MQTT_data send;
-    if (mem_config.MQTT_online)
+    if (mem_config.MQTT_online && !send_buffer.isFull())
     {
-        send.store(topic, payload);
-        if (!send_buffer.unshift(send))
-        {
-            Serial.println(F("buffer overwrite"));
-        }
+
+        MQTT_data *send = new MQTT_data();
+        send->store(topic, payload);
+        send_buffer.unshift(send);
+    }
+    else
+    {
+        Serial.println(F("send buffer is full"));
     }
     memory(false);
 }
@@ -40,14 +43,15 @@ inline void DT_mqtt_send(const __FlashStringHelper *topic, uint8_t num, T payloa
 {
     memory(false);
     // debug(F(AT));
-    MQTT_data send;
-    if (mem_config.MQTT_online)
+    if (mem_config.MQTT_online && !send_buffer.isFull())
     {
-        send.store(topic, num, payload);
-        if (!send_buffer.unshift(send))
-        {
-            Serial.println(F("buffer overwrite"));
-        }
+        MQTT_data *send = new MQTT_data();
+        send->store(topic, num, payload);
+        send_buffer.unshift(send);
+    }
+    else
+    {
+        Serial.println(F("send buffer is full"));
     }
     memory(false);
 }

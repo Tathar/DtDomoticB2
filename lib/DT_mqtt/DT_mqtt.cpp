@@ -24,7 +24,7 @@ void (*_mqtt_receve)(MQTTClient *client, const char topic[], const char bytes[],
 
 // DT_buffer<MQTT_data> send_buffer;
 // DT_buffer<MQTT_recv_msg> recv_buffer;
-CircularBuffer<MQTT_data, 5> send_buffer;
+CircularBuffer<MQTT_data*, 5> send_buffer;
 CircularBuffer<MQTT_recv_msg, 10> recv_buffer;
 
 void DT_mqtt_set_update_callback(bool (*mqtt_update)(MQTTClient &mqtt, bool start))
@@ -308,13 +308,14 @@ void DT_mqtt_loop()
             }
             else if (send_buffer.size() > 0)
             {
-                while (send_buffer.size() > 0)
+                //while (send_buffer.size() > 0)
                 {
                     // 220502  debug(F(AT));
                     char topic[MAX_TOPIC];
                     char payload[MAX_PAYLOAD];
-                    MQTT_data data = send_buffer.shift();
-                    data.get(topic, 64, payload, MAX_PAYLOAD);
+                    MQTT_data *data = send_buffer.shift();
+                    data->get(topic, 64, payload, MAX_PAYLOAD);
+                    delete data;
                     Serial.print(F("send "));
                     Serial.print(topic);
                     Serial.print(F(" = "));

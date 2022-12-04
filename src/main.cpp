@@ -170,7 +170,7 @@ void load()
 #ifdef MQTT
 inline bool can_send()
 {
-  if (mem_config.MQTT_online && mem_config.ha_mqtt_config && mem_config.ha_mqtt_publish && mem_config.ha_mqtt_subscribe)
+  if (mem_config.MQTT_online)
   {
     return true;
   }
@@ -186,7 +186,7 @@ void relay_callback(const uint8_t num, const bool action)
   debug(F(AT));
   memory(false);
   // debug_wdt_reset();
-  if (mem_config.MQTT_online)
+  if (can_send())
   {
     if (action)
     {
@@ -211,7 +211,7 @@ void dimmer_relay_callback(const uint8_t num, const bool action)
   debug(F(AT));
   memory(false);
   // debug_wdt_reset();
-  if (mem_config.MQTT_online)
+  if (can_send())
   {
     if (action)
     {
@@ -231,19 +231,22 @@ void dimmer_relay_callback(const uint8_t num, const bool action)
 #if DIMMER_LIGHT_NUM > 0
 void dimmer_callback(const uint8_t num, const uint8_t percent, const bool candle)
 {
-  const __FlashStringHelper *payload;
-  if (num < DIMMER_LIGHT_NUM)
+  if (can_send())
   {
-    if (percent == 0)
-      payload = F("OFF");
-    else
-      payload = F("ON");
-    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/state"), num + 1, payload);
-    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/bri_state"), num + 1, percent);
-    if (candle)
-      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/fx_state"), num + 1, F("CANDLE"));
-    else
-      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/fx_state"), num + 1, F("NONE"));
+    const __FlashStringHelper *payload;
+    if (num < DIMMER_LIGHT_NUM)
+    {
+      if (percent == 0)
+        payload = F("OFF");
+      else
+        payload = F("ON");
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/state"), num + 1, payload);
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/bri_state"), num + 1, percent);
+      if (candle)
+        DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/fx_state"), num + 1, F("CANDLE"));
+      else
+        DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/fx_state"), num + 1, F("NONE"));
+    }
   }
 }
 #endif // NUM_DIMMER
@@ -251,30 +254,33 @@ void dimmer_callback(const uint8_t num, const uint8_t percent, const bool candle
 #if COVER_NUM > 0
 void cover_callback(const uint8_t num, const uint8_t percent, const cover_state state)
 {
-  switch (state)
+  if (can_send())
   {
-  case cover_stopped:
-    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/cover-%02d/state"), num + 1, F("stopped"));
-    break;
+    switch (state)
+    {
+    case cover_stopped:
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/cover-%02d/state"), num + 1, F("stopped"));
+      break;
 
-  case cover_open:
-    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/cover-%02d/state"), num + 1, F("open"));
-    break;
+    case cover_open:
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/cover-%02d/state"), num + 1, F("open"));
+      break;
 
-  case cover_closed:
-    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/cover-%02d/state"), num + 1, F("closed"));
-    break;
+    case cover_closed:
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/cover-%02d/state"), num + 1, F("closed"));
+      break;
 
-  case cover_opening:
-    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/cover-%02d/state"), num + 1, F("opening"));
-    break;
+    case cover_opening:
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/cover-%02d/state"), num + 1, F("opening"));
+      break;
 
-  case cover_closing:
-    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/cover-%02d/state"), num + 1, F("closing"));
-    break;
+    case cover_closing:
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/cover-%02d/state"), num + 1, F("closing"));
+      break;
 
-  default:
-    break;
+    default:
+      break;
+    }
   }
 
   DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/cover-%02d/pos_state"), num + 1, percent);
@@ -287,7 +293,7 @@ void input_callback(const uint8_t num, const Bt_Action action)
   // const __FlashStringHelper *payload;
   memory(false);
 
-  if (mem_config.MQTT_online)
+  if (can_send())
   {
 #ifdef MQTT
     // snprintf_P(topic, 56, F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/input-%02d/state"), num);
@@ -413,7 +419,7 @@ void pt100_callback(const uint8_t num, const float temp)
   // memory(false);
   // Serial.println("PT100_CALLBACK ");
 
-  if (mem_config.MQTT_online)
+  if (can_send())
   {
     DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pt100-%02d"), num + 1, temp);
   }
@@ -430,10 +436,13 @@ void bme280_callback_temperature(const uint8_t num, const float temperature)
 
   static uint32_t refresh = 0;
   uint32_t now = millis();
-  if (now - refresh >= MQTT_REFRESH && mem_config.MQTT_online)
+  if (can_send())
   {
-    refresh = now;
-    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/bme280-%02d/temp"), num + 1, temperature);
+    if (now - refresh >= MQTT_REFRESH && mem_config.MQTT_online)
+    {
+      refresh = now;
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/bme280-%02d/temp"), num + 1, temperature);
+    }
   }
   // memory(false);
 }
@@ -446,10 +455,13 @@ void bme280_callback_humidity(const uint8_t num, const float humidity)
 
   static uint32_t refresh = 0;
   uint32_t now = millis();
-  if (now - refresh >= MQTT_REFRESH && mem_config.MQTT_online)
+  if (can_send())
   {
-    refresh = now;
-    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/bme280-%02d/humidity"), num + 1, humidity);
+    if (now - refresh >= MQTT_REFRESH && mem_config.MQTT_online)
+    {
+      refresh = now;
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/bme280-%02d/humidity"), num + 1, humidity);
+    }
   }
   // memory(false);
 }
@@ -462,10 +474,13 @@ void bme280_callback_pressure(const uint8_t num, const float pressure)
 
   static uint32_t refresh = 0;
   uint32_t now = millis();
-  if (now - refresh >= MQTT_REFRESH && mem_config.MQTT_online)
+  if (can_send())
   {
-    refresh = now;
-    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/bme280-%02d/pressure"), num + 1, pressure);
+    if (now - refresh >= MQTT_REFRESH && mem_config.MQTT_online)
+    {
+      refresh = now;
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/bme280-%02d/pressure"), num + 1, pressure);
+    }
   }
   // memory(false);
 }
@@ -480,10 +495,13 @@ void ccs811_callback_co2(const uint8_t num, const float co2)
 
   static uint32_t refresh = 0;
   uint32_t now = millis();
-  if (now - refresh >= MQTT_REFRESH && mem_config.MQTT_online)
+  if (can_send())
   {
-    refresh = now;
-    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/ccs811-%02d/co2"), num + 1, co2);
+    if (now - refresh >= MQTT_REFRESH && mem_config.MQTT_online)
+    {
+      refresh = now;
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/ccs811-%02d/co2"), num + 1, co2);
+    }
   }
   memory(false);
 }
@@ -495,10 +513,13 @@ void ccs811_callback_cov(const uint8_t num, const float cov)
   memory(false);
   static uint32_t refresh = 0;
   uint32_t now = millis();
-  if (now - refresh >= MQTT_REFRESH && mem_config.MQTT_online)
+  if (can_send())
   {
-    refresh = now;
-    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/ccs811-%02d/cov"), num + 1, cov);
+    if (now - refresh >= MQTT_REFRESH && mem_config.MQTT_online)
+    {
+      refresh = now;
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/ccs811-%02d/cov"), num + 1, cov);
+    }
   }
   memory(false);
 }
@@ -513,10 +534,13 @@ void scd4x_callback_temperature(const uint8_t num, const float temperature)
 
   static uint32_t refresh = 0;
   uint32_t now = millis();
-  if (now - refresh >= MQTT_REFRESH && mem_config.MQTT_online)
+  if (can_send())
   {
-    refresh = now;
-    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/scd4x-%02d/temperature"), num + 1, temperature);
+    if (now - refresh >= MQTT_REFRESH && mem_config.MQTT_online)
+    {
+      refresh = now;
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/scd4x-%02d/temperature"), num + 1, temperature);
+    }
   }
   // memory(false);
 }
@@ -529,10 +553,13 @@ void scd4x_callback_humidity(const uint8_t num, const float humidity)
 
   static uint32_t refresh = 0;
   uint32_t now = millis();
-  if (now - refresh >= MQTT_REFRESH && mem_config.MQTT_online)
+  if (can_send())
   {
-    refresh = now;
-    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/scd4x-%02d/humidity"), num + 1, humidity);
+    if (now - refresh >= MQTT_REFRESH && mem_config.MQTT_online)
+    {
+      refresh = now;
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/scd4x-%02d/humidity"), num + 1, humidity);
+    }
   }
   // memory(false);
 }
@@ -545,10 +572,13 @@ void scd4x_callback_co2(const uint8_t num, const float pressure)
 
   static uint32_t refresh = 0;
   uint32_t now = millis();
-  if (now - refresh >= MQTT_REFRESH && mem_config.MQTT_online)
+  if (can_send())
   {
-    refresh = now;
-    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/scd4x-%02d/co2"), num + 1, pressure);
+    if (now - refresh >= MQTT_REFRESH && mem_config.MQTT_online)
+    {
+      refresh = now;
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/scd4x-%02d/co2"), num + 1, pressure);
+    }
   }
   // memory(false);
 }
@@ -563,10 +593,13 @@ void hdc1080_callback_temperature(const uint8_t num, const float temperature)
 
   static uint32_t refresh = 0;
   uint32_t now = millis();
-  if (now - refresh >= MQTT_REFRESH && mem_config.MQTT_online)
+  if (can_send())
   {
-    refresh = now;
-    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/hdc1080-%02d/temp"), num + 1, temperature);
+    if (now - refresh >= MQTT_REFRESH && mem_config.MQTT_online)
+    {
+      refresh = now;
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/hdc1080-%02d/temp"), num + 1, temperature);
+    }
   }
   // memory(false);
 }
@@ -579,10 +612,13 @@ void hdc1080_callback_humidity(const uint8_t num, const float humidity)
 
   static uint32_t refresh = 0;
   uint32_t now = millis();
-  if (now - refresh >= MQTT_REFRESH && mem_config.MQTT_online)
+  if (can_send())
   {
-    refresh = now;
-    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/hdc1080-%02d/humidity"), num + 1, humidity);
+    if (now - refresh >= MQTT_REFRESH && mem_config.MQTT_online)
+    {
+      refresh = now;
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/hdc1080-%02d/humidity"), num + 1, humidity);
+    }
   }
   // memory(false);
 }
@@ -594,7 +630,10 @@ void cpt_pulse_input_callback(const uint8_t num, const uint32_t counter)
 {
   debug(F(AT));
   // memory(true);
-  DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/counter-%02d"), num + 1, counter);
+  if (can_send())
+  {
+    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/counter-%02d"), num + 1, counter);
+  }
   // memory(false);
 }
 #endif // CPT_PULSE_INPUT
@@ -607,7 +646,7 @@ void poele_mode_callback(const DT_Poele_mode mode)
   memory(false);
   const __FlashStringHelper *payload;
   // mode poele
-  if (mem_config.MQTT_online)
+  if (can_send())
   {
     // strlcpy_P(topic, F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/poele/mode/state"), 56);
     switch (mode)
@@ -639,16 +678,19 @@ void dt3voies_callback(const float C2, const float C3)
   memory(false);
   static uint32_t refresh = 0;
   uint32_t now = millis();
-  if (now - refresh >= MQTT_REFRESH && mem_config.MQTT_online)
+  if (can_send())
   {
-    refresh = now;
-    // 220502  debug(F(AT));
-    // send_buffer.reserve(2);
-    int32_t digit = C2 * 100;
-    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/C2/state"), (float)(digit / 100.0));
+    if (now - refresh >= MQTT_REFRESH && mem_config.MQTT_online)
+    {
+      refresh = now;
+      // 220502  debug(F(AT));
+      // send_buffer.reserve(2);
+      int32_t digit = C2 * 100;
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/C2/state"), (float)(digit / 100.0));
 
-    digit = C3 * 100;
-    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/C3/state"), (float)(digit / 100.0));
+      digit = C3 * 100;
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/C3/state"), (float)(digit / 100.0));
+    }
   }
   memory(false);
 }
@@ -659,22 +701,25 @@ void dt3voies_callback_pid_pcbt(const float P, const float I, const float D, con
   memory(false);
   static uint32_t refresh = 0;
   uint32_t now = millis();
-  if (now - refresh >= MQTT_REFRESH && mem_config.MQTT_online)
+  if (can_send())
   {
-    refresh = now;
-    // 220502  debug(F(AT));
-    // send_buffer.reserve(4);
+    if (now - refresh >= MQTT_REFRESH && mem_config.MQTT_online)
+    {
+      refresh = now;
+      // 220502  debug(F(AT));
+      // send_buffer.reserve(4);
 
-    int32_t digit = P * 100;
-    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/P"), (float)(digit / 100.0));
-    digit = I * 100;
-    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/I"), (float)(digit / 100.0));
-    digit = D * 100;
-    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/D"), (float)(digit / 100.0));
-    digit = OUT * 100;
-    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/OUT"), (float)(digit / 100.0));
-    // 220502  debug(F(AT));
-    memory(false);
+      int32_t digit = P * 100;
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/P"), (float)(digit / 100.0));
+      digit = I * 100;
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/I"), (float)(digit / 100.0));
+      digit = D * 100;
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/D"), (float)(digit / 100.0));
+      digit = OUT * 100;
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/OUT"), (float)(digit / 100.0));
+      // 220502  debug(F(AT));
+      memory(false);
+    }
   }
 }
 
@@ -684,21 +729,24 @@ void dt3voies_callback_pid_mcbt(const float P, const float I, const float D, con
   memory(false);
   static uint32_t refresh = 0;
   uint32_t now = millis();
-  if (now - refresh >= MQTT_REFRESH && mem_config.MQTT_online)
+  if (can_send())
   {
-    // 220502  debug(F(AT));
-    refresh = now;
-    // send_buffer.reserve(4);
+    if (now - refresh >= MQTT_REFRESH && mem_config.MQTT_online)
+    {
+      // 220502  debug(F(AT));
+      refresh = now;
+      // send_buffer.reserve(4);
 
-    int32_t digit = P * 100;
-    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/P"), (float)(digit / 100.0));
-    digit = I * 100;
-    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/I"), (float)(digit / 100.0));
-    digit = D * 100;
-    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/D"), (float)(digit / 100.0));
-    digit = OUT * 100;
-    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/OUT"), (float)(digit / 100.0));
-    // 220502  debug(F(AT));
+      int32_t digit = P * 100;
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/P"), (float)(digit / 100.0));
+      digit = I * 100;
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/I"), (float)(digit / 100.0));
+      digit = D * 100;
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/D"), (float)(digit / 100.0));
+      digit = OUT * 100;
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/OUT"), (float)(digit / 100.0));
+      // 220502  debug(F(AT));
+    }
   }
   memory(false);
 }
@@ -707,7 +755,10 @@ void dt3voies_callback_pid_mcbt(const float P, const float I, const float D, con
 void dt3voies_callback_avg_temp(const float temp)
 {
   memory(false);
-  DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/avg-temp/state"), (float)temp);
+  if (can_send())
+  {
+    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/avg-temp/state"), (float)temp);
+  }
   memory(false);
 }
 #endif // VANNES
@@ -719,27 +770,30 @@ void dt_radiator_callback(const uint8_t num, const float out, const float I)
   memory(false);
   static uint32_t refresh = 0;
   uint32_t now = millis();
-  if (now - refresh >= MQTT_REFRESH && mem_config.MQTT_online)
+  if (can_send())
   {
-    refresh = now;
-    // send_buffer.reserve(3);
+    if (now - refresh >= MQTT_REFRESH && mem_config.MQTT_online)
+    {
+      refresh = now;
+      // send_buffer.reserve(3);
 
-    if (eeprom_config.radiator[num].mode == Radiator_Mode_Off)
-    {
-      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/radiator-%02d/state"), num, F("off"));
-    }
-    else if (eeprom_config.radiator[num].mode == Radiator_Mode_Heating && out != 0)
-    {
-      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/radiator-%02d/state"), num, F("heating"));
-    }
-    else if (eeprom_config.radiator[num].mode == Radiator_Mode_Heating)
-    {
-      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/radiator-%02d/state"), num, F("idle"));
-    }
+      if (eeprom_config.radiator[num].mode == Radiator_Mode_Off)
+      {
+        DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/radiator-%02d/state"), num, F("off"));
+      }
+      else if (eeprom_config.radiator[num].mode == Radiator_Mode_Heating && out != 0)
+      {
+        DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/radiator-%02d/state"), num, F("heating"));
+      }
+      else if (eeprom_config.radiator[num].mode == Radiator_Mode_Heating)
+      {
+        DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/radiator-%02d/state"), num, F("idle"));
+      }
 
-    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/radiator-%02d/OUT"), num, out);
-    int32_t digit = I * 100;
-    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/radiator-%02d/I"), num, (float)(digit / 100.0));
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/radiator-%02d/OUT"), num, out);
+      int32_t digit = I * 100;
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/radiator-%02d/I"), num, (float)(digit / 100.0));
+    }
   }
   memory(false);
 }
@@ -761,7 +815,7 @@ bool mqtt_publish(bool start)
   else if (sequance == BOOST_PP_COUNTER)
     Serial.println(F("mqtt_publish"));
 
-  if (mem_config.ha_mqtt_config == false) // on attand la fin de l envoie de la configuration home assistant
+  if (mem_config.ha_mqtt_config == false && mem_config.ha_mqtt_subscribe) // on attand la fin de l envoie de la configuration home assistant
   {
     return false;
   }
