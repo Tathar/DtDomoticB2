@@ -22,6 +22,7 @@ enum __attribute__((__packed__)) type
     ha_float,
     ha_int32_t,
     ha_flash_cstr_tsprintf,
+    ha_flash_cstr_tsprintf_2,
     ha_cstr_tsprintf,
     ha_str_tsprintf,
     ha_float_tsprintf,

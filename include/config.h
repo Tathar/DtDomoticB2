@@ -6,7 +6,7 @@
 
 void debug(const char *var);
 void debug(const __FlashStringHelper *var);
-void memory(bool print);
+uint16_t memory(bool print);
 // void debug_wdt_reset();
 // void debug_wdt_reset(const char *var);
 // void debug_wdt_reset(const __FlashStringHelper *var);

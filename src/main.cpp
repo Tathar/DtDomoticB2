@@ -84,7 +84,7 @@ void debug_wdt_reset(const __FlashStringHelper *var)
 */
 extern void *__brkval;
 // calcule de la memoire disponible
-void memory(bool print)
+uint16_t memory(bool print)
 {
   static unsigned int min_free_memory = 65535;
   unsigned int free_memory = (uint16_t)SP - (uint16_t)__brkval;
@@ -106,6 +106,7 @@ void memory(bool print)
     Serial.print(F("free memory = "));
     Serial.println(free_memory);
   }
+  return free_memory;
 }
 
 // calcule de la charge system

@@ -55,3 +55,22 @@ inline void DT_mqtt_send(const __FlashStringHelper *topic, uint8_t num, T payloa
     }
     memory(false);
 }
+
+
+template <typename T>
+inline void DT_mqtt_send(const __FlashStringHelper *topic, uint8_t num_t, T payload , uint8_t num_p)
+{
+    memory(false);
+    // debug(F(AT));
+    if (mem_config.MQTT_online && !send_buffer.isFull())
+    {
+        MQTT_data *send = new MQTT_data();
+        send->store(topic, num_t, payload, num_p);
+        send_buffer.unshift(send);
+    }
+    else
+    {
+        Serial.println(F("send buffer is full"));
+    }
+    memory(false);
+}
