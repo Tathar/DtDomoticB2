@@ -33,7 +33,8 @@ uint16_t memory(bool print);
 
 // Dimmer
 #define DIMMER_LIGHT_NUM 0 // max (DIMMER_LIGHT_NUM + DIMMER_HEAT_NUM + (DIMMER_COVER_NUM * 2) ) = 14
-#define DIMMER_SPEED 250   // en miliseconde
+#define DIMMER_ON_OFF_SPEED 250   // en miliseconde
+#define DIMMER_SETTING_SPEED 10000   // en miliseconde pour 100%
 // #define MIN_CANDLE_TIME 250
 // #define MAX_CANDLE_TIME 1000
 #define CANDLE_OFSSET_PERCENTE_MIN 0  // en pourcentage

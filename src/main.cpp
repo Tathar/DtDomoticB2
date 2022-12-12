@@ -24,6 +24,8 @@
 #include <DT_cpt_pulse_input.h>
 #include <DT_ecs.h>
 
+#include <DT_interaction.h>
+
 #include <avr/wdt.h> //watchdog
 
 // #include <pinout.h>
@@ -287,11 +289,11 @@ void cover_callback(const uint8_t num, const uint8_t percent, const cover_state 
   DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/cover-%02d/pos_state"), num + 1, percent);
 }
 #endif
+
 // envoi de donné MQTT quand une entrée est activée / desactivée
 void input_callback(const uint8_t num, const Bt_Action action)
 {
   debug(F(AT));
-  // const __FlashStringHelper *payload;
   memory(false);
 
   if (can_send())
@@ -2079,10 +2081,10 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
       bool_value = get_dimmer_candle(num);
       if (strcmp(buffer, "ON") == 0)
       {
-        dimmer_set(num - 1, true, DIMMER_SPEED, bool_value);
+        dimmer_set(num - 1, true, DIMMER_ON_OFF_SPEED, bool_value);
       }
       else if (strcmp(buffer, "OFF") == 0)
-        dimmer_set(num - 1, false, DIMMER_SPEED);
+        dimmer_set(num - 1, false, DIMMER_ON_OFF_SPEED);
     }
     else if (snprintf_P(_topic, 64, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/bri_set"), num) > 0 && strncmp(topic, _topic, 64) == 0) // dimmer
     {
@@ -2090,7 +2092,7 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
       if (sscanf_P(buffer, PSTR("%" SCNu8), &u8t_value) == 1)
       {
         bool_value = get_dimmer_candle(num - 1);
-        dimmer_set(num - 1, u8t_value, DIMMER_SPEED, bool_value);
+        dimmer_set(num - 1, u8t_value, DIMMER_ON_OFF_SPEED, bool_value);
       }
     }
     else if (snprintf_P(_topic, 64, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/fx_set"), num) > 0 && strncmp(topic, _topic, 64) == 0) // dimmer
@@ -2099,11 +2101,11 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
       u8t_value = get_dimmer(num - 1);
       if (strcmp(buffer, "NONE") == 0)
       {
-        dimmer_set(num - 1, u8t_value, DIMMER_SPEED, false);
+        dimmer_set(num - 1, u8t_value, DIMMER_ON_OFF_SPEED, false);
       }
       else if (strcmp(buffer, "CANDLE") == 0)
       {
-        dimmer_set(num - 1, u8t_value, DIMMER_SPEED, true);
+        dimmer_set(num - 1, u8t_value, DIMMER_ON_OFF_SPEED, true);
       }
     }
     else if (snprintf_P(_topic, 64, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/dimmer-%02d/min_set"), num) > 0 && strncmp(topic, _topic, 64) == 0) // dimmer

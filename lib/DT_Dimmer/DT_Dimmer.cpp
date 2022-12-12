@@ -3,7 +3,6 @@
 #include "config.h"
 #include "DT_eeprom.h"
 
-
 #if DIMMER_LIGHT_NUM + DIMMER_HEAT_NUM + DIMMER_RELAY_NUM > 0
 
 #define EI_NOTINT0
@@ -37,7 +36,6 @@ heat_mode mode[DIMMER_HEAT_NUM];
 uint32_t num_dimmer_delay[DIMMER_RELAY_NUM];
 #endif
 
-#define SCALE(val, in_min, in_max, out_min, out_max) (((double)val - (double)in_min) * ((double)out_max - (double)out_min) / ((double)in_max - (double)in_min)) + out_min
 /*
 uint16_t to_ocrx(uint8_t num, double value)
 {
@@ -345,7 +343,6 @@ inline void set_ocrx(uint8_t num)
     }
 }
 
-
 #if DIMMER_LIGHT_NUM > 0
 void calc_ocr(uint8_t num, double value)
 {
@@ -389,7 +386,7 @@ void calc_ocr(uint8_t num, double value)
 
     // set_ocrx(num);
 }
-#endif //DIMMER_LIGHT_NUM > 0
+#endif // DIMMER_LIGHT_NUM > 0
 
 void (*_callback_dimmer)(const uint8_t num, const uint8_t percent, const bool candle);
 
@@ -587,12 +584,11 @@ void Dimmer_init(void)
     // delay(20);
 };
 
-
 #if DIMMER_LIGHT_NUM > 0
 // demmarage / extinction du dimmer
 // num : numero du dimmer
-// percent : pourcentage du dimmer (0 pour arret)
-// time : temps de passage a la nouvelle valleur
+// power : 255 == 100% | 0 == 0%)
+// time : temps pour ataindre la puissance
 // candle : mode bougie (non implémanté)
 void dimmer_set(uint8_t num, uint8_t value, uint16_t time, bool candle)
 {
@@ -653,6 +649,16 @@ void dimmer_set(uint8_t num, uint8_t value, uint16_t time, bool candle)
     }
     else
     {
+        // uint16_t calc_time;
+        // if (value > light[num].Dimmer_value)
+        // {
+        //     calc_time = (value - light[num].Dimmer_value) * time
+        // }
+        // else
+        // {
+        //     calc_time = (light[num].Dimmer_value - value) * time
+        // }
+
         light[num].Dimmer_time = time;           // in millisecond
         light[num].Dimmer_time_start = millis(); // in millisecond
         light[num].Dimmer_go_value = value;
@@ -695,7 +701,12 @@ void dimmer_set(uint8_t num, bool start, uint16_t time, bool candle)
     else
         dimmer_set(num, (uint8_t)0, time, candle);
 }
-#endif //DIMMER_LIGHT_NUM > 0
+
+void dimmer_stop(uint8_t num)
+{
+    dimmer_set(num, light[num].Dimmer_value, 0, light[num].Dimmer_candle);
+}
+#endif // DIMMER_LIGHT_NUM > 0
 
 #if DIMMER_HEAT_NUM > 0
 void dimmer_set_heat_mode(uint8_t num, heat_mode Mode)
@@ -879,7 +890,7 @@ void dimmer_loop()
             }
         }
     }
-#endif //DIMMER_LIGHT_NUM
+#endif // DIMMER_LIGHT_NUM
 
     // HEAT
     /*
@@ -989,4 +1000,4 @@ void set_dimmer_callback(void (*callback)(const uint8_t num, const uint8_t perce
     _callback_dimmer = callback;
 }
 
-#endif //DIMMER_LIGHT_NUM + DIMMER_HEAT_NUM + DIMMER_RELAY_NUM
+#endif // DIMMER_LIGHT_NUM + DIMMER_HEAT_NUM + DIMMER_RELAY_NUM

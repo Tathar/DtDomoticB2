@@ -7,6 +7,9 @@
 #include "Arduino.h"
 #endif
 
+
+#define SCALE(val, in_min, in_max, out_min, out_max) (((double)val - (double)in_min) * ((double)out_max - (double)out_min) / ((double)in_max - (double)in_min)) + out_min
+
 enum heat_mode
 {
     none,
@@ -33,6 +36,7 @@ void dimmer_debug(void);
 
 void dimmer_set(uint8_t num, uint8_t value, uint16_t time = 0, bool candle = false); 
 void dimmer_set(uint8_t num, bool start, uint16_t time = 0, bool candle = false);
+void dimmer_stop(uint8_t num);
 void dimmer_set_heat_mode(uint8_t num, heat_mode Mode);
 // void dimmer_on(uint8_t num);
 // void dimmer_off(uint8_t num);
