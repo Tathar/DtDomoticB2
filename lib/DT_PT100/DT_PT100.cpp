@@ -7,9 +7,12 @@
 #define MIN_DEFAULT_PT100 -100 // si la temperature est inferieur, on considere que la PT100 est en default
 #define MAX_DEFAULT_PT100 200  // si la temperature est superieur, on considere que la PT100 est en default
 
-Adafruit_MAX31865 *max31865[TEMP_NUM];
 
-float old_temp[TEMP_NUM];
+#if PT100_NUM > 0
+
+Adafruit_MAX31865 *max31865[PT100_NUM];
+
+float old_temp[PT100_NUM];
 void (*pt100_callback)(const uint8_t num, const float temp);
 
 float _temp_get(int num)
@@ -57,7 +60,7 @@ float _temp_get(int num)
 void DT_pt100_init()
 {
     pt100_callback = nullptr;
-    for (uint8_t num = 0; num < TEMP_NUM; ++num)
+    for (uint8_t num = 0; num < PT100_NUM; ++num)
     {
 #if DIMMER_RELAY_LAST_NUM > 0                                                       // si dimmer
         uint8_t pin = pgm_read_byte(OPT_ARRAY + (DIMMER_RELAY_LAST_NUM + 1 + num)); // decallage de 1 lie au point zero des dimmers
@@ -80,13 +83,13 @@ void DT_pt100_loop()
     float tmp = 0;
     if (now - old_time > 1000)
     {
-        for (uint8_t num = 0; num < TEMP_NUM; num++)
+        for (uint8_t num = 0; num < PT100_NUM; num++)
         {
             uint16_t rtd_value;
             if (max31865[num]->readRTDAsync(rtd_value))
             {
                 tmp = max31865[num]->temperatureAsync(rtd_value, 100, TEMP_RREF);
-                if (num == TEMP_NUM - 1)
+                if (num == PT100_NUM - 1)
                 {
                     old_time = now;
                 }
@@ -98,14 +101,14 @@ void DT_pt100_loop()
             }
         }
     }
-    if (now - PT100_callback_time >= MQTT_REFRESH / TEMP_NUM)
+    if (now - PT100_callback_time >= MQTT_REFRESH / PT100_NUM)
     {
         PT100_callback_time = now;
         // if (pt100_callback != nullptr)
         {
 
             static uint8_t num = 0;
-            if (num < TEMP_NUM)
+            if (num < PT100_NUM)
             {
                 Serial.print(F("PT100 "));
                 Serial.print(num);
@@ -116,7 +119,7 @@ void DT_pt100_loop()
                     pt100_callback(num, old_temp[num]);
                 ++num;
             }
-            if (num == TEMP_NUM)
+            if (num == PT100_NUM)
             {
                 num = 0;
             }
@@ -126,7 +129,7 @@ void DT_pt100_loop()
 
 float DT_pt100_get(uint8_t num)
 {
-    if (num < TEMP_NUM)
+    if (num < PT100_NUM)
     {
         return old_temp[num];
     }
@@ -140,3 +143,5 @@ void DT_pt100_set_callback(void (*callback)(const uint8_t num, const float temp)
 {
     pt100_callback = callback;
 }
+
+#endif // PT100_NUM > 0

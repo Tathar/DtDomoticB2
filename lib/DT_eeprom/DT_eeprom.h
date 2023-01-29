@@ -32,7 +32,7 @@ struct Cover
 {
     uint16_t time_up;   // ms per percent
     uint16_t time_down; // ms per percent
-    // uint32_t backup_pos; // ms per percent
+    uint8_t backup_pos; // in percente
 };
 
 enum Radiator_Mode
@@ -58,12 +58,12 @@ struct Radiator
 // declaration de la structure de configuration
 struct Mem_Config
 {
-    float C2;                     // consigne Temp PCBT
-    float C3;                     // consigne MCBT
-    bool MQTT_online = false;     // connecte au broker MQTT
-    bool HA_online = false;       // Home Assistant
-    bool ha_mqtt_config = false;  // Home Assistant MQTT configuration
-    bool ha_mqtt_publish = false; // Home Assistant MQTT configuration
+    float C2;                       // consigne Temp PCBT
+    float C3;                       // consigne MCBT
+    bool MQTT_online = false;       // connecte au broker MQTT
+    bool HA_online = false;         // Home Assistant
+    bool ha_mqtt_config = false;    // Home Assistant MQTT configuration
+    bool ha_mqtt_publish = false;   // Home Assistant MQTT configuration
     bool ha_mqtt_subscribe = false; // Home Assistant MQTT configuration
 #if DIMMER_LIGHT_NUM >= 1
     uint8_t Dimmer_old_value[DIMMER_LIGHT_NUM]; // Mise a l echelle

@@ -202,11 +202,11 @@ bool homeassistant(bool start)
                                 num = 0;
                         }
                         break;
-#if TEMP_NUM > 0
+#if PT100_NUM > 0
 #include BOOST_PP_UPDATE_COUNTER()
                 case BOOST_PP_COUNTER:
                         // PT100
-                        if (num < TEMP_NUM)
+                        if (num < PT100_NUM)
                         {
                                 f_payload = PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "\",\"uniq_id\":\"" BOARD_IDENTIFIER "-pt100-%02d\",\"name\":\"pt100-%02d\",\"stat_t\":\"~/pt100-%02d\",\"dev_cla\":\"temperature\",\"unit_of_meas\":\"°C\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"),
                                 DT_mqtt_send(F("homeassistant/sensor/" BOARD_IDENTIFIER "/pt100-%02d/config"), num + 1, reinterpret_cast<const __FlashStringHelper *>(f_payload), num + 1);
@@ -244,7 +244,7 @@ bool homeassistant(bool start)
                                 // TODO:Radiator preset_mode_state_topic = pr_mode_stat_t
                                 // TODO:Radiator preset_mode_command_topic = pr_mode_cmd_t
 
-                                uint8_t temp_num = pgm_read_byte(DIMMER_RADIATOR_PT100_ARRAY + num);
+                                uint8_t PT100_NUM = pgm_read_byte(DIMMER_RADIATOR_PT100_ARRAY + num);
                                 f_payload = PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/radiator-%02d\",\"uniq_id\":\"" BOARD_IDENTIFIER "-radiator-%02d-heat\",\"name\":\"radiator-%02d\",\"curr_temp_t\":\"" MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pt100-%02d\",\"act_t\":\"~/state\",\"temp_cmd_t\":\"~/temp_set\",\"temp_stat_t\":\"~/temp_state\",\"temp_step\":\"0.1\",\"max_temp\":\"RADIATOR_HA_MAX_TEMP\",\"min_temp\":\"RADIATOR_HA_MIN_TEMP\",\"modes\":\"[“off”,“heat”]\",\"mode_cmd_t\":\"~/mode_set\",\"mode_stat_t\":\"~/mode_state\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"),
                                 DT_mqtt_send(F("homeassistant/climate/" BOARD_IDENTIFIER "/radiator-%02d/config"), num + 1, reinterpret_cast<const __FlashStringHelper *>(f_payload), num + 1, num + 1);
                                 num++;

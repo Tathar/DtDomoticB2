@@ -113,7 +113,6 @@ void DT_relay(uint8_t num, bool state)
                 async_call[num] = true;
             }
         }
-
 #endif
     }
     else

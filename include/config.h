@@ -3,6 +3,7 @@
 
 #include <Arduino.h>
 #include <pinout.h>
+#include <interaction_tools.h>
 
 void debug(const char *var);
 void debug(const __FlashStringHelper *var);
@@ -32,9 +33,10 @@ uint16_t memory(bool print);
 #define INPUT_REFRESH DEBOUNCE_TIME / 2
 
 // Dimmer
-#define DIMMER_LIGHT_NUM 0 // max (DIMMER_LIGHT_NUM + DIMMER_HEAT_NUM + (DIMMER_COVER_NUM * 2) ) = 14
-#define DIMMER_ON_OFF_SPEED 250   // en miliseconde
-#define DIMMER_SETTING_SPEED 10000   // en miliseconde pour 100%
+#define DIMMER_LIGHT_NUM 2         // max (DIMMER_LIGHT_NUM + DIMMER_HEAT_NUM + (DIMMER_COVER_NUM * 2) ) = 14
+#define DIMMER_ON_OFF_SPEED 250    // en miliseconde
+#define DIMMER_SETTING_SPEED 10000 // en miliseconde pour 100%
+#define DIMMER_SETTING_MIN 25      // valeur minimum du dimmer
 // #define MIN_CANDLE_TIME 250
 // #define MAX_CANDLE_TIME 1000
 #define CANDLE_OFSSET_PERCENTE_MIN 0  // en pourcentage
@@ -46,34 +48,35 @@ uint16_t memory(bool print);
 #define DIMMER_COVER_NUM 0    // nombre de volet connecté au dimmer : max (DIMMER_LIGHT_NUM + DIMMER_HEAT_NUM + (DIMMER_COVER_NUM * 2) ) = 14
 #define DIMMER_RADIATOR_NUM 0 // nombre de radiateur connecté au dimmer : max (DIMMER_LIGHT_NUM + DIMMER_HEAT_NUM + (DIMMER_COVER_NUM * 2) + DIMMER_RADIATOR_NUM ) = 14
 const uint8_t DIMMER_RADIATOR_PT100_ARRAY[DIMMER_RADIATOR_NUM] PROGMEM = {};
+
 // PT100
-#define TEMP_NUM 18 // max 18 //TODO: bug if TEMP_NUM != 18
-#define PT100_EXT 6
+#define PT100_NUM 0 // max 18 //TODO: bug if PT100_NUM != 18
+// #define PT100_EXT 6
 
 // BME_280
-#define BME280_NUM 1
+#define BME280_NUM 0
 #if BME280_NUM > 0
 const uint8_t BME280_ADDRESS_ARRAY[BME280_NUM] PROGMEM = {0x76};
 const uint8_t BME280_CHANNEL_ARRAY[BME280_NUM] PROGMEM = {2};
 #endif
 
 // CCS_811
-#define CCS811_NUM 2
+#define CCS811_NUM 0
 #if CCS811_NUM > 0
 const uint8_t CCS811_ADDRESS_ARRAY[CCS811_NUM] PROGMEM = {0x5A};
 const uint8_t CCS811_CHANNEL_ARRAY[CCS811_NUM] PROGMEM = {2};
 #endif
 
 // SCD4X
-#define SCD4X_NUM 3
+#define SCD4X_NUM 0
 #if SCD4X_NUM > 0
-const uint8_t SCD4X_CHANNEL_ARRAY[SCD4X_NUM] PROGMEM = {1,2,3};
+const uint8_t SCD4X_CHANNEL_ARRAY[SCD4X_NUM] PROGMEM = {1, 2, 3};
 #endif // SCD4X
 
 // HDC1080
-#define HDC1080_NUM 4
+#define HDC1080_NUM 0
 #if HDC1080_NUM > 0
-const uint8_t HDC1080_CHANNEL_ARRAY[HDC1080_NUM] PROGMEM = {1,2,3};
+const uint8_t HDC1080_CHANNEL_ARRAY[HDC1080_NUM] PROGMEM = {1, 2, 3};
 #endif
 
 // TIC
@@ -83,11 +86,15 @@ const uint8_t HDC1080_CHANNEL_ARRAY[HDC1080_NUM] PROGMEM = {1,2,3};
 // relais
 #define RELAY_COVER_NUM 0    // nombre de volet connecté au relai
 #define RELAY_RADIATOR_NUM 0 // nombre de radiateur connecté au relai
+#if RELAY_RADIATOR_NUM > 0
 const uint8_t RELAY_RADIATOR_PT100_ARRAY[RELAY_RADIATOR_NUM] PROGMEM = {};
+#endif // RELAY_RADIATOR_NUM
 
 // cpt_pulse_input
-#define CPT_PULSE_INPUT 6 // nombre de compteur d'impulsion
+#define CPT_PULSE_INPUT 0 // nombre de compteur d'impulsion
+#if CPT_PULSE_INPUT > 0
 const uint8_t CPT_PULSE_INPUT_ARRAY[CPT_PULSE_INPUT] PROGMEM = {6, 1, 2, 3, 4, 5};
+#endif // CPT_PULSE_INPUT > 0
 
 // watchdog
 #define WATCHDOG_TIME WDTO_8S
@@ -104,8 +111,8 @@ const uint8_t CPT_PULSE_INPUT_ARRAY[CPT_PULSE_INPUT] PROGMEM = {6, 1, 2, 3, 4, 5
 #define MAC4 0xFE
 #define MAC5 0xFE
 #define MAC6 0xED
-//#define DHCP
-// ip address
+// #define DHCP
+//  ip address
 #define SOURCE_IP1 192
 #define SOURCE_IP2 168
 #define SOURCE_IP3 1
@@ -150,7 +157,7 @@ const uint8_t CPT_PULSE_INPUT_ARRAY[CPT_PULSE_INPUT] PROGMEM = {6, 1, 2, 3, 4, 5
 #define RADIATOR_HA_MIN_TEMP 15
 
 // Poele
-#define POELE
+//#define POELE
 #ifdef POELE
 #define MIN_T4 0                     // en °C (fake NTC)
 #define POELE_MAX_TEMPERATURE 85     // en °C (consigne temperature Balon)
@@ -171,7 +178,7 @@ const uint8_t CPT_PULSE_INPUT_ARRAY[CPT_PULSE_INPUT] PROGMEM = {6, 1, 2, 3, 4, 5
 #endif               // POELE
 
 // Vanne 3 Voies
-#define VANNES
+//#define VANNES
 #ifdef VANNES
 #define TMP_EAU_PCBT_MAX 38 // valeur maximum de la consigne de temperature
 #define TMP_EAU_MCBT_MAX 60 // valeur maximum de la consigne de temperature
@@ -193,7 +200,7 @@ const uint8_t CPT_PULSE_INPUT_ARRAY[CPT_PULSE_INPUT] PROGMEM = {6, 1, 2, 3, 4, 5
 #define MAX_TMP_PLANCHE 27 // en °C
 #define NUM_PLANCHE 4
 #define PT100_PLANCHE_SALON 8
-//#define RELAIS_PLANCHE_SALON
+// #define RELAIS_PLANCHE_SALON
 #define PT100_PLANCHE_CH_1 9
 // #define RELAIS_PLANCHE_CH_1
 #define PT100_PLANCHE_CH_2 10
@@ -222,6 +229,42 @@ const uint8_t CPT_PULSE_INPUT_ARRAY[CPT_PULSE_INPUT] PROGMEM = {6, 1, 2, 3, 4, 5
 
 // Demmarage Poele
 #define MARCHE_POELE 21
+
+//Interaction
+#define PUSH_1_NUM 7
+const dt_interaction_eeprom_config interaction_input_1_push_config[PUSH_1_NUM] PROGMEM = {
+    dt_no_action(),
+    dt_button_push_rly(0),
+    dt_switch_rly(0),
+    dt_two_button_push_dim(1, up),
+    dt_two_button_push_dim(1, down),
+    dt_two_button_push_cover(1, up),
+    dt_two_button_push_cover(1, down)};
+
+#define PUSH_2_NUM 0
+#if PUSH_2_NUM > 0
+const dt_interaction_eeprom_config interaction_input_2_push_config[PUSH_2_NUM] PROGMEM = {
+    dt_button_push_rly(0),
+    dt_two_button_push_dim(1, up),
+    dt_no_action()};
+#endif // PUSH_2_NUM > 0
+
+#define PUSH_3_NUM 0
+#if PUSH_3_NUM > 0
+const dt_interaction_eeprom_config interaction_input_3_push_config[PUSH_3_NUM] PROGMEM = {
+    dt_button_push_rly(0),
+    dt_two_button_push_dim(1, up),
+    dt_no_action()};
+#endif // PUSH_3_NUM > 0
+
+#define PUSH_4_NUM 0
+#if PUSH_4_NUM > 0
+const dt_interaction_eeprom_config interaction_input_4_push_config[PUSH_4_NUM] PROGMEM = {
+    dt_button_push_rly(0),
+    dt_two_button_push_dim(1, up),
+    dt_no_action()};
+#endif // PUSH_4_NUM > 0
+
 
 // jeux de lumière
 #define JEUX_LUMIERE_1 8
