@@ -146,6 +146,7 @@ const uint8_t CPT_PULSE_INPUT_ARRAY[CPT_PULSE_INPUT] PROGMEM = {6, 1, 2, 3, 4, 5
 #define MQTT_WILL_QOS 1
 #define MQTT_WILL_RETAIN true
 #define MQTT_WILL_MESSAGE "offline"
+#define MQTT_NOT_WILL_MESSAGE "online"
 // Advance option
 #define NETWORK_RESET_TIME 60000 // temp avant reset de la carte reseau en qua d'imposibilité de se connecter (en miliseconde)
 #define MQTT_UPDATE 1000         // in ms

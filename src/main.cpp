@@ -854,7 +854,7 @@ void input_callback(const uint8_t num, const Bt_Action action)
       switch (sequance)
       {
       case BOOST_PP_COUNTER:
-        DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/availability"), F("online"));
+        DT_mqtt_send(F(MQTT_WILL_TOPIC), F(MQTT_NOT_WILL_MESSAGE));
         break;
 
 #include BOOST_PP_UPDATE_COUNTER()

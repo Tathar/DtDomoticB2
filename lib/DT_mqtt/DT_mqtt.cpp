@@ -24,7 +24,7 @@ void (*_mqtt_receve)(MQTTClient *client, const char topic[], const char bytes[],
 
 // DT_buffer<MQTT_data> send_buffer;
 // DT_buffer<MQTT_recv_msg> recv_buffer;
-CircularBuffer<MQTT_data*, 5> send_buffer;
+CircularBuffer<MQTT_data *, 5> send_buffer;
 CircularBuffer<MQTT_recv_msg, 10> recv_buffer;
 
 void DT_mqtt_set_update_callback(bool (*mqtt_update)(MQTTClient &mqtt, bool start))
@@ -179,10 +179,11 @@ void DT_mqtt_loop()
     // Serial.println("DT_mqtt_loop 2");
     if (as_ethernet)
     {
+
         link_status = (Ethernet.linkStatus() == LinkON); // verification de l'etat de connection de la carte reseau
         if ((!mqtt.connected() || !link_status))         // si pas de connection reseau ou pas connecté au serveur MQTT
         {
-
+            Ethernet.maintain();
             static uint32_t keep_alive_timout = 0;
             if (mem_config.MQTT_online)
             {
@@ -208,6 +209,9 @@ void DT_mqtt_loop()
             else if (reset_time != 0 && !reset && now - reset_time > NETWORK_RESET_TIME)
             {
                 Serial.println(F("reset network board"));
+                mqtt.disconnect();
+                ethClient.flush();
+                ethClient.stop();
                 digitalWrite(NETWORK_RESET, LOW);
                 last_reconnection_time = now;
                 reset = true;
@@ -217,7 +221,7 @@ void DT_mqtt_loop()
             {
                 // 220502  debug(F(AT));
                 last_reconnection_time = now;
-                if (reset && now - reset_time > 60000)
+                if (reset && now - reset_time > 1000)
                 {
                     Serial.println(F("restart network"));
                     digitalWrite(NETWORK_RESET, HIGH);
@@ -225,7 +229,18 @@ void DT_mqtt_loop()
                     // debug_wdt_reset(F(AT));
                     // wdt_reset();
                     // debug_wdt_reset();
-                    init_ethernet();
+                    // init_ethernet();
+                    // DT_mqtt_init();
+                    byte mac[] = {MAC1, MAC2, MAC3, MAC4, MAC5, MAC6};
+                    Ethernet.setMACAddress(mac);
+                    IPAddress ip(SOURCE_IP1, SOURCE_IP2, SOURCE_IP3, SOURCE_IP4);
+                    Ethernet.setLocalIP(ip);
+                    IPAddress mask(MASK1, MASK2, MASK3, MASK4);
+                    Ethernet.setSubnetMask(mask);
+                    IPAddress gateway(GW1, GW2, GW3, GW4);
+                    Ethernet.setGatewayIP(gateway);
+                    IPAddress dns(DNS1, DNS2, DNS3, DNS4);
+                    Ethernet.setDnsServerIP(dns);
                     reset_time = 0;
                     reset = false;
                 }
@@ -308,7 +323,7 @@ void DT_mqtt_loop()
             }
             else if (send_buffer.size() > 0)
             {
-                //while (send_buffer.size() > 0)
+                // while (send_buffer.size() > 0)
                 {
                     // 220502  debug(F(AT));
                     char topic[MAX_TOPIC];
