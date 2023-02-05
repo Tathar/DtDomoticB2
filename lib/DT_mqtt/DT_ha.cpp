@@ -518,6 +518,84 @@ bool homeassistant(bool start)
 
 #endif // CPT_PULSE_INPUT
 
+
+#if CPT_PULSE_INPUT_IF_OUT > 0
+#include BOOST_PP_UPDATE_COUNTER()
+                case BOOST_PP_COUNTER:
+                        // input pulse counter if
+                        if (num < CPT_PULSE_INPUT_IF_OUT)
+                        {
+                                f_payload = PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "\",\"uniq_id\":\"" BOARD_IDENTIFIER "-counter-if-out-true-%02d\",\"name\":\"counter-if-out-%02d-true\",\"stat_t\":\"~/counter-if-out-%02d/true\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}");
+                                DT_mqtt_send(F("homeassistant/sensor/" BOARD_IDENTIFIER "/counter-if-out-true-%02d/config"), num + 1, reinterpret_cast<const __FlashStringHelper *>(f_payload), num + 1);
+
+                                f_payload = PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "\",\"uniq_id\":\"" BOARD_IDENTIFIER "-counter-if-out-false-%02d\",\"name\":\"counter-if-out-%02d-false\",\"stat_t\":\"~/counter-if-out-%02d/false\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}");
+                                DT_mqtt_send(F("homeassistant/sensor/" BOARD_IDENTIFIER "/counter-if-out-false-%02d/config"), num + 1, reinterpret_cast<const __FlashStringHelper *>(f_payload), num + 1);
+                                num++;
+                                sequance--;
+                        }
+                        else
+                        {
+                                num = 0;
+                        }
+                        break;
+
+#include BOOST_PP_UPDATE_COUNTER()
+                case BOOST_PP_COUNTER:
+                        // input pulse counter if
+                        if (num < CPT_PULSE_INPUT_IF_OUT)
+                        {
+                                f_payload = PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "\",\"uniq_id\":\"" BOARD_IDENTIFIER "-counter-if-out-btn-%02d\",\"name\":\"reset-counter-if-out-%02d\",\"command_topic\":\"~/counter-if-out-%02d/btn\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}");
+                                DT_mqtt_send(F("homeassistant/button/" BOARD_IDENTIFIER "/counter-if-out-btn-%02d/config"), num + 1, reinterpret_cast<const __FlashStringHelper *>(f_payload), num + 1);
+                                num++;
+                                sequance--;
+                        }
+                        else
+                        {
+                                num = 0;
+                        }
+                        break;
+
+#endif // CPT_PULSE_INPUT_IF_OUT
+
+
+#if CPT_PULSE_INPUT_IF_IN > 0
+#include BOOST_PP_UPDATE_COUNTER()
+                case BOOST_PP_COUNTER:
+                        // input pulse counter if
+                        if (num < CPT_PULSE_INPUT_IF_IN)
+                        {
+                                f_payload = PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "\",\"uniq_id\":\"" BOARD_IDENTIFIER "-counter-if-in-true-%02d\",\"name\":\"counter-if-in-%02d-true\",\"stat_t\":\"~/counter-if-in-%02d/true\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}");
+                                DT_mqtt_send(F("homeassistant/sensor/" BOARD_IDENTIFIER "/counter-if-in-true-%02d/config"), num + 1, reinterpret_cast<const __FlashStringHelper *>(f_payload), num + 1);
+
+                                f_payload = PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "\",\"uniq_id\":\"" BOARD_IDENTIFIER "-counter-if-in-false-%02d\",\"name\":\"counter-if-in-%02d-false\",\"stat_t\":\"~/counter-if-in-%02d/false\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}");
+                                DT_mqtt_send(F("homeassistant/sensor/" BOARD_IDENTIFIER "/counter-if-in-false-%02d/config"), num + 1, reinterpret_cast<const __FlashStringHelper *>(f_payload), num + 1);
+                                num++;
+                                sequance--;
+                        }
+                        else
+                        {
+                                num = 0;
+                        }
+                        break;
+
+#include BOOST_PP_UPDATE_COUNTER()
+                case BOOST_PP_COUNTER:
+                        // input pulse counter if
+                        if (num < CPT_PULSE_INPUT_IF_IN)
+                        {
+                                f_payload = PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "\",\"uniq_id\":\"" BOARD_IDENTIFIER "-counter-if-in-btn-%02d\",\"name\":\"reset-counter-if-in-%02d\",\"command_topic\":\"~/counter-if-in-%02d/btn\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}");
+                                DT_mqtt_send(F("homeassistant/button/" BOARD_IDENTIFIER "/counter-if-in-btn-%02d/config"), num + 1, reinterpret_cast<const __FlashStringHelper *>(f_payload), num + 1);
+                                num++;
+                                sequance--;
+                        }
+                        else
+                        {
+                                num = 0;
+                        }
+                        break;
+
+#endif // CPT_PULSE_INPUT_IF_IN
+
 #ifdef POELE
 #include BOOST_PP_UPDATE_COUNTER()
                 case BOOST_PP_COUNTER:

@@ -331,6 +331,9 @@ void input_callback(const uint8_t num, const Bt_Action action)
     Serial.println(F("IN_XLL2PUSH"));
     break;
   }
+#if CPT_PULSE_INPUT > 0 || CPT_PULSE_INPUT_IF_OUT > 0 ||  CPT_PULSE_INPUT_IF_IN > 0
+  DT_cpt_pulse_input_loop_event(num, action);
+#endif // CPT_PULSE_INPUT > 0 || CPT_PULSE_IF_INPUT > 0
 
   if (can_send())
   {
@@ -676,6 +679,40 @@ void cpt_pulse_input_callback(const uint8_t num, const uint32_t counter)
   // memory(false);
 }
 #endif // CPT_PULSE_INPUT
+
+#if CPT_PULSE_INPUT_IF_OUT > 0
+// envoi de donné MQTT quand compteur a évolué
+void cpt_pulse_input_if_out_callback(const uint8_t num, const uint32_t counter, bool cond)
+{
+  debug(F(AT));
+  // memory(true);
+  if (can_send())
+  {
+    if (cond)
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/counter-if-out-%02d/true"), num + 1, counter);
+    else
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/counter-if-out-%02d/false"), num + 1, counter);
+  }
+  // memory(false);
+}
+#endif // CPT_PULSE_INPUT_IF_OUT
+
+#if CPT_PULSE_INPUT_IF_IN > 0
+// envoi de donné MQTT quand compteur a évolué
+void cpt_pulse_input_if_in_callback(const uint8_t num, const uint32_t counter, bool cond)
+{
+  debug(F(AT));
+  // memory(true);
+  if (can_send())
+  {
+    if (cond)
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/counter-if-in-%02d/true"), num + 1, counter);
+    else
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/counter-if-in-%02d/false"), num + 1, counter);
+  }
+  // memory(false);
+}
+#endif // CPT_PULSE_INPUT_IF_IN
 
 // envoi de donné MQTT quand le Mode de fonctionnement du poele change
 #ifdef POELE
@@ -1067,6 +1104,40 @@ bool mqtt_publish(bool start)
       }
       break;
 #endif
+
+#if CPT_PULSE_INPUT_IF_OUT > 0 // input pulse counter
+#include BOOST_PP_UPDATE_COUNTER()
+    case BOOST_PP_COUNTER:
+      if (num < CPT_PULSE_INPUT_IF_OUT)
+      {
+        cpt_pulse_input_if_out_callback(num, DT_cpt_pulse_input_if_out_get(num, true), true);
+        cpt_pulse_input_if_out_callback(num, DT_cpt_pulse_input_if_out_get(num, false), false);
+        num++;
+        sequance--;
+      }
+      else
+      {
+        num = 0;
+      }
+      break;
+#endif // CPT_PULSE_INPUT_IF_OUT
+
+#if CPT_PULSE_INPUT_IF_IN > 0 // input pulse counter
+#include BOOST_PP_UPDATE_COUNTER()
+    case BOOST_PP_COUNTER:
+      if (num < CPT_PULSE_INPUT_IF_IN)
+      {
+        cpt_pulse_input_if_in_callback(num, DT_cpt_pulse_input_if_in_get(num, true), true);
+        cpt_pulse_input_if_in_callback(num, DT_cpt_pulse_input_if_in_get(num, false), false);
+        num++;
+        sequance--;
+      }
+      else
+      {
+        num = 0;
+      }
+      break;
+#endif // CPT_PULSE_INPUT_IF_IN
 
 #ifdef POELE
 #include BOOST_PP_UPDATE_COUNTER()
@@ -1769,7 +1840,7 @@ bool mqtt_subscribe(MQTTClient &mqtt, bool start)
       break;
 #endif // RADIATOR_NUM
 
-#if CPT_PULSE_INPUT > 0
+#if CPT_PULSE_INPUT > 0 // listen reset mqtt event
 #include BOOST_PP_UPDATE_COUNTER()
     case BOOST_PP_COUNTER:
       if (num < CPT_PULSE_INPUT)
@@ -1785,6 +1856,40 @@ bool mqtt_subscribe(MQTTClient &mqtt, bool start)
       }
       break;
 #endif // CPT_PULSE_INPUT
+
+#if CPT_PULSE_INPUT_IF_OUT > 0 // listen reset mqtt event
+#include BOOST_PP_UPDATE_COUNTER()
+    case BOOST_PP_COUNTER:
+      if (num < CPT_PULSE_INPUT_IF_OUT)
+      {
+        snprintf_P(topic, 56, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/counter-if-out_%02d/btn"), num + 1);
+        mqtt.subscribe(topic);
+        num++;
+        sequance--;
+      }
+      else
+      {
+        num = 0;
+      }
+      break;
+#endif // CPT_PULSE_INPUT_IF_OUT
+
+#if CPT_PULSE_INPUT_IF_IN > 0 // listen reset mqtt event
+#include BOOST_PP_UPDATE_COUNTER()
+    case BOOST_PP_COUNTER:
+      if (num < CPT_PULSE_INPUT_IF_IN)
+      {
+        snprintf_P(topic, 56, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/counter-if-in_%02d/btn"), num + 1);
+        mqtt.subscribe(topic);
+        num++;
+        sequance--;
+      }
+      else
+      {
+        num = 0;
+      }
+      break;
+#endif // CPT_PULSE_INPUT_IF_IN
 
 #ifdef POELE
 #include BOOST_PP_UPDATE_COUNTER()
@@ -2280,13 +2385,29 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
 
 #endif // RADIATOR_NUM > 0
 
-#if CPT_PULSE_INPUT > 0
+#if CPT_PULSE_INPUT > 0                                                                                // listen mqtt reset event
   else if (sscanf_P(topic, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/counter-%02d/btn"), &num) == 1) // counter reset
   {
     Serial.println(F("counter reset"));
     DT_cpt_pulse_input_reset(num - 1);
   }
 #endif // CPT_PULSE_INPUT > 0
+
+#if CPT_PULSE_INPUT_IF_OUT > 0                                                                                // listen mqtt reset event
+  else if (sscanf_P(topic, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/counter-if-out-%02d/btn"), &num) == 1) // counter reset
+  {
+    Serial.println(F("counter if out reset"));
+    DT_cpt_pulse_input_if_out_reset(num - 1);
+  }
+#endif // CPT_PULSE_INPUT_IF_OUT > 0
+
+#if CPT_PULSE_INPUT_IF_IN > 0                                                                                // listen mqtt reset event
+  else if (sscanf_P(topic, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/counter-if-in-%02d/btn"), &num) == 1) // counter reset
+  {
+    Serial.println(F("counter if in reset"));
+    DT_cpt_pulse_input_if_in_reset(num - 1);
+  }
+#endif // CPT_PULSE_INPUT_IF_IN > 0
 
 #ifdef POELE
   else if (strcmp(topic, MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/poele/mode/set") == 0) // Mode du Poele
@@ -2865,14 +2986,21 @@ void setup()
 #endif // MQTT
 #endif // HDC1080_NUM
 
-#if CPT_PULSE_INPUT > 0
-
+#if CPT_PULSE_INPUT > 0 || CPT_PULSE_INPUT_IF_OUT > 0 || CPT_PULSE_INPUT_IF_IN > 0
   Serial.println(F("starting cpt_pulse_input"));
   DT_cpt_pulse_input_init();
 #ifdef MQTT
+#if CPT_PULSE_INPUT > 0
   DT_cpt_pulse_input_set_callback(cpt_pulse_input_callback);
-#endif // MQTT
 #endif // CPT_PULSE_INPUT
+#if CPT_PULSE_INPUT_IF_OUT > 0
+  DT_cpt_pulse_input_if_out_set_callback(cpt_pulse_input_if_out_callback);
+#endif // CPT_PULSE_INPUT_IF_OUT
+#if CPT_PULSE_INPUT_IF_IN > 0
+  DT_cpt_pulse_input_if_in_set_callback(cpt_pulse_input_if_in_callback);
+#endif // CPT_PULSE_INPUT_IF_IN
+#endif // MQTT
+#endif // CPT_PULSE_INPUT > 0 || CPT_PULSE_INPUT_IF_OUT > 0 || CPT_PULSE_INPUT_IF_IN > 0
 
   // auto Serial.println("starting fake_NTC");
   // DT_fake_ntc_init();
@@ -2933,10 +3061,6 @@ void loop()
 #if DIMMER_LIGHT_NUM > 0
   dimmer_loop();
 #endif
-
-#if CPT_PULSE_INPUT > 0
-  DT_cpt_pulse_input_loop();
-#endif // CPT_PULSE_INPUT
 
   switch (interlock++)
   {

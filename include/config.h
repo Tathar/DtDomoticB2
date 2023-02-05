@@ -89,15 +89,7 @@ const uint8_t HDC1080_CHANNEL_ARRAY[HDC1080_NUM] PROGMEM = {1, 2, 3};
 // relais
 #define RELAY_COVER_NUM 0    // nombre de volet connecté au relai
 #define RELAY_RADIATOR_NUM 0 // nombre de radiateur connecté au relai
-#if RELAY_RADIATOR_NUM > 0
-const uint8_t RELAY_RADIATOR_PT100_ARRAY[RELAY_RADIATOR_NUM] PROGMEM = {};
-#endif // RELAY_RADIATOR_NUM
-
-// cpt_pulse_input
-#define CPT_PULSE_INPUT 0 // nombre de compteur d'impulsion
-#if CPT_PULSE_INPUT > 0
-const uint8_t CPT_PULSE_INPUT_ARRAY[CPT_PULSE_INPUT] PROGMEM = {6, 1, 2, 3, 4, 5};
-#endif // CPT_PULSE_INPUT > 0
+//const uint8_t RELAY_RADIATOR_PT100_ARRAY[RELAY_RADIATOR_NUM] PROGMEM = {};
 
 // watchdog
 #define WATCHDOG_TIME WDTO_8S
@@ -273,6 +265,26 @@ const dt_interaction_eeprom_config interaction_input_4_push_config[PUSH_4_NUM] P
 #define JEUX_LUMIERE_5 15
 
 #define ALIM 16
+
+// cpt_pulse_input
+#define CPT_PULSE_INPUT 6 // nombre de compteur d'impulsion
+#if CPT_PULSE_INPUT > 0
+const uint8_t CPT_PULSE_INPUT_ARRAY[CPT_PULSE_INPUT] PROGMEM = {6, 1, 2, 3, 4, 5};
+#endif // CPT_PULSE_INPUT > 0
+
+// cpt_pulse_input_if_OUT
+#define CPT_PULSE_INPUT_IF_OUT 0 // nombre de compteur d'impulsion Conditionnel lie a une sortie
+#if CPT_PULSE_INPUT_IF_OUT > 0
+const uint8_t CPT_PULSE_INPUT_IF_OUT_ARRAY[CPT_PULSE_INPUT_IF_OUT] PROGMEM = {6};
+const uint8_t CPT_PULSE_INPUT_IF_OUT_COND_ARRAY[CPT_PULSE_INPUT_IF_OUT] PROGMEM = {RELAY_EV1};
+#endif // CPT_PULSE_INPUT_IF_OUT > 0
+
+// cpt_pulse_input_if
+#define CPT_PULSE_INPUT_IF_IN 0 // nombre de compteur d'impulsion Conditionnel lie a une entree
+#if CPT_PULSE_INPUT_IF_IN > 0
+const uint8_t CPT_PULSE_INPUT_IF_IN_ARRAY[CPT_PULSE_INPUT_IF_IN] PROGMEM = {};
+const uint8_t CPT_PULSE_INPUT_IF_IN_COND_ARRAY[CPT_PULSE_INPUT_IF_IN] PROGMEM = {};
+#endif // CPT_PULSE_INPUT_IF_IN > 0
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // program variable, do not touch
