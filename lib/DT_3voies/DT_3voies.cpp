@@ -79,13 +79,13 @@ float DT_3voies_get_temp_moyen()
 // fournie la temperature exterieur moyenné en fonction du decalage choisie
 float get_temp_ext()
 {
-    if (DT_pt100_get(PT100_EXT) > DT_3voies_get_temp_moyen() + eeprom_config.in_offset_avg_temp)
+    if (DT_pt100_get(PT100_EXT) > DT_3voies_get_temp_moyen() + eeprom_config.in_offset_avg_temp_sup)
     {
-        return DT_3voies_get_temp_moyen() + eeprom_config.in_offset_avg_temp;
+        return DT_3voies_get_temp_moyen() + eeprom_config.in_offset_avg_temp_sup;
     }
-    else if (DT_pt100_get(PT100_EXT) < DT_3voies_get_temp_moyen() - eeprom_config.in_offset_avg_temp)
+    else if (DT_pt100_get(PT100_EXT) < DT_3voies_get_temp_moyen() - eeprom_config.in_offset_avg_temp_inf)
     {
-        return DT_3voies_get_temp_moyen() - eeprom_config.in_offset_avg_temp;
+        return DT_3voies_get_temp_moyen() - eeprom_config.in_offset_avg_temp_inf;
     }
     else
     {

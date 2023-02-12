@@ -464,6 +464,8 @@ void pt100_callback(const uint8_t num, const float temp)
   if (can_send())
   {
     DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pt100-%02d"), num + 1, temp);
+    if (num == PT100_EXT)
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/avg-temp/offset-state"), (float)get_temp_ext());
   }
   memory(false);
 }
@@ -834,6 +836,7 @@ void dt3voies_callback_avg_temp(const float temp)
   if (can_send())
   {
     DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/avg-temp/state"), (float)temp);
+    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/avg-temp/offset-state"), (float)get_temp_ext());
   }
   memory(false);
 }
@@ -1515,8 +1518,20 @@ bool mqtt_publish(bool start)
 
 #include BOOST_PP_UPDATE_COUNTER()
     case BOOST_PP_COUNTER:
+      // TEMPERATURE MOYENNE DECALEE
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/avg-temp/offset-state"), (float)get_temp_ext());
+      break;
+
+#include BOOST_PP_UPDATE_COUNTER()
+    case BOOST_PP_COUNTER:
       // TEMPERATURE MOYENNE
-      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/avg-temp/offset/state"), eeprom_config.in_offset_avg_temp);
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/avg-temp/offset-sup/state"), eeprom_config.in_offset_avg_temp_sup);
+      break;
+
+#include BOOST_PP_UPDATE_COUNTER()
+    case BOOST_PP_COUNTER:
+      // TEMPERATURE MOYENNE
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/avg-temp/offset-inf/state"), eeprom_config.in_offset_avg_temp_inf);
       break;
 
 #endif // vanne
@@ -2137,7 +2152,12 @@ bool mqtt_subscribe(MQTTClient &mqtt, bool start)
 
 #include BOOST_PP_UPDATE_COUNTER()
     case BOOST_PP_COUNTER:
-      mqtt.subscribe(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/avg-temp/offset/set");
+      mqtt.subscribe(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/avg-temp/offset-sup/set");
+      break;
+
+#include BOOST_PP_UPDATE_COUNTER()
+    case BOOST_PP_COUNTER:
+      mqtt.subscribe(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/avg-temp/offset-inf/set");
       break;
 
 #include BOOST_PP_UPDATE_COUNTER()
@@ -2837,12 +2857,20 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
     DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/offset-in/state"), eeprom_config.in_offset_MCBT);
     sauvegardeEEPROM();
   }
-
-  else if (strcmp(topic, MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/avg-temp/offset/set") == 0) // OFFSET_AVG_TEMP
+  else if (strcmp(topic, MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/avg-temp/offset-sup/set") == 0) // OFFSET_AVG_TEMP_MAX
   {
     str_buffer = buffer;
-    eeprom_config.in_offset_avg_temp = str_buffer.toInt();
-    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/avg-temp/offset/state"), eeprom_config.in_offset_avg_temp);
+    eeprom_config.in_offset_avg_temp_sup = str_buffer.toInt();
+    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/avg-temp/offset-sup/state"), eeprom_config.in_offset_avg_temp_sup);
+    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/avg-temp/offset-state"), (float)get_temp_ext());
+    sauvegardeEEPROM();
+  }
+  else if (strcmp(topic, MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/avg-temp/offset-inf/set") == 0) // OFFSET_AVG_TEMP_MIN
+  {
+    str_buffer = buffer;
+    eeprom_config.in_offset_avg_temp_inf = str_buffer.toInt();
+    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/avg-temp/offset-inf/state"), eeprom_config.in_offset_avg_temp_inf);
+    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/avg-temp/offset-state"), (float)get_temp_ext());
     sauvegardeEEPROM();
   }
 
@@ -3173,45 +3201,5 @@ void loop()
   if (now - old > 1000)
   {
     old = now;
-    // if (up)
-    // {
-    //   if (get_dimmer(0) < 200)
-    //   {
-    //     for (uint8_t i = 0; i < DIMMER_LIGHT_NUM; ++i)
-    //     {
-    //       dimmer_set(i, uint8_t(get_dimmer(i) + 1));
-    //     }
-    //   }
-    //   else
-    //     up = false;
-    // }
-    // else
-    // {
-    //   if (get_dimmer(0) > 90)
-    //   {
-    //     for (uint8_t i = 0; i < DIMMER_LIGHT_NUM; ++i)
-    //     {
-    //       dimmer_set(i, uint8_t(get_dimmer(i) - 1));
-    //     }
-    //   }
-    //   else
-    //     up = true;
-    // }
-
-    /*
-        if (ccs811.available())
-        {
-          if (!ccs811.readData())
-          {
-           //auto Serial.print("CO2: ");
-           //auto Serial.print(ccs811.geteCO2());
-           //auto Serial.print("ppm, TVOC: ");
-           //auto Serial.println(ccs811.getTVOC());
-          }
-          else
-          {
-           //auto Serial.println("ccs811 ERROR!");
-          }
-        }*/
   }
 }

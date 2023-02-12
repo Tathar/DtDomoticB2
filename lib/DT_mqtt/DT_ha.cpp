@@ -896,8 +896,20 @@ bool homeassistant(bool start)
 
 #include BOOST_PP_UPDATE_COUNTER()
                 case BOOST_PP_COUNTER:
+                        //  temperature moyenne
+                        DT_mqtt_send(F("homeassistant/sensor/" BOARD_IDENTIFIER "/avg-offset-temp/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/avg-temp\",\"uniq_id\":\"" BOARD_IDENTIFIER "-avg-offset-temp\",\"name\":\"Temperature moyenne décalée\",\"stat_t\":\"~/offset-state\",\"dev_cla\":\"temperature\",\"unit_of_meas\":\"°C\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
+                        break;
+
+#include BOOST_PP_UPDATE_COUNTER()
+                case BOOST_PP_COUNTER:
                         //  decalage temperature moyenne
-                        DT_mqtt_send(F("homeassistant/number/" BOARD_IDENTIFIER "/offset-avg-temp/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/avg-temp/offset\",\"uniq_id\":\"" BOARD_IDENTIFIER "-offset-avg-temp\",\"name\":\"Decalage Exterieur\",\"stat_t\":\"~/state\",\"command_topic\":\"~/set\",\"min\":-100,\"max\":100,\"step\":0.01,\"dev_cla\":\"temperature\",\"unit_of_meas\":\"°C\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
+                        DT_mqtt_send(F("homeassistant/number/" BOARD_IDENTIFIER "/max-offset-avg-temp/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/avg-temp/offset-sup\",\"uniq_id\":\"" BOARD_IDENTIFIER "-max-offset-avg-temp\",\"name\":\"Decalage Exterieur sup\",\"stat_t\":\"~/state\",\"command_topic\":\"~/set\",\"min\":-100,\"max\":100,\"step\":0.01,\"dev_cla\":\"temperature\",\"unit_of_meas\":\"°C\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
+                        break;
+
+#include BOOST_PP_UPDATE_COUNTER()
+                case BOOST_PP_COUNTER:
+                        //  decalage temperature moyenne
+                        DT_mqtt_send(F("homeassistant/number/" BOARD_IDENTIFIER "/min-offset-avg-temp/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/avg-temp/offset-inf\",\"uniq_id\":\"" BOARD_IDENTIFIER "-min-offset-avg-temp\",\"name\":\"Decalage Exterieur inf\",\"stat_t\":\"~/state\",\"command_topic\":\"~/set\",\"min\":-100,\"max\":100,\"step\":0.01,\"dev_cla\":\"temperature\",\"unit_of_meas\":\"°C\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
                         break;
 #endif // VANNES
 #include BOOST_PP_UPDATE_COUNTER()

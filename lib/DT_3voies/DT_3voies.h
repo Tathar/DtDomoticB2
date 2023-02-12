@@ -48,6 +48,7 @@ float DT_3voies_MCBT_get_KD();
 uint32_t DT_3voies_MCBT_get_KT();
 float DT_3voies_get_C3(); // get consigne temp MCBT
 float DT_3voies_get_temp_moyen();
+float get_temp_ext(); // fournie la temperature exterieur moyenné en fonction du decalage choisie
 
 void DT_3voies_PCBT_set_action(QuickPID::Action action);
 void DT_3voies_MCBT_set_action(QuickPID::Action action);
@@ -63,6 +64,5 @@ void DT_3voies_set_callback(void (*callback)(const float C2, const float C3));
 void DT_3voies_mcbt_set_callback_pid(void (*callback_pcbt_pid)(const float P, const float I, const float D, const float Out));
 void DT_3voies_pcbt_set_callback_pid(void (*callback_mcbt_pid)(const float P, const float I, const float D, const float Out));
 void DT_3voies_set_callback_avg_temp(void (*callback_avg_temp)(const float temp));
-
 
 #endif

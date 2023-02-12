@@ -22,7 +22,7 @@ uint16_t memory(bool print);
 #define BOARD_IDENTIFIER "DTB02-001"
 
 #define MAX_TOPIC 64
-#define MAX_PAYLOAD 260
+#define MAX_PAYLOAD 268
 
 // INPUT
 #define DEBOUNCE_TIME 50
