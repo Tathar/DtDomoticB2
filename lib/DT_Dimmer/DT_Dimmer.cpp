@@ -494,8 +494,8 @@ void Dimmer_init(void)
         digitalWrite(pin, LOW); // extinction du dimmer
     }
 
-    pinMode(10, OUTPUT);
-    digitalWrite(10, LOW); // extinction du dimmer
+    // pinMode(10, OUTPUT);
+    // digitalWrite(10, LOW); // extinction du dimmer
 
     for (uint8_t i = 0; i < DIMMER_LIGHT_NUM; i++) // init variables
     {
@@ -532,8 +532,8 @@ void Dimmer_init(void)
     // EIMSK = 1<<INT2;
     // EICRA = 1<<ISC21;
     pinMode(OPT_1, INPUT); // Point zero
-    attachInterrupt(digitalPinToInterrupt(19), point_zero, CHANGE);
-    // attachInterrupt(digitalPinToInterrupt(19), point_zero, RISING);
+    // attachInterrupt(digitalPinToInterrupt(OPT_1), point_zero, CHANGE);
+    attachInterrupt(digitalPinToInterrupt(19), point_zero, RISING);
     // PCMSK0 = 0b00000001; // active pcint at pin 8
 
     TCCR5A = 0b00000010; // PWM mode Fast PWM
@@ -605,9 +605,9 @@ void dimmer_set(uint8_t num, uint8_t value, uint16_t time, bool candle)
     Serial.print(F("dimmer "));
     Serial.print(num);
     Serial.print(F(" value = "));
-    Serial.println(value);
-    Serial.print(F("old percent = "));
-    Serial.println(light[num].Dimmer_value);
+    Serial.print(value);
+    Serial.print(F(" time = "));
+    Serial.print(time);
     Serial.print(F(" candle = "));
     Serial.println(candle);
     // Dimmer_new_value[num] = to_ocrx(num, percent);
@@ -627,12 +627,16 @@ void dimmer_set(uint8_t num, uint8_t value, uint16_t time, bool candle)
 
     if (value != 0 && default_0)
     {
+        desativation_ocrx(num);
+        force_opt(num, HIGH);
         calc_ocr(num, 255);
         light[num].Dimmer_go_value = value;
         light[num].Dimmer_time = 1;
     }
     else if (value == 0 && default_0)
     {
+        desativation_ocrx(num);
+        force_opt(num, LOW);
         // Dimmer_value[num] = Dimmer_new_value[num];
         // light[num].Dimmer_value = percent;
         calc_ocr(num, 0);
@@ -843,6 +847,10 @@ void dimmer_loop()
         else
         {
             default_0 = true;
+            for (uint8_t num = 0; num < DIMMER_LIGHT_NUM; num++)
+            {
+                dimmer_set(num,light[num].Dimmer_go_value);
+            }
         }
     }
 
@@ -855,8 +863,8 @@ void dimmer_loop()
         {
             uint8_t value = SCALE(millis(), light[num].Dimmer_time_start, time_go, light[num].Dimmer_start_value, light[num].Dimmer_go_value);
 
-            Serial.print(F(" calc_ocr  = "));
-            Serial.println(value);
+            // Serial.print(F(" calc_ocr  = "));
+            // Serial.println(value);
             calc_ocr(num, value);
         }
         else if (light[num].Dimmer_time > 1)
