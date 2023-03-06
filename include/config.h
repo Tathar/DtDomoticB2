@@ -29,13 +29,16 @@ uint16_t memory(bool print);
 #define LONG_PUSH_TIME 800
 #define LONG_LONG_PUSH_TIME 5000 // for value save
 #define XL_LONG_PUSH_TIME 10000
-#define MULTIPLE_PUSH_TIME 100
+#define MULTIPLE_PUSH_TIME 250
 #define INPUT_REFRESH DEBOUNCE_TIME / 2
+
+// COVER
+#define COVER_SECURE_DELAY 250
 
 // Dimmer
 #define DIMMER_LIGHT_NUM 2         // max (DIMMER_LIGHT_NUM + DIMMER_HEAT_NUM + (DIMMER_COVER_NUM * 2) ) = 14
 #define DIMMER_ON_OFF_SPEED 250    // en miliseconde
-#define DIMMER_SETTING_SPEED 10000 // en miliseconde pour 100%
+#define DIMMER_SETTING_SPEED 5000 // en miliseconde pour 100%
 #define DIMMER_SETTING_MIN 25      // valeur minimum du dimmer
 // #define MIN_CANDLE_TIME 250
 // #define MAX_CANDLE_TIME 1000
@@ -45,7 +48,7 @@ uint16_t memory(bool print);
 #define CANDLE_SPEED_MAX 1000         // en miliseconde
 
 #define DIMMER_HEAT_NUM 0     // Fil pilote : max (DIMMER_LIGHT_NUM + DIMMER_HEAT_NUM + (DIMMER_COVER_NUM * 2) ) = 14
-#define DIMMER_COVER_NUM 0    // nombre de volet connecté au dimmer : max (DIMMER_LIGHT_NUM + DIMMER_HEAT_NUM + (DIMMER_COVER_NUM * 2) ) = 14
+#define DIMMER_COVER_NUM 1    // nombre de volet connecté au dimmer : max (DIMMER_LIGHT_NUM + DIMMER_HEAT_NUM + (DIMMER_COVER_NUM * 2) ) = 14
 #define DIMMER_RADIATOR_NUM 0 // nombre de radiateur connecté au dimmer : max (DIMMER_LIGHT_NUM + DIMMER_HEAT_NUM + (DIMMER_COVER_NUM * 2) + DIMMER_RADIATOR_NUM ) = 14
 const uint8_t DIMMER_RADIATOR_PT100_ARRAY[DIMMER_RADIATOR_NUM] PROGMEM = {};
 
@@ -158,7 +161,7 @@ const uint8_t CPT_PULSE_INPUT_ARRAY[CPT_PULSE_INPUT] PROGMEM = {6, 1, 2, 3, 4, 5
 #define RADIATOR_HA_MIN_TEMP 15
 
 // Poele
-//#define POELE
+// #define POELE
 #ifdef POELE
 #define MIN_T4 0                     // en °C (fake NTC)
 #define POELE_MAX_TEMPERATURE 85     // en °C (consigne temperature Balon)
@@ -179,7 +182,7 @@ const uint8_t CPT_PULSE_INPUT_ARRAY[CPT_PULSE_INPUT] PROGMEM = {6, 1, 2, 3, 4, 5
 #endif               // POELE
 
 // Vanne 3 Voies
-//#define VANNES
+// #define VANNES
 #ifdef VANNES
 #define TMP_EAU_PCBT_MAX 38 // valeur maximum de la consigne de temperature
 #define TMP_EAU_MCBT_MAX 60 // valeur maximum de la consigne de temperature
@@ -231,23 +234,19 @@ const uint8_t CPT_PULSE_INPUT_ARRAY[CPT_PULSE_INPUT] PROGMEM = {6, 1, 2, 3, 4, 5
 // Demmarage Poele
 #define MARCHE_POELE 21
 
-//Interaction
-#define PUSH_1_NUM 7
+// Interaction
+#define PUSH_1_NUM 2
+#if PUSH_1_NUM > 0
 const dt_interaction_eeprom_config interaction_input_1_push_config[PUSH_1_NUM] PROGMEM = {
-    dt_no_action(),
-    dt_button_push_rly(0),
-    dt_switch_rly(0),
-    dt_two_button_push_dim(1, up),
-    dt_two_button_push_dim(1, down),
-    dt_two_button_push_cover(1, up),
-    dt_two_button_push_cover(1, down)};
+    dt_two_button_push_cover(0, up),
+    dt_two_button_push_cover(0, down)};
+#endif // PUSH_1_NUM > 0
 
 #define PUSH_2_NUM 0
 #if PUSH_2_NUM > 0
 const dt_interaction_eeprom_config interaction_input_2_push_config[PUSH_2_NUM] PROGMEM = {
-    dt_button_push_rly(0),
     dt_two_button_push_dim(1, up),
-    dt_no_action()};
+    dt_two_button_push_dim(1, down)};
 #endif // PUSH_2_NUM > 0
 
 #define PUSH_3_NUM 0
@@ -265,7 +264,6 @@ const dt_interaction_eeprom_config interaction_input_4_push_config[PUSH_4_NUM] P
     dt_two_button_push_dim(1, up),
     dt_no_action()};
 #endif // PUSH_4_NUM > 0
-
 
 // jeux de lumière
 #define JEUX_LUMIERE_1 8
