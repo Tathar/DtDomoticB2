@@ -21,6 +21,10 @@ enum cover_step
     cover_step_register_up,
     cover_step_register_down,
     cover_step_register_end,
+    cover_step_backup_delay,
+    cover_step_backup,
+    cover_step_backup_up,
+    cover_step_backup_down,
 };
 
 struct cover_struct
@@ -29,7 +33,7 @@ struct cover_struct
     cover_step step;
     uint8_t old_pos;      // in percente
     uint8_t go_pos;       // in percent
-    uint8_t pos;          // in percent
+    int8_t pos;          // in percent
     uint32_t mouve_start; // statt move time for percent calcule (in ms)
 };
 
@@ -76,6 +80,16 @@ void DT_cover_backup_pos(uint8_t num)
     {
         eeprom_config.cover[num].backup_pos = cover[num].pos;
         sauvegardeEEPROM();
+        if (cover[num].pos <= 50)
+        {
+            cover[num].go_pos = cover[num].pos + 5;
+            cover[num].step = cover_step_backup_delay;
+        }
+        else if (cover[num].pos > 50)
+        {
+            cover[num].go_pos = cover[num].pos - 5;
+            cover[num].step = cover_step_backup_delay;
+        }
     }
 #endif // COVER_NUM > 0
 }
@@ -200,7 +214,8 @@ void DT_cover_loop()
 #if COVER_NUM > 0
     for (uint8_t num = 0; num < COVER_NUM; ++num)
     {
-        if (cover[num].step == cover_step_delay_start || cover[num].step == cover_step_register_delay_up || cover[num].step == cover_step_register_delay_down) // arret avent d effectuer une action
+        if (cover[num].step == cover_step_delay_start || cover[num].step == cover_step_register_delay_up || cover[num].step == cover_step_register_delay_down ||
+            cover[num].step == cover_step_backup_delay) // arret avent d effectuer une action
         {
             debug(F("cover_step_delay_start"));
             _cover_write((num * 2) + 1, LOW); // arret de la descente
@@ -217,11 +232,14 @@ void DT_cover_loop()
             case cover_step_register_delay_down:
                 cover[num].step = cover_step_register_down;
                 break;
+            case cover_step_backup_delay:
+                cover[num].step = cover_step_backup;
+                break;
             default:
                 break;
             }
         }
-        else if (cover[num].step == cover_step_start && millis() - cover[num].mouve_start > 250) // demande de monté
+        else if ((cover[num].step == cover_step_start || cover[num].step == cover_step_backup) && millis() - cover[num].mouve_start > COVER_SECURE_DELAY) // demande de monté
         {
             debug(F("cover_step_start"));
             if (cover[num].go_pos > cover[num].pos)
@@ -231,7 +249,20 @@ void DT_cover_loop()
 
                 cover[num].mouve_start = millis();
                 cover[num].old_pos = cover[num].pos;
-                cover[num].step = cover_step_up;
+                switch (cover[num].step)
+                {
+                case cover_step_start:
+                    debug(F("cover_step_up"));
+                    cover[num].step = cover_step_up;
+                    break;
+
+                case cover_step_backup:
+                    cover[num].step = cover_step_backup_up;
+                    break;
+
+                default:
+                    break;
+                }
 
                 if (_cover_callback != nullptr)
                 {
@@ -245,7 +276,21 @@ void DT_cover_loop()
                 _cover_write((num * 2) + 1, HIGH); // marche de la descente
                 cover[num].mouve_start = millis();
                 cover[num].old_pos = cover[num].pos;
-                cover[num].step = cover_step_down;
+
+                switch (cover[num].step)
+                {
+                case cover_step_start:
+                    debug(F("cover_step_down"));
+                    cover[num].step = cover_step_down;
+                    break;
+
+                case cover_step_backup:
+                    cover[num].step = cover_step_backup_down;
+                    break;
+
+                default:
+                    break;
+                }
 
                 if (_cover_callback != nullptr)
                 {
@@ -253,10 +298,14 @@ void DT_cover_loop()
                     _cover_callback(num, cover[num].pos, cover_closing);
                 }
             }
+            else
+            {
+                cover[num].step = cover_step_stoping;
+            }
         }
-        else if (cover[num].step == cover_step_up) // Monté en cours
+        else if (cover[num].step == cover_step_up || cover[num].step == cover_step_backup_up) // Monté en cours
         {
-            debug(F("cover_step_up"));
+            // debug(F("cover_step_up"));
             cover[num].pos = cover[num].old_pos + ((millis() - cover[num].mouve_start) / (eeprom_config.cover[num].time_up / 100));
             if (cover[num].pos == cover[num].go_pos)
             {
@@ -266,6 +315,7 @@ void DT_cover_loop()
                 {
                     cover[num].mouve_start = millis();
                     cover[num].step = cover_step_over_up;
+
                     if (_cover_callback != nullptr)
                     {
                         debug(F("cover_loop_callback"));
@@ -275,7 +325,21 @@ void DT_cover_loop()
                 else
                 {
                     _cover_write((num * 2), LOW); // arret de la monté
-                    cover[num].step = cover_step_stoped;
+
+                    switch (cover[num].step)
+                    {
+                    case cover_step_up:
+                        cover[num].step = cover_step_stoped;
+                        break;
+                    case cover_step_backup_up:
+                        cover[num].step = cover_step_delay_start;
+                        cover[num].go_pos = eeprom_config.cover[num].backup_pos;
+                        break;
+
+                    default:
+                        break;
+                    }
+
                     if (_cover_callback != nullptr)
                     {
                         debug(F("cover_loop_callback"));
@@ -283,15 +347,15 @@ void DT_cover_loop()
                     }
                 }
             }
-            else if (_cover_callback != nullptr)
+            else if (_cover_callback != nullptr && ((millis() - cover[num].mouve_start) % 500) == 0)
             {
                 debug(F("cover_loop_callback"));
                 _cover_callback(num, cover[num].pos, cover_opening);
             }
         }
-        else if (cover[num].step == cover_step_down) // descente en cours
+        else if (cover[num].step == cover_step_down || cover[num].step == cover_step_backup_down) // descente en cours
         {
-            debug(F("cover_step_down"));
+            // debug(F("cover_step_down"));
             cover[num].pos = cover[num].old_pos - ((millis() - cover[num].mouve_start) / (eeprom_config.cover[num].time_down / 100));
 
             if (cover[num].pos == cover[num].go_pos)
@@ -312,7 +376,20 @@ void DT_cover_loop()
                 else
                 {
                     _cover_write((num * 2) + 1, LOW); // arret de la descente
-                    cover[num].step = cover_step_stoped;
+
+                    switch (cover[num].step)
+                    {
+                    case cover_step_up:
+                        cover[num].step = cover_step_stoped;
+                        break;
+                    case cover_step_backup_down:
+                        cover[num].step = cover_step_delay_start;
+                        cover[num].go_pos = eeprom_config.cover[num].backup_pos;
+                        break;
+
+                    default:
+                        break;
+                    }
 
                     if (_cover_callback != nullptr)
                     {
@@ -321,7 +398,7 @@ void DT_cover_loop()
                     }
                 }
             }
-            else if (_cover_callback != nullptr)
+            else if (_cover_callback != nullptr && ((millis() - cover[num].mouve_start) % 500) == 0)
             {
                 debug(F("cover_loop_callback"));
                 _cover_callback(num, cover[num].pos, cover_closing);
@@ -339,7 +416,7 @@ void DT_cover_loop()
             _cover_write((num * 2) + 1, LOW); // arret de la descente
             cover[num].step = cover_step_stoped;
         }
-        else if (cover[num].step == cover_step_register_up && cover[num].go_pos == 100 && millis() - cover[num].mouve_start > 250) // demande de configuration du temp de monté
+        else if (cover[num].step == cover_step_register_up && cover[num].go_pos == 100 && millis() - cover[num].mouve_start > COVER_SECURE_DELAY) // demande de configuration du temp de monté
         {
             debug(F("cover_step_register_up"));
             _cover_write((num * 2) + 1, LOW); // arret de la descente
@@ -355,7 +432,7 @@ void DT_cover_loop()
                 _cover_callback(num, cover[num].pos, cover_opening);
             }
         }
-        else if (cover[num].step == cover_step_register_down && cover[num].go_pos == 100 && millis() - cover[num].mouve_start > 250) // demande de configuration du temp de monté
+        else if (cover[num].step == cover_step_register_down && cover[num].go_pos == 0 && millis() - cover[num].mouve_start > COVER_SECURE_DELAY) // demande de configuration du temp de monté
         {
             debug(F("cover_step_register_up"));
             _cover_write((num * 2), LOW);      // arret de la monté
