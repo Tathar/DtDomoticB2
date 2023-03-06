@@ -17,9 +17,11 @@ public:
     uint8_t btn_num;
     union
     {
-        bool interlock;
+        bool interlock = false;
         bool down;
     };
+
+    bool run = false;
 };
 
 struct dt_interaction_config
@@ -103,66 +105,76 @@ public:
 
     inline void store()
     {
-        uint8_t next = 254;
-        for (uint8_t i = 0; i < interaction_buffer.size(); ++i)
-        {
-            if (interaction_buffer[i].eeprom_config == eeprom_config)
-            {
-                interaction_buffer[i].memory_config = memory_config;
-                return;
-            }
-            if (next == 254 && interaction_buffer[i].eeprom_config.type == dt_interaction_eeprom_config::dt_interaction_type_t::dt_no_action)
-            {
-                next = i;
-            }
-        }
-
-        if (next != 254)
-        {
-            interaction_buffer[next].eeprom_config = eeprom_config;
-            interaction_buffer[next].memory_config = memory_config;
-            return;
-        }
 
         dt_interaction_config tmp;
+
+        // uint8_t next = 254;
+        for (uint8_t i = 0; i < interaction_buffer.size(); ++i)
+        {
+
+            tmp = interaction_buffer.shift();
+
+            if (tmp.eeprom_config == eeprom_config)
+            {
+                tmp.memory_config = memory_config;
+                interaction_buffer.push(tmp);
+
+                return;
+            }
+            interaction_buffer.push(tmp);
+        }
+
         tmp.eeprom_config = eeprom_config;
         tmp.memory_config = memory_config;
         interaction_buffer.push(tmp);
     };
 
-    inline void restore()
+    inline bool restore()
     {
         for (int i = 0; i < interaction_buffer.size(); ++i)
         {
             if (interaction_buffer[i].eeprom_config == eeprom_config)
             {
                 memory_config = interaction_buffer[i].memory_config;
-                return;
+                return true;
             }
         }
+        return false;
     };
 
     inline void remove()
     {
-        for (int i = 0; i < interaction_buffer.size(); ++i)
+
+        dt_interaction_config tmp;
+        uint8_t size = interaction_buffer.size();
+
+        for (uint8_t i = 0; i < size; ++i)
         {
-            if (interaction_buffer[i].eeprom_config == eeprom_config)
-            {
-                if (i == 0)
-                {
-                    interaction_buffer.shift();
-                }
-                else if (i == interaction_buffer.size() - 1)
-                {
-                    interaction_buffer.pop();
-                }
-                else
-                {
-                    dt_interaction_eeprom_config tmp;
-                    tmp.clean();
-                    interaction_buffer[i].eeprom_config = tmp;
-                }
+            tmp = interaction_buffer.shift();
+
+            if (tmp.eeprom_config == eeprom_config)
                 return;
+
+            interaction_buffer.push(tmp);
+        }
+    };
+
+    inline void remove_all()
+    {
+
+        dt_interaction_config tmp;
+        uint8_t size = interaction_buffer.size();
+        for (uint8_t i = 0; i < size; ++i)
+        {
+            tmp = interaction_buffer.shift();
+
+            if (tmp.eeprom_config.type == eeprom_config.type && tmp.eeprom_config.act_num == eeprom_config.act_num)
+            {
+                Serial.println(F("Remove"));
+            }
+            else
+            {
+                interaction_buffer.push(tmp);
             }
         }
     };
@@ -177,9 +189,6 @@ public:
     dt_interaction_memory_config memory_config;
     dt_interaction_eeprom_config eeprom_config;
 };
-
-
-
 
 void DT_interation_init();
 void DT_interation_loop();
