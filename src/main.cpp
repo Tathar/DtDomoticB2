@@ -3049,27 +3049,31 @@ void loop()
   if (now - old > 1000)
   {
     old = now;
-    /*
-    if (up)
-    {
-      if (get_dimmer(0) < 255)
-      {
-        dimmer_set(0, uint8_t(get_dimmer(0) + 5));
-      }
-      else
-        up = false;
-    }
-    else
-    {
-      if (get_dimmer(0) > 0)
-      {
-        dimmer_set(0, uint8_t(get_dimmer(0) - 5));
-      }
-      else
-        up = true;
-    }
+    // if (up)
+    // {
+    //   if (get_dimmer(0) < 200)
+    //   {
+    //     for (uint8_t i = 0; i < DIMMER_LIGHT_NUM; ++i)
+    //     {
+    //       dimmer_set(i, uint8_t(get_dimmer(i) + 1));
+    //     }
+    //   }
+    //   else
+    //     up = false;
+    // }
+    // else
+    // {
+    //   if (get_dimmer(0) > 90)
+    //   {
+    //     for (uint8_t i = 0; i < DIMMER_LIGHT_NUM; ++i)
+    //     {
+    //       dimmer_set(i, uint8_t(get_dimmer(i) - 1));
+    //     }
+    //   }
+    //   else
+    //     up = true;
+    // }
 
-      */
     /*
         if (ccs811.available())
         {

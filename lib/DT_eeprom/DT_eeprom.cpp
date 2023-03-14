@@ -129,10 +129,10 @@ void chargeEEPROM()
 #if DIMMER_LIGHT_NUM > 0
                 for (uint8_t num; num < DIMMER_LIGHT_NUM; ++num)
                 {
-                        if (num < 13)
+                        if (num < 12)
                         {
-                                eeprom_config.Dimmer_scale_min[num] = 15000; // Mise a l echelle
-                                eeprom_config.Dimmer_scale_max[num] = 12000; // Mise a l echelle
+                                eeprom_config.Dimmer_scale_min[num] = 20000; // Mise a l echelle
+                                eeprom_config.Dimmer_scale_max[num] = 10000; // Mise a l echelle
                         }
                         else
                         {

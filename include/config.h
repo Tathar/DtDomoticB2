@@ -36,7 +36,7 @@ uint16_t memory(bool print);
 #define COVER_SECURE_DELAY 250
 
 // Dimmer
-#define DIMMER_LIGHT_NUM 2         // max (DIMMER_LIGHT_NUM + DIMMER_HEAT_NUM + (DIMMER_COVER_NUM * 2) ) = 14
+#define DIMMER_LIGHT_NUM 14         // max (DIMMER_LIGHT_NUM + DIMMER_HEAT_NUM + (DIMMER_COVER_NUM * 2) ) = 14
 #define DIMMER_ON_OFF_SPEED 250    // en miliseconde
 #define DIMMER_SETTING_SPEED 5000 // en miliseconde pour 100%
 #define DIMMER_SETTING_MIN 25      // valeur minimum du dimmer
