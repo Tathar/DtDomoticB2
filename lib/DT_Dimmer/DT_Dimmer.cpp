@@ -82,38 +82,34 @@ inline void desativation_ocrx(uint8_t num)
         break;
 
     case 5:
-        TCCR3A &= 0b11001111; // OPT7 = 2 -> PE4 -> OC3B
-        break;
-
-    case 6:
         TCCR5A &= 0b11001111; // OPT8 = 45 -> PL4 -> OC5B
         break;
 
-    case 7:
+    case 6:
         TCCR3A &= 0b00111111; // OPT9 = 5 -> PE3 -> OC3A
         break;
 
-    case 8:
+    case 7:
         TCCR4A &= 0b11001111; // OPT10 = 7 -> PH4 -> OC4B
         break;
 
-    case 9:
+    case 8:
         TCCR1A &= 0b00111111; // OPT11 = 11 -> PB5 -> OC1A
         break;
 
-    case 10:
+    case 9:
         TCCR1A &= 0b11110011; // OPT12 = 13 -> PB7 -> OC1C
         break;
 
-    case 11:
+    case 10:
         TCCR5A &= 0b11110011; // OPT13 = 44 -> PL5 -> OC5C
         break;
 
-    case 12:
+    case 11:
         TCCR2A &= 0b11001111; // OPT14 = 9 -> PH6 -> OC2B
         break;
 
-    case 13:
+    case 12:
         TCCR2A &= 0b00111111; // OPT15 = 10 -> PB4 -> OC2A
         break;
 
@@ -148,38 +144,34 @@ inline void activation_ocrx(uint8_t num)
         break;
 
     case 5:
-        TCCR3A |= 0b00110000; // OPT7 = 2 -> PE4 -> OC3B
-        break;
-
-    case 6:
         TCCR5A |= 0b00110000; // OPT8 = 45 -> PL4 -> OC5B
         break;
 
-    case 7:
+    case 6:
         TCCR3A |= 0b11000000; // OPT9 = 5 -> PE3 -> OC3A
         break;
 
-    case 8:
+    case 7:
         TCCR4A |= 0b00110000; // OPT10 = 7 -> PH4 -> OC4B
         break;
 
-    case 9:
+    case 8:
         TCCR1A |= 0b11000000; // OPT11 = 11 -> PB5 -> OC1A
         break;
 
-    case 10:
+    case 9:
         TCCR1A |= 0b00001100; // OPT12 = 13 -> PB7 -> OC1C
         break;
 
-    case 11:
+    case 10:
         TCCR5A |= 0b00001100; // OPT13 = 44 -> PL5 -> OC5C
         break;
 
-    case 12:
+    case 11:
         TCCR2A |= 0b00110000; // OPT14 = 9 -> PH6 -> OC2B
         break;
 
-    case 13:
+    case 12:
         TCCR2A |= 0b11000000; // OPT15 = 10 -> PB4 -> OC2A
         break;
 
@@ -223,39 +215,35 @@ inline void force_opt(uint8_t num, uint8_t level)
         SET_PIN(PORTB, PB6, level);
         break;
 
-    case 5: // OPT7 = 2 -> PE4 -> OC3B
-        SET_PIN(PORTE, PE4, level);
-        break;
-
-    case 6: // OPT8 = 45 -> PL4 -> OC5B
+    case 5: // OPT8 = 45 -> PL4 -> OC5B
         SET_PIN(PORTL, PL4, level);
         break;
 
-    case 7: // OPT9 = 5 -> PE3 -> OC3A
+    case 6: // OPT9 = 5 -> PE3 -> OC3A
         SET_PIN(PORTE, PE3, level);
         break;
 
-    case 8:; // OPT10 = 7 -> PH4 -> OC4B
+    case 7: // OPT10 = 7 -> PH4 -> OC4B
         SET_PIN(PORTH, PH4, level);
         break;
 
-    case 9: // OPT11 = 11 -> PB5 -> OC1A
+    case 8: // OPT11 = 11 -> PB5 -> OC1A
         SET_PIN(PORTB, PB5, level);
         break;
 
-    case 10: // OPT12 = 13 -> PB7 -> OC1C
+    case 9: // OPT12 = 13 -> PB7 -> OC1C
         SET_PIN(PORTB, PB7, level);
         break;
 
-    case 11: // OPT13 = 44 -> PL5 -> OC5C
+    case 10: // OPT13 = 44 -> PL5 -> OC5C
         SET_PIN(PORTL, PL5, level);
         break;
 
-    case 12: // OPT14 = 9 -> PH6 -> OC2B
+    case 11: // OPT14 = 9 -> PH6 -> OC2B
         SET_PIN(PORTH, PH6, level);
         break;
 
-    case 13: // OPT15 = 10 -> PB4 -> OC2A
+    case 12: // OPT15 = 10 -> PB4 -> OC2A
         SET_PIN(PORTB, PB4, level);
         break;
 
@@ -280,59 +268,55 @@ inline void set_ocrx(uint8_t num)
     {
         switch (num)
         {
-        case 0:
+        case 0: // OPT2 = 46 -> PL3 -> OC5A
             OCR5A = light[num].ocr;
             break;
 
-        case 1:
+        case 1: // OPT3 = 3 -> PE5 -> OC3C
             OCR3C = light[num].ocr;
             break;
 
-        case 2:
+        case 2: // OPT4 = 6 -> PH3 -> OC4A
             OCR4A = light[num].ocr;
             break;
 
-        case 3:
+        case 3: // OPT5 = 8 -> PH5 -> OC4C
             OCR4C = light[num].ocr;
             break;
 
-        case 4:
+        case 4: // OPT6 = 12 -> PB6 -> OC1B
             OCR1B = light[num].ocr;
             break;
 
-        case 5:
-            OCR3B = light[num].ocr;
-            break;
-
-        case 6:
+        case 5: // OPT8 = 45 -> PL4 -> OC5B
             OCR5B = light[num].ocr;
             break;
 
-        case 7:
+        case 6: // OPT9 = 5 -> PE3 -> OC3A
             OCR3A = light[num].ocr;
             break;
 
-        case 8:
+        case 7: // OPT10 = 7 -> PH4 -> OC4B
             OCR4B = light[num].ocr;
             break;
 
-        case 9:
+        case 8: // OPT11 = 11 -> PB5 -> OC1A
             OCR1A = light[num].ocr;
             break;
 
-        case 10:
+        case 9: // OPT12 = 13 -> PB7 -> OC1C
             OCR1C = light[num].ocr;
             break;
 
-        case 11:
+        case 10: // OPT13 = 44 -> PL5 -> OC5C
             OCR5C = light[num].ocr;
             break;
 
-        case 12:
+        case 11: // OPT14 = 9 -> PH6 -> OC2B
             OCR2B = light[num].ocr;
             break;
 
-        case 13:
+        case 12: // OPT15 = 10 -> PB4 -> OC2A
             OCR2A = light[num].ocr;
             break;
 
@@ -429,6 +413,8 @@ void point_zero()
     TCNT4 = 19995; // celar timer4
     TCNT5 = 19995; // clear timer5
 
+    // Serial.println("point 0");
+
 #if DIMMER_LIGHT_NUM > 0
     static uint8_t async_num = 0;
     set_ocrx(async_num);
@@ -488,7 +474,8 @@ void Dimmer_init(void)
 #if DIMMER_LIGHT_NUM > 0
     for (uint8_t num = 0; num < DIMMER_LIGHT_NUM; ++num)
     {
-        uint8_t pin = pgm_read_byte(OPT_ARRAY + 1 + num);
+        uint8_t pin = pgm_read_byte(DIMMER_ARRAY + num);
+
         pinMode(pin, OUTPUT);
         desativation_ocrx(num);
         digitalWrite(pin, LOW); // extinction du dimmer
@@ -512,7 +499,9 @@ void Dimmer_init(void)
 #if DIMMER_HEAT_NUM > 0
     for (uint8_t num = 0; num < DIMMER_HEAT_NUM; ++num)
     {
-        uint8_t pin = pgm_read_byte(OPT_ARRAY + 1 + DIMMER_LIGHT_NUM + num);
+
+        uint8_t pin = pgm_read_byte(DIMMER_ARRAY + DIMMER_LIGHT_NUM + num);
+
         pinMode(pin, OUTPUT);
         desativation_ocrx(num);
         digitalWrite(pin, LOW); // extinction du dimmer
@@ -531,9 +520,12 @@ void Dimmer_init(void)
     // EICRA = 0b00100000;
     // EIMSK = 1<<INT2;
     // EICRA = 1<<ISC21;
-    pinMode(OPT_1, INPUT); // Point zero
+    // pinMode(OPT_1, INPUT); // Point zero
     // attachInterrupt(digitalPinToInterrupt(OPT_1), point_zero, CHANGE);
-    attachInterrupt(digitalPinToInterrupt(19), point_zero, RISING);
+    // attachInterrupt(digitalPinToInterrupt(19), point_zero, RISING);
+
+    pinMode(OPT_7, INPUT); // Point zero
+    attachInterrupt(digitalPinToInterrupt(OPT_7), point_zero, RISING);
     // PCMSK0 = 0b00000001; // active pcint at pin 8
 
     TCCR5A = 0b00000010; // PWM mode Fast PWM
@@ -564,7 +556,7 @@ void Dimmer_init(void)
     // ICR1 = 19840;        // Timer1 TOP
     ICR1 = 20000; // Timer1 TOP
 #endif
-#if DIMMER_LIGHT_NUM + DIMMER_HEAT_NUM >= 13
+#if DIMMER_LIGHT_NUM + DIMMER_HEAT_NUM >= 12
     TCCR2A = 0b00000011; // PWM mode Fast PWM
     TCCR2B = 0b00000111; // prescale 1024
     TIMSK2 = 0b0000000;  // No interuption
@@ -573,7 +565,8 @@ void Dimmer_init(void)
 #if DIMMER_RELAY_NUM > 0
     for (uint8_t num = 0; num < DIMMER_RELAY_NUM; ++num)
     {
-        uint8_t pin = pgm_read_byte(OPT_ARRAY + DIMMER_RELAY_FIRST_NUM + num);
+        uint8_t pin = pgm_read_byte(DIMMER_RELAY_ARRAY + num);
+
         pinMode(pin, OUTPUT);
         num_dimmer_delay[num] = 0;
     }
@@ -774,22 +767,7 @@ bool get_dimmer_candle(uint8_t num)
 // utilisation des dimmer comme relay
 void DT_dimmer_relay(uint8_t num, bool state)
 {
-    uint8_t pin = pgm_read_byte(OPT_ARRAY + DIMMER_RELAY_FIRST_NUM + num);
-
-#if DIMMER_COVER_NUM > 0
-    // interverouillage
-    if (state == true && num < DIMMER_COVER_NUM * 2)
-    {
-        if (num % 2 == 0 && DT_dimmer_relay_get(num + 1) == true)
-        {
-            return;
-        }
-        else if (num % 2 == 1 && DT_dimmer_relay_get(num - 1) == true)
-        {
-            return;
-        }
-    }
-#endif
+    uint8_t pin = pgm_read_byte(DIMMER_RELAY_ARRAY + num);
 
     if (state)
     {
@@ -805,7 +783,7 @@ void DT_dimmer_relay(uint8_t num, bool state)
 
 bool DT_dimmer_relay_get(uint8_t num)
 {
-    uint8_t pin = pgm_read_byte(OPT_ARRAY + DIMMER_RELAY_FIRST_NUM + num);
+    uint8_t pin = pgm_read_byte(DIMMER_RELAY_ARRAY + num);
     return digitalRead(pin);
 }
 
@@ -849,7 +827,7 @@ void dimmer_loop()
             default_0 = true;
             for (uint8_t num = 0; num < DIMMER_LIGHT_NUM; num++)
             {
-                dimmer_set(num,light[num].Dimmer_go_value);
+                dimmer_set(num, light[num].Dimmer_go_value);
             }
         }
     }

@@ -13,6 +13,8 @@ void DT_cover_init();
 void DT_cover_loop();
 
 void DT_cover_set(uint8_t num, uint8_t percent);
+void DT_cover_up(uint8_t num);
+void DT_cover_down(uint8_t num);
 void DT_cover_stop(uint8_t num);
 void DT_cover_start_register(uint8_t num, bool up);
 void DT_cover_stop_register(uint8_t num);

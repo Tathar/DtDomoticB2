@@ -31,9 +31,9 @@ struct cover_struct
 {
     // uint8_t interlock; //adresse
     cover_step step;
-    uint8_t old_pos;      // in percente
-    uint8_t go_pos;       // in percent
-    int8_t pos;          // in percent
+    int8_t old_pos;       // in percente
+    int8_t go_pos;        // in percent
+    int8_t pos;           // in percent
     uint32_t mouve_start; // statt move time for percent calcule (in ms)
 };
 
@@ -53,6 +53,15 @@ void DT_cover_init()
         cover[num].mouve_start = 0;
     }
     _cover_callback = nullptr;
+
+#if DIMMER_COVER_NUM > 0
+    for (uint8_t num = 0; num < DIMMER_COVER_NUM * 2; ++num)
+    {
+        uint8_t pin = pgm_read_byte(DIMMER_COVER_ARRAY + num);
+        pinMode(pin, OUTPUT);
+        digitalWrite(pin, LOW); // extinction du dimmer
+    }
+#endif // DIMMER_COVER_NUM > 0
 #endif // COVER_NUM > 0
 }
 
@@ -61,6 +70,24 @@ void DT_cover_set(uint8_t num, uint8_t percent)
 {
 #if COVER_NUM > 0
     cover[num].go_pos = percent;
+    cover[num].step = cover_step_delay_start;
+#endif // COVER_NUM > 0
+}
+
+// move cover at postiotion "percent"
+void DT_cover_up(uint8_t num)
+{
+#if COVER_NUM > 0
+    cover[num].go_pos = 101;
+    cover[num].step = cover_step_delay_start;
+#endif // COVER_NUM > 0
+}
+
+// move cover at postiotion "percent"
+void DT_cover_down(uint8_t num)
+{
+#if COVER_NUM > 0
+    cover[num].go_pos = -1;
     cover[num].step = cover_step_delay_start;
 #endif // COVER_NUM > 0
 }
@@ -178,7 +205,7 @@ cover_state DT_cover_get_state(uint8_t num)
 #endif // COVER_NUM > 0
 }
 
-void _cover_write(uint8_t num, bool val)
+void _cover_write(uint8_t num, bool state)
 {
 #if COVER_NUM > 0
     // debug(F("_cover_write"));
@@ -190,7 +217,29 @@ void _cover_write(uint8_t num, bool val)
 #if DIMMER_COVER_NUM > 0
     if (num < DIMMER_COVER_NUM * 2)
     {
-        DT_dimmer_relay(num, val);
+        uint8_t pin = pgm_read_byte(DIMMER_COVER_ARRAY + num);
+        uint8_t other;
+        if (num % 2 == 0)
+        {
+            other = pgm_read_byte(DIMMER_COVER_ARRAY + num + 1);
+        }
+        else
+        {
+            other = pgm_read_byte(DIMMER_COVER_ARRAY + num - 1);
+        }
+
+        if (state)
+        {
+            if (digitalRead(other) == LOW)
+            {
+                digitalWrite(pin, HIGH);
+            }
+        }
+        else
+        {
+            digitalWrite(pin, LOW);
+            // async_call[num] = true;
+        }
     }
 #endif // DIMMER_COVER_NUM > 0
 
@@ -203,7 +252,7 @@ void _cover_write(uint8_t num, bool val)
         // Serial.print(",");
         // Serial.print(val);
         // Serial.println(")");
-        DT_relay(num - (DIMMER_COVER_NUM * 2), val);
+        DT_relay(num - (DIMMER_COVER_NUM * 2), state);
     }
 #endif // RELAY_COVER_NUM > 0
 #endif // COVER_NUM > 0
@@ -307,12 +356,13 @@ void DT_cover_loop()
         {
             // debug(F("cover_step_up"));
             cover[num].pos = cover[num].old_pos + ((millis() - cover[num].mouve_start) / (eeprom_config.cover[num].time_up / 100));
-            if (cover[num].pos == cover[num].go_pos)
-            {
-                cover[num].old_pos = cover[num].pos;
 
-                if (cover[num].go_pos == 100)
+            if (cover[num].pos >= cover[num].go_pos)
+            {
+
+                if (cover[num].go_pos >= 100)
                 {
+                    cover[num].pos = 100;
                     cover[num].mouve_start = millis();
                     cover[num].step = cover_step_over_up;
 
@@ -346,6 +396,8 @@ void DT_cover_loop()
                         _cover_callback(num, cover[num].pos, cover_stopped);
                     }
                 }
+
+                cover[num].old_pos = cover[num].pos;
             }
             else if (_cover_callback != nullptr && ((millis() - cover[num].mouve_start) % 500) == 0)
             {
@@ -358,12 +410,13 @@ void DT_cover_loop()
             // debug(F("cover_step_down"));
             cover[num].pos = cover[num].old_pos - ((millis() - cover[num].mouve_start) / (eeprom_config.cover[num].time_down / 100));
 
-            if (cover[num].pos == cover[num].go_pos)
+            if (cover[num].pos <= cover[num].go_pos)
             {
-                cover[num].old_pos = cover[num].pos;
 
-                if (cover[num].go_pos == 0)
+                if (cover[num].go_pos <= 0)
                 {
+
+                    cover[num].pos = 0;
                     cover[num].mouve_start = millis();
                     cover[num].step = cover_step_over_down;
 
@@ -397,6 +450,8 @@ void DT_cover_loop()
                         _cover_callback(num, cover[num].pos, cover_stopped);
                     }
                 }
+
+                cover[num].old_pos = cover[num].pos;
             }
             else if (_cover_callback != nullptr && ((millis() - cover[num].mouve_start) % 500) == 0)
             {

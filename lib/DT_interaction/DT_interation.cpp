@@ -384,14 +384,14 @@ void dt_interaction_t::two_button_push_cover(const uint8_t num, const Bt_Action 
             {
                 // printf("FG_Func_STORE FG_BTN_UP\n");
                 //   printf("btn push UP\n");
-                DT_cover_set(eeprom_config.act_num, 100);
+                DT_cover_up(eeprom_config.act_num);
                 remove();
             }
             else if (eeprom_config.act_type == dt_interaction_eeprom_config::action_t::down) // short push on button down
             {
                 // printf("FG_Func_STORE FG_BTN_DOWN\n");
                 //   printf("btn push down\n");
-                DT_cover_set(eeprom_config.act_num, 0);
+                DT_cover_down(eeprom_config.act_num);
                 remove();
             }
         }

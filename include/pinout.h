@@ -22,6 +22,8 @@
 #define OPT_17 38 // PD7 -> T0
 #define OPT_18 15 // PJ0 -> RXD3
 
+#define OPT_P0 7
+
 /*
 OPT1 = 19 -> PD2 -> RXD1/INT2
 OPT2 = 46 -> PL3 -> OC5A
@@ -53,6 +55,9 @@ const uint8_t MCP_ADDRESS[MCP_NUM] PROGMEM = {0x20, 0x21, 0x22, 0x23};
 #define MCP_CHANNEL 0b00000010
 #define MCP_PIN_INTERUPT 48
 
+// sortie dimmer
+#define DIMMER_NUM 13
+const uint8_t DIMMER_ARRAY[DIMMER_NUM] PROGMEM = {OPT_2, OPT_3, OPT_4, OPT_5, OPT_6, OPT_8, OPT_9, OPT_10, OPT_11, OPT_12, OPT_13, OPT_14, OPT_15};
 // sortie relay
 #define RELAY_MIN_TIME 10
 #define RELAY_NUM 32
@@ -67,15 +72,11 @@ const bool RELAY_REVERT[RELAY_NUM] PROGMEM = {false, false, false, false, false,
 
 // input 12V 230V
 #define INPUT_NUM 32
-const uint16_t INPUT_ARRAY[INPUT_NUM] PROGMEM = {54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 300, 301, 302, 303, 304, 305, 306, 307, 400, 401, 402, 403, 404, 405, 406, 407};
+const uint16_t INPUT_ARRAY[INPUT_NUM] PROGMEM = {54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 400, 401, 402, 403, 404, 405, 406, 407, 300, 301, 302, 303, 304, 305, 306, 307};
 const bool INPUT_REVERT[INPUT_NUM] PROGMEM = {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false};
-
 // sonde de temperature pt100
 #define TEMP_RREF 430.0
 const uint8_t OPT_ARRAY[18] PROGMEM = {OPT_1, OPT_2, OPT_3, OPT_4, OPT_5, OPT_6, OPT_7, OPT_8, OPT_9, OPT_10, OPT_11, OPT_12, OPT_13, OPT_14, OPT_15, OPT_16, OPT_17, OPT_18};
-
-// Dimmer
-// const uint8_t DIMMER_ARRAY[14] PROGMEM = {OPT_2, OPT_3, OPT_4, OPT_5, OPT_6, OPT_7, OPT_8, OPT_9, OPT_10, OPT_11, OPT_12, OPT_13, OPT_14, OPT_15};
 
 // reseau
 #define NETWORK_CS 40
@@ -88,7 +89,7 @@ const uint8_t OPT_ARRAY[18] PROGMEM = {OPT_1, OPT_2, OPT_3, OPT_4, OPT_5, OPT_6,
 // #define FAKE_NTC_R2_ADDRESS 0x12
 
 // RS485
-//#define RS485_IO 42
+// #define RS485_IO 42
 #define RS485_TX 16
 #define RS485_RX 17
 #define RS485 Serial1
