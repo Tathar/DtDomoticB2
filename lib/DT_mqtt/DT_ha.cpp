@@ -860,7 +860,7 @@ bool homeassistant(bool start)
 
         return false;
 }
-
+/*
 MQTT_data ::~MQTT_data()
 {
         if (_type == ha_cstr && _cstr != nullptr)
@@ -874,7 +874,7 @@ MQTT_data ::~MQTT_data()
                 _cstr = nullptr;
         }
 }
-
+*/
 void MQTT_data::store_P(const __FlashStringHelper *Topic, const char *Payload)
 {
         _type = ha_flash_cstr;
@@ -1050,7 +1050,7 @@ void MQTT_data::get(char *topic, int topic_len, char *payload, unsigned int payl
                 strlcpy_P(payload, reinterpret_cast<const char *>(_fcstr), payload_len);
                 debug(F(AT));
                 break;
-
+/*
         case ha_cstr:
                 strncpy_P(topic, reinterpret_cast<const char *>(_topic), topic_len);
                 debug(F(AT));
@@ -1061,7 +1061,7 @@ void MQTT_data::get(char *topic, int topic_len, char *payload, unsigned int payl
                         _cstr = nullptr;
                 }
                 break;
-
+*/
         case ha_str:
                 strncpy_P(topic, reinterpret_cast<const char *>(_topic), topic_len);
                 debug(F(AT));
@@ -1091,15 +1091,14 @@ void MQTT_data::get(char *topic, int topic_len, char *payload, unsigned int payl
                 snprintf_P(topic, topic_len, reinterpret_cast<const char *>(_topic), _num_t);
                 snprintf_P(payload, payload_len, reinterpret_cast<const char *>(_fcstr), _num_p, _num_p, _num_p);
                 break;
-
+/*
         case ha_cstr_tsprintf:
                 snprintf_P(topic, topic_len, reinterpret_cast<const char *>(_topic), _num_t);
                 strncpy(payload, _cstr, payload_len);
                 free((void *)_cstr);
                 _cstr = nullptr;
-                /* code */
                 break;
-
+*/
         case ha_str_tsprintf:
                 debug(F(AT));
                 snprintf_P(topic, topic_len, reinterpret_cast<const char *>(_topic), _num_t);
