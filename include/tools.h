@@ -40,6 +40,10 @@
 #error "you can use only 13 dimmer"
 #endif
 
+#ifdef TIC
+#define TIC_NUM  1
+#endif
+
 #if (DIMMER_LIGHT_HEAT_NUM_OPT + (DIMMER_COVER_NUM * 2) + DIMMER_RADIATOR_NUM + DIMMER_RELAY_NUM + PT100_NUM + TIC_NUM) > 18
 #error "this board as only 18 OPT connector"
 #endif

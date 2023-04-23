@@ -97,7 +97,7 @@ const uint8_t HDC1080_CHANNEL_ARRAY[HDC1080_NUM] PROGMEM = {1};
 
 // TIC
 // téléreléve information client
-#define TIC_NUM 1 // number of TIC : max 1
+//#define TIC // use teleinfo
 
 // relais
 #define RELAY_COVER_NUM 0    // nombre de volet connecté au relai
@@ -113,7 +113,7 @@ const uint8_t CPT_PULSE_INPUT_ARRAY[CPT_PULSE_INPUT] PROGMEM = {20, 21, 18};
 #endif // CPT_PULSE_INPUT > 0
 
 // watchdog
-#define WATCHDOG_TIME WDTO_8S
+#define WATCHDOG_TIME WDTO_1S
 
 #define MQTT
 #ifdef MQTT
@@ -254,7 +254,7 @@ const dt_interaction_eeprom_config interaction_input_1_push_config[PUSH_1_NUM] P
     dt_switch_dim(3),                // Toillette
     dt_button_push_dim(5),           // 2 Dressing
     dt_two_button_push_dim(2, up),   // 3 salle de bain
-    dt_two_button_push_dim(2, up),   // 4 salle de bain
+    dt_two_button_push_dim(2, down),   // 4 salle de bain
     dt_two_button_push_dim(6, up),   // 5 centre
     dt_two_button_push_dim(6, down), // 6 centre
     dt_no_action(),
