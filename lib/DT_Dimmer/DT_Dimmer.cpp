@@ -190,61 +190,149 @@ inline void activation_ocrx(uint8_t num)
         port |= _BV(pin);         \
     }
 
-inline void force_opt(uint8_t num, uint8_t level)
+inline void force_low_opt(uint8_t num)
 {
 
     switch (num)
     {
     case 0: // OPT2 = 46 -> PL3 -> OC5A
-        SET_PIN(PORTL, PL3, level);
+        SET_PIN(PORTL, PL3, LOW);
+        // SET_PIN(DDRL, PL3, LOW);
         break;
 
     case 1: // OPT3 = 3 -> PE5 -> OC3C
-        SET_PIN(PORTE, PE5, level);
+        SET_PIN(PORTE, PE5, LOW);
+        // SET_PIN(DDRE, PE5, LOW);
         break;
 
     case 2: // OPT4 = 6 -> PH3 -> OC4A
-        SET_PIN(PORTH, PH3, level);
+        SET_PIN(PORTH, PH3, LOW);
+        // SET_PIN(DDRH, PH3, LOW);
         break;
 
     case 3: // OPT5 = 8 -> PH5 -> OC4C
-        SET_PIN(PORTH, PH5, level);
+        SET_PIN(PORTH, PH5, LOW);
+        // SET_PIN(DDRH, PH5, LOW);
         break;
 
     case 4: // OPT6 = 12 -> PB6 -> OC1B
-        SET_PIN(PORTB, PB6, level);
+        SET_PIN(PORTB, PB6, LOW);
+        //SET_PIN(DDRB, PB6, LOW);
         break;
 
     case 5: // OPT8 = 45 -> PL4 -> OC5B
-        SET_PIN(PORTL, PL4, level);
+        SET_PIN(PORTL, PL4, LOW);
+        // SET_PIN(DDRL, PL4, LOW);
         break;
 
     case 6: // OPT9 = 5 -> PE3 -> OC3A
-        SET_PIN(PORTE, PE3, level);
+        SET_PIN(PORTE, PE3, LOW);
+        // SET_PIN(DDRE, PE3, LOW);
         break;
 
     case 7: // OPT10 = 7 -> PH4 -> OC4B
-        SET_PIN(PORTH, PH4, level);
+        SET_PIN(PORTH, PH4, LOW);
+        // SET_PIN(DDRH, PH4, LOW);
         break;
 
     case 8: // OPT11 = 11 -> PB5 -> OC1A
-        SET_PIN(PORTB, PB5, level);
+        SET_PIN(PORTB, PB5, LOW);
+        // SET_PIN(DDRB, PB5, LOW);
         break;
 
     case 9: // OPT12 = 13 -> PB7 -> OC1C
-        SET_PIN(PORTB, PB7, level);
+        SET_PIN(PORTB, PB7, LOW);
+        // SET_PIN(DDRB, PB7, LOW);
         break;
 
     case 10: // OPT13 = 44 -> PL5 -> OC5C
-        SET_PIN(PORTL, PL5, level);
+        SET_PIN(PORTL, PL5, LOW);
+        // SET_PIN(DDRL, PL5, LOW);
         break;
 
     case 11: // OPT14 = 9 -> PH6 -> OC2B
-        SET_PIN(PORTH, PH6, level);
+        SET_PIN(PORTH, PH6, LOW);
+        // SET_PIN(DDRH, PH6, LOW);
         break;
 
     case 12: // OPT15 = 10 -> PB4 -> OC2A
-        SET_PIN(PORTB, PB4, level);
+        SET_PIN(PORTB, PB4, LOW);
+        // SET_PIN(DDRB, PB4, LOW);
+        break;
+
+    default:
+        break;
+    }
+}
+
+inline void force_high_opt(uint8_t num)
+{
+
+    switch (num)
+    {
+    case 0: // OPT2 = 46 -> PL3 -> OC5A
+        // SET_PIN(DDRL, PL3, HIGH);
+        SET_PIN(PORTL, PL3, HIGH);
+        break;
+
+    case 1: // OPT3 = 3 -> PE5 -> OC3C
+        // SET_PIN(DDRE, PE5, HIGH);
+        SET_PIN(PORTE, PE5, HIGH);
+        break;
+
+    case 2: // OPT4 = 6 -> PH3 -> OC4A
+        // SET_PIN(DDRH, PH3, HIGH);
+        SET_PIN(PORTH, PH3, HIGH);
+        break;
+
+    case 3: // OPT5 = 8 -> PH5 -> OC4C
+        // SET_PIN(DDRH, PH5, HIGH);
+        SET_PIN(PORTH, PH5, HIGH);
+        break;
+
+    case 4: // OPT6 = 12 -> PB6 -> OC1B
+        // SET_PIN(DDRB, PB6, HIGH);
+        SET_PIN(PORTB, PB6, HIGH);
+        break;
+
+    case 5: // OPT8 = 45 -> PL4 -> OC5B
+        // SET_PIN(DDRL, PL4, HIGH);
+        SET_PIN(PORTL, PL4, HIGH);
+        break;
+
+    case 6: // OPT9 = 5 -> PE3 -> OC3A
+        // SET_PIN(DDRE, PE3, HIGH);
+        SET_PIN(PORTE, PE3, HIGH);
+        break;
+
+    case 7: // OPT10 = 7 -> PH4 -> OC4B
+        // SET_PIN(DDRH, PH4, HIGH);
+        SET_PIN(PORTH, PH4, HIGH);
+        break;
+
+    case 8: // OPT11 = 11 -> PB5 -> OC1A
+        // SET_PIN(DDRB, PB5, HIGH);
+        SET_PIN(PORTB, PB5, HIGH);
+        break;
+
+    case 9: // OPT12 = 13 -> PB7 -> OC1C
+        // SET_PIN(DDRB, PB7, HIGH);
+        SET_PIN(PORTB, PB7, HIGH);
+        break;
+
+    case 10: // OPT13 = 44 -> PL5 -> OC5C
+        // SET_PIN(DDRL, PL5, HIGH);
+        SET_PIN(PORTL, PL5, HIGH);
+        break;
+
+    case 11: // OPT14 = 9 -> PH6 -> OC2B
+        // SET_PIN(DDRH, PH6, HIGH);
+        SET_PIN(PORTH, PH6, HIGH);
+        break;
+
+    case 12: // OPT15 = 10 -> PB4 -> OC2A
+        // SET_PIN(DDRB, PB4, HIGH);
+        SET_PIN(PORTB, PB4, HIGH);
         break;
 
     default:
@@ -257,12 +345,12 @@ inline void set_ocrx(uint8_t num)
     if (light[num].ocr == 0)
     {
         desativation_ocrx(num);
-        force_opt(num, HIGH);
+        force_high_opt(num);
     }
     else if (light[num].ocr == 65535)
     {
         desativation_ocrx(num);
-        force_opt(num, LOW);
+        force_low_opt(num);
     }
     else
     {
@@ -416,10 +504,10 @@ void point_zero()
     // Serial.println("point 0");
 
 #if DIMMER_LIGHT_NUM > 0
-    static uint8_t async_num = 0;
-    set_ocrx(async_num);
-    if (++async_num == DIMMER_LIGHT_NUM)
-        async_num = 0;
+    for (uint8_t num = 0; num < DIMMER_LIGHT_NUM; num++)
+    {
+        set_ocrx(num);
+    }
 #endif // DIMMER_LIGHT_NUM
 
 #if DIMMER_HEAT_NUM > 0
@@ -621,7 +709,7 @@ void dimmer_set(uint8_t num, uint8_t value, uint16_t time, bool candle)
     if (value != 0 && default_0)
     {
         desativation_ocrx(num);
-        force_opt(num, HIGH);
+        force_high_opt(num);
         calc_ocr(num, 255);
         light[num].Dimmer_go_value = value;
         light[num].Dimmer_time = 1;
@@ -629,7 +717,7 @@ void dimmer_set(uint8_t num, uint8_t value, uint16_t time, bool candle)
     else if (value == 0 && default_0)
     {
         desativation_ocrx(num);
-        force_opt(num, LOW);
+        force_low_opt(num);
         // Dimmer_value[num] = Dimmer_new_value[num];
         // light[num].Dimmer_value = percent;
         calc_ocr(num, 0);
