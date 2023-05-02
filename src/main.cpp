@@ -23,6 +23,7 @@
 #include <DT_radiator.h>
 #include <DT_cpt_pulse_input.h>
 #include <DT_ecs.h>
+#include <DT_teleinfo.h>
 
 #include <DT_interaction.h>
 
@@ -255,7 +256,7 @@ void dimmer_callback(const uint8_t num, const uint8_t percent, const bool candle
 #endif // NUM_DIMMER
 
 #if COVER_NUM > 0
-void cover_callback(const uint8_t num, const uint8_t percent, const cover_state state)
+void cover_callback(const uint8_t num, const int8_t percent, const cover_state state)
 {
   if (can_send())
   {
@@ -291,12 +292,10 @@ void cover_callback(const uint8_t num, const uint8_t percent, const cover_state 
 #endif
 
 // envoi de donné MQTT quand une entrée est activée / desactivée
-void input_callback(const uint8_t num, const Bt_Action action)
+void input_mqtt(const uint8_t num, const Bt_Action action)
 {
   debug(F(AT));
   memory(false);
-
-  DT_interation_input_action(num, action);
 
   switch (action)
   {
@@ -450,6 +449,13 @@ void input_callback(const uint8_t num, const Bt_Action action)
     }
   }
   memory(false);
+}
+
+
+void input_callback(const uint8_t num, const Bt_Action action)
+{
+  DT_interation_input_action(num, action);
+  input_mqtt(num, action);
 }
 
 #ifdef MQTT
@@ -878,6 +884,13 @@ void dt_radiator_callback(const uint8_t num, const float out, const float I)
 }
 #endif // RADIATOR_NUM
 
+#ifdef TIC
+void teleinfo_callback(const char *name, const char *value)
+{
+  DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/TIC"), value);
+}
+#endif // TIC
+
 // envoie en MQTT de l'ensamble des donnée de la carte
 bool mqtt_publish(bool start)
 {
@@ -942,7 +955,7 @@ bool mqtt_publish(bool start)
     case BOOST_PP_COUNTER:
       if (num < INPUT_NUM)
       {
-        input_callback(num, DT_input_get_stats(num));
+        input_mqtt(num, DT_input_get_stats(num));
         num++;
         sequance--;
       }
@@ -3053,6 +3066,11 @@ void setup()
 #endif // MQTT
 #endif // VANNE
 
+#ifdef TIC
+  DT_teleinfo_init();
+  DT_teleinfo_set_callback(teleinfo_callback);
+#endif // TIC
+
   DT_interation_init();
 
 // wdt_enable(WATCHDOG_TIME);
@@ -3064,11 +3082,18 @@ void setup()
   Serial.print(F("version: "));
   Serial.println(F(BOARD_SW_VERSION_PRINT));
   memory(true);
+
+#ifdef WATCHDOG_TIME
+  wdt_enable(WATCHDOG_TIME);
+#endif
 }
 
 // boucle principale
 void loop()
 {
+#ifdef WATCHDOG_TIME
+  wdt_reset();
+#endif
   // debug(AT);
   // debug_wdt_reset(F(AT));
   // wdt_reset();
@@ -3174,6 +3199,13 @@ void loop()
     break;
 #endif // RELAY_ECS2
 #endif // RELAY_ECS1
+
+#ifdef TIC
+#include BOOST_PP_UPDATE_COUNTER()
+  case BOOST_PP_COUNTER:
+    DT_teleinfo_loop();
+    break;
+#endif // TIC
 
   default:
     interlock = 0;

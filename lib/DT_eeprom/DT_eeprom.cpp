@@ -131,8 +131,8 @@ void chargeEEPROM()
                 {
                         if (num < 12)
                         {
-                                eeprom_config.Dimmer_scale_min[num] = 20000; // Mise a l echelle
-                                eeprom_config.Dimmer_scale_max[num] = 10000; // Mise a l echelle
+                                eeprom_config.Dimmer_scale_min[num] = 17000; // Mise a l echelle
+                                eeprom_config.Dimmer_scale_max[num] = 7000; // Mise a l echelle
                         }
                         else
                         {

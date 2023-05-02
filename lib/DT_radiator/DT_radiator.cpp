@@ -68,7 +68,8 @@ void DT_radiator_loop()
 
             if (num < DIMMER_RADIATOR_NUM)
             {
-                DT_dimmer_relay(DIMMER_RADIATOR_FIRST_NUM + num, (uint32_t)SCALE(percent, 0, 100, 0, eeprom_config.radiator[num].cycle));
+                uint8_t relay = pgm_read_byte(DIMMER_RADIATOR_ARRAY + num);
+                DT_dimmer_relay(relay, (uint32_t)SCALE(percent, 0, 100, 0, eeprom_config.radiator[num].cycle));
             }
             else
             {

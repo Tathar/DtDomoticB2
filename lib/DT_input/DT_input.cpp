@@ -73,8 +73,32 @@ void DT_input_init()
         multiple_push_start_time[num] = 0;
         push_count[num] = 0;
         input_front[num] = 0;
-        old_pin_stats[num] = revert == false ? LOW : HIGH;
-        stats[num] = revert == false ? IN_RELEASE : IN_PUSHED;
+
+        // initialisation
+        uint8_t pin_stats;
+
+        if (pin >= 100)
+        {
+#ifdef INTERNAL_INPUT_I2C
+            uint8_t i2c = pin / 100;
+            pin -= i2c * 100;
+            i2c -= 1;
+            // pin_stats = mcp[i2c].digitalRead(pin);
+            pin_stats = DT_mcp_digitalRead(i2c, pin);
+            // Serial.println(pin);
+            // Serial.println(i2c);
+#endif
+        }
+        else
+        {
+            pin_stats = digitalRead(pin);
+        }
+
+        if (revert)
+            pin_stats = !pin_stats;
+
+        stats[num] = pin_stats == HIGH ? IN_PUSHED : IN_RELEASE;
+        old_pin_stats[num] = pin_stats;
     }
 }
 
@@ -142,17 +166,28 @@ void DT_input_loop()
         else
         {
             pin_stats = digitalRead(pin);
+            static uint8_t old_pin_state = LOW;
+            if (pin == 64 && pin_stats != old_pin_state)
+            {
+                old_pin_state = pin_stats;
+                Serial.print(F("pin 11 ="));
+                Serial.println(pin_stats);
+            }
         }
 
         if (revert)
             pin_stats = !pin_stats;
 
-        if (pin_stats != old_pin_stats[num])
+        if (pin_stats != old_pin_stats[num]) //front
         {
             old_pin_stats[num] = pin_stats;
-            if (pin_stats == HIGH && now - debounce_start_time[num] >= DEBOUNCE_TIME) // Raise UP no debounced
+            debounce_start_time[num] = now;
+        }
+        else if (debounce_start_time[num] != 0 && now - debounce_start_time[num] >= DEBOUNCE_TIME) // debounced front
+        {
+            if (pin_stats == HIGH) // Raise UP
             {
-                debounce_start_time[num] = now;    // demmarage du timer de debounce
+                debounce_start_time[num] = 0;
                 long_push_start_time[num] = now;   // demarage du timer d appuie long
                 multiple_push_start_time[num] = 0; // arret du timer d appuie multiple
                 push_count[num] += 1;
@@ -163,14 +198,13 @@ void DT_input_loop()
                 }
             }
 
-            else if (pin_stats == LOW && now - debounce_start_time[num] >= DEBOUNCE_TIME) // Raise DOWN no debounced
+            else if (pin_stats == LOW ) // Raise DOWN
             {
                 // Serial.println(F("Relese"));
-
+                debounce_start_time[num] = 0;
                 if (input_front[num] & F_all_long_push)
                     push_count[num] = 0;
 
-                debounce_start_time[num] = now;                     // demmarage du timer de debounce
                 input_front[num] = 0;                               // mise a zero du front d appuie long
                 multiple_push_start_time[num] = now == 0 ? 1 : now; // demarage du timer d appuie multiple
                 stats[num] = IN_RELEASE;                            // 2
@@ -180,7 +214,7 @@ void DT_input_loop()
                 }
             }
         }
-        else
+        else if ( debounce_start_time[num] == 0 ) //debounced no change
         {
             if (multiple_push_start_time[num] != 0 && now - multiple_push_start_time[num] > MULTIPLE_PUSH_TIME) // multiple push timer raise
             {

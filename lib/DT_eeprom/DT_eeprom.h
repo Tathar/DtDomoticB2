@@ -13,7 +13,7 @@
 #include <QuickPID.h>
 #include <config.h>
 
-static const uint8_t STRUCT_MAGIC = 8;
+static const uint8_t STRUCT_MAGIC = 9;
 static const uint8_t STRUCT_VERSION = 1;
 
 struct Pid

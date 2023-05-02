@@ -34,7 +34,7 @@ enum __attribute__((__packed__)) type
 class MQTT_data
 {
 public:
-    ~MQTT_data();
+    //~MQTT_data();
     void store_P(const __FlashStringHelper *Topic, const char *Payload);
     void store(const __FlashStringHelper *Topic, const __FlashStringHelper *Payload);
     // void store(const __FlashStringHelper *Topic, char const *Payload);
@@ -73,7 +73,7 @@ private:
     union
     {
         const __FlashStringHelper *_fcstr;
-        char *_cstr;
+        //char *_cstr;
         float _float;
         int32_t _int;
     };

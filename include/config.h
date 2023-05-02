@@ -17,12 +17,12 @@ uint16_t memory(bool print);
 
 #define BOARD_MANUFACTURER "DOUET Touch Familly"
 #define BOARD_MODEL "DTBoard02"
-#define BOARD_NAME "Chauffage"
+#define BOARD_NAME "Chambre Parantal"
 #define BOARD_SW_VERSION "0.2"
-#define BOARD_IDENTIFIER "DTB02-001"
+#define BOARD_IDENTIFIER "DTB02-CHP"
 
 #define MAX_TOPIC 64
-#define MAX_PAYLOAD 268
+#define MAX_PAYLOAD 310
 
 // INPUT
 #define DEBOUNCE_TIME 50
@@ -36,21 +36,34 @@ uint16_t memory(bool print);
 #define COVER_SECURE_DELAY 250
 
 // Dimmer
-#define DIMMER_LIGHT_NUM 14         // max (DIMMER_LIGHT_NUM + DIMMER_HEAT_NUM + (DIMMER_COVER_NUM * 2) ) = 14
-#define DIMMER_ON_OFF_SPEED 250    // en miliseconde
+
+#define DIMMER_LIGHT_NUM 10       // max 13
+#define DIMMER_ON_OFF_SPEED 250   // en miliseconde
 #define DIMMER_SETTING_SPEED 5000 // en miliseconde pour 100%
-#define DIMMER_SETTING_MIN 25      // valeur minimum du dimmer
+#define DIMMER_SETTING_MIN 25     // valeur minimum du dimmer
 // #define MIN_CANDLE_TIME 250
 // #define MAX_CANDLE_TIME 1000
 #define CANDLE_OFSSET_PERCENTE_MIN 0  // en pourcentage
 #define CANDLE_OFSSET_PERCENTE_MAX 30 // en pourcentage
 #define CANDLE_SPEED_MIN 250          // en miliseconde
 #define CANDLE_SPEED_MAX 1000         // en miliseconde
+#define DIMMER_HEAT_NUM 0             // Fil pilote : max (DIMMER_LIGHT_NUM + DIMMER_HEAT_NUM + (DIMMER_COVER_NUM * 2) ) = 13
 
-#define DIMMER_HEAT_NUM 0     // Fil pilote : max (DIMMER_LIGHT_NUM + DIMMER_HEAT_NUM + (DIMMER_COVER_NUM * 2) ) = 14
-#define DIMMER_COVER_NUM 1    // nombre de volet connecté au dimmer : max (DIMMER_LIGHT_NUM + DIMMER_HEAT_NUM + (DIMMER_COVER_NUM * 2) ) = 14
-#define DIMMER_RADIATOR_NUM 0 // nombre de radiateur connecté au dimmer : max (DIMMER_LIGHT_NUM + DIMMER_HEAT_NUM + (DIMMER_COVER_NUM * 2) + DIMMER_RADIATOR_NUM ) = 14
+#define DIMMER_COVER_NUM 1 // nombre de volet connecté au dimmer : max (DIMMER_LIGHT_NUM + DIMMER_HEAT_NUM + (DIMMER_COVER_NUM * 2) ) = 13
+#if DIMMER_COVER_NUM > 0
+const uint8_t DIMMER_COVER_ARRAY[DIMMER_COVER_NUM * 2] PROGMEM = {OPT_13, OPT_14};
+#endif
+
+#define DIMMER_RELAY_NUM 0 // nombre de radiateur connecté au dimmer : max (DIMMER_LIGHT_NUM + DIMMER_HEAT_NUM + (DIMMER_COVER_NUM * 2) + DIMMER_RADIATOR_NUM ) = 13
+#if DIMMER_RELAY_NUM > 0
+const uint8_t DIMMER_RELAY_ARRAY[DIMMER_RELAY_NUM] PROGMEM = {OPT_1};
+#endif
+
+#define DIMMER_RADIATOR_NUM 0 // nombre de radiateur connecté au dimmer : max (DIMMER_LIGHT_NUM + DIMMER_HEAT_NUM + (DIMMER_COVER_NUM * 2) + DIMMER_RADIATOR_NUM ) = 13
+#if DIMMER_RADIATOR_NUM > 0
 const uint8_t DIMMER_RADIATOR_PT100_ARRAY[DIMMER_RADIATOR_NUM] PROGMEM = {};
+const uint8_t DIMMER_RADIATOR_ARRAY[DIMMER_RADIATOR_NUM] PROGMEM = {}; // define Dimmer relay num
+#endif
 
 // PT100
 #define PT100_NUM 0 // max 18 //TODO: bug if PT100_NUM != 18
@@ -71,28 +84,36 @@ const uint8_t CCS811_CHANNEL_ARRAY[CCS811_NUM] PROGMEM = {2};
 #endif
 
 // SCD4X
-#define SCD4X_NUM 0
+#define SCD4X_NUM 1
 #if SCD4X_NUM > 0
-const uint8_t SCD4X_CHANNEL_ARRAY[SCD4X_NUM] PROGMEM = {1, 2, 3};
+const uint8_t SCD4X_CHANNEL_ARRAY[SCD4X_NUM] PROGMEM = {1};
 #endif // SCD4X
 
 // HDC1080
-#define HDC1080_NUM 0
+#define HDC1080_NUM 1
 #if HDC1080_NUM > 0
-const uint8_t HDC1080_CHANNEL_ARRAY[HDC1080_NUM] PROGMEM = {1, 2, 3};
+const uint8_t HDC1080_CHANNEL_ARRAY[HDC1080_NUM] PROGMEM = {1};
 #endif
 
 // TIC
 // téléreléve information client
-#define TIC_NUM 0 // number of TIC : max 1
+//#define TIC // use teleinfo
 
 // relais
 #define RELAY_COVER_NUM 0    // nombre de volet connecté au relai
 #define RELAY_RADIATOR_NUM 0 // nombre de radiateur connecté au relai
-//const uint8_t RELAY_RADIATOR_PT100_ARRAY[RELAY_RADIATOR_NUM] PROGMEM = {};
+#if RELAY_RADIATOR_NUM > 0
+const uint8_t RELAY_RADIATOR_PT100_ARRAY[RELAY_RADIATOR_NUM] PROGMEM = {};
+#endif // RELAY_RADIATOR_NUM
+
+// cpt_pulse_input
+#define CPT_PULSE_INPUT 3 // nombre de compteur d'impulsion
+#if CPT_PULSE_INPUT > 0
+const uint8_t CPT_PULSE_INPUT_ARRAY[CPT_PULSE_INPUT] PROGMEM = {20, 21, 18};
+#endif // CPT_PULSE_INPUT > 0
 
 // watchdog
-#define WATCHDOG_TIME WDTO_8S
+#define WATCHDOG_TIME WDTO_1S
 
 #define MQTT
 #ifdef MQTT
@@ -105,13 +126,13 @@ const uint8_t HDC1080_CHANNEL_ARRAY[HDC1080_NUM] PROGMEM = {1, 2, 3};
 #define MAC3 0xBA
 #define MAC4 0xFE
 #define MAC5 0xFE
-#define MAC6 0xED
+#define MAC6 0xEF
 // #define DHCP
 //  ip address
 #define SOURCE_IP1 192
 #define SOURCE_IP2 168
 #define SOURCE_IP3 1
-#define SOURCE_IP4 4
+#define SOURCE_IP4 5
 // dns server
 #define DNS1 192
 #define DNS2 168
@@ -133,7 +154,7 @@ const uint8_t HDC1080_CHANNEL_ARRAY[HDC1080_NUM] PROGMEM = {1, 2, 3};
 #define MQTT_IP3 1
 #define MQTT_IP4 2
 // MQTT config
-#define MQTT_CLIENT_ID "Board_chauffage"
+#define MQTT_CLIENT_ID BOARD_IDENTIFIER
 #define MQTT_USER "dtboard"
 #define MQTT_PASSWORD "1MotdePasse"
 #define MQTT_ROOT_TOPIC "DtBoard"
@@ -227,11 +248,26 @@ const uint8_t HDC1080_CHANNEL_ARRAY[HDC1080_NUM] PROGMEM = {1, 2, 3};
 #define MARCHE_POELE 21
 
 // Interaction
-#define PUSH_1_NUM 2
+#define PUSH_1_NUM 16
 #if PUSH_1_NUM > 0
 const dt_interaction_eeprom_config interaction_input_1_push_config[PUSH_1_NUM] PROGMEM = {
-    dt_two_button_push_cover(0, up),
-    dt_two_button_push_cover(0, down)};
+    dt_switch_dim(3),                // Toillette
+    dt_button_push_dim(5),           // 2 Dressing
+    dt_two_button_push_dim(2, up),   // 3 salle de bain
+    dt_two_button_push_dim(2, down),   // 4 salle de bain
+    dt_two_button_push_dim(6, up),   // 5 centre
+    dt_two_button_push_dim(6, down), // 6 centre
+    dt_no_action(),
+    dt_no_action(),
+    dt_no_action(),
+    dt_button_push_dim(0),           // 10 exterieur
+    dt_two_button_push_dim(7, up),   // 11 chevet droite
+    dt_two_button_push_dim(7, down), // 12  chevet droite
+    dt_two_button_push_dim(8, up),   // 13 chevet Gauche
+    dt_two_button_push_dim(8, down), // 14  chevet Gauche
+    dt_two_button_push_cover(0, down), //15 vollet bas
+    dt_two_button_push_cover(0, up), //16 vollet bas
+};
 #endif // PUSH_1_NUM > 0
 
 #define PUSH_2_NUM 0
