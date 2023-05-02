@@ -105,6 +105,8 @@ void DT_cover_stop(uint8_t num)
 
 inline int8_t position(uint8_t num)
 {
+
+#if COVER_NUM > 0
     if (cover[num].pos <= 0)
     {
         return 0;
@@ -119,6 +121,7 @@ inline int8_t position(uint8_t num)
         return (double)cover[num].pos / (double)eeprom_config.cover[num].time_up * (double)100;
     }
     // y= 32,614 ln(x) - 55,815 // 0 second pour 0 %
+#endif // COVER_NUM > 0
 }
 
 void DT_cover_backup_pos(uint8_t num)

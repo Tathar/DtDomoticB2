@@ -85,12 +85,20 @@ public:
             button_push_rly(num, action);
             break;
 
+        case dt_interaction_eeprom_config::dt_interaction_type_t::dt_button_push_opt_rly:
+            button_push_opt_rly(num, action);
+            break;
+
         case dt_interaction_eeprom_config::dt_interaction_type_t::dt_switch_dim:
             switch_dim(num, action);
             break;
 
         case dt_interaction_eeprom_config::dt_interaction_type_t::dt_switch_rly:
             switch_rly(num, action);
+            break;
+
+        case dt_interaction_eeprom_config::dt_interaction_type_t::dt_switch_opt_rly:
+            switch_opt_rly(num, action);
             break;
 
         case dt_interaction_eeprom_config::dt_interaction_type_t::dt_two_button_push_dim:
@@ -181,8 +189,10 @@ public:
 
     void button_push_dim(const uint8_t num, const Bt_Action action);
     void button_push_rly(const uint8_t num, const Bt_Action action);
+    void button_push_opt_rly(const uint8_t num, const Bt_Action action);
     void switch_dim(const uint8_t num, const Bt_Action action);
     void switch_rly(const uint8_t num, const Bt_Action action);
+    void switch_opt_rly(const uint8_t num, const Bt_Action action);
     void two_button_push_dim(const uint8_t num, const Bt_Action action);
     void two_button_push_cover(const uint8_t num, const Bt_Action action);
 

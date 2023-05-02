@@ -52,12 +52,13 @@ bool homeassistant(bool start)
                         }
                         break;
 
+#if OPT_RELAY_NUM > 0
 #include BOOST_PP_UPDATE_COUNTER()
                 case BOOST_PP_COUNTER: // Dimmer_relay
-                        if (num < DIMMER_RELAY_NUM)
+                        if (num < OPT_RELAY_NUM)
                         {
-                                f_payload = PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/dimmer-relay-%02d\",\"uniq_id\":\"" BOARD_IDENTIFIER "-dimmer-relay-%02d\",\"name\":\"" BOARD_IDENTIFIER " dimmer-relay-%02d\",\"ret\":\"true\",\"command_topic\":\"~/set\",\"stat_t\":\"~/state\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"),
-                                DT_mqtt_send(F("homeassistant/switch/" BOARD_IDENTIFIER "/dimmer-relay-%02d/config"), num + 1, reinterpret_cast<const __FlashStringHelper *>(f_payload), num  + 1);
+                                f_payload = PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/opt-relay-%02d\",\"uniq_id\":\"" BOARD_IDENTIFIER "-opt-relay-%02d\",\"name\":\"" BOARD_IDENTIFIER " opt-relay-%02d\",\"ret\":\"true\",\"command_topic\":\"~/set\",\"stat_t\":\"~/state\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"),
+                                DT_mqtt_send(F("homeassistant/switch/" BOARD_IDENTIFIER "/opt-relay-%02d/config"), num + 1, reinterpret_cast<const __FlashStringHelper *>(f_payload), num  + 1);
                                 num++;
                                 sequance--;
                         }
@@ -66,6 +67,7 @@ bool homeassistant(bool start)
                                 num = 0;
                         }
                         break;
+#endif //OPT_RELAY_NUM > 0
 
 #if DIMMER_LIGHT_NUM > 0
 #include BOOST_PP_UPDATE_COUNTER() //declaration des dimmer
