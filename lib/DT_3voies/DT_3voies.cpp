@@ -402,14 +402,14 @@ void DT_3voies_loop()
     }
 
     // consigne minimum pour fonctionnement des circulateur
-    if ((eeprom_config.mode_3voies_PCBT != DT_3VOIES_DEMMARAGE) && (mem_config.C2 < (eeprom_config.C_PCBT_MIN - eeprom_config.V3)))
+    if ((eeprom_config.mode_3voies_PCBT != DT_3VOIES_DEMMARAGE) && (DT_pt100_get(PT100_EXT) > (eeprom_config.C_PCBT_MIN + 0.5)))
     {
         DT_relay(CIRCULATEUR_PCBT, false);           // arret du circulateur
         pid_pcbt.SetMode(QuickPID::Control::manual); // arret de la vanne 3 voie
         Output_PCBT = 0;
         async_call_pcbt_pid = true;
     }
-    else if ((eeprom_config.mode_3voies_PCBT != DT_3VOIES_OFF) && (mem_config.C2 > (eeprom_config.C_PCBT_MIN + eeprom_config.V3)))
+    else if ((eeprom_config.mode_3voies_PCBT != DT_3VOIES_OFF) && (DT_pt100_get(PT100_EXT) < (eeprom_config.C_PCBT_MIN - 0.5)))
     {
         DT_relay(CIRCULATEUR_PCBT, true); // demmarage du circulateur
         //Output_PCBT = 0;
@@ -423,14 +423,14 @@ void DT_3voies_loop()
         async_call_pcbt_pid = true;
     }
 
-    if ((eeprom_config.mode_3voies_MCBT != DT_3VOIES_DEMMARAGE) && (mem_config.C3 < (eeprom_config.C_MCBT_MIN - eeprom_config.V3)))
+    if ((eeprom_config.mode_3voies_MCBT != DT_3VOIES_DEMMARAGE) && (DT_pt100_get(PT100_EXT) > (eeprom_config.C_MCBT_MIN + 0.5)))
     {
         DT_relay(CIRCULATEUR_MCBT, false);           // arret du circulateur
         pid_mcbt.SetMode(QuickPID::Control::manual); // arret de la vanne 3 voie
         Output_MCBT = 0;
         async_call_mcbt_pid = true;
     }
-    else if ((eeprom_config.mode_3voies_MCBT != DT_3VOIES_OFF) && (mem_config.C3 > (eeprom_config.C_MCBT_MIN + eeprom_config.V3)))
+    else if ((eeprom_config.mode_3voies_MCBT != DT_3VOIES_OFF) && (DT_pt100_get(PT100_EXT) < (eeprom_config.C_MCBT_MIN - 0.5)))
     {
         DT_relay(CIRCULATEUR_MCBT, true); // demmarage du circulateur
         //Output_MCBT = 0;
@@ -443,7 +443,7 @@ void DT_3voies_loop()
         Output_MCBT = 0;
         async_call_mcbt_pid = true;
     }
-
+/*
     // Plage Morte PCBT
     if (Input_PCBT >= mem_config.C2 && (Input_PCBT - mem_config.C2) < eeprom_config.V3)
     {
@@ -457,7 +457,8 @@ void DT_3voies_loop()
         Output_PCBT = 0;
         async_call_pcbt_pid = true;
     }
-
+*/
+/*
     // Plage Morte MCBT
     if (Input_MCBT >= mem_config.C3 && (Input_MCBT - mem_config.C3) < eeprom_config.V3)
     {
@@ -471,7 +472,7 @@ void DT_3voies_loop()
         Output_MCBT = 0;
         async_call_mcbt_pid = true;
     }
-
+*/
     /*
         // test de la temperature du planche
         for (uint8_t num = 0; num < NUM_PLANCHE; ++num)

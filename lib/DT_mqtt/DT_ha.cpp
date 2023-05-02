@@ -688,7 +688,7 @@ bool homeassistant(bool start)
 #include BOOST_PP_UPDATE_COUNTER()
                 case BOOST_PP_COUNTER:
                         // C_PCBT_MIN
-                        DT_mqtt_send(F("homeassistant/number/" BOARD_IDENTIFIER "/C_PCBT_MIN/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/pcbt/min_temp\",\"uniq_id\":\"" BOARD_IDENTIFIER "-C_PCBT_MIN\",\"name\":\"consigne Temp PCBT minimum (C_PCBT_MIN)\",\"stat_t\":\"~/state\",\"command_topic\":\"~/set\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
+                        DT_mqtt_send(F("homeassistant/number/" BOARD_IDENTIFIER "/C_PCBT_MIN/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/pcbt/min_temp\",\"uniq_id\":\"" BOARD_IDENTIFIER "-C_PCBT_MIN\",\"name\":\"consigne Temp PCBT minimum T° ext. (C_PCBT_MIN)\",\"stat_t\":\"~/state\",\"command_topic\":\"~/set\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
                         break;
 
 #include BOOST_PP_UPDATE_COUNTER()
@@ -700,7 +700,7 @@ bool homeassistant(bool start)
 #include BOOST_PP_UPDATE_COUNTER()
                 case BOOST_PP_COUNTER:
                         // C_MCBT_MIN
-                        DT_mqtt_send(F("homeassistant/number/" BOARD_IDENTIFIER "/C_MCBT_MIN/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/mcbt/min_temp\",\"uniq_id\":\"" BOARD_IDENTIFIER "-C_MCBT_MIN\",\"name\":\"consigne Temp MCBT minimum (C_MCBT_MIN)\",\"stat_t\":\"~/state\",\"command_topic\":\"~/set\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
+                        DT_mqtt_send(F("homeassistant/number/" BOARD_IDENTIFIER "/C_MCBT_MIN/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/mcbt/min_temp\",\"uniq_id\":\"" BOARD_IDENTIFIER "-C_MCBT_MIN\",\"name\":\"consigne Temp MCBT minimum T° ext (C_MCBT_MIN)\",\"stat_t\":\"~/state\",\"command_topic\":\"~/set\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
                         break;
 
 #include BOOST_PP_UPDATE_COUNTER()
