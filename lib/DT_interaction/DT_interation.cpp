@@ -1,6 +1,7 @@
 #include <DT_interaction.h>
 #include <DT_Dimmer.h>
 #include <DT_relay.h>
+#include <DT_opt_relay.h>
 #include <DT_cover.h>
 
 CircularBuffer<dt_interaction_config, 10> interaction_buffer;
@@ -118,6 +119,32 @@ void dt_interaction_t::switch_rly(const uint8_t num, const Bt_Action action)
 #endif // RELAY_NUM > 0
 }
 
+void dt_interaction_t::switch_opt_rly(const uint8_t num, const Bt_Action action)
+{
+#if OPT_RELAY_NUM > 0
+    switch (action)
+    {
+    case Bt_Action::IN_PUSHED:
+    case Bt_Action::IN_RELEASE:
+        if (DT_opt_relay_get(num) == true)
+        {
+            DT_opt_relay(num, false);
+            debug(F(AT "_switch_opt_rly_false"));
+            Serial.println(eeprom_config.act_num);
+        }
+        else
+        {
+            DT_opt_relay(num, true);
+            debug(F(AT "_switch_opt_rly_true"));
+            Serial.println(num);
+        }
+        break;
+    default:
+        break;
+    }
+#endif // OPT_RELAY_NUM > 0
+}
+
 void dt_interaction_t::switch_dim(const uint8_t num, const Bt_Action action)
 {
     switch (action)
@@ -164,6 +191,33 @@ void dt_interaction_t::button_push_rly(const uint8_t num, const Bt_Action action
         break;
     }
 #endif // RELAY_NUM > 0
+}
+
+void dt_interaction_t::button_push_opt_rly(const uint8_t num, const Bt_Action action)
+{
+    debug(F(AT));
+#if OPT_RELAY_NUM > 0
+    switch (action)
+    {
+    case Bt_Action::IN_PUSH:
+        debug(F(AT));
+        if (DT_opt_relay_get(num) == true)
+        {
+            DT_opt_relay(num, false);
+            debug(F(AT "_button_push_opt_rly_false"));
+            Serial.println(num);
+        }
+        else
+        {
+            DT_opt_relay(num, true);
+            debug(F(AT "_button_push_opt_rly_true"));
+            Serial.println(num);
+        }
+        break;
+    default:
+        break;
+    }
+#endif // OPT_RELAY_NUM > 0
 }
 
 void dt_interaction_t::button_push_dim(const uint8_t num, const Bt_Action action)

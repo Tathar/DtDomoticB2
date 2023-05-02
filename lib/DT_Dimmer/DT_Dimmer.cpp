@@ -1,9 +1,10 @@
+
 #include "DT_Dimmer.h"
 #include "pinout.h"
 #include "config.h"
 #include "DT_eeprom.h"
 
-#if DIMMER_LIGHT_NUM + DIMMER_HEAT_NUM + DIMMER_RELAY_NUM > 0
+//#if DIMMER_LIGHT_NUM + DIMMER_HEAT_NUM + DIMMER_RELAY_NUM > 0
 
 #define EI_NOTINT0
 #define EI_NOTINT1
@@ -665,7 +666,6 @@ void Dimmer_init(void)
     // delay(20);
 };
 
-#if DIMMER_LIGHT_NUM > 0
 // demmarage / extinction du dimmer
 // num : numero du dimmer
 // power : 255 == 100% | 0 == 0%)
@@ -673,6 +673,7 @@ void Dimmer_init(void)
 // candle : mode bougie (non implémanté)
 void dimmer_set(uint8_t num, uint8_t value, uint16_t time, bool candle)
 {
+#if DIMMER_LIGHT_NUM > 0
     /*Serial.print(F("dimmer_set("));
     Serial.print(num);
     Serial.print(F(", "));
@@ -777,25 +778,29 @@ void dimmer_set(uint8_t num, uint8_t value, uint16_t time, bool candle)
 
     // Serial.print(F(" calc time  = "));
     // Serial.println(Dimmer_time_interval[num]);
+#endif // DIMMER_LIGHT_NUM > 0
 }
 
 void dimmer_set(uint8_t num, bool start, uint16_t time, bool candle)
 {
+#if DIMMER_LIGHT_NUM > 0
     if (start)
         dimmer_set(num, light[num].Dimmer_old_value, time, candle);
     else
         dimmer_set(num, (uint8_t)0, time, candle);
+#endif // DIMMER_LIGHT_NUM > 0
 }
 
 void dimmer_stop(uint8_t num)
 {
+#if DIMMER_LIGHT_NUM > 0
     dimmer_set(num, light[num].Dimmer_value, 0, light[num].Dimmer_candle);
-}
 #endif // DIMMER_LIGHT_NUM > 0
+}
 
-#if DIMMER_HEAT_NUM > 0
 void dimmer_set_heat_mode(uint8_t num, heat_mode Mode)
 {
+#if DIMMER_HEAT_NUM > 0
     if (num < DIMMER_HEAT_NUM)
     {
         mode[num] = Mode;
@@ -813,8 +818,8 @@ void dimmer_set_heat_mode(uint8_t num, heat_mode Mode)
             break;
         }
     }
-}
 #endif // DIMMER_HEAT_NUM > 0
+}
 
 // valeur pour 255 de fonctionnement du dimmer
 //  num: numero du dimmer
@@ -855,6 +860,13 @@ bool get_dimmer_candle(uint8_t num)
 // utilisation des dimmer comme relay
 void DT_dimmer_relay(uint8_t num, bool state)
 {
+
+    Serial.print(F("DT_dimmer_relay( "));
+    Serial.print(num);
+    Serial.print(F(", "));
+    Serial.print(state);
+    Serial.println(F(")"));
+    
     uint8_t pin = pgm_read_byte(DIMMER_RELAY_ARRAY + num);
 
     if (state)
@@ -877,6 +889,11 @@ bool DT_dimmer_relay_get(uint8_t num)
 
 void DT_dimmer_relay(uint8_t num, uint32_t time)
 {
+    Serial.print(F("DT_dimmer_relay( "));
+    Serial.print(num);
+    Serial.print(F(", "));
+    Serial.print(time);
+    Serial.println(F(")"));
     if (num < DIMMER_RELAY_NUM)
     {
         if (time > 0)
@@ -1074,4 +1091,4 @@ void set_dimmer_callback(void (*callback)(const uint8_t num, const uint8_t perce
     _callback_dimmer = callback;
 }
 
-#endif // DIMMER_LIGHT_NUM + DIMMER_HEAT_NUM + DIMMER_RELAY_NUM
+//#endif // DIMMER_LIGHT_NUM + DIMMER_HEAT_NUM + DIMMER_RELAY_NUM

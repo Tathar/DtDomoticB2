@@ -8,8 +8,10 @@ public:
         dt_no_action,
         dt_button_push_dim,
         dt_button_push_rly,
+        dt_button_push_opt_rly,
         dt_switch_dim,
         dt_switch_rly,
+        dt_switch_opt_rly,
         dt_two_button_push_dim,
         dt_two_button_push_cover,
     };
@@ -51,6 +53,11 @@ public:
         dt_interaction_eeprom_config::dt_interaction_type_t::dt_button_push_rly, action_num, dt_interaction_eeprom_config::action_t::none \
     }
 
+#define dt_button_push_opt_rly(action_num)                                                                                                    \
+    {                                                                                                                                     \
+        dt_interaction_eeprom_config::dt_interaction_type_t::dt_button_push_opt_rly, action_num, dt_interaction_eeprom_config::action_t::none \
+    }
+
 #define dt_button_push_dim(action_num)                                                                                                    \
     {                                                                                                                                     \
         dt_interaction_eeprom_config::dt_interaction_type_t::dt_button_push_dim, action_num, dt_interaction_eeprom_config::action_t::none \
@@ -64,6 +71,11 @@ public:
 #define dt_switch_rly(action_num)                                                                                                    \
     {                                                                                                                                \
         dt_interaction_eeprom_config::dt_interaction_type_t::dt_switch_rly, action_num, dt_interaction_eeprom_config::action_t::none \
+    }
+
+#define dt_switch_opt_rly(action_num)                                                                                                    \
+    {                                                                                                                                \
+        dt_interaction_eeprom_config::dt_interaction_type_t::dt_switch_opt_rly, action_num, dt_interaction_eeprom_config::action_t::none \
     }
 
 #define dt_two_button_push_dim(action_num, action_type)                                                                                              \

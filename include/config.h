@@ -17,9 +17,9 @@ uint16_t memory(bool print);
 
 #define BOARD_MANUFACTURER "DOUET Touch Familly"
 #define BOARD_MODEL "DTBoard02"
-#define BOARD_NAME "Chambre Parantal"
+#define BOARD_NAME "Garage"
 #define BOARD_SW_VERSION "0.2"
-#define BOARD_IDENTIFIER "DTB02-CHP"
+#define BOARD_IDENTIFIER "DTB02-GAR"
 
 #define MAX_TOPIC 64
 #define MAX_PAYLOAD 310
@@ -37,7 +37,7 @@ uint16_t memory(bool print);
 
 // Dimmer
 
-#define DIMMER_LIGHT_NUM 10       // max 13
+#define DIMMER_LIGHT_NUM 0        // max 13
 #define DIMMER_ON_OFF_SPEED 250   // en miliseconde
 #define DIMMER_SETTING_SPEED 5000 // en miliseconde pour 100%
 #define DIMMER_SETTING_MIN 25     // valeur minimum du dimmer
@@ -49,14 +49,15 @@ uint16_t memory(bool print);
 #define CANDLE_SPEED_MAX 1000         // en miliseconde
 #define DIMMER_HEAT_NUM 0             // Fil pilote : max (DIMMER_LIGHT_NUM + DIMMER_HEAT_NUM + (DIMMER_COVER_NUM * 2) ) = 13
 
-#define DIMMER_COVER_NUM 1 // nombre de volet connecté au dimmer : max (DIMMER_LIGHT_NUM + DIMMER_HEAT_NUM + (DIMMER_COVER_NUM * 2) ) = 13
+#define DIMMER_COVER_NUM 0 // nombre de volet connecté au dimmer : max (DIMMER_LIGHT_NUM + DIMMER_HEAT_NUM + (DIMMER_COVER_NUM * 2) ) = 13
 #if DIMMER_COVER_NUM > 0
 const uint8_t DIMMER_COVER_ARRAY[DIMMER_COVER_NUM * 2] PROGMEM = {OPT_13, OPT_14};
 #endif
 
-#define DIMMER_RELAY_NUM 0 // nombre de radiateur connecté au dimmer : max (DIMMER_LIGHT_NUM + DIMMER_HEAT_NUM + (DIMMER_COVER_NUM * 2) + DIMMER_RADIATOR_NUM ) = 13
-#if DIMMER_RELAY_NUM > 0
-const uint8_t DIMMER_RELAY_ARRAY[DIMMER_RELAY_NUM] PROGMEM = {OPT_1};
+#define OPT_RELAY_NUM 3 // nombre de ralais connecté au dimmer : max (DIMMER_LIGHT_NUM + DIMMER_HEAT_NUM + (DIMMER_COVER_NUM * 2) + DIMMER_RADIATOR_NUM ) = 13
+#if OPT_RELAY_NUM > 0
+const uint8_t OPT_RELAY_ARRAY[OPT_RELAY_NUM] PROGMEM = {OPT_1, OPT_2, OPT_3};
+const uint8_t OPT_RELAY_REVERT[OPT_RELAY_NUM] PROGMEM = {false, false, false};
 #endif
 
 #define DIMMER_RADIATOR_NUM 0 // nombre de radiateur connecté au dimmer : max (DIMMER_LIGHT_NUM + DIMMER_HEAT_NUM + (DIMMER_COVER_NUM * 2) + DIMMER_RADIATOR_NUM ) = 13
@@ -97,7 +98,7 @@ const uint8_t HDC1080_CHANNEL_ARRAY[HDC1080_NUM] PROGMEM = {1};
 
 // TIC
 // téléreléve information client
-//#define TIC // use teleinfo
+// #define TIC // use teleinfo
 
 // relais
 #define RELAY_COVER_NUM 0    // nombre de volet connecté au relai
@@ -126,13 +127,13 @@ const uint8_t CPT_PULSE_INPUT_ARRAY[CPT_PULSE_INPUT] PROGMEM = {20, 21, 18};
 #define MAC3 0xBA
 #define MAC4 0xFE
 #define MAC5 0xFE
-#define MAC6 0xEF
+#define MAC6 0xD0
 // #define DHCP
 //  ip address
 #define SOURCE_IP1 192
 #define SOURCE_IP2 168
 #define SOURCE_IP3 1
-#define SOURCE_IP4 5
+#define SOURCE_IP4 6
 // dns server
 #define DNS1 192
 #define DNS2 168
@@ -248,25 +249,15 @@ const uint8_t CPT_PULSE_INPUT_ARRAY[CPT_PULSE_INPUT] PROGMEM = {20, 21, 18};
 #define MARCHE_POELE 21
 
 // Interaction
-#define PUSH_1_NUM 16
+#define PUSH_1_NUM 6
 #if PUSH_1_NUM > 0
 const dt_interaction_eeprom_config interaction_input_1_push_config[PUSH_1_NUM] PROGMEM = {
-    dt_switch_dim(3),                // Toillette
-    dt_button_push_dim(5),           // 2 Dressing
-    dt_two_button_push_dim(2, up),   // 3 salle de bain
-    dt_two_button_push_dim(2, down),   // 4 salle de bain
-    dt_two_button_push_dim(6, up),   // 5 centre
-    dt_two_button_push_dim(6, down), // 6 centre
-    dt_no_action(),
-    dt_no_action(),
-    dt_no_action(),
-    dt_button_push_dim(0),           // 10 exterieur
-    dt_two_button_push_dim(7, up),   // 11 chevet droite
-    dt_two_button_push_dim(7, down), // 12  chevet droite
-    dt_two_button_push_dim(8, up),   // 13 chevet Gauche
-    dt_two_button_push_dim(8, down), // 14  chevet Gauche
-    dt_two_button_push_cover(0, down), //15 vollet bas
-    dt_two_button_push_cover(0, up), //16 vollet bas
+    dt_button_push_opt_rly(1),                // garage centre
+    dt_button_push_opt_rly(2),           // garage atelier
+    dt_no_action(),   // 3 salle de bain
+    dt_no_action(), // 4 salle de bain
+    dt_no_action(),   // 5 centre
+    dt_no_action(), // 6 centre
 };
 #endif // PUSH_1_NUM > 0
 
