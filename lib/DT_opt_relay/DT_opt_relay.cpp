@@ -10,6 +10,7 @@ void DT_opt_relay_init()
 {
     _callback_opt_relay = NULL;
 
+#if OPT_RELAY_NUM > 0
     for (uint8_t num = 0; num < RELAY_NUM; ++num)
     {
         uint8_t pin = pgm_read_byte(OPT_RELAY_ARRAY + num);
@@ -19,10 +20,12 @@ void DT_opt_relay_init()
         opt_num_delay[num] = 0;
         opt_async_call[num] = false;
     }
+#endif //OPT_RELAY_NUM > 0
 }
 
 void DT_opt_relay(uint8_t num, bool state)
 {
+#if OPT_RELAY_NUM > 0
     uint8_t pin = pgm_read_byte(OPT_RELAY_ARRAY + num);
     bool revert = pgm_read_byte(OPT_RELAY_REVERT + num);
     if ((state && !revert) || (!state && revert))
@@ -41,19 +44,23 @@ void DT_opt_relay(uint8_t num, bool state)
             opt_async_call[num] = true;
         }
     }
+#endif //OPT_RELAY_NUM > 0
 }
 
 bool DT_opt_relay_get(uint8_t num)
 {
+#if OPT_RELAY_NUM > 0
     uint8_t pin = pgm_read_byte(OPT_RELAY_ARRAY + num);
     bool revert = pgm_read_byte(OPT_RELAY_REVERT + num);
     bool ret;
     ret = digitalRead(pin);
     return revert ? !ret : ret;
+#endif //OPT_RELAY_NUM > 0
 }
 
 void DT_opt_relay(uint8_t num, uint32_t time)
 {
+#if OPT_RELAY_NUM > 0
     if (time > 0)
     {
         opt_num_delay[num] = time;
@@ -64,10 +71,12 @@ void DT_opt_relay(uint8_t num, uint32_t time)
         opt_num_delay[num] = 0;
         DT_opt_relay(num, false);
     }
+#endif //OPT_RELAY_NUM > 0
 }
 
 void DT_opt_relay_loop()
 {
+#if OPT_RELAY_NUM > 0
     static uint32_t last = 0;
     uint32_t now = millis();
     uint32_t elapse = now - last;
@@ -108,6 +117,7 @@ void DT_opt_relay_loop()
             _callback_opt_relay(async_num_callback_opt_relay, DT_opt_relay_get(async_num_callback_opt_relay));
         }
     }
+#endif //OPT_RELAY_NUM > 0
 }
 
 void DT_opt_relay_set_callback(void (*callback)(const uint8_t num, const bool action))
