@@ -37,7 +37,7 @@ uint16_t memory(bool print);
 
 // Dimmer
 
-#define DIMMER_LIGHT_NUM 0        // max 13
+#define DIMMER_LIGHT_NUM 11       // max 13
 #define DIMMER_ON_OFF_SPEED 250   // en miliseconde
 #define DIMMER_SETTING_SPEED 5000 // en miliseconde pour 100%
 #define DIMMER_SETTING_MIN 25     // valeur minimum du dimmer
@@ -51,10 +51,10 @@ uint16_t memory(bool print);
 
 #define DIMMER_COVER_NUM 0 // nombre de volet connecté au dimmer : max (DIMMER_LIGHT_NUM + DIMMER_HEAT_NUM + (DIMMER_COVER_NUM * 2) ) = 13
 #if DIMMER_COVER_NUM > 0
-const uint8_t DIMMER_COVER_ARRAY[DIMMER_COVER_NUM * 2] PROGMEM = {OPT_13, OPT_14};
+const uint8_t DIMMER_COVER_ARRAY[DIMMER_COVER_NUM * 2] PROGMEM = {OPT_14, OPT_15};
 #endif
 
-#define OPT_RELAY_NUM 3 // nombre de ralais connecté au dimmer : max (DIMMER_LIGHT_NUM + DIMMER_HEAT_NUM + (DIMMER_COVER_NUM * 2) + DIMMER_RADIATOR_NUM ) = 13
+#define OPT_RELAY_NUM 0 // nombre de ralais connecté au dimmer : max (DIMMER_LIGHT_NUM + DIMMER_HEAT_NUM + (DIMMER_COVER_NUM * 2) + DIMMER_RADIATOR_NUM ) = 13
 #if OPT_RELAY_NUM > 0
 const uint8_t OPT_RELAY_ARRAY[OPT_RELAY_NUM] PROGMEM = {OPT_1, OPT_2, OPT_3};
 const uint8_t OPT_RELAY_REVERT[OPT_RELAY_NUM] PROGMEM = {false, false, false};
@@ -106,12 +106,6 @@ const uint8_t HDC1080_CHANNEL_ARRAY[HDC1080_NUM] PROGMEM = {1};
 #if RELAY_RADIATOR_NUM > 0
 const uint8_t RELAY_RADIATOR_PT100_ARRAY[RELAY_RADIATOR_NUM] PROGMEM = {};
 #endif // RELAY_RADIATOR_NUM
-
-// cpt_pulse_input
-#define CPT_PULSE_INPUT 3 // nombre de compteur d'impulsion
-#if CPT_PULSE_INPUT > 0
-const uint8_t CPT_PULSE_INPUT_ARRAY[CPT_PULSE_INPUT] PROGMEM = {20, 21, 18};
-#endif // CPT_PULSE_INPUT > 0
 
 // watchdog
 #define WATCHDOG_TIME WDTO_1S
@@ -249,15 +243,25 @@ const uint8_t CPT_PULSE_INPUT_ARRAY[CPT_PULSE_INPUT] PROGMEM = {20, 21, 18};
 #define MARCHE_POELE 21
 
 // Interaction
-#define PUSH_1_NUM 6
+#define PUSH_1_NUM 16
 #if PUSH_1_NUM > 0
 const dt_interaction_eeprom_config interaction_input_1_push_config[PUSH_1_NUM] PROGMEM = {
-    dt_button_push_opt_rly(1),                // garage centre
-    dt_button_push_opt_rly(2),           // garage atelier
-    dt_no_action(),   // 3 salle de bain
-    dt_no_action(), // 4 salle de bain
-    dt_no_action(),   // 5 centre
-    dt_no_action(), // 6 centre
+    dt_switch_dim(3),                // 1 Toillette
+    dt_button_push_dim(5),           // 2 Dressing
+    dt_two_button_push_dim(2, up),   // 3 salle de bain
+    dt_two_button_push_dim(2, down), // 4 salle de bain
+    dt_two_button_push_dim(6, up),   // 5 centre
+    dt_two_button_push_dim(6, down), // 6 centre
+    dt_two_button_push_dim(10, up),   // 7 entree
+    dt_two_button_push_dim(10, down), // 8 entree
+    dt_no_action(),                  // 9
+    dt_button_push_dim(0),           // 10 exterieur
+    dt_two_button_push_dim(7, up),   // 11 chevet droite
+    dt_two_button_push_dim(7, down), // 12  chevet droite
+    dt_two_button_push_dim(8, up),   // 13 chevet Gauche
+    dt_two_button_push_dim(8, down), // 14  chevet Gauche
+    dt_two_button_push_cover(0, down), //15 vollet bas
+    dt_two_button_push_cover(0, up), //16 vollet bas
 };
 #endif // PUSH_1_NUM > 0
 
@@ -294,9 +298,9 @@ const dt_interaction_eeprom_config interaction_input_4_push_config[PUSH_4_NUM] P
 #define ALIM 16
 
 // cpt_pulse_input
-#define CPT_PULSE_INPUT 6 // nombre de compteur d'impulsion
+#define CPT_PULSE_INPUT 3 // nombre de compteur d'impulsion
 #if CPT_PULSE_INPUT > 0
-const uint8_t CPT_PULSE_INPUT_ARRAY[CPT_PULSE_INPUT] PROGMEM = {6, 1, 2, 3, 4, 5};
+const uint8_t CPT_PULSE_INPUT_ARRAY[CPT_PULSE_INPUT] PROGMEM = {20, 21, 18};
 #endif // CPT_PULSE_INPUT > 0
 
 // cpt_pulse_input_if_OUT
