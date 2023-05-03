@@ -17,9 +17,9 @@ uint16_t memory(bool print);
 
 #define BOARD_MANUFACTURER "DOUET Touch Familly"
 #define BOARD_MODEL "DTBoard02"
-#define BOARD_NAME "Garage"
+#define BOARD_NAME "Chauffage"
 #define BOARD_SW_VERSION "0.2"
-#define BOARD_IDENTIFIER "DTB02-GAR"
+#define BOARD_IDENTIFIER "DTB02-001"
 
 #define MAX_TOPIC 64
 #define MAX_PAYLOAD 310
@@ -73,11 +73,11 @@ const uint8_t DIMMER_RADIATOR_ARRAY[DIMMER_RADIATOR_NUM] PROGMEM = {}; // define
 #endif
 
 // PT100
-#define PT100_NUM 0 // max 18 //TODO: bug if PT100_NUM != 18
-// #define PT100_EXT 6
+#define PT100_NUM 13 // max 18 //TODO: bug if PT100_NUM != 18  13
+#define PT100_EXT 6
 
 // BME_280
-#define BME280_NUM 0
+#define BME280_NUM 1 //exterieur
 #if BME280_NUM > 0
 const uint8_t BME280_ADDRESS_ARRAY[BME280_NUM] PROGMEM = {0x76};
 const uint8_t BME280_CHANNEL_ARRAY[BME280_NUM] PROGMEM = {2};
@@ -91,9 +91,9 @@ const uint8_t CCS811_CHANNEL_ARRAY[CCS811_NUM] PROGMEM = {2};
 #endif
 
 // SCD4X
-#define SCD4X_NUM 1
+#define SCD4X_NUM 3
 #if SCD4X_NUM > 0
-const uint8_t SCD4X_CHANNEL_ARRAY[SCD4X_NUM] PROGMEM = {1};
+const uint8_t SCD4X_CHANNEL_ARRAY[SCD4X_NUM] PROGMEM = {1,2,3};
 #endif // SCD4X
 
 // HDC1080
@@ -127,13 +127,13 @@ const uint8_t RELAY_RADIATOR_PT100_ARRAY[RELAY_RADIATOR_NUM] PROGMEM = {};
 #define MAC3 0xBA
 #define MAC4 0xFE
 #define MAC5 0xFE
-#define MAC6 0xD0
-// #define DHCP
-//  ip address
+#define MAC6 0xED
+//#define DHCP
+// ip address
 #define SOURCE_IP1 192
 #define SOURCE_IP2 168
 #define SOURCE_IP3 1
-#define SOURCE_IP4 6
+#define SOURCE_IP4 4
 // dns server
 #define DNS1 192
 #define DNS2 168
@@ -175,7 +175,7 @@ const uint8_t RELAY_RADIATOR_PT100_ARRAY[RELAY_RADIATOR_NUM] PROGMEM = {};
 #define RADIATOR_HA_MIN_TEMP 15
 
 // Poele
-// #define POELE
+#define POELE
 #ifdef POELE
 #define MIN_T4 0                     // en °C (fake NTC)
 #define POELE_MAX_TEMPERATURE 85     // en °C (consigne temperature Balon)
@@ -196,7 +196,7 @@ const uint8_t RELAY_RADIATOR_PT100_ARRAY[RELAY_RADIATOR_NUM] PROGMEM = {};
 #endif               // POELE
 
 // Vanne 3 Voies
-// #define VANNES
+#define VANNES
 #ifdef VANNES
 #define TMP_EAU_PCBT_MAX 38 // valeur maximum de la consigne de temperature
 #define TMP_EAU_MCBT_MAX 65 // valeur maximum de la consigne de temperature
@@ -249,7 +249,7 @@ const uint8_t RELAY_RADIATOR_PT100_ARRAY[RELAY_RADIATOR_NUM] PROGMEM = {};
 #define MARCHE_POELE 21
 
 // Interaction
-#define PUSH_1_NUM 6
+#define PUSH_1_NUM 0
 #if PUSH_1_NUM > 0
 const dt_interaction_eeprom_config interaction_input_1_push_config[PUSH_1_NUM] PROGMEM = {
     dt_button_push_opt_rly(1),                // garage centre
@@ -294,13 +294,13 @@ const dt_interaction_eeprom_config interaction_input_4_push_config[PUSH_4_NUM] P
 #define ALIM 16
 
 // cpt_pulse_input
-#define CPT_PULSE_INPUT 6 // nombre de compteur d'impulsion
+#define CPT_PULSE_INPUT 4 // nombre de compteur d'impulsion
 #if CPT_PULSE_INPUT > 0
-const uint8_t CPT_PULSE_INPUT_ARRAY[CPT_PULSE_INPUT] PROGMEM = {6, 1, 2, 3, 4, 5};
+const uint8_t CPT_PULSE_INPUT_ARRAY[CPT_PULSE_INPUT] PROGMEM = {6, 3, 4, 5};
 #endif // CPT_PULSE_INPUT > 0
 
 // cpt_pulse_input_if_OUT
-#define CPT_PULSE_INPUT_IF_OUT 0 // nombre de compteur d'impulsion Conditionnel lie a une sortie
+#define CPT_PULSE_INPUT_IF_OUT 1 // nombre de compteur d'impulsion Conditionnel lie a une sortie
 #if CPT_PULSE_INPUT_IF_OUT > 0
 const uint8_t CPT_PULSE_INPUT_IF_OUT_ARRAY[CPT_PULSE_INPUT_IF_OUT] PROGMEM = {6};
 const uint8_t CPT_PULSE_INPUT_IF_OUT_COND_ARRAY[CPT_PULSE_INPUT_IF_OUT] PROGMEM = {RELAY_EV1};
