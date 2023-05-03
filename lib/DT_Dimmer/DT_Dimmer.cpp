@@ -940,6 +940,11 @@ void dimmer_loop()
 #if DIMMER_LIGHT_NUM > 0
     for (uint8_t num = 0; num < DIMMER_LIGHT_NUM; num++)
     {
+        if (light[num].Dimmer_time <=1 )
+        {
+            continue;
+        }
+        
         uint32_t time_go = light[num].Dimmer_time_start + (uint32_t)light[num].Dimmer_time;
         /// Dimmed start / stop
         if (millis() < time_go)
