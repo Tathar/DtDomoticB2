@@ -42,20 +42,20 @@ void chargeEEPROM()
                 eeprom_config.mode_3voies_PCBT = DT_3VOIES_OFF;
                 eeprom_config.mode_3voies_MCBT = DT_3VOIES_OFF;
 
-                eeprom_config.V1 = 70; // consigne poêle en mode force (70°C)
-                eeprom_config.V2 = 20; // Variable Reserve chaleur Ballon (20°C)
+                eeprom_config.V1 = 60; // consigne poêle en mode force (70°C)
+                eeprom_config.V2 = 2; // Variable Reserve chaleur Ballon (20°C)
                 eeprom_config.V3 = 0;  // Variable Temp Demi plage Morte
-                eeprom_config.C4 = 80; // consigne Jacuzzi
-                eeprom_config.C5 = 60; // consigne ECS1 & ECS2
-                eeprom_config.C7 = 90; // Valeur renvoyer au poele pour le mode silance (Fake NTC)
+                eeprom_config.C4 = 60; // consigne Jacuzzi
+                eeprom_config.C5 = 55; // consigne ECS1 & ECS2
+                eeprom_config.C7 = 90; // Valeur renvoyer au poele pour le mode silance (Fake NTC) //TODO: plus utilisée ?
 #ifdef VANNES
-                eeprom_config.C8 = 35;                       // consigne Temp PCBT a -10°C
-                eeprom_config.C9 = 20;                       // consigne Temp PCBT a +10°C
-                eeprom_config.C10 = 50;                      // consigne Temp MCBT a -10°C
-                eeprom_config.C11 = 35;                      // consigne Temp MCBT a +10°C
-                eeprom_config.C_PCBT_MIN = 20;               // consigne Temp PCBT minimum
+                eeprom_config.C8 = 29;                       // consigne Temp PCBT a -10°C
+                eeprom_config.C9 = 21;                       // consigne Temp PCBT a +10°C
+                eeprom_config.C10 = 48;                      // consigne Temp MCBT a -10°C
+                eeprom_config.C11 = 32;                      // consigne Temp MCBT a +10°C
+                eeprom_config.C_PCBT_MIN = 17;               // consigne Temp PCBT minimum
                 eeprom_config.C_PCBT_MAX = TMP_EAU_PCBT_MAX; // consigne Temp PCBT maximum
-                eeprom_config.C_MCBT_MIN = 25;               // consigne Temp MCBT minimum
+                eeprom_config.C_MCBT_MIN = 18;               // consigne Temp MCBT minimum
                 eeprom_config.C_MCBT_MAX = TMP_EAU_MCBT_MAX; // consigne Temp MCBT maximum
 #endif                                                       // VANNES
         }
@@ -67,22 +67,22 @@ void chargeEEPROM()
                 Serial.println(F("EEPROM version < 2"));
                 eeprom_config.struct_version = 2;
 
-                eeprom_config.pid_pcbt.KP = 2000;
-                eeprom_config.pid_pcbt.KI = 4;
-                eeprom_config.pid_pcbt.KD = 4;
-                eeprom_config.pid_pcbt.KT = 10000;
+                eeprom_config.pid_pcbt.KP = 1300;
+                eeprom_config.pid_pcbt.KI = 0;
+                eeprom_config.pid_pcbt.KD = 100000;
+                eeprom_config.pid_pcbt.KT = 20000;
                 eeprom_config.pid_pcbt.action = QuickPID::Action::direct;
                 eeprom_config.pid_pcbt.pmode = QuickPID::pMode::pOnError;
-                eeprom_config.pid_pcbt.dmode = QuickPID::dMode::dOnError;
+                eeprom_config.pid_pcbt.dmode = QuickPID::dMode::dOnMeas;
                 eeprom_config.pid_pcbt.iawmode = QuickPID::iAwMode::iAwCondition;
 
-                eeprom_config.pid_mcbt.KP = 2000;
-                eeprom_config.pid_mcbt.KI = 4;
-                eeprom_config.pid_mcbt.KD = 4;
-                eeprom_config.pid_mcbt.KT = 10000;
+                eeprom_config.pid_mcbt.KP = 500;
+                eeprom_config.pid_mcbt.KI = 0;
+                eeprom_config.pid_mcbt.KD = 100000;
+                eeprom_config.pid_mcbt.KT = 20000;
                 eeprom_config.pid_mcbt.action = QuickPID::Action::direct;
                 eeprom_config.pid_mcbt.pmode = QuickPID::pMode::pOnError;
-                eeprom_config.pid_mcbt.dmode = QuickPID::dMode::dOnError;
+                eeprom_config.pid_mcbt.dmode = QuickPID::dMode::dOnMeas;
                 eeprom_config.pid_mcbt.iawmode = QuickPID::iAwMode::iAwCondition;
         }
 
@@ -93,8 +93,8 @@ void chargeEEPROM()
                 Serial.println(F("EEPROM version < 3"));
                 eeprom_config.struct_version = 3;
 
-                eeprom_config.ratio_PCBT = 4;
-                eeprom_config.ratio_MCBT = 4;
+                eeprom_config.ratio_PCBT = 1;
+                eeprom_config.ratio_MCBT = 1;
         }
 
         // Valeurs par défaut struct_version == 4
@@ -104,8 +104,8 @@ void chargeEEPROM()
                 Serial.println(F("EEPROM version < 4"));
                 eeprom_config.struct_version = 4;
 
-                eeprom_config.out_inhib_PCBT = 0;
-                eeprom_config.out_inhib_MCBT = 0;
+                eeprom_config.out_inhib_PCBT = 400;
+                eeprom_config.out_inhib_MCBT = 400;
         }
 
         // Valeurs par défaut struct_version == 5

@@ -199,7 +199,7 @@ const uint8_t CPT_PULSE_INPUT_ARRAY[CPT_PULSE_INPUT] PROGMEM = {20, 21, 18};
 // #define VANNES
 #ifdef VANNES
 #define TMP_EAU_PCBT_MAX 38 // valeur maximum de la consigne de temperature
-#define TMP_EAU_MCBT_MAX 60 // valeur maximum de la consigne de temperature
+#define TMP_EAU_MCBT_MAX 65 // valeur maximum de la consigne de temperature
 #define DBMAC 0.5           // demi bamnde morte pour l'arret des circulateur (en °C)
 
 // #define PT100_EXT 5

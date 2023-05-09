@@ -21,6 +21,7 @@ bool (*_mqtt_update)(MQTTClient &mqtt, bool start);
 bool (*_mqtt_subscribe)(MQTTClient &mqtt, bool start);
 bool (*_mqtt_publish)(bool start);
 void (*_mqtt_receve)(MQTTClient *client, const char topic[], const char bytes[], const int length);
+void (*_mqtt_connection_lost)();
 
 // DT_buffer<MQTT_data> send_buffer;
 // DT_buffer<MQTT_recv_msg> recv_buffer;
@@ -59,8 +60,14 @@ void DT_receve_callback(MQTTClient *client, char topic[], char bytes[], int leng
     memory(true);
 }
 
+void DT_mqtt_set_connection_lost_callback(void (*callback_connection_lost)())
+{
+    _mqtt_connection_lost = callback_connection_lost;
+}
+
 void init_ethernet()
 {
+
     // 220502  debug(F(AT));
     memory(true);
     pinMode(NETWORK_RESET, OUTPUT);
@@ -150,6 +157,8 @@ void DT_mqtt_init()
     _mqtt_update = nullptr;
     _mqtt_subscribe = nullptr;
     _mqtt_publish = nullptr;
+    _mqtt_receve = nullptr;
+    _mqtt_connection_lost = nullptr;
     //  mqtt.setCallback(&test_mqtt_receve);
     // send_buffer.reserve(6);
     // send_buffer.reserve(2);
@@ -189,6 +198,10 @@ void DT_mqtt_loop()
             {
                 mem_config.MQTT_online = false;
                 keep_alive_timout = now;
+                if (_mqtt_connection_lost != nullptr)
+                {
+                    _mqtt_connection_lost();
+                }
                 // Serial.println("DT_mqtt_loop 1");
             }
 

@@ -602,7 +602,7 @@ bool homeassistant(bool start)
 #include BOOST_PP_UPDATE_COUNTER()
                 case BOOST_PP_COUNTER:
                         // Poele mode
-                        DT_mqtt_send(F("homeassistant/select/" BOARD_IDENTIFIER "/poele-mode/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/poele/mode\",\"uniq_id\":\"" BOARD_IDENTIFIER "-poele-mode\",\"name\":\"" BOARD_IDENTIFIER " mode poele\",\"command_topic\":\"~/set\",\"state_topic\":\"~/state\",\"options\":[\"Arret\",\"Normal\",\"ECS\",\"Forcé\"],\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
+                        DT_mqtt_send(F("homeassistant/select/" BOARD_IDENTIFIER "/poele-mode/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/poele/mode\",\"uniq_id\":\"" BOARD_IDENTIFIER "-poele-mode\",\"name\":\"" BOARD_IDENTIFIER " mode poele\",\"command_topic\":\"~/set\",\"state_topic\":\"~/state\",\"options\":[\"Arret\",\"Normal\",\"ECS\",\"Forcé\",\"Pose\"],\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
                         break;
 
 #include BOOST_PP_UPDATE_COUNTER()
@@ -655,7 +655,7 @@ bool homeassistant(bool start)
 #include BOOST_PP_UPDATE_COUNTER()
                 case BOOST_PP_COUNTER:
                         // 3 voies PCBT mode
-                        DT_mqtt_send(F("homeassistant/select/" BOARD_IDENTIFIER "/pcbt-mode/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/pcbt/mode\",\"uniq_id\":\"" BOARD_IDENTIFIER "-pcbt-mode\",\"name\":\"" BOARD_IDENTIFIER " mode pcbt\",\"command_topic\":\"~/set\",\"state_topic\":\"~/state\",\"options\":[\"Demmarage\",\"Normal\",\"Manuel\",\"Arret\"],\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
+                        DT_mqtt_send(F("homeassistant/select/" BOARD_IDENTIFIER "/pcbt-mode/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/pcbt/mode\",\"uniq_id\":\"" BOARD_IDENTIFIER "-pcbt-mode\",\"name\":\"" BOARD_IDENTIFIER " mode pcbt\",\"command_topic\":\"~/set\",\"state_topic\":\"~/state\",\"options\":[\"Demmarage\",\"Normal\",\"Manuel\",\"Arret\",\"Pose\"],\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
                         break;
 
 #include BOOST_PP_UPDATE_COUNTER()
@@ -667,7 +667,7 @@ bool homeassistant(bool start)
 #include BOOST_PP_UPDATE_COUNTER()
                 case BOOST_PP_COUNTER:
                         // 3 voies MCBT mode
-                        DT_mqtt_send(F("homeassistant/select/" BOARD_IDENTIFIER "/mcbt-mode/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/mcbt/mode\",\"uniq_id\":\"" BOARD_IDENTIFIER "-mcbt-mode\",\"name\":\"" BOARD_IDENTIFIER " mode mcbt\",\"command_topic\":\"~/set\",\"state_topic\":\"~/state\",\"options\":[\"Demmarage\",\"Normal\",\"Manuel\",\"Arret\"],\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
+                        DT_mqtt_send(F("homeassistant/select/" BOARD_IDENTIFIER "/mcbt-mode/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/mcbt/mode\",\"uniq_id\":\"" BOARD_IDENTIFIER "-mcbt-mode\",\"name\":\"" BOARD_IDENTIFIER " mode mcbt\",\"command_topic\":\"~/set\",\"state_topic\":\"~/state\",\"options\":[\"Demmarage\",\"Normal\",\"Manuel\",\"Arret\",\"Pose\"],\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
                         break;
 
 #include BOOST_PP_UPDATE_COUNTER()

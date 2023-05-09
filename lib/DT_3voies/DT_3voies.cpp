@@ -145,7 +145,7 @@ void DT_3voies_init()
         else
             temp_etape_pcbt = D2MS;
     }
-    else if (eeprom_config.mode_3voies_PCBT == DT_3VOIES_OFF)
+    else if (eeprom_config.mode_3voies_PCBT == DT_3VOIES_OFF || eeprom_config.mode_3voies_PCBT == DT_3VOIES_POSE)
     {
         mem_config.C2 = 0;
     }
@@ -165,7 +165,7 @@ void DT_3voies_init()
         else
             temp_etape_mcbt = D2MS;
     }
-    else if (eeprom_config.mode_3voies_MCBT == DT_3VOIES_OFF)
+    else if (eeprom_config.mode_3voies_MCBT == DT_3VOIES_OFF || eeprom_config.mode_3voies_MCBT == DT_3VOIES_POSE)
     {
         mem_config.C3 = 0;
     }
@@ -240,7 +240,7 @@ void DT_3voies_init()
     }
 
     // turn the PID on
-    if (eeprom_config.mode_3voies_PCBT == DT_3VOIES_OFF)
+    if (eeprom_config.mode_3voies_PCBT == DT_3VOIES_OFF || eeprom_config.mode_3voies_PCBT == DT_3VOIES_POSE )
     {
         DT_relay(CIRCULATEUR_PCBT, false);
         pid_pcbt.SetMode(QuickPID::Control::manual);
@@ -255,7 +255,7 @@ void DT_3voies_init()
     }
 
     // turn the PID on
-    if (eeprom_config.mode_3voies_MCBT == DT_3VOIES_OFF)
+    if (eeprom_config.mode_3voies_MCBT == DT_3VOIES_OFF || eeprom_config.mode_3voies_MCBT == DT_3VOIES_POSE )
     {
         DT_relay(CIRCULATEUR_MCBT, false);
         pid_mcbt.SetMode(QuickPID::Control::manual);
@@ -301,7 +301,7 @@ void DT_3voies_loop()
 
         mem_config.C2 = temperature_etape_pcbt;
     }
-    else if (eeprom_config.mode_3voies_PCBT == DT_3VOIES_OFF)
+    else if (eeprom_config.mode_3voies_PCBT == DT_3VOIES_OFF || eeprom_config.mode_3voies_PCBT == DT_3VOIES_POSE )
     {
         mem_config.C2 = 0;
     }
@@ -332,7 +332,7 @@ void DT_3voies_loop()
         }
         mem_config.C3 = temperature_etape_mcbt;
     }
-    else if (eeprom_config.mode_3voies_MCBT == DT_3VOIES_OFF)
+    else if (eeprom_config.mode_3voies_MCBT == DT_3VOIES_OFF || eeprom_config.mode_3voies_MCBT == DT_3VOIES_POSE )
     {
         mem_config.C3 = 0;
     }
@@ -409,13 +409,13 @@ void DT_3voies_loop()
         Output_PCBT = 0;
         async_call_pcbt_pid = true;
     }
-    else if ((eeprom_config.mode_3voies_PCBT != DT_3VOIES_OFF) && (DT_pt100_get(PT100_EXT) < (eeprom_config.C_PCBT_MIN - 0.5)))
+    else if ((eeprom_config.mode_3voies_PCBT != DT_3VOIES_OFF && eeprom_config.mode_3voies_PCBT != DT_3VOIES_POSE ) && (DT_pt100_get(PT100_EXT) < (eeprom_config.C_PCBT_MIN - 0.5)))
     {
         DT_relay(CIRCULATEUR_PCBT, true); // demmarage du circulateur
         //Output_PCBT = 0;
         pid_pcbt.SetMode(QuickPID::Control::automatic); // demmarage de la vanne 3
     }
-    else if ((eeprom_config.mode_3voies_PCBT == DT_3VOIES_OFF))
+    else if ((eeprom_config.mode_3voies_PCBT == DT_3VOIES_OFF || eeprom_config.mode_3voies_PCBT == DT_3VOIES_POSE))
     {
         DT_relay(CIRCULATEUR_PCBT, false);           // arret du circulateur
         pid_pcbt.SetMode(QuickPID::Control::manual); // arret de la vanne 3 voie
@@ -430,13 +430,13 @@ void DT_3voies_loop()
         Output_MCBT = 0;
         async_call_mcbt_pid = true;
     }
-    else if ((eeprom_config.mode_3voies_MCBT != DT_3VOIES_OFF) && (DT_pt100_get(PT100_EXT) < (eeprom_config.C_MCBT_MIN - 0.5)))
+    else if ((eeprom_config.mode_3voies_MCBT != DT_3VOIES_OFF && eeprom_config.mode_3voies_MCBT != DT_3VOIES_POSE) && (DT_pt100_get(PT100_EXT) < (eeprom_config.C_MCBT_MIN - 0.5)))
     {
         DT_relay(CIRCULATEUR_MCBT, true); // demmarage du circulateur
         //Output_MCBT = 0;
         pid_mcbt.SetMode(QuickPID::Control::automatic); // demmarage de la vanne 3 voie
     }
-    else if ((eeprom_config.mode_3voies_MCBT == DT_3VOIES_OFF))
+    else if ((eeprom_config.mode_3voies_MCBT == DT_3VOIES_OFF || eeprom_config.mode_3voies_MCBT == DT_3VOIES_POSE))
     {
         DT_relay(CIRCULATEUR_MCBT, false);           // arret du circulateur
         pid_mcbt.SetMode(QuickPID::Control::manual); // arret de la vanne 3 voie
@@ -612,7 +612,7 @@ void DT_3voies_loop()
 void DT_3voies_PCBT_set_mode(DT_3voies_mode mode)
 {
     eeprom_config.mode_3voies_PCBT = mode;
-    if (eeprom_config.mode_3voies_PCBT == DT_3VOIES_OFF)
+    if (eeprom_config.mode_3voies_PCBT == DT_3VOIES_OFF || eeprom_config.mode_3voies_PCBT == DT_3VOIES_POSE)
     {
         DT_relay(CIRCULATEUR_PCBT, false);
         pid_pcbt.SetMode(QuickPID::Control::manual);
@@ -641,7 +641,11 @@ void DT_3voies_PCBT_set_mode(DT_3voies_mode mode)
         // mem_config.C2 = scale(DT_pt100_get(PT100_EXT), -10, 10, eeprom_config.C8, eeprom_config.C9);
         mem_config.C2 = scale(get_temp_ext(), -10, 10, eeprom_config.C8, eeprom_config.C9);
     }
-    sauvegardeEEPROM();
+
+    if (eeprom_config.mode_3voies_PCBT == DT_3VOIES_OFF || eeprom_config.mode_3voies_PCBT == DT_3VOIES_NORMAL )
+    {
+        sauvegardeEEPROM();
+    }
 }
 
 // changement du Mode de fonctionnement de la vanne 3 voie du mure chauffant
@@ -649,7 +653,7 @@ void DT_3voies_MCBT_set_mode(DT_3voies_mode mode)
 {
     eeprom_config.mode_3voies_MCBT = mode;
     // sauvegardeEEPROM();
-    if (eeprom_config.mode_3voies_MCBT == DT_3VOIES_OFF)
+    if (eeprom_config.mode_3voies_MCBT == DT_3VOIES_OFF || eeprom_config.mode_3voies_MCBT == DT_3VOIES_POSE)
     {
         DT_relay(CIRCULATEUR_MCBT, false);
         pid_mcbt.SetMode(QuickPID::Control::manual);
@@ -678,7 +682,11 @@ void DT_3voies_MCBT_set_mode(DT_3voies_mode mode)
         // mem_config.C3 = scale(DT_pt100_get(PT100_EXT), -10, 10, eeprom_config.C10, eeprom_config.C11);
         mem_config.C3 = scale(get_temp_ext(), -10, 10, eeprom_config.C10, eeprom_config.C11);
     }
-    sauvegardeEEPROM();
+
+    if (eeprom_config.mode_3voies_MCBT == DT_3VOIES_OFF || eeprom_config.mode_3voies_MCBT == DT_3VOIES_NORMAL )
+    {
+        sauvegardeEEPROM();
+    }
 }
 
 // recuperation du Mode de fonctionnement de la vanne 3 voie du planché chaffant

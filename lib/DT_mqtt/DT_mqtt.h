@@ -16,6 +16,7 @@ void DT_mqtt_set_update_callback(bool (*mqtt_update)(MQTTClient &mqtt, bool star
 void DT_mqtt_set_subscribe_callback(bool (*mqtt_subscribe)(MQTTClient &mqtt, bool start));
 void DT_mqtt_set_publish_callback(bool (*mqtt_publish)(bool start));
 void DT_mqtt_set_receve_callback(void (*mqtt_receve)(MQTTClient *client, const char topic[], const char bytes[], const int length));
+void DT_mqtt_set_connection_lost_callback(void (*callback_connection_lost)());
 void DT_mqtt_update();
 
 extern CircularBuffer<MQTT_data*, 5> send_buffer;
