@@ -29,7 +29,7 @@ uint16_t memory(bool print);
 #define LONG_PUSH_TIME 800
 #define LONG_LONG_PUSH_TIME 5000 // for value save
 #define XL_LONG_PUSH_TIME 10000
-#define MULTIPLE_PUSH_TIME 250
+#define MULTIPLE_PUSH_TIME 200
 #define INPUT_REFRESH DEBOUNCE_TIME / 2
 
 // COVER
@@ -57,7 +57,7 @@ const uint8_t DIMMER_COVER_ARRAY[DIMMER_COVER_NUM * 2] PROGMEM = {OPT_13, OPT_14
 #define PORTAL_NUM 2
 #if PORTAL_NUM > 0
 const uint16_t PORTAL_OPEN_CLOSE_TIME = 18000; // 18 secondes
-const uint8_t RELAY_PORTAL_ARRAY[PORTAL_NUM * 2] PROGMEM = {1, 2, 3, 4}; //
+const uint8_t RELAY_PORTAL_ARRAY[PORTAL_NUM * 2] PROGMEM = {0, 1, 2, 3}; //
 #endif
 
 #define OPT_RELAY_NUM 3 // nombre de ralais connecté au dimmer : max (DIMMER_LIGHT_NUM + DIMMER_HEAT_NUM + (DIMMER_COVER_NUM * 2) + DIMMER_RADIATOR_NUM ) = 13
@@ -91,13 +91,13 @@ const uint8_t CCS811_CHANNEL_ARRAY[CCS811_NUM] PROGMEM = {2};
 #endif
 
 // SCD4X
-#define SCD4X_NUM 1
+#define SCD4X_NUM 0
 #if SCD4X_NUM > 0
 const uint8_t SCD4X_CHANNEL_ARRAY[SCD4X_NUM] PROGMEM = {1};
 #endif // SCD4X
 
 // HDC1080
-#define HDC1080_NUM 1
+#define HDC1080_NUM 0
 #if HDC1080_NUM > 0
 const uint8_t HDC1080_CHANNEL_ARRAY[HDC1080_NUM] PROGMEM = {1};
 #endif
@@ -127,7 +127,7 @@ const uint8_t RELAY_RADIATOR_PT100_ARRAY[RELAY_RADIATOR_NUM] PROGMEM = {};
 #define MAC3 0xBA
 #define MAC4 0xFE
 #define MAC5 0xFE
-#define MAC6 0xD0
+#define MAC6 0x06
 // #define DHCP
 //  ip address
 #define SOURCE_IP1 192
@@ -199,7 +199,7 @@ const uint8_t RELAY_RADIATOR_PT100_ARRAY[RELAY_RADIATOR_NUM] PROGMEM = {};
 // #define VANNES
 #ifdef VANNES
 #define TMP_EAU_PCBT_MAX 38 // valeur maximum de la consigne de temperature
-#define TMP_EAU_MCBT_MAX 65 // valeur maximum de la consigne de temperature
+#define TMP_EAU_MCBT_MAX 60 // valeur maximum de la consigne de temperature
 #define DBMAC 0.5           // demi bamnde morte pour l'arret des circulateur (en °C)
 
 // #define PT100_EXT 5
@@ -252,12 +252,12 @@ const uint8_t RELAY_RADIATOR_PT100_ARRAY[RELAY_RADIATOR_NUM] PROGMEM = {};
 #define PUSH_1_NUM 6
 #if PUSH_1_NUM > 0
 const dt_interaction_eeprom_config interaction_input_1_push_config[PUSH_1_NUM] PROGMEM = {
-    dt_button_push_opt_rly(1),                // garage centre
-    dt_button_push_opt_rly(2),           // garage atelier
-    dt_no_action(),   // 3 salle de bain
-    dt_no_action(), // 4 salle de bain
-    dt_no_action(),   // 5 centre
-    dt_no_action(), // 6 centre
+    dt_button_push_opt_rly(1),                //1 garage centre
+    dt_button_push_opt_rly(2),           //2 garage atelier
+    dt_two_button_push_portal(0,up),   //3 ouverture Portail route
+    dt_two_button_push_portal(0,down), // 4 fermeture Portail route
+    dt_two_button_push_portal(1,up),   // 5 ouverture Portail jardin
+    dt_two_button_push_portal(1,down), // 6 fermeture Portail jardin
 };
 #endif // PUSH_1_NUM > 0
 
@@ -284,17 +284,8 @@ const dt_interaction_eeprom_config interaction_input_4_push_config[PUSH_4_NUM] P
     dt_no_action()};
 #endif // PUSH_4_NUM > 0
 
-// jeux de lumière
-#define JEUX_LUMIERE_1 8
-#define JEUX_LUMIERE_2 9
-#define JEUX_LUMIERE_3 10
-#define JEUX_LUMIERE_4 14
-#define JEUX_LUMIERE_5 15
-
-#define ALIM 16
-
 // cpt_pulse_input
-#define CPT_PULSE_INPUT 6 // nombre de compteur d'impulsion
+#define CPT_PULSE_INPUT 0 // nombre de compteur d'impulsion
 #if CPT_PULSE_INPUT > 0
 const uint8_t CPT_PULSE_INPUT_ARRAY[CPT_PULSE_INPUT] PROGMEM = {6, 1, 2, 3, 4, 5};
 #endif // CPT_PULSE_INPUT > 0
