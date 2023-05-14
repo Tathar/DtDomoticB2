@@ -21,6 +21,7 @@
 #include <DT_poele.h>
 #include <DT_eeprom.h>
 #include <DT_cover.h>
+#include <DT_portal.h>
 #include <DT_radiator.h>
 #include <DT_cpt_pulse_input.h>
 #include <DT_ecs.h>
@@ -292,7 +293,41 @@ void cover_callback(const uint8_t num, const int8_t percent, const cover_state s
 
   DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/cover-%02d/pos_state"), num + 1, percent);
 }
-#endif
+#endif //COVER_NUM
+
+#if PORTAL_NUM > 0
+void portal_callback(const uint8_t num, const portal_state state)
+{
+  if (can_send())
+  {
+    switch (state)
+    {
+    case portal_stopped:
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/portal-%02d/state"), num + 1, F("stopped"));
+      break;
+
+    case portal_open:
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/portal-%02d/state"), num + 1, F("open"));
+      break;
+
+    case portal_closed:
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/portal-%02d/state"), num + 1, F("closed"));
+      break;
+
+    case portal_opening:
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/portal-%02d/state"), num + 1, F("opening"));
+      break;
+
+    case portal_closing:
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/portal-%02d/state"), num + 1, F("closing"));
+      break;
+
+    default:
+      break;
+    }
+  }
+}
+#endif //PORTAL_NUM
 
 // envoi de donné MQTT quand une entrée est activée / desactivée
 void input_mqtt(const uint8_t num, const Bt_Action action)
@@ -1789,6 +1824,23 @@ bool mqtt_subscribe(MQTTClient &mqtt, bool start)
       break;
 #endif // COVER
 
+#if PORTAL_NUM > 0
+#include BOOST_PP_UPDATE_COUNTER()
+    case BOOST_PP_COUNTER:
+      if (num < PORTAL_NUM)
+      {
+        snprintf_P(topic, 56, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/portal-%02d/set"), num + 1);
+        mqtt.subscribe(topic);
+        num++;
+        sequance--;
+      }
+      else
+      {
+        num = 0;
+      }
+      break;
+#endif //PORTAL_NUM
+
 #if RADIATOR_NUM > 0
 #include BOOST_PP_UPDATE_COUNTER()
     case BOOST_PP_COUNTER:
@@ -2367,8 +2419,30 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
       sauvegardeEEPROM();
     }
   }
-
 #endif // COVER_NUM > 0
+
+#if PORTAL_NUM > 0
+  else if (sscanf_P(topic, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/portal-%02d"), &num) == 1) // cover
+  {
+    Serial.println(F("portal"));
+    if (snprintf_P(_topic, 64, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/portal-%02d/set"), num) > 0 && strncmp(topic, _topic, 64) == 0) // portal
+    {
+      Serial.println(F("set"));
+      if (strcmp(buffer, "STOP") == 0)
+      {
+        DT_portal_stop(num - 1);
+      }
+      else if (strcmp(buffer, "OPEN") == 0)
+      {
+        DT_portal_open(num - 1);
+      }
+      else if (strcmp(buffer, "CLOSE") == 0)
+      {
+        DT_portal_close(num - 1);
+      }
+    }
+  }
+#endif // PORTAL_NUM > 0
 
 #if RADIATOR_NUM > 0
   else if (sscanf_P(topic, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/radiator-%02d"), &num) == 1) // radiator
@@ -3026,6 +3100,14 @@ void setup()
 #endif // MQTT
 #endif // COVER_NUM
 
+#if PORTAL_NUM > 0
+  Serial.println(F("starting portal"));
+  DT_portal_init();
+#ifdef MQTT
+  DT_portal_set_callback(portal_callback);
+#endif // MQTT
+#endif // PORTAL_NUM
+
 #if RADIATOR_NUM > 0
   Serial.println(F("starting radiator"));
   DT_radiator_init();
@@ -3243,6 +3325,13 @@ void loop()
     DT_cover_loop();
     break;
 #endif
+
+#if PORTAL_NUM > 0
+#include BOOST_PP_UPDATE_COUNTER()
+  case BOOST_PP_COUNTER:
+    DT_portal_loop();
+    break;
+#endif //PORTAL_NUM
 
 #if RADIATOR_NUM > 0
 #include BOOST_PP_UPDATE_COUNTER()

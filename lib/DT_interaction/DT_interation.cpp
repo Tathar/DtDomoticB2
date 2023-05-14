@@ -3,6 +3,7 @@
 #include <DT_relay.h>
 #include <DT_opt_relay.h>
 #include <DT_cover.h>
+#include <DT_portal.h>
 
 CircularBuffer<dt_interaction_config, 10> interaction_buffer;
 
@@ -538,4 +539,45 @@ void dt_interaction_t::two_button_push_cover(const uint8_t num, const Bt_Action 
         // return;
     }
 #endif // COVER_NUM > 0
+};
+
+void dt_interaction_t::two_button_push_portal(const uint8_t num, const Bt_Action action)
+{
+#if PORTAL_NUM > 0
+    restore();
+
+    if (action == IN_PUSH) // short push
+    {
+        if (eeprom_config.act_type == dt_interaction_eeprom_config::action_t::up) // short push on button up
+        {
+            // printf("FG_Func_STORE FG_BTN_UP\n");
+            //   printf("btn push UP\n");
+            if (DT_portal_get_state(eeprom_config.act_num) == portal_closed || DT_portal_get_state(eeprom_config.act_num) == portal_stopped)
+            {
+                DT_portal_open(eeprom_config.act_num);
+            }
+            else
+            {
+                DT_portal_stop(eeprom_config.act_num);
+            }
+            remove();
+        }
+        else if (eeprom_config.act_type == dt_interaction_eeprom_config::action_t::down) // short push on button down
+        {
+            // printf("FG_Func_STORE FG_BTN_DOWN\n");
+            //   printf("btn push down\n");
+            // printf("FG_Func_STORE FG_BTN_UP\n");
+            //   printf("btn push UP\n");
+            if (DT_portal_get_state(eeprom_config.act_num) == portal_open || DT_portal_get_state(eeprom_config.act_num) == portal_stopped)
+            {
+                DT_portal_close(eeprom_config.act_num);
+            }
+            else
+            {
+                DT_portal_stop(eeprom_config.act_num);
+            }
+            remove();
+        }
+    }
+#endif // PORTAIL_NUM > 0
 };
