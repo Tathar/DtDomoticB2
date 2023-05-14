@@ -14,6 +14,7 @@ public:
         dt_switch_opt_rly,
         dt_two_button_push_dim,
         dt_two_button_push_cover,
+        dt_two_button_push_portal,
     };
 
     enum action_t

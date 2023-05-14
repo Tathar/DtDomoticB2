@@ -108,6 +108,10 @@ public:
         case dt_interaction_eeprom_config::dt_interaction_type_t::dt_two_button_push_cover:
             two_button_push_cover(num, action);
             break;
+
+        case dt_interaction_eeprom_config::dt_interaction_type_t::dt_two_button_push_portal:
+            two_button_push_portal(num, action);
+            break;
         }
     }
 
@@ -195,6 +199,7 @@ public:
     void switch_opt_rly(const uint8_t num, const Bt_Action action);
     void two_button_push_dim(const uint8_t num, const Bt_Action action);
     void two_button_push_cover(const uint8_t num, const Bt_Action action);
+    void two_button_push_portal(const uint8_t num, const Bt_Action action);
 
     dt_interaction_memory_config memory_config;
     dt_interaction_eeprom_config eeprom_config;
