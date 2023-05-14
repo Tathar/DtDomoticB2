@@ -232,7 +232,7 @@ void opt_relay_callback(const uint8_t num, const bool action)
   }
   memory(false);
 }
-#endif //OPT_RELAY_NUM > 0
+#endif // OPT_RELAY_NUM > 0
 #endif // MQTT
 
 #if DIMMER_LIGHT_NUM > 0
@@ -333,7 +333,7 @@ void input_mqtt(const uint8_t num, const Bt_Action action)
     Serial.println(F("IN_XLL2PUSH"));
     break;
   }
-#if CPT_PULSE_INPUT > 0 || CPT_PULSE_INPUT_IF_OUT > 0 ||  CPT_PULSE_INPUT_IF_IN > 0
+#if CPT_PULSE_INPUT > 0 || CPT_PULSE_INPUT_IF_OUT > 0 || CPT_PULSE_INPUT_IF_IN > 0
   DT_cpt_pulse_input_loop_event(num, action);
 #endif // CPT_PULSE_INPUT > 0 || CPT_PULSE_IF_INPUT > 0
 
@@ -453,7 +453,6 @@ void input_mqtt(const uint8_t num, const Bt_Action action)
   }
   memory(false);
 }
-
 
 void input_callback(const uint8_t num, const Bt_Action action)
 {
@@ -2935,11 +2934,14 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
 
 void mqtt_connection_lost()
 {
+#ifdef POELE
   if (DT_Poele_get_mode() == DT_POELE_POSE)
   {
     DT_Poele_set_mode(DT_POELE_NORMAL);
   }
+#endif // POELE
 
+#ifdef VANNES
   if (DT_3voies_PCBT_get_mode() == DT_3VOIES_POSE)
   {
     DT_3voies_PCBT_set_mode(DT_3VOIES_NORMAL);
@@ -2949,9 +2951,9 @@ void mqtt_connection_lost()
   {
     DT_3voies_MCBT_set_mode(DT_3VOIES_NORMAL);
   }
-  
   eeprom_config.in_offset_PCBT = 0;
   eeprom_config.in_offset_MCBT = 0;
+#endif // VANNES
 }
 #endif // MQTT
 
@@ -3004,7 +3006,7 @@ void setup()
 #ifdef MQTT
   DT_opt_relay_set_callback(opt_relay_callback);
 #endif // MQTT
-#endif //OPT_RELAY_NUM > 0
+#endif // OPT_RELAY_NUM > 0
 
 #if DIMMER_LIGHT_NUM + DIMMER_HEAT_NUM > 0
   Serial.println(F("starting dimmer"));
@@ -3184,7 +3186,7 @@ void loop()
   case BOOST_PP_COUNTER:
     DT_opt_relay_loop();
     break;
-#endif //OPT_RELAY_NUM
+#endif // OPT_RELAY_NUM
 
 #if PT100_NUM > 0
 #include BOOST_PP_UPDATE_COUNTER()
