@@ -240,7 +240,6 @@ void DT_input_loop()
                     }
                 }
             }
-
             else if (pin_stats == HIGH &&
                      !(input_front[num] & F_LP) &&
                      long_push_start_time[num] != 0 &&

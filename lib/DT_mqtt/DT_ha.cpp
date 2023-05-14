@@ -193,14 +193,14 @@ bool homeassistant(bool start)
 #if PORTAL_NUM > 0
 #include BOOST_PP_UPDATE_COUNTER()
                 case BOOST_PP_COUNTER: // COVER
-                        if (num < COVER_NUM)
+                        if (num < PORTAL_NUM)
                         {
                                 // position_topic
                                 // set_position_topic
                                 // command_topic
                                 // state_topic
                                 f_payload = PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/portal-%02d\",\"uniq_id\":\"" BOARD_IDENTIFIER "-portal-%02d\",\"name\":\"" BOARD_IDENTIFIER " portal-%02d\",\"command_topic\":\"~/set\",\"stat_t\":\"~/state\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"),
-                                DT_mqtt_send(F("homeassistant/portal/" BOARD_IDENTIFIER "/portal-%02d/config"), num + 1, reinterpret_cast<const __FlashStringHelper *>(f_payload), num + 1);
+                                DT_mqtt_send(F("homeassistant/cover/" BOARD_IDENTIFIER "/portal-%02d/config"), num + 1, reinterpret_cast<const __FlashStringHelper *>(f_payload), num + 1);
                                 num++;
                                 sequance--;
                         }

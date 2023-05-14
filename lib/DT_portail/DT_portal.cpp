@@ -46,6 +46,7 @@ void DT_portal_init()
 void DT_portal_open(uint8_t num)
 {
 #if PORTAL_NUM > 0
+    debug(F("portal_open"));
     portal[num].action = portal_step_up;
 #endif // PORTAL_NUM > 0
 }
@@ -54,6 +55,7 @@ void DT_portal_open(uint8_t num)
 void DT_portal_close(uint8_t num)
 {
 #if PORTAL_NUM > 0
+    debug(F("portal_close"));
     portal[num].action = portal_step_down;
 #endif // PORTAL_NUM > 0
 }
@@ -61,6 +63,7 @@ void DT_portal_close(uint8_t num)
 void DT_portal_stop(uint8_t num)
 {
 #if PORTAL_NUM > 0
+    debug(F("portal_stop"));
     portal[num].action = portal_step_stop;
 #endif // PORTAL_NUM > 0
 }
@@ -92,12 +95,7 @@ portal_state DT_portal_get_state(uint8_t num)
 void _portal_write(uint8_t num, bool state)
 {
 #if PORTAL_NUM > 0
-    // debug(F("RELAY_COVER_NUM"));
-    // Serial.print("DT_relay(");
-    // Serial.print(num - (DIMMER_COVER_NUM * 2));
-    // Serial.print(",");
-    // Serial.print(val);
-    // Serial.println(")");
+    debug(F("_portal_write"));
     uint8_t relay = pgm_read_byte(RELAY_PORTAL_ARRAY + num);
     uint8_t linked_relay;
 
@@ -114,57 +112,91 @@ void _portal_write(uint8_t num, bool state)
     {
         if (DT_relay_get(linked_relay) == false)
         {
+            Serial.print("DT_relay(");
+            Serial.print(relay);
+            Serial.print(",");
+            Serial.print(true);
+            Serial.println(")");
             DT_relay(relay, true);
         }
     }
     else
     {
+        Serial.print("DT_relay(");
+        Serial.print(relay);
+        Serial.print(",");
+        Serial.print(false);
+        Serial.println(")");
         DT_relay(relay, false);
         // async_call[num] = true;
     }
 
-#endif // COVER_NUM > 0
+#endif // PORTAL_NUM > 0
 }
 
 void DT_portal_loop()
 {
 #if PORTAL_NUM > 0
-    for (uint8_t num = 0; num < COVER_NUM; ++num)
+    for (uint8_t num = 0; num < PORTAL_NUM; ++num)
     {
         if (portal[num].action == portal_step_up && portal[num].step != portal_step_up) // demande d'ouverture
         {
-            debug(F("cover_step_up"));
+            debug(F("portal_step_up"));
             portal[num].push_start = millis();
             _portal_write(num * 2, true);
             portal[num].step = portal_step_up;
+            if (_portal_callback != nullptr)
+            {
+                _portal_callback(num, DT_portal_get_state(num));
+            }
         }
         else if (portal[num].action == portal_step_down && portal[num].step != portal_step_down) // demande de fermeture
         {
             portal[num].push_start = millis();
-            debug(F("cover_step_down"));
+            debug(F("portal_step_down"));
             _portal_write((num * 2) + 1, true);
             portal[num].step = portal_step_down;
+            if (_portal_callback != nullptr)
+            {
+                _portal_callback(num, DT_portal_get_state(num));
+            }
         }
-        else if (portal[num].action == portal_step_stop && (portal[num].step == portal_step_up || portal[num].step == portal_step_down )) // demande d'arret
+        else if (portal[num].action == portal_step_stop && (portal[num].step == portal_step_up || portal[num].step == portal_step_down)) // demande d'arret
         {
             portal[num].push_start = millis();
-            debug(F("cover_step_stop"));
+            debug(F("portal_step_stop"));
             _portal_write(num * 2, true);
             portal[num].step = portal_step_stop;
+            if (_portal_callback != nullptr)
+            {
+                _portal_callback(num, DT_portal_get_state(num));
+            }
         }
         else if (millis() - portal[num].push_start >= 1000 && portal[num].action != portal_step_none)
         {
             _portal_write(num * 2, false);
             _portal_write((num * 2) + 1, false);
             portal[num].action = portal_step_none;
+            if (_portal_callback != nullptr)
+            {
+                _portal_callback(num, DT_portal_get_state(num));
+            }
         }
         else if (millis() - portal[num].push_start >= PORTAL_OPEN_CLOSE_TIME && portal[num].step == portal_step_up)
         {
             portal[num].step = portal_step_open;
+            if (_portal_callback != nullptr)
+            {
+                _portal_callback(num, DT_portal_get_state(num));
+            }
         }
         else if (millis() - portal[num].push_start >= PORTAL_OPEN_CLOSE_TIME && portal[num].step == portal_step_down)
         {
             portal[num].step = portal_step_closed;
+            if (_portal_callback != nullptr)
+            {
+                _portal_callback(num, DT_portal_get_state(num));
+            }
         }
     }
 #endif // PORTAL_NUM > 0
@@ -174,5 +206,5 @@ void DT_portal_set_callback(void (*callback)(const uint8_t num, const portal_sta
 {
 #if PORTAL_NUM > 0
     _portal_callback = callback;
-#endif // COVER_NUM > 0
+#endif // PORTAL_NUM > 0
 }

@@ -88,3 +88,8 @@ public:
     {                                                                                                                                                  \
         dt_interaction_eeprom_config::dt_interaction_type_t::dt_two_button_push_cover, action_num, dt_interaction_eeprom_config::action_t::action_type \
     }
+
+#define dt_two_button_push_portal(action_num, action_type)                                                                                              \
+    {                                                                                                                                                  \
+        dt_interaction_eeprom_config::dt_interaction_type_t::dt_two_button_push_portal, action_num, dt_interaction_eeprom_config::action_t::action_type \
+    }
