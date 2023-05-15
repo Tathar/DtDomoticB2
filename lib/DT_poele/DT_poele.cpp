@@ -85,7 +85,7 @@ void DT_Poele_loop()
             // marche poele
             poele = marche_poele_ballon_normal(poele, now);
         }
-        else if (eeprom_config.poele_mode == DT_POELE_ARRET || eeprom_config.poele_mode == DT_POELE_POSE)
+        else if (eeprom_config.poele_mode == DT_POELE_ARRET || eeprom_config.poele_mode == DT_POELE_STANDBY)
         {
             // mode ECS + Chauffage
             ev1 = false;

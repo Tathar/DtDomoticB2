@@ -784,8 +784,8 @@ void poele_mode_callback(const DT_Poele_mode mode)
     case DT_POELE_FORCE:
       payload = F("Forcé");
       break;
-    case DT_POELE_POSE:
-      payload = F("Pose");
+    case DT_POELE_STANDBY:
+      payload = F("Veille");
       break;
     }
     DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/poele/mode/state"), payload);
@@ -1246,9 +1246,9 @@ bool mqtt_publish(bool start)
         // DT_mqtt_send(topic, "Arret");
         payload = F("Arret");
         break;
-      case DT_3VOIES_POSE:
+      case DT_3VOIES_STANDBY:
         // DT_mqtt_send(topic, "Arret");
-        payload = F("Pose");
+        payload = F("Veille");
         break;
       }
       DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/mode/state"), payload);
@@ -1271,8 +1271,8 @@ bool mqtt_publish(bool start)
       case DT_3VOIES_OFF:
         payload = F("Arret");
         break;
-      case DT_3VOIES_POSE:
-        payload = F("Pose");
+      case DT_3VOIES_STANDBY:
+        payload = F("Veille");
         break;
       }
       DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/mode/state"), payload);
@@ -2548,9 +2548,9 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
     {
       DT_Poele_set_mode(DT_POELE_FORCE);
     }
-    else if (strcmp(buffer, "Pose") == 0)
+    else if (strcmp(buffer, "Veille") == 0)
     {
-      DT_Poele_set_mode(DT_POELE_POSE);
+      DT_Poele_set_mode(DT_POELE_STANDBY);
     }
   }                                                                            // identifiers  // EEPROM
   else if (strcmp(topic, MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/V1/set") == 0) // V1
@@ -2596,10 +2596,10 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
       DT_3voies_PCBT_set_mode(DT_3VOIES_OFF);
       DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/mode/state"), F("Arret"));
     }
-    else if (strcmp(buffer, "Pose") == 0)
+    else if (strcmp(buffer, "Veille") == 0)
     {
-      DT_3voies_PCBT_set_mode(DT_3VOIES_POSE);
-      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/mode/state"), F("Pose"));
+      DT_3voies_PCBT_set_mode(DT_3VOIES_STANDBY);
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/mode/state"), F("Veille"));
     }
   }
   else if (strcmp(topic, MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/C2/set") == 0) // Mode de la vannes 3 voie PCBT
@@ -2630,10 +2630,10 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
       DT_3voies_MCBT_set_mode(DT_3VOIES_OFF);
       DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/mode/state"), F("Arret"));
     }
-    else if (strcmp(buffer, "Pose") == 0)
+    else if (strcmp(buffer, "Veille") == 0)
     {
-      DT_3voies_MCBT_set_mode(DT_3VOIES_POSE);
-      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/mode/state"), F("Pose"));
+      DT_3voies_MCBT_set_mode(DT_3VOIES_STANDBY);
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/mode/state"), F("Veille"));
     }
   }
   else if (strcmp(topic, MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/C3/set") == 0) // Mode de la vannes 3 voie MCBT
@@ -3009,19 +3009,19 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
 void mqtt_connection_lost()
 {
 #ifdef POELE
-  if (DT_Poele_get_mode() == DT_POELE_POSE)
+  if (DT_Poele_get_mode() == DT_POELE_STANDBY)
   {
     DT_Poele_set_mode(DT_POELE_NORMAL);
   }
 #endif // POELE
 
 #ifdef VANNES
-  if (DT_3voies_PCBT_get_mode() == DT_3VOIES_POSE)
+  if (DT_3voies_PCBT_get_mode() == DT_3VOIES_STANDBY)
   {
     DT_3voies_PCBT_set_mode(DT_3VOIES_NORMAL);
   }
 
-  if (DT_3voies_MCBT_get_mode() == DT_3VOIES_POSE)
+  if (DT_3voies_MCBT_get_mode() == DT_3VOIES_STANDBY)
   {
     DT_3voies_MCBT_set_mode(DT_3VOIES_NORMAL);
   }

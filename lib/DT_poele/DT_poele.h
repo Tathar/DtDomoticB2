@@ -8,7 +8,7 @@ enum __attribute__((__packed__)) DT_Poele_mode
     DT_POELE_NORMAL,
     DT_POELE_ECS,
     DT_POELE_FORCE,
-    DT_POELE_POSE,
+    DT_POELE_STANDBY,
 };
 
 void DT_Poele_init();

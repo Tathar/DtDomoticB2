@@ -183,6 +183,8 @@ void DT_mqtt_loop()
     static uint32_t time = 0;
     // static bool old_link_status = false; // for reset network device
     uint32_t now = millis();
+    uint32_t connection_lost = millis();
+    bool connection_lost_f = false;
     // Serial.println("DT_mqtt_loop start");
 
     // Serial.println("DT_mqtt_loop 2");
@@ -198,11 +200,16 @@ void DT_mqtt_loop()
             {
                 mem_config.MQTT_online = false;
                 keep_alive_timout = now;
-                if (_mqtt_connection_lost != nullptr)
-                {
-                    _mqtt_connection_lost();
-                }
+                connection_lost = now;
+                connection_lost_f = true;
                 // Serial.println("DT_mqtt_loop 1");
+            }
+
+            
+            if (_mqtt_connection_lost != nullptr && connection_lost_f && now - connection_lost > 1800000 ) //30 minutes
+            {
+                connection_lost_f = false;
+                _mqtt_connection_lost();
             }
 
             // nettoyage du buffer d'envois si deconnecté depusi plus de 1 seconde

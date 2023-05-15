@@ -15,7 +15,7 @@ enum __attribute__((__packed__)) DT_3voies_mode
     DT_3VOIES_DEMMARAGE,
     DT_3VOIES_NORMAL,
     DT_3VOIES_MANUAL,
-    DT_3VOIES_POSE,
+    DT_3VOIES_STANDBY,
 };
 
 void DT_3voies_init();
