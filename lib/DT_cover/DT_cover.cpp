@@ -421,7 +421,7 @@ void DT_cover_loop()
         else if (cover[num].step == cover_step_down || cover[num].step == cover_step_backup_down) // descente en cours
         {
             // debug(F("cover_step_down"));
-            cover[num].pos = cover[num].old_pos - ((millis() - cover[num].mouve_start) * ((double)eeprom_config.cover[num].time_down / (double)eeprom_config.cover[num].time_up));
+            cover[num].pos = cover[num].old_pos - (millis() - cover[num].mouve_start);
 
             // Serial.print(F("cover time = "));
             // Serial.println(cover[num].pos);
