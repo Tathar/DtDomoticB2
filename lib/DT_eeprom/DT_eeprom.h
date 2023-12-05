@@ -7,11 +7,12 @@
 #include "Arduino.h"
 #endif
 
+#include <config.h>
+
 #include "../lib/DT_poele/DT_poele.h"
 #include "../lib/DT_3voies/DT_3voies.h"
 
 #include <QuickPID.h>
-#include <config.h>
 
 static const uint8_t STRUCT_MAGIC = 9;
 static const uint8_t STRUCT_VERSION = 1;
@@ -54,6 +55,14 @@ struct Radiator
     float consigne;     // consigne
     uint32_t cycle;     //  temp de cycle en ms
 };
+
+enum __attribute__((__packed__)) DT_ECS_mode
+{
+    DT_ECS_ARRET,
+    DT_ECS_MARCHE,
+    DT_ECS_STANDBY,
+};
+
 
 // declaration de la structure de configuration
 struct Mem_Config
@@ -121,6 +130,14 @@ struct Eeprom_Config
 #if DIMMER_LIGHT_NUM >= 1
     uint16_t Dimmer_scale_min[DIMMER_LIGHT_NUM]; // Mise a l echelle
     uint16_t Dimmer_scale_max[DIMMER_LIGHT_NUM]; // Mise a l echelle
+#endif //DIMMER_LIGHT_NUM
+
+#ifdef RELAY_ECS1
+    DT_ECS_mode ecs1_mode; // ecs1 mode 
+#endif
+
+#if RELAY_ECS2
+    DT_ECS_mode ecs2_mode; // ecs2 mode
 #endif
 
 #if COVER_NUM >= 1

@@ -894,6 +894,64 @@ void dt3voies_callback_avg_temp(const float temp)
 }
 #endif // VANNES
 
+// envoi de donné MQTT quand le Mode de fonctionnement de l'ECS1 change
+#ifdef RELAY_ECS1
+void ecs1_mode_callback(const DT_ECS_mode mode)
+{
+  debug(F(AT));
+  memory(false);
+  const __FlashStringHelper *payload;
+  // mode poele
+  if (can_send())
+  {
+    // strlcpy_P(topic, F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/poele/mode/state"), 56);
+    switch (mode)
+    {
+    case DT_ECS_ARRET:
+      payload = F("Arret");
+      break;
+    case DT_ECS_MARCHE:
+      payload = F("Marche");
+      break;
+    case DT_ECS_STANDBY:
+      payload = F("Veille");
+      break;
+    }
+    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/ecs1/state"), payload);
+  }
+  memory(false);
+}
+#endif // RELAY_ECS1
+
+// envoi de donné MQTT quand le Mode de fonctionnement de l'ECS1 change
+#ifdef RELAY_ECS2
+void ecs2_mode_callback(const DT_ECS_mode mode)
+{
+  debug(F(AT));
+  memory(false);
+  const __FlashStringHelper *payload;
+  // mode poele
+  if (can_send())
+  {
+    // strlcpy_P(topic, F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/poele/mode/state"), 56);
+    switch (mode)
+    {
+    case DT_ECS_ARRET:
+      payload = F("Arret");
+      break;
+    case DT_ECS_MARCHE:
+      payload = F("Marche");
+      break;
+    case DT_ECS_STANDBY:
+      payload = F("Veille");
+      break;
+    }
+    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/ecs2/state"), payload);
+  }
+  memory(false);
+}
+#endif // RELAY_ECS2
+
 #if RADIATOR_NUM > 0
 // envoi du pourcentage de fonctionnement et de la valeur de l'Integral en MQTT
 void dt_radiator_callback(const uint8_t num, const float out, const float I)
@@ -1603,6 +1661,26 @@ bool mqtt_publish(bool start)
 
 #endif // vanne
 
+#ifdef RELAY_ECS1
+#include BOOST_PP_UPDATE_COUNTER()
+    case BOOST_PP_COUNTER:
+      // mode poele
+      ecs1_mode_callback(DT_ecs1_get_mode());
+      // EEPROM
+      //  V1
+      break;
+#endif // RELAY_ECS1
+
+#ifdef RELAY_ECS2
+#include BOOST_PP_UPDATE_COUNTER()
+    case BOOST_PP_COUNTER:
+      // mode poele
+      ecs2_mode_callback(DT_ecs2_get_mode());
+      // EEPROM
+      //  V1
+      break;
+#endif // RELAY_ECS1
+
 #include BOOST_PP_UPDATE_COUNTER()
     case BOOST_PP_COUNTER:
       // ONLINE
@@ -2233,6 +2311,22 @@ bool mqtt_subscribe(MQTTClient &mqtt, bool start)
     case BOOST_PP_COUNTER:
       mqtt.subscribe(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/offset-in/set");
       break;
+
+#ifdef RELAY_ECS1
+#include BOOST_PP_UPDATE_COUNTER()
+    case BOOST_PP_COUNTER:
+      // RELAY_ECS1
+      mqtt.subscribe(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/ecs1/set");
+      break;
+#endif //RELAY_ECS1
+
+#ifdef RELAY_ECS2
+#include BOOST_PP_UPDATE_COUNTER()
+    case BOOST_PP_COUNTER:
+      // RELAY_ECS1
+      mqtt.subscribe(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/ecs2/set");
+      break;
+#endif //RELAY_ECS1
 
 #include BOOST_PP_UPDATE_COUNTER()
     case BOOST_PP_COUNTER:
@@ -2994,7 +3088,43 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
     sauvegardeEEPROM();
   }
 
-#endif                                                 // VANNES
+#endif  // VANNES
+#ifdef RELAY_ECS1
+  else if (strcmp(topic, MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/ecs1/set") == 0) // 
+  {
+   if (strcmp(buffer, "Marche") == 0)
+    {
+      DT_ecs1_set_mode(DT_ECS_MARCHE);
+    }
+    else if (strcmp(buffer, "Arret") == 0)
+    {
+      DT_ecs1_set_mode(DT_ECS_ARRET);
+    }
+    else if (strcmp(buffer, "Veille") == 0)
+    {
+      DT_ecs1_set_mode(DT_ECS_STANDBY);
+    }
+    ecs1_mode_callback(DT_ecs1_get_mode());
+  }
+#endif  // RELAY_ECS1
+#ifdef RELAY_ECS2
+  else if (strcmp(topic, MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/ecs2/set") == 0) // 
+  {
+   if (strcmp(buffer, "Marche") == 0)
+    {
+      DT_ecs2_set_mode(DT_ECS_MARCHE);
+    }
+    else if (strcmp(buffer, "Arret") == 0)
+    {
+      DT_ecs2_set_mode(DT_ECS_ARRET);
+    }
+    else if (strcmp(buffer, "Veille") == 0)
+    {
+      DT_ecs2_set_mode(DT_ECS_STANDBY);
+    }
+    ecs2_mode_callback(DT_ecs1_get_mode());
+  }
+#endif  // RELAY_ECS2
   else if (strcmp(topic, "homeassistant/status") == 0) // Home Assistant Online / Offline
   {
     if (strcmp(buffer, "online") == 0)
@@ -3034,6 +3164,18 @@ void mqtt_connection_lost()
   eeprom_config.in_offset_PCBT = 0;
   eeprom_config.in_offset_MCBT = 0;
 #endif // VANNES
+#ifdef RELAY_ECS1
+  if (DT_ecs1_get_mode() == DT_ECS_STANDBY)
+  {
+    DT_ecs1_set_mode(DT_ECS_MARCHE);
+  }
+#endif  // RELAY_ECS1
+#ifdef RELAY_ECS2
+  if (DT_ecs2_get_mode() == DT_ECS_STANDBY)
+  {
+    DT_ecs2_set_mode(DT_ECS_MARCHE);
+  }
+#endif  // RELAY_ECS2
 }
 #endif // MQTT
 
@@ -3353,14 +3495,12 @@ void loop()
     break;
 #endif
 
-#ifdef RELAY_ECS1
-#ifdef RELAY_ECS2
+#if defined(RELAY_ECS1) || defined(RELAY_ECS2) 
 #include BOOST_PP_UPDATE_COUNTER()
   case BOOST_PP_COUNTER:
     DT_ecs_loop();
     break;
-#endif // RELAY_ECS2
-#endif // RELAY_ECS1
+#endif // RELAY_ECS1 || RELAY_ECS2
 
 #ifdef TIC
 #include BOOST_PP_UPDATE_COUNTER()

@@ -160,6 +160,19 @@ void chargeEEPROM()
                 }
 #endif
         }
+         if (eeprom_config.struct_version < 7 || erreur)
+        {
+                need_save = true;
+                Serial.println(F("EEPROM version < 7"));
+                eeprom_config.struct_version = 7;
+                
+                #ifdef RELAY_ECS1
+                eeprom_config.ecs1_mode = DT_ECS_MARCHE;
+                #endif
+                #ifdef RELAY_ECS2
+                eeprom_config.ecs2_mode = DT_ECS_MARCHE;
+                #endif
+        }
 
         // Sauvegarde les nouvelles données
         if (need_save)

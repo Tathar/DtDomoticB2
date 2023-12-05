@@ -946,6 +946,23 @@ bool homeassistant(bool start)
                         DT_mqtt_send(F("homeassistant/number/" BOARD_IDENTIFIER "/min-offset-avg-temp/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/avg-temp/offset-inf\",\"uniq_id\":\"" BOARD_IDENTIFIER "-min-offset-avg-temp\",\"name\":\"Decalage Exterieur inf\",\"stat_t\":\"~/state\",\"command_topic\":\"~/set\",\"min\":-100,\"max\":100,\"step\":0.01,\"dev_cla\":\"temperature\",\"unit_of_meas\":\"°C\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
                         break;
 #endif // VANNES
+
+#ifdef RELAY_ECS1
+#include BOOST_PP_UPDATE_COUNTER()
+                case BOOST_PP_COUNTER:
+                        // 3 voies MCBT mode
+                        DT_mqtt_send(F("homeassistant/select/" BOARD_IDENTIFIER "/ecs1/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/ecs1\",\"uniq_id\":\"" BOARD_IDENTIFIER "-ecs1-mode\",\"name\":\"" BOARD_IDENTIFIER " mode ECS1\",\"command_topic\":\"~/set\",\"state_topic\":\"~/state\",\"options\":[\"Marche\",\"Arret\",\"Veille\"],\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
+                        break;
+#endif //RELAY_ECS1
+
+#ifdef RELAY_ECS2
+#include BOOST_PP_UPDATE_COUNTER()
+                case BOOST_PP_COUNTER:
+                        // 3 voies MCBT mode
+                        DT_mqtt_send(F("homeassistant/select/" BOARD_IDENTIFIER "/ecs2/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/ecs2\",\"uniq_id\":\"" BOARD_IDENTIFIER "-ecs2-mode\",\"name\":\"" BOARD_IDENTIFIER " mode ECS2\",\"command_topic\":\"~/set\",\"state_topic\":\"~/state\",\"options\":[\"Marche\",\"Arret\",\"Veille\"],\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
+                        break;
+#endif //RELAY_ECS2
+
 #include BOOST_PP_UPDATE_COUNTER()
                 case BOOST_PP_COUNTER:
                         // load 1s
