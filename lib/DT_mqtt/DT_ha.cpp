@@ -42,7 +42,7 @@ bool homeassistant(bool start)
                         if (num < RELAY_NUM)
                         {
                                 f_payload = PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/relay-%02d\",\"uniq_id\":\"" BOARD_IDENTIFIER "-relay-%02d\",\"name\":\"" BOARD_IDENTIFIER " relay-%02d\",\"command_topic\":\"~/set\",\"stat_t\":\"~/state\",\"ret\":\"true\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"),
-                                DT_mqtt_send(F("homeassistant/switch/" BOARD_IDENTIFIER "/relay-%02d/config"), num  + 1, reinterpret_cast<const __FlashStringHelper *>(f_payload), num + 1);
+                                DT_mqtt_send(F("homeassistant/switch/" BOARD_IDENTIFIER "/relay-%02d/config"), num + 1, reinterpret_cast<const __FlashStringHelper *>(f_payload), num + 1);
                                 num++;
                                 sequance--;
                         }
@@ -58,7 +58,7 @@ bool homeassistant(bool start)
                         if (num < OPT_RELAY_NUM)
                         {
                                 f_payload = PSTR("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/opt-relay-%02d\",\"uniq_id\":\"" BOARD_IDENTIFIER "-opt-relay-%02d\",\"name\":\"" BOARD_IDENTIFIER " opt-relay-%02d\",\"ret\":\"true\",\"command_topic\":\"~/set\",\"stat_t\":\"~/state\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"),
-                                DT_mqtt_send(F("homeassistant/switch/" BOARD_IDENTIFIER "/opt-relay-%02d/config"), num + 1, reinterpret_cast<const __FlashStringHelper *>(f_payload), num  + 1);
+                                DT_mqtt_send(F("homeassistant/switch/" BOARD_IDENTIFIER "/opt-relay-%02d/config"), num + 1, reinterpret_cast<const __FlashStringHelper *>(f_payload), num + 1);
                                 num++;
                                 sequance--;
                         }
@@ -67,7 +67,7 @@ bool homeassistant(bool start)
                                 num = 0;
                         }
                         break;
-#endif //OPT_RELAY_NUM > 0
+#endif // OPT_RELAY_NUM > 0
 
 #if DIMMER_LIGHT_NUM > 0
 #include BOOST_PP_UPDATE_COUNTER() //declaration des dimmer
@@ -541,7 +541,6 @@ bool homeassistant(bool start)
 
 #endif // CPT_PULSE_INPUT
 
-
 #if CPT_PULSE_INPUT_IF_OUT > 0
 #include BOOST_PP_UPDATE_COUNTER()
                 case BOOST_PP_COUNTER:
@@ -579,7 +578,6 @@ bool homeassistant(bool start)
                         break;
 
 #endif // CPT_PULSE_INPUT_IF_OUT
-
 
 #if CPT_PULSE_INPUT_IF_IN > 0
 #include BOOST_PP_UPDATE_COUNTER()
@@ -952,8 +950,32 @@ bool homeassistant(bool start)
                 case BOOST_PP_COUNTER:
                         // load 1s
                         DT_mqtt_send(F("homeassistant/sensor/" BOARD_IDENTIFIER "/load_1s/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "\",\"uniq_id\":\"" BOARD_IDENTIFIER "-load_1s\",\"name\":\"" BOARD_IDENTIFIER " Load 1s\",\"stat_t\":\"~/load_1s\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
-
                         break;
+
+#include BOOST_PP_UPDATE_COUNTER()
+                case BOOST_PP_COUNTER:
+                        //used memory
+                        DT_mqtt_send(F("homeassistant/sensor/" BOARD_IDENTIFIER "/used_memory/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/memory\",\"uniq_id\":\"" BOARD_IDENTIFIER "-used-memory\",\"name\":\"" BOARD_IDENTIFIER " Used memory\",\"stat_t\":\"~/used\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
+                        break;
+
+#include BOOST_PP_UPDATE_COUNTER()
+                case BOOST_PP_COUNTER:
+                        //free memory
+                        DT_mqtt_send(F("homeassistant/sensor/" BOARD_IDENTIFIER "/free_memory/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/memory\",\"uniq_id\":\"" BOARD_IDENTIFIER "-free-memory\",\"name\":\"" BOARD_IDENTIFIER " Free memory\",\"stat_t\":\"~/free\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
+                        break;
+
+#include BOOST_PP_UPDATE_COUNTER()
+                case BOOST_PP_COUNTER:
+                        //Large free memory
+                        DT_mqtt_send(F("homeassistant/sensor/" BOARD_IDENTIFIER "/large_memory/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/memory\",\"uniq_id\":\"" BOARD_IDENTIFIER "-large-memory\",\"name\":\"" BOARD_IDENTIFIER " Large memory\",\"stat_t\":\"~/large\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
+                        break;
+
+#include BOOST_PP_UPDATE_COUNTER()
+                case BOOST_PP_COUNTER:
+                        //memory free list
+                        DT_mqtt_send(F("homeassistant/sensor/" BOARD_IDENTIFIER "/memory_free_list/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/memory\",\"uniq_id\":\"" BOARD_IDENTIFIER "-memory-free-list\",\"name\":\"" BOARD_IDENTIFIER " memory free list\",\"stat_t\":\"~/number\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
+                        break;
+
 #include BOOST_PP_UPDATE_COUNTER()
                 case BOOST_PP_COUNTER:
                         // load 1m
@@ -1163,18 +1185,18 @@ void MQTT_data::get(char *topic, int topic_len, char *payload, unsigned int payl
                 strlcpy_P(payload, reinterpret_cast<const char *>(_fcstr), payload_len);
                 debug(F(AT));
                 break;
-/*
-        case ha_cstr:
-                strncpy_P(topic, reinterpret_cast<const char *>(_topic), topic_len);
-                debug(F(AT));
-                if (_cstr != nullptr)
-                {
-                        strncpy(payload, _cstr, payload_len);
-                        free((void *)_cstr);
-                        _cstr = nullptr;
-                }
-                break;
-*/
+                /*
+                        case ha_cstr:
+                                strncpy_P(topic, reinterpret_cast<const char *>(_topic), topic_len);
+                                debug(F(AT));
+                                if (_cstr != nullptr)
+                                {
+                                        strncpy(payload, _cstr, payload_len);
+                                        free((void *)_cstr);
+                                        _cstr = nullptr;
+                                }
+                                break;
+                */
         case ha_str:
                 strncpy_P(topic, reinterpret_cast<const char *>(_topic), topic_len);
                 debug(F(AT));
@@ -1204,14 +1226,14 @@ void MQTT_data::get(char *topic, int topic_len, char *payload, unsigned int payl
                 snprintf_P(topic, topic_len, reinterpret_cast<const char *>(_topic), _num_t);
                 snprintf_P(payload, payload_len, reinterpret_cast<const char *>(_fcstr), _num_p, _num_p, _num_p);
                 break;
-/*
-        case ha_cstr_tsprintf:
-                snprintf_P(topic, topic_len, reinterpret_cast<const char *>(_topic), _num_t);
-                strncpy(payload, _cstr, payload_len);
-                free((void *)_cstr);
-                _cstr = nullptr;
-                break;
-*/
+                /*
+                        case ha_cstr_tsprintf:
+                                snprintf_P(topic, topic_len, reinterpret_cast<const char *>(_topic), _num_t);
+                                strncpy(payload, _cstr, payload_len);
+                                free((void *)_cstr);
+                                _cstr = nullptr;
+                                break;
+                */
         case ha_str_tsprintf:
                 debug(F(AT));
                 snprintf_P(topic, topic_len, reinterpret_cast<const char *>(_topic), _num_t);

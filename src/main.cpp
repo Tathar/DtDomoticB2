@@ -36,6 +36,8 @@
 
 #include <boost/preprocessor/slot/counter.hpp>
 
+#include <memdebug.h>
+
 long int lastReconnectAttempt = 0;
 
 volatile uint32_t watchdog_reset = 0;
@@ -132,6 +134,10 @@ void load()
 
 #ifdef MQTT
     DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/load_1s"), (float)(load_1s_count / 100.0));
+    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/memory/used"), getMemoryUsed());
+    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/memory/free"), getFreeMemory() );
+    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/memory/large"), getLargestAvailableMemoryBlock());
+    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/memory/number"), getNumberOfBlocksInFreeList());
 #else
     Serial.print(F("Load 1s = "));
     Serial.println((float)(load_1s_count / 100.0));
