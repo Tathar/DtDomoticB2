@@ -136,7 +136,7 @@ void DT_mqtt_init()
     mqtt.begin(server, 1883, ethClient);
     mqtt.setWill(MQTT_WILL_TOPIC, MQTT_WILL_MESSAGE, MQTT_WILL_RETAIN, MQTT_WILL_QOS);
     // mqtt.setTimeout(1000);
-    mqtt.setTimeout(250);
+    mqtt.setTimeout(20);
     mqtt.onMessageAdvanced(DT_receve_callback);
     //  if (!mqtt.connected())
     //  {

@@ -1179,13 +1179,13 @@ void MQTT_data::store(const __FlashStringHelper *Topic, uint8_t num_t, const uin
 
 void MQTT_data::store(const __FlashStringHelper *Topic, const uint32_t Payload)
 {
-        _type = ha_int32_t;
+        _type = ha_uint32_t;
         _topic = Topic;
         _int = Payload;
 };
 void MQTT_data::store(const __FlashStringHelper *Topic, uint8_t num_t, const uint32_t Payload)
 {
-        _type = ha_int32_t_tsprintf;
+        _type = ha_uint32_t_tsprintf;
         _num_t = num_t;
         _topic = Topic;
         _int = Payload;
@@ -1234,6 +1234,11 @@ void MQTT_data::get(char *topic, int topic_len, char *payload, unsigned int payl
                 snprintf_P(payload, payload_len, PSTR("%i"), (int)_int);
                 break;
 
+        case ha_uint32_t:
+                strncpy_P(topic, reinterpret_cast<const char *>(_topic), topic_len);
+                snprintf_P(payload, payload_len, PSTR("%" PRIu32 ), (uint32_t)_int);
+                break;
+
         case ha_flash_cstr_tsprintf:
                 snprintf_P(topic, topic_len, reinterpret_cast<const char *>(_topic), _num_t);
                 strncpy_P(payload, reinterpret_cast<const char *>(_fcstr), payload_len);
@@ -1271,6 +1276,11 @@ void MQTT_data::get(char *topic, int topic_len, char *payload, unsigned int payl
         case ha_int32_t_tsprintf:
                 snprintf_P(topic, topic_len, reinterpret_cast<const char *>(_topic), _num_t);
                 snprintf_P(payload, payload_len, PSTR("%" PRId32), (int32_t)_int);
+                break;
+
+        case ha_uint32_t_tsprintf:
+                snprintf_P(topic, topic_len, reinterpret_cast<const char *>(_topic), _num_t);
+                snprintf_P(payload, payload_len, PSTR("%" PRIu32), (uint32_t)_int);
                 break;
 
         default:

@@ -2759,33 +2759,33 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
     DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/C4/state"), eeprom_config.C4);
     sauvegardeEEPROM();
   }
-
   else if (strcmp(topic, MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/C5/set") == 0) // C5
   {
-    if (sscanf_P(buffer, PSTR("%" SCNu8), &u8t_value) == 1)
-    {
-      eeprom_config.C5 = u8t_value;
-      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/C5/state"), u8t_value);
-      sauvegardeEEPROM();
-    }
+    str_buffer = buffer;
+    eeprom_config.C5 = str_buffer.toInt();
+    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/C5/state"), eeprom_config.C5);
+    sauvegardeEEPROM();
   }
   else if (strcmp(topic, MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/C6/set") == 0) // C6
   {
-    if (sscanf_P(buffer, PSTR("%" SCNu8), &u8t_value) == 1)
-    {
-      eeprom_config.C6 = u8t_value;
-      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/C6/state"), u8t_value);
-      sauvegardeEEPROM();
-    }
+    str_buffer = buffer;
+    eeprom_config.C6 = str_buffer.toInt();
+    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/C6/state"), eeprom_config.C7);
+    sauvegardeEEPROM();
   }
   else if (strcmp(topic, MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/C7/set") == 0) // C7
   {
-    if (sscanf_P(buffer, PSTR("%" SCNu8), &u8t_value) == 1)
-    {
-      eeprom_config.C7 = u8t_value;
-      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/C7/state"), u8t_value);
-      sauvegardeEEPROM();
-    }
+    // Serial.println(F("C7/set"));
+    // if (sscanf_P(buffer, PSTR("%" SCNu8), &u8t_value) == 1)
+    // {
+    //   eeprom_config.C7 = u8t_value;
+    //   DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/C7/state"), eeprom_config.C7);
+    //   sauvegardeEEPROM();
+    // }
+    str_buffer = buffer;
+    eeprom_config.C7 = str_buffer.toInt();
+    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/C7/state"), eeprom_config.C7);
+    sauvegardeEEPROM();
   }
   else if (strcmp(topic, MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/C8/set") == 0) // C8
   {
