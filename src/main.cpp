@@ -40,55 +40,6 @@
 
 long int lastReconnectAttempt = 0;
 
-volatile uint32_t watchdog_reset = 0;
-
-void debug(const char *var)
-{
-  static uint32_t old_call = 0;
-  uint32_t now = millis();
-  Serial.print(var);
-  Serial.print(F(","));
-  Serial.print(now - watchdog_reset);
-  Serial.print(F(","));
-  Serial.println(now - old_call);
-  old_call = now;
-}
-
-void debug(const __FlashStringHelper *var)
-{
-  static uint32_t old_call = 0;
-  uint32_t now = millis();
-  Serial.print(var);
-  Serial.print(F(","));
-  Serial.print(now - watchdog_reset);
-  Serial.print(F(","));
-  Serial.println(now - old_call);
-  old_call = now;
-}
-/*
-void debug_wdt_reset(void)
-{
-  wdt_reset();
-  __asm__("nop\n\t");
-  watchdog_reset = millis();
-}
-*/
-/*
-void debug_wdt_reset(const char *var)
-{
-  wdt_reset();
-  debug(var);
-  watchdog_reset = millis();
-}
-*/
-/*
-void debug_wdt_reset(const __FlashStringHelper *var)
-{
-  wdt_reset();
-  debug(var);
-  watchdog_reset = millis();
-}
-*/
 extern void *__brkval;
 // calcule de la memoire disponible
 uint16_t memory(bool print)
@@ -1685,8 +1636,15 @@ bool mqtt_publish(bool start)
     case BOOST_PP_COUNTER:
       // ONLINE
       DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/status"), F("online"));
-
       break;
+
+#ifdef WATCHDOG_TIME
+#include BOOST_PP_UPDATE_COUNTER()
+    case BOOST_PP_COUNTER:
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/debug_str/state"), eeprom_config.debug_str);
+      break;
+#endif // WATCHDOG_TIME
+
 
     default:
       return true;
@@ -3373,9 +3331,8 @@ void setup()
   Serial.println(F(BOARD_SW_VERSION_PRINT));
   memory(true);
 
-#ifdef WATCHDOG_TIME
-  wdt_enable(WATCHDOG_TIME);
-#endif
+  init_tools();
+
 }
 
 // boucle principale

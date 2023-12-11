@@ -5,6 +5,7 @@
 #include <pinout.h>
 #include <interaction_tools.h>
 
+extern String debug_str;
 void debug(const char *var);
 void debug(const __FlashStringHelper *var);
 uint16_t memory(bool print);

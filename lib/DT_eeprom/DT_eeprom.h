@@ -147,6 +147,10 @@ struct Eeprom_Config
 #if RADIATOR_NUM > 0
     Radiator radiator[RADIATOR_NUM];
 #endif
+
+#ifdef WATCHDOG_TIME
+    char debug_str[64];
+#endif
 };
 
 // structure de configuration

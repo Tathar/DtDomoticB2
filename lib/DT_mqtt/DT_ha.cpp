@@ -997,8 +997,14 @@ bool homeassistant(bool start)
                 case BOOST_PP_COUNTER:
                         // load 1m
                         DT_mqtt_send(F("homeassistant/sensor/" BOARD_IDENTIFIER "/load_1m/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "\",\"uniq_id\":\"" BOARD_IDENTIFIER "-load_1m\",\"name\":\"" BOARD_IDENTIFIER " Load 1m\",\"stat_t\":\"~/load_1m\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
-
                         break;
+#ifdef WATCHDOG_TIME
+#include BOOST_PP_UPDATE_COUNTER()
+                case BOOST_PP_COUNTER:
+                        // debug
+                        DT_mqtt_send(F("homeassistant/text/" BOARD_IDENTIFIER "/debug_str/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/debug_str\",\"uniq_id\":\"" BOARD_IDENTIFIER "-debug_str\",\"name\":\"" BOARD_IDENTIFIER " debug_str\",\"command_topic\":\"~/set\",\"state_topic\":\"~/state\",\"max\":\"64\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
+                        break;
+#endif
                 default:
                         return true;
                         break;

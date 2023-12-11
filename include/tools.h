@@ -68,4 +68,6 @@ int i2c_channel_to_multiplexer(int channel);
 #define P0 (OPT_P0 - 1)
 #define P0_INF (OPT_P0 - 2)
 
+void init_tools();
+
 #endif // TOOLS_H
