@@ -67,8 +67,8 @@ void DT_CCS811_loop()
                     {
 
                         float value = ccs811[num].geteCO2();
-                        Serial.print(F("ccs811 co2 "));
-                        Serial.println(value);
+                        // Serial.print(F("ccs811 co2 "));
+                        // Serial.println(value);
                         if (value != ccs811_co2[num])
                         {
                             ccs811_co2[num] = value;
@@ -77,8 +77,8 @@ void DT_CCS811_loop()
                         }
 
                         value = ccs811[num].getTVOC();
-                        Serial.print(F("ccs811 tov "));
-                        Serial.println(value);
+                        // Serial.print(F("ccs811 tov "));
+                        // Serial.println(value);
                         if (value != ccs811_cov[num])
                         {
                             ccs811_cov[num] = value;

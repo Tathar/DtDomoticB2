@@ -70,4 +70,8 @@ int i2c_channel_to_multiplexer(int channel);
 
 void init_tools();
 
+void debug_wdt_reset(void);
+void debug_wdt_reset(const char *var);
+void debug_wdt_reset(const __FlashStringHelper *var);
+
 #endif // TOOLS_H

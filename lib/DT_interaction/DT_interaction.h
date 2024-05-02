@@ -182,7 +182,7 @@ public:
 
             if (tmp.eeprom_config.type == eeprom_config.type && tmp.eeprom_config.act_num == eeprom_config.act_num)
             {
-                Serial.println(F("Remove"));
+                // Serial.println(F("Remove"));
             }
             else
             {

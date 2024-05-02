@@ -42,8 +42,9 @@ long int lastReconnectAttempt = 0;
 
 extern void *__brkval;
 // calcule de la memoire disponible
-uint16_t memory(bool print)
+void memory(bool print)
 {
+  /*
   static unsigned int min_free_memory = 65535;
   unsigned int free_memory = (uint16_t)SP - (uint16_t)__brkval;
 
@@ -65,6 +66,7 @@ uint16_t memory(bool print)
     Serial.println(free_memory);
   }
   return free_memory;
+  */
 }
 
 // calcule de la charge system
@@ -86,7 +88,7 @@ void load()
 #ifdef MQTT
     DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/load_1s"), (float)(load_1s_count / 100.0));
     DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/memory/used"), getMemoryUsed());
-    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/memory/free"), getFreeMemory() );
+    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/memory/free"), getFreeMemory());
     DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/memory/large"), getLargestAvailableMemoryBlock());
     DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/memory/number"), getNumberOfBlocksInFreeList());
 #else
@@ -250,7 +252,7 @@ void cover_callback(const uint8_t num, const int8_t percent, const cover_state s
 
   DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/cover-%02d/pos_state"), num + 1, percent);
 }
-#endif //COVER_NUM
+#endif // COVER_NUM
 
 #if PORTAL_NUM > 0
 void portal_callback(const uint8_t num, const portal_state state)
@@ -283,8 +285,9 @@ void portal_callback(const uint8_t num, const portal_state state)
       break;
     }
   }
+  debug(F(AT));
 }
-#endif //PORTAL_NUM
+#endif // PORTAL_NUM
 
 // envoi de donné MQTT quand une entrée est activée / desactivée
 void input_mqtt(const uint8_t num, const Bt_Action action)
@@ -292,39 +295,39 @@ void input_mqtt(const uint8_t num, const Bt_Action action)
   debug(F(AT));
   memory(false);
 
-  switch (action)
-  {
-  case IN_PUSHED:
-    Serial.println(F("IN_PUSHED"));
-    break;
-  case IN_RELEASE:
-    Serial.println(F("IN_RELEASE"));
-    break;
-  case IN_PUSH:
-    Serial.println(F("IN_PUSH"));
-    break;
-  case IN_LPUSH:
-    Serial.println(F("IN_LPUSH"));
-    break;
-  case IN_LLPUSH:
-    Serial.println(F("IN_LLPUSH"));
-    break;
-  case IN_XLLPUSH:
-    Serial.println(F("IN_XLLPUSH"));
-    break;
-  case IN_2PUSH:
-    Serial.println(F("IN_2PUSH"));
-    break;
-  case IN_L2PUSH:
-    Serial.println(F("IN_L2PUSH"));
-    break;
-  case IN_LL2PUSH:
-    Serial.println(F("IN_LL2PUSH"));
-    break;
-  case IN_XLL2PUSH:
-    Serial.println(F("IN_XLL2PUSH"));
-    break;
-  }
+  // switch (action)
+  // {
+  // case IN_PUSHED:
+  //   Serial.println(F("IN_PUSHED"));
+  //   break;
+  // case IN_RELEASE:
+  //   Serial.println(F("IN_RELEASE"));
+  //   break;
+  // case IN_PUSH:
+  //   Serial.println(F("IN_PUSH"));
+  //   break;
+  // case IN_LPUSH:
+  //   Serial.println(F("IN_LPUSH"));
+  //   break;
+  // case IN_LLPUSH:
+  //   Serial.println(F("IN_LLPUSH"));
+  //   break;
+  // case IN_XLLPUSH:
+  //   Serial.println(F("IN_XLLPUSH"));
+  //   break;
+  // case IN_2PUSH:
+  //   Serial.println(F("IN_2PUSH"));
+  //   break;
+  // case IN_L2PUSH:
+  //   Serial.println(F("IN_L2PUSH"));
+  //   break;
+  // case IN_LL2PUSH:
+  //   Serial.println(F("IN_LL2PUSH"));
+  //   break;
+  // case IN_XLL2PUSH:
+  //   Serial.println(F("IN_XLL2PUSH"));
+  //   break;
+  // }
 #if CPT_PULSE_INPUT > 0 || CPT_PULSE_INPUT_IF_OUT > 0 || CPT_PULSE_INPUT_IF_IN > 0
   DT_cpt_pulse_input_loop_event(num, action);
 #endif // CPT_PULSE_INPUT > 0 || CPT_PULSE_IF_INPUT > 0
@@ -444,6 +447,7 @@ void input_mqtt(const uint8_t num, const Bt_Action action)
     }
   }
   memory(false);
+  debug(F(AT));
 }
 
 void input_callback(const uint8_t num, const Bt_Action action)
@@ -523,10 +527,12 @@ void bme280_callback_pressure(const uint8_t num, const float pressure)
     if (now - refresh >= MQTT_REFRESH && mem_config.MQTT_online)
     {
       refresh = now;
+      debug(F(AT));
       DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/bme280-%02d/pressure"), num + 1, pressure);
     }
   }
   // memory(false);
+  debug(F(AT));
 }
 #endif // BME280_NUM
 
@@ -852,10 +858,10 @@ void ecs1_mode_callback(const DT_ECS_mode mode)
   debug(F(AT));
   memory(false);
   const __FlashStringHelper *payload;
+  Serial.println(F("ecs1_mode_callback"));
   // mode poele
   if (can_send())
   {
-    // strlcpy_P(topic, F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/poele/mode/state"), 56);
     switch (mode)
     {
     case DT_ECS_ARRET:
@@ -881,10 +887,10 @@ void ecs2_mode_callback(const DT_ECS_mode mode)
   debug(F(AT));
   memory(false);
   const __FlashStringHelper *payload;
+  Serial.println(F("ecs2_mode_callback"));
   // mode poele
   if (can_send())
   {
-    // strlcpy_P(topic, F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/poele/mode/state"), 56);
     switch (mode)
     {
     case DT_ECS_ARRET:
@@ -1642,9 +1648,10 @@ bool mqtt_publish(bool start)
 #include BOOST_PP_UPDATE_COUNTER()
     case BOOST_PP_COUNTER:
       DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/debug_str/state"), eeprom_config.debug_str);
+      strncpy(eeprom_config.debug_str, "@", 1);
+      // memcpy(eeprom_config.debug_str, "@", 1);
       break;
 #endif // WATCHDOG_TIME
-
 
     default:
       return true;
@@ -1881,7 +1888,7 @@ bool mqtt_subscribe(MQTTClient &mqtt, bool start)
         num = 0;
       }
       break;
-#endif //PORTAL_NUM
+#endif // PORTAL_NUM
 
 #if RADIATOR_NUM > 0
 #include BOOST_PP_UPDATE_COUNTER()
@@ -2276,7 +2283,7 @@ bool mqtt_subscribe(MQTTClient &mqtt, bool start)
       // RELAY_ECS1
       mqtt.subscribe(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/ecs1/set");
       break;
-#endif //RELAY_ECS1
+#endif // RELAY_ECS1
 
 #ifdef RELAY_ECS2
 #include BOOST_PP_UPDATE_COUNTER()
@@ -2284,7 +2291,7 @@ bool mqtt_subscribe(MQTTClient &mqtt, bool start)
       // RELAY_ECS1
       mqtt.subscribe(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/ecs2/set");
       break;
-#endif //RELAY_ECS1
+#endif // RELAY_ECS1
 
 #include BOOST_PP_UPDATE_COUNTER()
     case BOOST_PP_COUNTER:
@@ -2334,10 +2341,10 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
     memcpy(buffer, payload, length);
     buffer[length] = '\0';
 
-    Serial.print(F("receve topic "));
-    Serial.print(topic);
-    Serial.print(" = ");
-    Serial.println(buffer);
+    // Serial.print(F("receve topic "));
+    // Serial.print(topic);
+    // Serial.print(" = ");
+    // Serial.println(buffer);
   }
   else
     return;
@@ -2482,10 +2489,10 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
 #if PORTAL_NUM > 0
   else if (sscanf_P(topic, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/portal-%02d"), &num) == 1) // cover
   {
-    Serial.println(F("portal"));
+    // Serial.println(F("portal"));
     if (snprintf_P(_topic, 64, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/portal-%02d/set"), num) > 0 && strncmp(topic, _topic, 64) == 0) // portal
     {
-      Serial.println(F("set"));
+      // Serial.println(F("set"));
       if (strcmp(buffer, "STOP") == 0)
       {
         DT_portal_stop(num - 1);
@@ -2566,7 +2573,7 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
 #if CPT_PULSE_INPUT > 0                                                                                // listen mqtt reset event
   else if (sscanf_P(topic, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/counter-%02d/btn"), &num) == 1) // counter reset
   {
-    Serial.println(F("counter reset"));
+    // Serial.println(F("counter reset"));
     DT_cpt_pulse_input_reset(num - 1);
   }
 #endif // CPT_PULSE_INPUT > 0
@@ -2574,7 +2581,7 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
 #if CPT_PULSE_INPUT_IF_OUT > 0                                                                                // listen mqtt reset event
   else if (sscanf_P(topic, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/counter-if-out-%02d/btn"), &num) == 1) // counter reset
   {
-    Serial.println(F("counter if out reset"));
+    // Serial.println(F("counter if out reset"));
     DT_cpt_pulse_input_if_out_reset(num - 1);
   }
 #endif // CPT_PULSE_INPUT_IF_OUT > 0
@@ -3046,11 +3053,11 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
     sauvegardeEEPROM();
   }
 
-#endif  // VANNES
+#endif // VANNES
 #ifdef RELAY_ECS1
-  else if (strcmp(topic, MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/ecs1/set") == 0) // 
+  else if (strcmp(topic, MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/ecs1/set") == 0) //
   {
-   if (strcmp(buffer, "Marche") == 0)
+    if (strcmp(buffer, "Marche") == 0)
     {
       DT_ecs1_set_mode(DT_ECS_MARCHE);
     }
@@ -3063,12 +3070,13 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
       DT_ecs1_set_mode(DT_ECS_STANDBY);
     }
     ecs1_mode_callback(DT_ecs1_get_mode());
+    sauvegardeEEPROM();
   }
-#endif  // RELAY_ECS1
+#endif // RELAY_ECS1
 #ifdef RELAY_ECS2
-  else if (strcmp(topic, MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/ecs2/set") == 0) // 
+  else if (strcmp(topic, MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/ecs2/set") == 0) //
   {
-   if (strcmp(buffer, "Marche") == 0)
+    if (strcmp(buffer, "Marche") == 0)
     {
       DT_ecs2_set_mode(DT_ECS_MARCHE);
     }
@@ -3080,9 +3088,10 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
     {
       DT_ecs2_set_mode(DT_ECS_STANDBY);
     }
-    ecs2_mode_callback(DT_ecs1_get_mode());
+    ecs2_mode_callback(DT_ecs2_get_mode());
+    sauvegardeEEPROM();
   }
-#endif  // RELAY_ECS2
+#endif                                                 // RELAY_ECS2
   else if (strcmp(topic, "homeassistant/status") == 0) // Home Assistant Online / Offline
   {
     if (strcmp(buffer, "online") == 0)
@@ -3127,13 +3136,13 @@ void mqtt_connection_lost()
   {
     DT_ecs1_set_mode(DT_ECS_MARCHE);
   }
-#endif  // RELAY_ECS1
+#endif // RELAY_ECS1
 #ifdef RELAY_ECS2
   if (DT_ecs2_get_mode() == DT_ECS_STANDBY)
   {
     DT_ecs2_set_mode(DT_ECS_MARCHE);
   }
-#endif  // RELAY_ECS2
+#endif // RELAY_ECS2
 }
 #endif // MQTT
 
@@ -3332,14 +3341,14 @@ void setup()
   memory(true);
 
   init_tools();
-
 }
 
 // boucle principale
 void loop()
 {
 #ifdef WATCHDOG_TIME
-  wdt_reset();
+  // wdt_reset();
+  debug_wdt_reset(F(AT));
 #endif
   // debug(AT);
   // debug_wdt_reset(F(AT));
@@ -3436,7 +3445,7 @@ void loop()
   case BOOST_PP_COUNTER:
     DT_portal_loop();
     break;
-#endif //PORTAL_NUM
+#endif // PORTAL_NUM
 
 #if RADIATOR_NUM > 0
 #include BOOST_PP_UPDATE_COUNTER()
@@ -3452,7 +3461,7 @@ void loop()
     break;
 #endif
 
-#if defined(RELAY_ECS1) || defined(RELAY_ECS2) 
+#if defined(RELAY_ECS1) || defined(RELAY_ECS2)
 #include BOOST_PP_UPDATE_COUNTER()
   case BOOST_PP_COUNTER:
     DT_ecs_loop();
@@ -3488,7 +3497,7 @@ void loop()
   // }
 
   static uint32_t old = 0;
-  static bool up = true;
+  // static bool up = true;
   if (now - old > 1000)
   {
     old = now;

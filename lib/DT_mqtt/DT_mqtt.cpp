@@ -54,8 +54,8 @@ void DT_receve_callback(MQTTClient *client, char topic[], char bytes[], int leng
     MQTT_recv_msg recv(topic, bytes, length);
     // debug(F(AT));
     recv_buffer.unshift(recv);
-    Serial.print(F("recv_buffer.len() = "));
-    Serial.println(recv_buffer.size());
+    // Serial.print(F("recv_buffer.len() = "));
+    // Serial.println(recv_buffer.size());
     // debug(F(AT));
     memory(true);
 }
@@ -85,6 +85,10 @@ void init_ethernet()
     IPAddress gateway(GW1, GW2, GW3, GW4);
     IPAddress mask(MASK1, MASK2, MASK3, MASK4);
     Ethernet.begin(mac, ip, dns, gateway, mask);
+    Ethernet.setRetransmissionCount(2);
+    Ethernet.setRetransmissionTimeout(20);
+    ethClient.setTimeout(20);
+    ethClient.setConnectionTimeout(20);
 #endif
 
     if (Ethernet.hardwareStatus() == EthernetNoHardware)
@@ -133,10 +137,15 @@ void DT_mqtt_init()
 
     Serial.println(F("start network"));
     init_ethernet();
+    Ethernet.setRetransmissionCount(1);
+    Ethernet.setRetransmissionTimeout(20);
+    ethClient.setConnectionTimeout(20);
+    ethClient.setTimeout(20);
+    mqtt.setTimeout(20);
     mqtt.begin(server, 1883, ethClient);
     mqtt.setWill(MQTT_WILL_TOPIC, MQTT_WILL_MESSAGE, MQTT_WILL_RETAIN, MQTT_WILL_QOS);
     // mqtt.setTimeout(1000);
-    mqtt.setTimeout(20);
+
     mqtt.onMessageAdvanced(DT_receve_callback);
     //  if (!mqtt.connected())
     //  {
@@ -205,8 +214,7 @@ void DT_mqtt_loop()
                 // Serial.println("DT_mqtt_loop 1");
             }
 
-            
-            if (_mqtt_connection_lost != nullptr && connection_lost_f && now - connection_lost > 1800000 ) //30 minutes
+            if (_mqtt_connection_lost != nullptr && connection_lost_f && now - connection_lost > 1800000) // 30 minutes
             {
                 connection_lost_f = false;
                 _mqtt_connection_lost();
@@ -261,6 +269,13 @@ void DT_mqtt_loop()
                     Ethernet.setGatewayIP(gateway);
                     IPAddress dns(DNS1, DNS2, DNS3, DNS4);
                     Ethernet.setDnsServerIP(dns);
+
+                    Ethernet.setRetransmissionCount(1);
+                    Ethernet.setRetransmissionTimeout(20);
+                    ethClient.setConnectionTimeout(20);
+                    ethClient.setTimeout(20);
+                    mqtt.setTimeout(20);
+
                     reset_time = 0;
                     reset = false;
                 }
@@ -291,6 +306,13 @@ void DT_mqtt_loop()
                         // wdt_reset();
                         //  debug_wdt_reset();
                         //  220502  debug(F(AT));
+
+                        Ethernet.setRetransmissionCount(1);
+                        Ethernet.setRetransmissionTimeout(20);
+                        ethClient.setConnectionTimeout(20);
+                        ethClient.setTimeout(20);
+                        mqtt.setTimeout(20);
+
                         reset_time = 0;
                         // 220502  debug(F(AT));
                         Serial.println(F("MQTT connected"));
@@ -324,14 +346,15 @@ void DT_mqtt_loop()
             // wdt_enable(WATCHDOG_TIME);
         }
         // else if (as_ethernet && link_status && mqtt.connected()) // si connecté au serveur MQTT
-        else if (mqtt.connected()) // si connecté au serveur MQTT
+        // else if (mqtt.connected()) // si connecté au serveur MQTT
+        else if (mqtt.loop()) // si connecté au serveur MQTT
         {
 
             mem_config.MQTT_online = true; // TODO : ne fonctionne pas si home assistant nes plus en ligne
             // wdt_reset();
             if (reset_time != 0)
                 reset_time = 0;
-            mqtt.loop();
+            // mqtt.loop();
             // 220502  debug(F(AT));
             if (_mqtt_receve != nullptr && recv_buffer.size() > 0) // traitement du buffer de reception de donnée
             {
@@ -340,26 +363,28 @@ void DT_mqtt_loop()
                 _mqtt_receve(&mqtt, recv._topic, recv._payload, recv._length);
                 recv.clean();
                 // send_buffer.clean(2);
+                debug(F(AT));
             }
             else if (send_buffer.size() > 0)
             {
                 // while (send_buffer.size() > 0)
                 {
-                    // 220502  debug(F(AT));
+                    debug(F(AT));
                     char topic[MAX_TOPIC];
                     char payload[MAX_PAYLOAD];
                     MQTT_data *data = send_buffer.shift();
                     data->get(topic, 64, payload, MAX_PAYLOAD);
                     delete data;
-                    Serial.print(F("send "));
-                    Serial.print(topic);
-                    Serial.print(F(" = "));
-                    Serial.println(payload);
+                    // Serial.print(F("send "));
+                    // Serial.print(topic);
+                    // Serial.print(F(" = "));
+                    // Serial.println(payload);
                     int len = strlen(payload);
                     if (len < MAX_PAYLOAD)
                     {
+                        debug(topic);
                         mqtt.publish(topic, payload, len);
-                        // debug(F(AT));
+                        debug(F(AT));
                     }
                     else
                     {
@@ -368,8 +393,8 @@ void DT_mqtt_loop()
                         Serial.println(len);
                     }
 
-                    Serial.print(F("send buffer size = "));
-                    Serial.println(send_buffer.size());
+                    // Serial.print(F("send buffer size = "));
+                    // Serial.println(send_buffer.size());
                     // }
                     // Serial.print(F("Buffer capacity = "));
                     // Serial.println(send_buffer.capacity());
@@ -381,7 +406,7 @@ void DT_mqtt_loop()
                     // {
                     // send_buffer.clean(6);
                     // }
-                    // debug(F(AT));
+                    debug(F(AT));
                 }
             }
             else if (mem_config.ha_mqtt_config == false)
@@ -433,6 +458,7 @@ void DT_mqtt_loop()
     }
 
     memory(false);
+    debug(F(AT));
 }
 
 #endif // MQTT

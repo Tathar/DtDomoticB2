@@ -110,10 +110,10 @@ void DT_pt100_loop()
             static uint8_t num = 0;
             if (num < PT100_NUM)
             {
-                Serial.print(F("PT100 "));
-                Serial.print(num);
-                Serial.print(F(" = "));
-                Serial.println(old_temp[num]);
+                // Serial.print(F("PT100 "));
+                // Serial.print(num);
+                // Serial.print(F(" = "));
+                // Serial.println(old_temp[num]);
 
                 if (pt100_callback != nullptr)
                     pt100_callback(num, old_temp[num]);

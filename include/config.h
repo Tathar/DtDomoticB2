@@ -8,7 +8,8 @@
 extern String debug_str;
 void debug(const char *var);
 void debug(const __FlashStringHelper *var);
-uint16_t memory(bool print);
+void memory(bool print);
+// uint16_t memory(bool print);
 // void debug_wdt_reset();
 // void debug_wdt_reset(const char *var);
 // void debug_wdt_reset(const __FlashStringHelper *var);
@@ -185,7 +186,7 @@ const uint8_t RELAY_RADIATOR_PT100_ARRAY[RELAY_RADIATOR_NUM] PROGMEM = {};
 
 #define PT100_H_BALON 0
 #define PT100_M_BALON 1
-#define PT100_B_BALON 2
+#define PT100_B_BALON 3 //2
 
 #define RELAY_ECS1 19
 #define RELAY_ECS2 20
@@ -204,7 +205,7 @@ const uint8_t RELAY_RADIATOR_PT100_ARRAY[RELAY_RADIATOR_NUM] PROGMEM = {};
 #define DBMAC 0.5           // demi bamnde morte pour l'arret des circulateur (en °C)
 
 // #define PT100_EXT 5
-#define PT100_3_VOIES_PCBT 3
+#define PT100_3_VOIES_PCBT 2 //3
 #define PT100_3_VOIES_MCBT 4
 
 #define CIRCULATEUR_PCBT 17
@@ -241,7 +242,7 @@ const uint8_t RELAY_RADIATOR_PT100_ARRAY[RELAY_RADIATOR_NUM] PROGMEM = {};
 #endif // VANNES
 
 // Circulateur boucle d eau chaude
-#define CIRCULATEUR_ECS 11
+#define CIRCULATEUR_ECS 5
 
 // EV2 ECS
 #define EV2_ECS 12

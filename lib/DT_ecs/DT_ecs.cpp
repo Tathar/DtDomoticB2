@@ -2,6 +2,33 @@
 #include <DT_relay.h>
 
 
+DT_ECS_mode DT_ecs1_get_mode()
+{
+#ifdef RELAY_ECS1
+    return eeprom_config.ecs1_mode;
+#endif
+}
+
+void DT_ecs1_set_mode(DT_ECS_mode mode)
+{
+#ifdef RELAY_ECS1
+    eeprom_config.ecs1_mode = mode;
+#endif
+}
+
+DT_ECS_mode DT_ecs2_get_mode()
+{
+#ifdef RELAY_ECS2
+    return eeprom_config.ecs2_mode;
+#endif
+}
+
+void DT_ecs2_set_mode(DT_ECS_mode mode)
+{
+#ifdef RELAY_ECS2
+    eeprom_config.ecs2_mode = mode;
+#endif
+}
 
 
 

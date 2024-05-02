@@ -96,8 +96,8 @@ void DT_SCD4X_loop()
                     if (temperature != _temperature[num])
                     {
                         _temperature[num] = temperature;
-                        Serial.print(F("SCD4X temperature = "));
-                        Serial.println(temperature);
+                        // Serial.print(F("SCD4X temperature = "));
+                        // Serial.println(temperature);
                         if (scd4x_callback_temperature != nullptr)
                             scd4x_callback_temperature(num, temperature);
                     }

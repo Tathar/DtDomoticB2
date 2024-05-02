@@ -114,6 +114,7 @@ Bt_Action DT_input_get_stats(int num)
 
 void DT_input_loop()
 {
+    debug(F(AT));
     uint32_t now = millis();
 
     // #ifdef INTERNAL_INPUT_I2C
@@ -170,8 +171,8 @@ void DT_input_loop()
             if (pin == 64 && pin_stats != old_pin_state)
             {
                 old_pin_state = pin_stats;
-                Serial.print(F("pin 11 ="));
-                Serial.println(pin_stats);
+                // Serial.print(F("pin 11 ="));
+                // Serial.println(pin_stats);
             }
         }
 
@@ -319,6 +320,7 @@ void DT_input_loop()
             }
         }
     }
+    debug(F(AT));
 }
 
 void DT_input_set_callback(void (*callback)(const uint8_t num, const Bt_Action action))

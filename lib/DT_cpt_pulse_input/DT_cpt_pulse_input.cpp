@@ -50,6 +50,7 @@ void DT_cpt_pulse_input_loop_event(const uint8_t btn, const Bt_Action action)
 {
     uint8_t btn_cycle;
 #if CPT_PULSE_INPUT > 0
+    debug(F(AT));
     for (uint8_t num = 0; num < CPT_PULSE_INPUT; ++num)
     {
         btn_cycle = pgm_read_byte(CPT_PULSE_INPUT_ARRAY + num);
@@ -65,6 +66,7 @@ void DT_cpt_pulse_input_loop_event(const uint8_t btn, const Bt_Action action)
 #endif // CPT_PULSE_INPUT > 0
 
 #if CPT_PULSE_INPUT_IF_OUT > 0
+    debug(F(AT));
     // cpt pulse input if
     for (uint8_t num = 0; num < CPT_PULSE_INPUT_IF_OUT; ++num)
     {
@@ -93,6 +95,7 @@ void DT_cpt_pulse_input_loop_event(const uint8_t btn, const Bt_Action action)
 #endif // CPT_PULSE_INPUT_IF_OUT > 0
 
 #if CPT_PULSE_INPUT_IF_IN > 0
+    debug(F(AT));
     // cpt pulse input if
     for (uint8_t num = 0; num < CPT_PULSE_INPUT_IF_IN; ++num)
     {
@@ -119,10 +122,13 @@ void DT_cpt_pulse_input_loop_event(const uint8_t btn, const Bt_Action action)
         }
     }
 #endif // CPT_PULSE_INPUT_IF_IN > 0
+
+    debug(F(AT));
 }
 
 void DT_cpt_pulse_input_reset(const uint8_t num)
 {
+    debug(F(AT));
 #if CPT_PULSE_INPUT > 0
     counter[num] = 0;
     if (_cpt_pulse_input_callback != nullptr)
@@ -130,11 +136,13 @@ void DT_cpt_pulse_input_reset(const uint8_t num)
         _cpt_pulse_input_callback(num, counter[num]);
     }
 #endif // CPT_PULSE_INPUT > 0
+    debug(F(AT));
 }
 
 void DT_cpt_pulse_input_if_out_reset(const uint8_t num)
 {
 #if CPT_PULSE_INPUT_IF_OUT > 0
+    debug(F(AT));
     if ((num * 2) + 1 < CPT_PULSE_INPUT_IF_OUT * 2)
     {
         counter_if_out[num * 2] = 0;
@@ -146,10 +154,12 @@ void DT_cpt_pulse_input_if_out_reset(const uint8_t num)
         }
     }
 #endif // CPT_PULSE_INPUT_IF_OUT > 0
+    debug(F(AT));
 }
 
 void DT_cpt_pulse_input_if_in_reset(const uint8_t num)
 {
+    debug(F(AT));
 #if CPT_PULSE_INPUT_IF_IN > 0
     if ((num * 2) + 1 < CPT_PULSE_INPUT_IF_IN * 2)
     {
@@ -162,6 +172,7 @@ void DT_cpt_pulse_input_if_in_reset(const uint8_t num)
         }
     }
 #endif // CPT_PULSE_INPUT_IF_IN > 0
+    debug(F(AT));
 }
 
 void DT_cpt_pulse_input_set_callback(void (*callback)(const uint8_t num, const uint32_t counter))

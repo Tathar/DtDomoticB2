@@ -223,11 +223,7 @@ void DT_Poele_set_mode(DT_Poele_mode mode)
         eeprom_config.poele_mode = mode;
         async_call_poele_mode = true;
     }
-
-    if (eeprom_config.poele_mode == DT_POELE_ARRET || eeprom_config.poele_mode == DT_POELE_NORMAL)
-    {
         sauvegardeEEPROM();
-    }
 }
 
 DT_Poele_mode DT_Poele_get_mode(void)

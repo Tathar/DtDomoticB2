@@ -627,13 +627,13 @@ bool homeassistant(bool start)
 #include BOOST_PP_UPDATE_COUNTER()
                 case BOOST_PP_COUNTER:
                         //  V1 consigne poêle en mode force (70°C)
-                        DT_mqtt_send(F("homeassistant/number/" BOARD_IDENTIFIER "/V1/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/V1\",\"uniq_id\":\"" BOARD_IDENTIFIER "-V1\",\"name\":\"" BOARD_IDENTIFIER " parametre poêle (V1)\",\"stat_t\":\"~/state\",\"command_topic\":\"~/set\",\"dev_cla\":\"temperature\",\"unit_of_meas\":\"°C\",\"max\":85,\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
+                        DT_mqtt_send(F("homeassistant/number/" BOARD_IDENTIFIER "/V1/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/V1\",\"uniq_id\":\"" BOARD_IDENTIFIER "-V1\",\"name\":\"" BOARD_IDENTIFIER " parametre poêle (V1)\",\"stat_t\":\"~/state\",\"command_topic\":\"~/set\",\"dev_cla\":\"temperature\",\"unit_of_meas\":\"°C\",\"max\":85,\"mode\":\"box\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
 
                         break;
 #include BOOST_PP_UPDATE_COUNTER()
                 case BOOST_PP_COUNTER:
                         // C7
-                        DT_mqtt_send(F("homeassistant/number/" BOARD_IDENTIFIER "/C7/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/C7\",\"uniq_id\":\"" BOARD_IDENTIFIER "-C7\",\"name\":\"" BOARD_IDENTIFIER " Band morte Poele  (C7)\",\"stat_t\":\"~/state\",\"command_topic\":\"~/set\",\"dev_cla\":\"temperature\",\"unit_of_meas\":\"°C\",\"min\":-100,\"max\":100,\"step\":1,\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
+                        DT_mqtt_send(F("homeassistant/number/" BOARD_IDENTIFIER "/C7/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/C7\",\"uniq_id\":\"" BOARD_IDENTIFIER "-C7\",\"name\":\"" BOARD_IDENTIFIER " Band morte Poele  (C7)\",\"stat_t\":\"~/state\",\"command_topic\":\"~/set\",\"dev_cla\":\"temperature\",\"unit_of_meas\":\"°C\",\"min\":-100,\"max\":100,\"step\":1,\"mode\":\"box\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
 
                         break;
 #include BOOST_PP_UPDATE_COUNTER()
@@ -646,7 +646,7 @@ bool homeassistant(bool start)
 #include BOOST_PP_UPDATE_COUNTER()
                 case BOOST_PP_COUNTER:
                         // C5
-                        DT_mqtt_send(F("homeassistant/number/" BOARD_IDENTIFIER "/C5/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/C5\",\"uniq_id\":\"" BOARD_IDENTIFIER "-C5\",\"name\":\"" BOARD_IDENTIFIER " consigne ECS1 & ECS2 (C5)\",\"stat_t\":\"~/state\",\"command_topic\":\"~/set\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
+                        DT_mqtt_send(F("homeassistant/number/" BOARD_IDENTIFIER "/C5/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/C5\",\"uniq_id\":\"" BOARD_IDENTIFIER "-C5\",\"name\":\"" BOARD_IDENTIFIER " consigne ECS1 & ECS2 (C5)\",\"stat_t\":\"~/state\",\"command_topic\":\"~/set\",\"mode\":\"box\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
                         break;
 
                         // #ifdef COMMENT
@@ -659,7 +659,7 @@ bool homeassistant(bool start)
                 case BOOST_PP_COUNTER:
 
                         // V2
-                        DT_mqtt_send(F("homeassistant/number/" BOARD_IDENTIFIER "/V2/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/V2\",\"uniq_id\":\"" BOARD_IDENTIFIER "-V2\",\"name\":\"" BOARD_IDENTIFIER " Reserve chaleur Ballon (V2)\",\"stat_t\":\"~/state\",\"command_topic\":\"~/set\",\"dev_cla\":\"temperature\",\"unit_of_meas\":\"°C\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
+                        DT_mqtt_send(F("homeassistant/number/" BOARD_IDENTIFIER "/V2/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/V2\",\"uniq_id\":\"" BOARD_IDENTIFIER "-V2\",\"name\":\"" BOARD_IDENTIFIER " Reserve chaleur Ballon (V2)\",\"stat_t\":\"~/state\",\"command_topic\":\"~/set\",\"dev_cla\":\"temperature\",\"unit_of_meas\":\"°C\",\"mode\":\"box\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
 
                         break;
 #include BOOST_PP_UPDATE_COUNTER()
@@ -722,30 +722,30 @@ bool homeassistant(bool start)
 #include BOOST_PP_UPDATE_COUNTER()
                 case BOOST_PP_COUNTER:
                         // C_PCBT_MIN
-                        DT_mqtt_send(F("homeassistant/number/" BOARD_IDENTIFIER "/C_PCBT_MIN/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/pcbt/min_temp\",\"uniq_id\":\"" BOARD_IDENTIFIER "-C_PCBT_MIN\",\"name\":\"consigne Temp PCBT minimum T° ext. (C_PCBT_MIN)\",\"stat_t\":\"~/state\",\"command_topic\":\"~/set\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
+                        DT_mqtt_send(F("homeassistant/number/" BOARD_IDENTIFIER "/C_PCBT_MIN/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/pcbt/min_temp\",\"uniq_id\":\"" BOARD_IDENTIFIER "-C_PCBT_MIN\",\"name\":\"consigne Temp PCBT minimum T° ext. (C_PCBT_MIN)\",\"stat_t\":\"~/state\",\"command_topic\":\"~/set\",\"mode\":\"box\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
                         break;
 
 #include BOOST_PP_UPDATE_COUNTER()
                 case BOOST_PP_COUNTER:
                         // C_PCBT_MAX
-                        DT_mqtt_send(F("homeassistant/number/" BOARD_IDENTIFIER "/C_PCBT_MAX/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/pcbt/max_temp\",\"uniq_id\":\"" BOARD_IDENTIFIER "-C_PCBT_MAX\",\"name\":\"" BOARD_IDENTIFIER " consigne Temp PCBT maximum (C_PCBT_MAX)\",\"stat_t\":\"~/state\",\"command_topic\":\"~/set\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
+                        DT_mqtt_send(F("homeassistant/number/" BOARD_IDENTIFIER "/C_PCBT_MAX/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/pcbt/max_temp\",\"uniq_id\":\"" BOARD_IDENTIFIER "-C_PCBT_MAX\",\"name\":\"" BOARD_IDENTIFIER " consigne Temp PCBT maximum (C_PCBT_MAX)\",\"stat_t\":\"~/state\",\"command_topic\":\"~/set\",\"mode\":\"box\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
                         break;
 
 #include BOOST_PP_UPDATE_COUNTER()
                 case BOOST_PP_COUNTER:
                         // C_MCBT_MIN
-                        DT_mqtt_send(F("homeassistant/number/" BOARD_IDENTIFIER "/C_MCBT_MIN/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/mcbt/min_temp\",\"uniq_id\":\"" BOARD_IDENTIFIER "-C_MCBT_MIN\",\"name\":\"consigne Temp MCBT minimum T° ext (C_MCBT_MIN)\",\"stat_t\":\"~/state\",\"command_topic\":\"~/set\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
+                        DT_mqtt_send(F("homeassistant/number/" BOARD_IDENTIFIER "/C_MCBT_MIN/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/mcbt/min_temp\",\"uniq_id\":\"" BOARD_IDENTIFIER "-C_MCBT_MIN\",\"name\":\"consigne Temp MCBT minimum T° ext (C_MCBT_MIN)\",\"stat_t\":\"~/state\",\"command_topic\":\"~/set\",\"mode\":\"box\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
                         break;
 
 #include BOOST_PP_UPDATE_COUNTER()
                 case BOOST_PP_COUNTER:
                         // C_MCBT_MAX
-                        DT_mqtt_send(F("homeassistant/number/" BOARD_IDENTIFIER "/C_MCBT_MAX/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/mcbt/max_temp\",\"uniq_id\":\"" BOARD_IDENTIFIER "-C_MCBT_MAX\",\"name\":\"" BOARD_IDENTIFIER " consigne Temp MCBT maximum (C_MCBT_MAX)\",\"stat_t\":\"~/state\",\"command_topic\":\"~/set\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
+                        DT_mqtt_send(F("homeassistant/number/" BOARD_IDENTIFIER "/C_MCBT_MAX/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/mcbt/max_temp\",\"uniq_id\":\"" BOARD_IDENTIFIER "-C_MCBT_MAX\",\"name\":\"" BOARD_IDENTIFIER " consigne Temp MCBT maximum (C_MCBT_MAX)\",\"stat_t\":\"~/state\",\"command_topic\":\"~/set\",\"mode\":\"box\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
                         break;
 #include BOOST_PP_UPDATE_COUNTER()
                 case BOOST_PP_COUNTER:
                         // KP_PCBT
-                        DT_mqtt_send(F("homeassistant/number/" BOARD_IDENTIFIER "/KP_PCBT/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/pcbt/KP\",\"uniq_id\":\"" BOARD_IDENTIFIER "-KP_PCBT\",\"name\":\"" BOARD_IDENTIFIER " pid KP PCBT (KP_PCBT)\",\"stat_t\":\"~/state\",\"command_topic\":\"~/set\",\"min\":0,\"max\":100000,\"step\":0.01,\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
+                        DT_mqtt_send(F("homeassistant/number/" BOARD_IDENTIFIER "/KP_PCBT/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/pcbt/KP\",\"uniq_id\":\"" BOARD_IDENTIFIER "-KP_PCBT\",\"name\":\"" BOARD_IDENTIFIER " pid KP PCBT (KP_PCBT)\",\"stat_t\":\"~/state\",\"command_topic\":\"~/set\",\"min\":0,\"max\":100000,\"step\":0.01,\"mode\":\"box\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
                         break;
 
 #include BOOST_PP_UPDATE_COUNTER()
@@ -1094,29 +1094,30 @@ void MQTT_data::store(const __FlashStringHelper *Topic, const String Payload)
         _type = ha_str;
         _topic = Topic;
         _str = Payload;
-        if (_str.length() != Payload.length())
-        {
-                _type = ha_int32_t;
-                _topic = F("DtBoard/" BOARD_IDENTIFIER "/memory");
-                _int = memory(true);
-        }
+        // if (_str.length() != Payload.length())
+        // {
+        //         _type = ha_int32_t;
+        //         _topic = F("DtBoard/" BOARD_IDENTIFIER "/memory");
+        //         _int = memory(true);
+        // }
 };
 
 void MQTT_data::store(const __FlashStringHelper *Topic, uint8_t num_t, const String Payload)
 {
         debug(F(AT));
-        Serial.println(Payload);
+        // Serial.println(Payload);
         _type = ha_str_tsprintf;
         _num_t = num_t;
         _topic = Topic;
         _str = Payload;
-        if (_str.length() != Payload.length())
-        {
-                _type = ha_int32_t;
-                _topic = F("DtBoard/" BOARD_IDENTIFIER "/memory");
-                _int = memory(true);
-        }
-        Serial.println(_str);
+        // if (_str.length() != Payload.length())
+        // {
+        //         _type = ha_int32_t;
+        //         _topic = F("DtBoard/" BOARD_IDENTIFIER "/memory");
+        //         _int = memory(true);
+        // }
+        // Serial.println(_str);
+        debug(F(AT));
 };
 
 void MQTT_data::store(const __FlashStringHelper *Topic, const float Payload)
@@ -1223,7 +1224,7 @@ void MQTT_data::get(char *topic, int topic_len, char *payload, unsigned int payl
         case ha_str:
                 strncpy_P(topic, reinterpret_cast<const char *>(_topic), topic_len);
                 debug(F(AT));
-                Serial.println(_str);
+                // Serial.println(_str);
                 if ((_str.length() + 1) < payload_len)
                 {
                         payload = strncpy(payload, _str.c_str(), _str.length() + 1);
@@ -1265,12 +1266,12 @@ void MQTT_data::get(char *topic, int topic_len, char *payload, unsigned int payl
         case ha_str_tsprintf:
                 debug(F(AT));
                 snprintf_P(topic, topic_len, reinterpret_cast<const char *>(_topic), _num_t);
-                Serial.println(_str);
+                // Serial.println(_str);
                 if ((_str.length() + 1) < payload_len)
                 {
                         debug(F(AT));
                         payload = strncpy(payload, _str.c_str(), _str.length() + 1);
-                        Serial.println(_str);
+                        // Serial.println(_str);
                 }
                 break;
 
@@ -1298,15 +1299,15 @@ void MQTT_data::get(char *topic, int topic_len, char *payload, unsigned int payl
         if (strlen(payload) > payload_size)
         {
                 payload_size = strlen(payload);
-                Serial.print(F("max payload = "));
-                Serial.println(payload_size);
+                // Serial.print(F("max payload = "));
+                // Serial.println(payload_size);
         }
         static uint16_t topic_size = 0;
         if (strlen(topic) > topic_size)
         {
                 topic_size = strlen(topic);
-                Serial.print(F("max topic = "));
-                Serial.println(topic_size);
+                // Serial.print(F("max topic = "));
+                // Serial.println(topic_size);
         }
 };
 

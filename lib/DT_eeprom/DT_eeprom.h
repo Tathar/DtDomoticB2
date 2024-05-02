@@ -156,6 +156,8 @@ struct Eeprom_Config
 // structure de configuration
 extern Eeprom_Config eeprom_config;
 extern Mem_Config mem_config;
+// extern volatile Eeprom_Config eeprom_config;
+// extern volatile Mem_Config mem_config;
 
 /** Sauvegarde en mémoire EEPROM le contenu actuel de la structure */
 void sauvegardeEEPROM(void);

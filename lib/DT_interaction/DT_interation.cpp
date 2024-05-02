@@ -105,13 +105,13 @@ void dt_interaction_t::switch_rly(const uint8_t num, const Bt_Action action)
         {
             DT_relay(eeprom_config.act_num, false);
             debug(F(AT "_switch_rly_false"));
-            Serial.println(eeprom_config.act_num);
+            // Serial.println(eeprom_config.act_num);
         }
         else
         {
             DT_relay(eeprom_config.act_num, true);
             debug(F(AT "_switch_rly_true"));
-            Serial.println(eeprom_config.act_num);
+            // Serial.println(eeprom_config.act_num);
         }
         break;
     default:
@@ -130,14 +130,14 @@ void dt_interaction_t::switch_opt_rly(const uint8_t num, const Bt_Action action)
         if (DT_opt_relay_get(num) == true)
         {
             DT_opt_relay(num, false);
-            debug(F(AT "_switch_opt_rly_false"));
+            // debug(F(AT "_switch_opt_rly_false"));
             Serial.println(eeprom_config.act_num);
         }
         else
         {
             DT_opt_relay(num, true);
-            debug(F(AT "_switch_opt_rly_true"));
-            Serial.println(num);
+            // debug(F(AT "_switch_opt_rly_true"));
+            // Serial.println(num);
         }
         break;
     default:
@@ -179,13 +179,13 @@ void dt_interaction_t::button_push_rly(const uint8_t num, const Bt_Action action
         {
             DT_relay(eeprom_config.act_num, false);
             debug(F(AT "_button_push_rly_false"));
-            Serial.println(eeprom_config.act_num);
+            // Serial.println(eeprom_config.act_num);
         }
         else
         {
             DT_relay(eeprom_config.act_num, true);
             debug(F(AT "_button_push_rly_true"));
-            Serial.println(eeprom_config.act_num);
+            // Serial.println(eeprom_config.act_num);
         }
         break;
     default:
@@ -206,13 +206,13 @@ void dt_interaction_t::button_push_opt_rly(const uint8_t num, const Bt_Action ac
         {
             DT_opt_relay(num, false);
             debug(F(AT "_button_push_opt_rly_false"));
-            Serial.println(num);
+            // Serial.println(num);
         }
         else
         {
             DT_opt_relay(num, true);
             debug(F(AT "_button_push_opt_rly_true"));
-            Serial.println(num);
+            // Serial.println(num);
         }
         break;
     default:

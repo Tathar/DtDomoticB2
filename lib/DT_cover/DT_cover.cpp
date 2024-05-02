@@ -120,7 +120,9 @@ inline int8_t position(uint8_t num)
         // return (32.614 * log((double)cover[num].pos / (double)eeprom_config.cover[num].time_up * (double)100) - 15.814);
         return (double)cover[num].pos / (double)eeprom_config.cover[num].time_up * (double)100;
     }
-    // y= 32,614 ln(x) - 55,815 // 0 second pour 0 %
+// y= 32,614 ln(x) - 55,815 // 0 second pour 0 %
+#else
+    return 0;
 #endif // COVER_NUM > 0
 }
 
@@ -185,6 +187,8 @@ uint8_t DT_cover_get(uint8_t num)
 {
 #if COVER_NUM > 0
     return position(num);
+#else
+    return 0;
 #endif // COVER_NUM > 0
 }
 
@@ -226,6 +230,8 @@ cover_state DT_cover_get_state(uint8_t num)
         return cover_stopped;
         break;
     }
+#else
+    return cover_closed;
 #endif // COVER_NUM > 0
 }
 
@@ -315,7 +321,7 @@ void DT_cover_loop()
         else if ((cover[num].step == cover_step_start || cover[num].step == cover_step_backup) && millis() - cover[num].mouve_start > COVER_SECURE_DELAY) // demande de monté
         {
             debug(F("cover_step_start"));
-            if (cover[num].go_pos == 100 || cover[num].go_pos > position(num) )
+            if (cover[num].go_pos == 100 || cover[num].go_pos > position(num))
             {
                 _cover_write((num * 2) + 1, LOW); // arret de la descente
                 _cover_write(num * 2, HIGH);      // marche de la montée
@@ -378,7 +384,7 @@ void DT_cover_loop()
 
             if (position(num) >= cover[num].go_pos)
             {
-                Serial.println(F("> Stop"));
+                // Serial.println(F("> Stop"));
 
                 if (cover[num].go_pos >= 100)
                 {

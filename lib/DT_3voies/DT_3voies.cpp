@@ -63,17 +63,16 @@ float DT_3voies_get_temp_moyen()
     //         diviseur++;
     //     }
     // }
-    
+
     for (uint8_t x = 0; x < temp_buffer.size(); ++x)
     {
-            ret += temp_buffer[x];
+        ret += temp_buffer[x];
     }
 
-    if (temp_buffer.size() != 0 )
-        return ret / (float) temp_buffer.size();
-    else 
+    if (temp_buffer.size() != 0)
+        return ret / (float)temp_buffer.size();
+    else
         return TEMP_DEFAULT_PT100;
-
 };
 
 // fournie la temperature exterieur moyenné en fonction du decalage choisie
@@ -151,7 +150,7 @@ void DT_3voies_init()
     }
     else
     {
-        //mem_config.C2 = scale(DT_pt100_get(PT100_EXT), -10, 10, eeprom_config.C8, eeprom_config.C9);
+        // mem_config.C2 = scale(DT_pt100_get(PT100_EXT), -10, 10, eeprom_config.C8, eeprom_config.C9);
         mem_config.C2 = scale(get_temp_ext(), -10, 10, eeprom_config.C8, eeprom_config.C9);
     }
 
@@ -214,7 +213,7 @@ void DT_3voies_init()
     }
     else
     {
-        Input_PCBT = 85;
+        Input_PCBT = mem_config.C2;
         for (uint8_t num = 0; num < NUM_LISSAGE; ++num)
         {
             lissage_pcbt[num] = Input_PCBT;
@@ -232,7 +231,7 @@ void DT_3voies_init()
     }
     else
     {
-        Input_MCBT = 85;
+        Input_MCBT = mem_config.C3;
         for (uint8_t num = 0; num < NUM_LISSAGE; ++num)
         {
             lissage_mcbt[num] = Input_MCBT;
@@ -240,7 +239,7 @@ void DT_3voies_init()
     }
 
     // turn the PID on
-    if (eeprom_config.mode_3voies_PCBT == DT_3VOIES_OFF || eeprom_config.mode_3voies_PCBT == DT_3VOIES_STANDBY )
+    if (eeprom_config.mode_3voies_PCBT == DT_3VOIES_OFF || eeprom_config.mode_3voies_PCBT == DT_3VOIES_STANDBY)
     {
         DT_relay(CIRCULATEUR_PCBT, false);
         pid_pcbt.SetMode(QuickPID::Control::manual);
@@ -252,10 +251,11 @@ void DT_3voies_init()
         DT_relay(CIRCULATEUR_PCBT, true);
         Output_PCBT = 0;
         pid_pcbt.SetMode(QuickPID::Control::automatic);
+        pid_pcbt.Initialize();
     }
 
     // turn the PID on
-    if (eeprom_config.mode_3voies_MCBT == DT_3VOIES_OFF || eeprom_config.mode_3voies_MCBT == DT_3VOIES_STANDBY )
+    if (eeprom_config.mode_3voies_MCBT == DT_3VOIES_OFF || eeprom_config.mode_3voies_MCBT == DT_3VOIES_STANDBY)
     {
         DT_relay(CIRCULATEUR_MCBT, false);
         pid_mcbt.SetMode(QuickPID::Control::manual);
@@ -267,6 +267,7 @@ void DT_3voies_init()
         DT_relay(CIRCULATEUR_MCBT, true);
         Output_MCBT = 0;
         pid_mcbt.SetMode(QuickPID::Control::automatic);
+        pid_pcbt.Initialize();
     }
 
     Output_PCBT = 0;
@@ -277,6 +278,7 @@ void DT_3voies_init()
 void DT_3voies_loop()
 {
     uint32_t now = millis();
+    // static uint8_t first_run = 0;
     static uint32_t old_now = 0;
     static float old_C2 = 0;
     static float old_C3 = 0;
@@ -301,7 +303,7 @@ void DT_3voies_loop()
 
         mem_config.C2 = temperature_etape_pcbt;
     }
-    else if (eeprom_config.mode_3voies_PCBT == DT_3VOIES_OFF || eeprom_config.mode_3voies_PCBT == DT_3VOIES_STANDBY )
+    else if (eeprom_config.mode_3voies_PCBT == DT_3VOIES_OFF || eeprom_config.mode_3voies_PCBT == DT_3VOIES_STANDBY)
     {
         mem_config.C2 = 0;
     }
@@ -309,7 +311,7 @@ void DT_3voies_loop()
     {
         // mem_config.C2 = scale(DT_pt100_get(PT100_EXT), -10, 10, eeprom_config.C8, eeprom_config.C9); // calcul de la consigne en fonction de la temperature exterieur
         mem_config.C2 = scale(get_temp_ext(), -10, 10, eeprom_config.C8, eeprom_config.C9); // calcul de la consigne en fonction de la temperature exterieur
-        if (mem_config.MQTT_online)                                                                  // si la carte est connecte au serveur MQTT
+        if (mem_config.MQTT_online)                                                         // si la carte est connecte au serveur MQTT
         {
             mem_config.C2 += eeprom_config.in_offset_PCBT; // ajout du decalage de la consigne (mode eco)
         }
@@ -332,7 +334,7 @@ void DT_3voies_loop()
         }
         mem_config.C3 = temperature_etape_mcbt;
     }
-    else if (eeprom_config.mode_3voies_MCBT == DT_3VOIES_OFF || eeprom_config.mode_3voies_MCBT == DT_3VOIES_STANDBY )
+    else if (eeprom_config.mode_3voies_MCBT == DT_3VOIES_OFF || eeprom_config.mode_3voies_MCBT == DT_3VOIES_STANDBY)
     {
         mem_config.C3 = 0;
     }
@@ -340,7 +342,7 @@ void DT_3voies_loop()
     {
         // mem_config.C3 = scale(DT_pt100_get(PT100_EXT), -10, 10, eeprom_config.C10, eeprom_config.C11); // calcul de la consigne en fonction de la temperature exterieur
         mem_config.C3 = scale(get_temp_ext(), -10, 10, eeprom_config.C10, eeprom_config.C11); // calcul de la consigne en fonction de la temperature exterieur
-        if (mem_config.MQTT_online)                                                                    // si la carte est connecte au serveur MQTT
+        if (mem_config.MQTT_online)                                                           // si la carte est connecte au serveur MQTT
         {
             mem_config.C3 += eeprom_config.in_offset_MCBT; // ajout du decalage de la consigne (mode eco)
         }
@@ -409,10 +411,10 @@ void DT_3voies_loop()
         Output_PCBT = 0;
         async_call_pcbt_pid = true;
     }
-    else if ((eeprom_config.mode_3voies_PCBT != DT_3VOIES_OFF && eeprom_config.mode_3voies_PCBT != DT_3VOIES_STANDBY ) && (DT_pt100_get(PT100_EXT) < (eeprom_config.C_PCBT_MIN - 0.5)))
+    else if ((eeprom_config.mode_3voies_PCBT != DT_3VOIES_OFF && eeprom_config.mode_3voies_PCBT != DT_3VOIES_STANDBY) && (DT_pt100_get(PT100_EXT) < (eeprom_config.C_PCBT_MIN - 0.5)))
     {
         DT_relay(CIRCULATEUR_PCBT, true); // demmarage du circulateur
-        //Output_PCBT = 0;
+        // Output_PCBT = 0;
         pid_pcbt.SetMode(QuickPID::Control::automatic); // demmarage de la vanne 3
     }
     else if ((eeprom_config.mode_3voies_PCBT == DT_3VOIES_OFF || eeprom_config.mode_3voies_PCBT == DT_3VOIES_STANDBY))
@@ -433,7 +435,7 @@ void DT_3voies_loop()
     else if ((eeprom_config.mode_3voies_MCBT != DT_3VOIES_OFF && eeprom_config.mode_3voies_MCBT != DT_3VOIES_STANDBY) && (DT_pt100_get(PT100_EXT) < (eeprom_config.C_MCBT_MIN - 0.5)))
     {
         DT_relay(CIRCULATEUR_MCBT, true); // demmarage du circulateur
-        //Output_MCBT = 0;
+        // Output_MCBT = 0;
         pid_mcbt.SetMode(QuickPID::Control::automatic); // demmarage de la vanne 3 voie
     }
     else if ((eeprom_config.mode_3voies_MCBT == DT_3VOIES_OFF || eeprom_config.mode_3voies_MCBT == DT_3VOIES_STANDBY))
@@ -443,36 +445,36 @@ void DT_3voies_loop()
         Output_MCBT = 0;
         async_call_mcbt_pid = true;
     }
-/*
-    // Plage Morte PCBT
-    if (Input_PCBT >= mem_config.C2 && (Input_PCBT - mem_config.C2) < eeprom_config.V3)
-    {
-        pid_pcbt.SetMode(QuickPID::Control::manual); // arret de la vanne 3 voie
-        Output_PCBT = 0;
-        async_call_pcbt_pid = true;
-    }
-    else if (mem_config.C2 > Input_PCBT && (mem_config.C2 - Input_PCBT) < eeprom_config.V3)
-    {
-        pid_pcbt.SetMode(QuickPID::Control::manual); // arret de la vanne 3 voie
-        Output_PCBT = 0;
-        async_call_pcbt_pid = true;
-    }
-*/
-/*
-    // Plage Morte MCBT
-    if (Input_MCBT >= mem_config.C3 && (Input_MCBT - mem_config.C3) < eeprom_config.V3)
-    {
-        pid_mcbt.SetMode(QuickPID::Control::manual); // arret de la vanne 3 voie
-        Output_MCBT = 0;
-        async_call_mcbt_pid = true;
-    }
-    else if (mem_config.C3 > Input_MCBT && (mem_config.C3 - Input_MCBT) < eeprom_config.V3)
-    {
-        pid_mcbt.SetMode(QuickPID::Control::manual); // arret de la vanne 3 voie
-        Output_MCBT = 0;
-        async_call_mcbt_pid = true;
-    }
-*/
+    /*
+        // Plage Morte PCBT
+        if (Input_PCBT >= mem_config.C2 && (Input_PCBT - mem_config.C2) < eeprom_config.V3)
+        {
+            pid_pcbt.SetMode(QuickPID::Control::manual); // arret de la vanne 3 voie
+            Output_PCBT = 0;
+            async_call_pcbt_pid = true;
+        }
+        else if (mem_config.C2 > Input_PCBT && (mem_config.C2 - Input_PCBT) < eeprom_config.V3)
+        {
+            pid_pcbt.SetMode(QuickPID::Control::manual); // arret de la vanne 3 voie
+            Output_PCBT = 0;
+            async_call_pcbt_pid = true;
+        }
+    */
+    /*
+        // Plage Morte MCBT
+        if (Input_MCBT >= mem_config.C3 && (Input_MCBT - mem_config.C3) < eeprom_config.V3)
+        {
+            pid_mcbt.SetMode(QuickPID::Control::manual); // arret de la vanne 3 voie
+            Output_MCBT = 0;
+            async_call_mcbt_pid = true;
+        }
+        else if (mem_config.C3 > Input_MCBT && (mem_config.C3 - Input_MCBT) < eeprom_config.V3)
+        {
+            pid_mcbt.SetMode(QuickPID::Control::manual); // arret de la vanne 3 voie
+            Output_MCBT = 0;
+            async_call_mcbt_pid = true;
+        }
+    */
     /*
         // test de la temperature du planche
         for (uint8_t num = 0; num < NUM_PLANCHE; ++num)
@@ -486,9 +488,8 @@ void DT_3voies_loop()
             }
         }
     */
-
-    // calcule du PID
-    if (pid_pcbt.Compute())
+   
+    if (pid_pcbt.Compute()) // calcule du PID
     {
         if (Output_PCBT > 0)
         {
@@ -496,7 +497,7 @@ void DT_3voies_loop()
             {
                 Output_PCBT /= eeprom_config.ratio_PCBT;
             }
-            
+
             if (Output_PCBT < eeprom_config.out_inhib_PCBT)
             {
                 Output_PCBT = 0;
@@ -510,8 +511,8 @@ void DT_3voies_loop()
             {
                 Output_PCBT /= (eeprom_config.ratio_PCBT * -1);
             }
-            
-            if (Output_PCBT > (eeprom_config.out_inhib_PCBT * -1) )
+
+            if (Output_PCBT > (eeprom_config.out_inhib_PCBT * -1))
             {
                 Output_PCBT = 0;
             }
@@ -529,7 +530,7 @@ void DT_3voies_loop()
             {
                 Output_MCBT /= eeprom_config.ratio_MCBT;
             }
-            
+
             if (Output_MCBT < eeprom_config.out_inhib_MCBT)
             {
                 Output_MCBT = 0;
@@ -544,8 +545,8 @@ void DT_3voies_loop()
             {
                 Output_MCBT /= eeprom_config.ratio_MCBT * -1;
             }
-            
-            if (Output_MCBT > (eeprom_config.out_inhib_MCBT * -1 ))
+
+            if (Output_MCBT > (eeprom_config.out_inhib_MCBT * -1))
             {
                 Output_MCBT = 0;
             }
@@ -642,10 +643,7 @@ void DT_3voies_PCBT_set_mode(DT_3voies_mode mode)
         mem_config.C2 = scale(get_temp_ext(), -10, 10, eeprom_config.C8, eeprom_config.C9);
     }
 
-    if (eeprom_config.mode_3voies_PCBT == DT_3VOIES_OFF || eeprom_config.mode_3voies_PCBT == DT_3VOIES_NORMAL )
-    {
-        sauvegardeEEPROM();
-    }
+    sauvegardeEEPROM();
 }
 
 // changement du Mode de fonctionnement de la vanne 3 voie du mure chauffant
@@ -683,10 +681,8 @@ void DT_3voies_MCBT_set_mode(DT_3voies_mode mode)
         mem_config.C3 = scale(get_temp_ext(), -10, 10, eeprom_config.C10, eeprom_config.C11);
     }
 
-    if (eeprom_config.mode_3voies_MCBT == DT_3VOIES_OFF || eeprom_config.mode_3voies_MCBT == DT_3VOIES_NORMAL )
-    {
-        sauvegardeEEPROM();
-    }
+    sauvegardeEEPROM();
+
 }
 
 // recuperation du Mode de fonctionnement de la vanne 3 voie du planché chaffant
