@@ -4,7 +4,7 @@
 #include <DT_eeprom.h>
 
 void init_tools() {
-        debug_str.reserve(64);
+        // debug_str.reserve(64);
         #ifdef WATCHDOG_TIME
         //WDTCSR = (1 << WDCE) | (1 << WDE);                 // Déverrouille les bits de configuration du Watchdog (procédure spécifiée par le fabricant)
         //WDTCSR = WATCHDOG_TIME | (1 << WDE) | (1 << WDIE); // Mise à 1 des bits WDIE, WDE, WDP2,WDP1 pour activer les interruption puis le reset toutes les 1 secondes

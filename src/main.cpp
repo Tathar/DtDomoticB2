@@ -2326,7 +2326,7 @@ bool mqtt_subscribe(MQTTClient &mqtt, bool start)
 }
 
 // ensemble des action a effectuée a la reception d'un message MQTT
-void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], const int length)
+void __attribute__((optimize("O0"))) mqtt_receve(MQTTClient *client, const char topic[], const char payload[], const int length)
 {
 
   debug(F(AT));
@@ -2771,6 +2771,8 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
   {
     str_buffer = buffer;
     eeprom_config.C10 = str_buffer.toFloat();
+    // Serial.print("C10 = ");
+    // Serial.println(eeprom_config.C10);
     DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/C10/state"), eeprom_config.C10);
     sauvegardeEEPROM();
   }
@@ -2779,6 +2781,8 @@ void mqtt_receve(MQTTClient *client, const char topic[], const char payload[], c
   {
     str_buffer = buffer;
     eeprom_config.C11 = str_buffer.toFloat();
+    // Serial.print("C11 = ");
+    // Serial.println(eeprom_config.C11);
     DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/C11/state"), eeprom_config.C11);
     sauvegardeEEPROM();
   }
@@ -3159,7 +3163,8 @@ void setup()
   Serial.println(F("Load eeprom"));
   chargeEEPROM();
   memory(false);
-
+  
+  TWCR = 0;
   Wire.begin();
   memory(false);
   // Wire.beginTransmission(I2C_MULTIPLEXER_ADDRESS);
