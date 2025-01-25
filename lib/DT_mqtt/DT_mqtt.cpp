@@ -455,6 +455,11 @@ void DT_mqtt_loop()
                     choix = 0;
             }
         }
+    }else {
+        if (_mqtt_connection_lost != nullptr )
+            {
+                _mqtt_connection_lost();
+            }
     }
 
     memory(false);
