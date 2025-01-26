@@ -56,13 +56,13 @@ void memory(bool print);
 const uint8_t DIMMER_COVER_ARRAY[DIMMER_COVER_NUM * 2] PROGMEM = {OPT_13, OPT_14};
 #endif
 
-#define PORTAL_NUM 2
+#define PORTAL_NUM 0
 #if PORTAL_NUM > 0
 const uint16_t PORTAL_OPEN_CLOSE_TIME = 18000; // 18 secondes
 const uint8_t RELAY_PORTAL_ARRAY[PORTAL_NUM * 2] PROGMEM = {1, 2, 3, 4}; //
 #endif
 
-#define OPT_RELAY_NUM 3 // nombre de ralais connecté au dimmer : max (DIMMER_LIGHT_NUM + DIMMER_HEAT_NUM + (DIMMER_COVER_NUM * 2) + DIMMER_RADIATOR_NUM ) = 13
+#define OPT_RELAY_NUM 0 // nombre de ralais connecté au dimmer : max (DIMMER_LIGHT_NUM + DIMMER_HEAT_NUM + (DIMMER_COVER_NUM * 2) + DIMMER_RADIATOR_NUM ) = 13
 #if OPT_RELAY_NUM > 0
 const uint8_t OPT_RELAY_ARRAY[OPT_RELAY_NUM] PROGMEM = {OPT_1, OPT_2, OPT_3};
 const uint8_t OPT_RELAY_REVERT[OPT_RELAY_NUM] PROGMEM = {false, false, false};
