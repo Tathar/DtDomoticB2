@@ -67,8 +67,8 @@ const uint8_t RELAY_ARRAY[RELAY_NUM] PROGMEM = {23, 25, 27, 29, 31, 33, 35, 37,
                                                 200, 201, 202, 203, 204, 205, 206, 207};
 const bool RELAY_REVERT[RELAY_NUM] PROGMEM = {false, false, false, false, false, false, false, false,
                                               false, false, false, false, false, false, false, false,
-                                              true, true, true, true, true, true, true, true,
-                                              true, true, true, true, true, true, true, true};
+                                              false, false, false, false, false, false, false, false,
+                                              false, false, false, false, false, false, false, false};
 
 // input 12V 230V
 #define INPUT_NUM 32
