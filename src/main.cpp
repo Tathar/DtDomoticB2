@@ -741,9 +741,6 @@ void poele_mode_callback(const DT_Poele_mode mode)
     case DT_POELE_NORMAL:
       payload = F("Normal");
       break;
-    case DT_POELE_ECS:
-      payload = F("ECS");
-      break;
     case DT_POELE_FORCE:
       payload = F("Forcé");
       break;
@@ -2604,10 +2601,6 @@ void __attribute__((optimize("O0"))) mqtt_receve(MQTTClient *client, const char 
     else if (strcmp(buffer, "Normal") == 0)
     {
       DT_Poele_set_mode(DT_POELE_NORMAL);
-    }
-    else if (strcmp(buffer, "ECS") == 0)
-    {
-      DT_Poele_set_mode(DT_POELE_ECS);
     }
     else if (strcmp(buffer, "Forcé") == 0)
     {

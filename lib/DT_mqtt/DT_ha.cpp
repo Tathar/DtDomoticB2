@@ -621,7 +621,7 @@ bool homeassistant(bool start)
 #include BOOST_PP_UPDATE_COUNTER()
                 case BOOST_PP_COUNTER:
                         // Poele mode
-                        DT_mqtt_send(F("homeassistant/select/" BOARD_IDENTIFIER "/poele-mode/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/poele/mode\",\"uniq_id\":\"" BOARD_IDENTIFIER "-poele-mode\",\"name\":\"" BOARD_IDENTIFIER " mode poele\",\"command_topic\":\"~/set\",\"state_topic\":\"~/state\",\"options\":[\"Arret\",\"Normal\",\"ECS\",\"Forcé\",\"Veille\"],\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
+                        DT_mqtt_send(F("homeassistant/select/" BOARD_IDENTIFIER "/poele-mode/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/poele/mode\",\"uniq_id\":\"" BOARD_IDENTIFIER "-poele-mode\",\"name\":\"" BOARD_IDENTIFIER " mode poele\",\"command_topic\":\"~/set\",\"state_topic\":\"~/state\",\"options\":[\"Arret\",\"Normal\",\"Forcé\",\"Veille\"],\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
                         break;
 
 #include BOOST_PP_UPDATE_COUNTER()
@@ -646,7 +646,7 @@ bool homeassistant(bool start)
 #include BOOST_PP_UPDATE_COUNTER()
                 case BOOST_PP_COUNTER:
                         // C5
-                        DT_mqtt_send(F("homeassistant/number/" BOARD_IDENTIFIER "/C5/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/C5\",\"uniq_id\":\"" BOARD_IDENTIFIER "-C5\",\"name\":\"" BOARD_IDENTIFIER " consigne ECS1 & ECS2 (C5)\",\"stat_t\":\"~/state\",\"command_topic\":\"~/set\",\"mode\":\"box\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
+                        DT_mqtt_send(F("homeassistant/number/" BOARD_IDENTIFIER "/C5/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/C5\",\"uniq_id\":\"" BOARD_IDENTIFIER "-C5\",\"name\":\"" BOARD_IDENTIFIER " consigne ECS (C5)\",\"stat_t\":\"~/state\",\"command_topic\":\"~/set\",\"mode\":\"box\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
                         break;
 
                         // #ifdef COMMENT

@@ -25,7 +25,7 @@ uint32_t temp_default_pt100_ECS = 0;
 
 void DT_Poele_init()
 {
-    DT_relay(RELAY_EV1, false);
+    // DT_relay(RELAY_EV1, false);
     poele_mode_callback = nullptr;
 }
 
@@ -91,61 +91,6 @@ void DT_Poele_loop()
             ev1 = false;
             poele = false;
         }
-        else if (eeprom_config.poele_mode == DT_POELE_ECS) // mode ECS uniquement
-        {
-            ev1 = true;
-            // temperature envoyer au poele
-
-            if (DT_pt100_get(PT100_ECS1) > 0 && DT_pt100_get(PT100_ECS2) > 0)
-            {
-                // marche poele
-                if (min(DT_pt100_get(PT100_ECS1), DT_pt100_get(PT100_ECS2)) < (eeprom_config.C5))
-                {
-                    poele = true;
-                }
-                else if (min(DT_pt100_get(PT100_ECS1), DT_pt100_get(PT100_ECS2)) > eeprom_config.C5)
-                {
-                    poele = true;
-                    // eeprom_config.poele_mode = DT_POELE_NORMAL;
-                    DT_Poele_set_mode(DT_POELE_NORMAL);
-                }
-                temp_default_pt100_ECS = now;
-            }
-            else if (DT_pt100_get(PT100_ECS1) > 0)
-            {
-                if (DT_pt100_get(PT100_ECS1) < (eeprom_config.C5))
-                {
-                    poele = true;
-                }
-                else if (DT_pt100_get(PT100_ECS1) > eeprom_config.C5)
-                {
-                    poele = true;
-                    // eeprom_config.poele_mode = DT_POELE_NORMAL;
-                    DT_Poele_set_mode(DT_POELE_NORMAL);
-                }
-                temp_default_pt100_ECS = now;
-            }
-            else if (DT_pt100_get(PT100_ECS2) > 0)
-            {
-                if (DT_pt100_get(PT100_ECS2) < (eeprom_config.C5))
-                {
-                    poele = true;
-                }
-                else if (DT_pt100_get(PT100_ECS2) > eeprom_config.C5)
-                {
-                    poele = true;
-                    // eeprom_config.poele_mode = DT_POELE_NORMAL;
-                    DT_Poele_set_mode(DT_POELE_NORMAL);
-                }
-                temp_default_pt100_ECS = now;
-            }
-            else if (now - temp_default_pt100_ECS >= TEMPS_DEFAULT_PT100_POELE)
-            {
-                // marche poele
-                poele = true;
-                DT_Poele_set_mode(DT_POELE_NORMAL);
-            }
-        }
         else if (eeprom_config.poele_mode == DT_POELE_FORCE)
         {
             // mode ECS uniquement
@@ -164,7 +109,6 @@ void DT_Poele_loop()
                 else if (DT_pt100_get(PT100_B_BALON) >= eeprom_config.V1) // temp bas balon > consigne mode force
                 {
                     poele = false;
-                    // eeprom_config.poele_mode = DT_POELE_NORMAL;
                     DT_Poele_set_mode(DT_POELE_NORMAL);
                 }
                 temp_default_pt100_B = now;
@@ -192,19 +136,14 @@ void DT_Poele_loop()
             // arret du poele
             poele = false;
         }
-        else if (DT_pt100_get(PT100_ECS1) > POELE_MAX_TEMPERATURE)
-        {
-            // arret du poele
-            poele = false;
-        }
-        else if (DT_pt100_get(PT100_ECS2) > POELE_MAX_TEMPERATURE)
+        else if (DT_pt100_get(PT100_ECS) > POELE_MAX_TEMPERATURE)
         {
             // arret du poele
             poele = false;
         }
 
         DT_relay(MARCHE_POELE, poele);
-        DT_relay(RELAY_EV1, ev1);
+        // DT_relay(RELAY_EV1, ev1);
 
         // 220502  debug(F(AT));
     }

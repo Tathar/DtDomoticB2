@@ -242,12 +242,6 @@ const uint8_t RELAY_RADIATOR_PT100_ARRAY[RELAY_RADIATOR_NUM] PROGMEM = {};
 
 #endif // VANNES
 
-// Circulateur boucle d eau chaude
-#define CIRCULATEUR_ECS 5
-
-// EV2 ECS
-#define EV2_ECS 12
-
 // Demmarage Poele
 #define MARCHE_POELE 21
 
