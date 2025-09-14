@@ -317,9 +317,9 @@ const dt_interaction_eeprom_config interaction_input_4_push_config[PUSH_4_NUM] P
 #define ALIM 16
 
 // cpt_pulse_input
-#define CPT_PULSE_INPUT 4 // nombre de compteur d'impulsion
+#define CPT_PULSE_INPUT 8 // nombre de compteur d'impulsion
 #if CPT_PULSE_INPUT > 0
-const uint8_t CPT_PULSE_INPUT_ARRAY[CPT_PULSE_INPUT] PROGMEM = {6, 3, 4, 5};
+const uint8_t CPT_PULSE_INPUT_ARRAY[CPT_PULSE_INPUT] PROGMEM = {0,1,2,3,4,5,6,7};
 #endif // CPT_PULSE_INPUT > 0
 
 // cpt_pulse_input_if_OUT
