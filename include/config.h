@@ -170,6 +170,26 @@ const uint8_t RELAY_RADIATOR_PT100_ARRAY[RELAY_RADIATOR_NUM] PROGMEM = {};
 // Advance option
 #define NETWORK_RESET_TIME 60000 // temp avant reset de la carte reseau en qua d'imposibilité de se connecter (en miliseconde)
 #define MQTT_UPDATE 1000         // in ms
+
+#define CLOCK
+#ifdef CLOCK
+    #define NTP_SERVER "pool.ntp.org"
+    #define NTP_LOCAL_PORT 8888
+    #define NTP_SYNC_INTERVAL 24UL * 60UL * 60UL * 1000UL // 24h
+
+    #define CLOCK_MONTH_1 3 // 24h
+    #define CLOCK_DAY_1 31 // 24h
+    #define CLOCK_HOUR_1 1 // 24h
+    #define CLOCK_DAY_OF_WEEK_1 0 // sunday
+    #define CLOCK_MONTH_2 10 // 24h
+    #define CLOCK_DAY_2 31 // 24h
+    #define CLOCK_HOUR_2 1 // 24h
+    #define CLOCK_DAY_OF_WEEK_2 0 // sunday
+
+    #define CLOCK_OFSFET_1 2UL * 60UL * 60UL// 2h
+    #define CLOCK_OFSFET_2 1UL * 60UL * 60UL// 1h
+#endif
+
 #endif                           // MQTT
 
 // Home Assistant
@@ -189,8 +209,9 @@ const uint8_t RELAY_RADIATOR_PT100_ARRAY[RELAY_RADIATOR_NUM] PROGMEM = {};
 #define PT100_M_BALON 1
 #define PT100_B_BALON 3 //2
 
-#define RELAY_ECS1 19
-#define RELAY_ECS2 20
+#define RELAY_ECS1 24  //résistance ECS1 
+#define RELAY_ECS2 25  //résistance ECS2
+#define RELAY_ECS3 26  //résistance ECS2
 
 #define PT100_ECS1 7
 #define PT100_ECS2 8

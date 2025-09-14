@@ -68,7 +68,7 @@ int i2c_channel_to_multiplexer(int channel);
 #define P0 (OPT_P0 - 1)
 #define P0_INF (OPT_P0 - 2)
 
-void init_tools();
+void init_wdt();
 
 void debug_wdt_reset(void);
 void debug_wdt_reset(const char *var);
