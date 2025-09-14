@@ -205,6 +205,8 @@ const uint8_t RELAY_RADIATOR_PT100_ARRAY[RELAY_RADIATOR_NUM] PROGMEM = {};
 #define TEMPERATURE_DEFAULT_POELE 85 // en °C (Temperature a la quelle le poele ce met en default)
 #define TEMPS_DEFAULT_PT100_POELE 60000
 
+#define CHAUFFAGE
+
 #define PT100_H_BALON 0
 #define PT100_M_BALON 1
 #define PT100_B_BALON 2
