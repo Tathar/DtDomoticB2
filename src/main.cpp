@@ -26,6 +26,7 @@
 #include <DT_cpt_pulse_input.h>
 #include <DT_ecs.h>
 #include <DT_teleinfo.h>
+#include <DT_clock.h>
 
 #include <DT_interaction.h>
 
@@ -154,6 +155,15 @@ void relay_callback(const uint8_t num, const bool action)
   // debug_wdt_reset();
   if (can_send())
   {
+    if (num == 15 || num == 16 || num == 17)
+    {
+      Serial.print(F("relay_callback("));
+      Serial.print(num);
+      Serial.print(F(","));
+      Serial.print(action);
+      Serial.println(F(")"));
+    }
+
     if (action)
     {
       payload = F("ON");
@@ -2610,7 +2620,7 @@ void __attribute__((optimize("O0"))) mqtt_receve(MQTTClient *client, const char 
     {
       DT_Poele_set_mode(DT_POELE_STANDBY);
     }
-  }                                                                            // identifiers  // EEPROM
+  } // identifiers  // EEPROM
   else if (strcmp(topic, MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/V1/set") == 0) // V1
   {
     if (sscanf_P(buffer, PSTR("%" SCNu8), &u8t_value) == 1)
@@ -3146,7 +3156,8 @@ void mqtt_connection_lost()
 // initialisation de la carte a la mise sous tention
 void setup()
 {
-  wdt_disable();
+  // wdt_disable();
+  init_wdt();
   // Serial.begin(9600);
   Serial.begin(57600);
   Serial.println(F("starting board"));
@@ -3156,7 +3167,7 @@ void setup()
   Serial.println(F("Load eeprom"));
   chargeEEPROM();
   memory(false);
-  
+
   TWCR = 0;
   Wire.begin();
   memory(false);
@@ -3179,6 +3190,7 @@ void setup()
   DT_mqtt_set_receve_callback(mqtt_receve);
   DT_mqtt_set_publish_callback(mqtt_publish);
   DT_mqtt_set_connection_lost_callback(mqtt_connection_lost);
+
 #endif // MQTT
 
   Serial.println(F("starting relay"));
@@ -3332,26 +3344,27 @@ void setup()
 #ifdef MQTT
   homeassistant(true);
 #endif
+
+#ifdef CLOCK
+    debug_wdt_reset(F(AT));
+    Serial.println(F("starting RTC/NTP"));
+    rtcNtp.begin();
+    rtcNtp.syncOnce();
+#endif
+
   // Serial.print(millis());
   Serial.println(F("Board started"));
   Serial.print(F("version: "));
   Serial.println(F(BOARD_SW_VERSION_PRINT));
   memory(true);
 
-  init_tools();
+  // init_wdt();
 }
 
 // boucle principale
 void loop()
 {
-#ifdef WATCHDOG_TIME
-  // wdt_reset();
   debug_wdt_reset(F(AT));
-#endif
-  // debug(AT);
-  // debug_wdt_reset(F(AT));
-  // wdt_reset();
-  // debug_wdt_reset();
   uint32_t now = millis();
   static uint16_t interlock = BOOST_PP_COUNTER;
   if (interlock == 0)
@@ -3462,7 +3475,7 @@ void loop()
 #if defined(RELAY_ECS1) || defined(RELAY_ECS2)
 #include BOOST_PP_UPDATE_COUNTER()
   case BOOST_PP_COUNTER:
-    DT_ecs_loop();
+    // DT_ecs_loop();
     break;
 #endif // RELAY_ECS1 || RELAY_ECS2
 
@@ -3472,6 +3485,13 @@ void loop()
     DT_teleinfo_loop();
     break;
 #endif // TIC
+
+#ifdef CLOCK
+#include BOOST_PP_UPDATE_COUNTER()
+  case BOOST_PP_COUNTER:
+    rtcNtp.loop();
+    break;
+#endif // CLOCK
 
   default:
     interlock = 0;
@@ -3496,8 +3516,9 @@ void loop()
 
   static uint32_t old = 0;
   // static bool up = true;
-  if (now - old > 1000)
+  if (now - old > 5000)
   {
     old = now;
+    DT_relay(RELAY_ECS1, !DT_relay_get(RELAY_ECS1));
   }
 }
