@@ -19,6 +19,7 @@
 #include <DT_HDC1080.h>
 #include <DT_mcp.h>
 #include <DT_poele.h>
+#include <DT_chauffage.h>
 #include <DT_eeprom.h>
 #include <DT_cover.h>
 #include <DT_portal.h>
@@ -155,15 +156,6 @@ void relay_callback(const uint8_t num, const bool action)
   // debug_wdt_reset();
   if (can_send())
   {
-    if (num == 15 || num == 16 || num == 17)
-    {
-      Serial.print(F("relay_callback("));
-      Serial.print(num);
-      Serial.print(F(","));
-      Serial.print(action);
-      Serial.println(F(")"));
-    }
-
     if (action)
     {
       payload = F("ON");
@@ -764,6 +756,70 @@ void poele_mode_callback(const DT_Poele_mode mode)
 }
 #endif // POELE
 
+#ifdef CHAUFFAGE
+void chauffage_mode_callback(const DT_Chauffage_mode mode)
+{
+  debug(F(AT));
+  memory(false);
+  const __FlashStringHelper *payload;
+  // mode poele
+  if (can_send())
+  {
+    // strlcpy_P(topic, F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/poele/mode/state"), 56);
+    switch (mode)
+    {
+    case DT_CHAUFFAGE_ETE:
+      payload = F("Eté");
+      break;
+    case DT_CHAUFFAGE_INTERSAISON:
+      payload = F("Inter-saison");
+      break;
+    case DT_CHAUFFAGE_HIVER:
+      payload = F("Hiver");
+      break;
+    }
+    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/chauffage/mode/state"), payload);
+  }
+  memory(false);
+}
+
+void temperature_arret_poele_hiver(const float temperature)
+{
+  debug(F(AT));
+
+  if (can_send())
+  {
+    if (mem_config.MQTT_online)
+    {
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/chauffage/TAPH/state"), temperature);
+    }
+  }
+}
+
+void arret_meteo_callback(const bool action)
+{
+
+  // char topic[56];
+  const __FlashStringHelper *payload;
+  debug(F(AT));
+  memory(false);
+  // debug_wdt_reset();
+  if (can_send())
+  {
+    if (action)
+    {
+      payload = F("ON");
+    }
+    else
+    {
+      payload = F("OFF");
+    }
+    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/chauffage/AM/state"), payload);
+  }
+  memory(false);
+}
+#endif // CHAUFFAGE
+
 // envoi de donné MQTT quand la variable C2 ou C3 change
 #ifdef VANNES
 void dt3voies_callback(const float C2, const float C3)
@@ -1251,6 +1307,57 @@ bool mqtt_publish(bool start)
       DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/V3/state"), eeprom_config.V3);
       break;
 #endif // POELE
+
+#ifdef CHAUFFAGE
+#include BOOST_PP_UPDATE_COUNTER()
+    case BOOST_PP_COUNTER:
+      // mode chauffage
+      chauffage_mode_callback(DT_Chauffage_get_mode());
+      break;
+
+#include BOOST_PP_UPDATE_COUNTER()
+    case BOOST_PP_COUNTER:
+      // Temperature arret poele hiver
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/chauffage/TAPH"), eeprom_config.temperature_arret_poele_hiver);
+      break;
+
+#include BOOST_PP_UPDATE_COUNTER()
+    case BOOST_PP_COUNTER:
+      // Temperature arret poele hiver
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/chauffage/TAPH"), eeprom_config.temperature_arret_poele_intersaison);
+      break;
+
+#include BOOST_PP_UPDATE_COUNTER()
+    case BOOST_PP_COUNTER:
+      // Temperature arret poele hiver
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/chauffage/TBMa"), eeprom_config.temperature_balon_max);
+      break;
+
+#include BOOST_PP_UPDATE_COUNTER()
+    case BOOST_PP_COUNTER:
+      // Temperature arret poele hiver
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/chauffage/TBMi"), eeprom_config.temperature_balon_min);
+      break;
+
+#include BOOST_PP_UPDATE_COUNTER()
+    case BOOST_PP_COUNTER:
+      // Temperature arret poele hiver
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/chauffage/TID"), eeprom_config.temp_inter_demmarage);
+      break;
+
+#include BOOST_PP_UPDATE_COUNTER()
+    case BOOST_PP_COUNTER:
+      // Temperature arret poele hiver
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/chauffage/DRV"), eeprom_config.date_retour_vacance);
+      break;
+
+#include BOOST_PP_UPDATE_COUNTER()
+    case BOOST_PP_COUNTER:
+      // Temperature arret poele hiver
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/chauffage/AM"), mem_config.ha_arret_meteo);
+      break;
+
+#endif // CHAUFFAGE
 
 #ifdef VANNES
 #include BOOST_PP_UPDATE_COUNTER()
@@ -2052,7 +2159,62 @@ bool mqtt_subscribe(MQTTClient &mqtt, bool start)
       // 3 voies PCBT mode
       mqtt.subscribe(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/mode/set");
       break;
+
+#include BOOST_PP_UPDATE_COUNTER()
+    case BOOST_PP_COUNTER:
+      // EEPROM
+      //  V1
+      mqtt.subscribe(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/V1/set");
+#include BOOST_PP_UPDATE_COUNTER()
+    case BOOST_PP_COUNTER:
+      // C7
+      mqtt.subscribe(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/C7/set");
+      break;
 #endif // POELE
+
+#ifdef CHAUFFAGE
+#include BOOST_PP_UPDATE_COUNTER()
+    case BOOST_PP_COUNTER:
+      // mode chauffage
+      mqtt.subscribe(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/chauffage/mode/set");
+      break;
+
+#include BOOST_PP_UPDATE_COUNTER()
+    case BOOST_PP_COUNTER:
+      // temperature a poele intersaison
+      mqtt.subscribe(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/chauffage/TAPI/set");
+      break;
+
+#include BOOST_PP_UPDATE_COUNTER()
+    case BOOST_PP_COUNTER:
+      // temperature a poele intersaison
+      mqtt.subscribe(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/chauffage/TBMa/set");
+      break;
+
+#include BOOST_PP_UPDATE_COUNTER()
+    case BOOST_PP_COUNTER:
+      // temperature a poele intersaison
+      mqtt.subscribe(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/chauffage/TBMi/set");
+      break;
+
+#include BOOST_PP_UPDATE_COUNTER()
+    case BOOST_PP_COUNTER:
+      // temperature a poele intersaison
+      mqtt.subscribe(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/chauffage/TID/set");
+      break;
+
+#include BOOST_PP_UPDATE_COUNTER()
+    case BOOST_PP_COUNTER:
+      // temperature a poele intersaison
+      mqtt.subscribe(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/chauffage/DRV/set");
+      break;
+
+#include BOOST_PP_UPDATE_COUNTER()
+    case BOOST_PP_COUNTER:
+      // temperature a poele intersaison
+      mqtt.subscribe(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/chauffage/AM/set");
+      break;
+#endif // CHAUFFAGE
 
 #include BOOST_PP_UPDATE_COUNTER()
     case BOOST_PP_COUNTER:
@@ -2069,19 +2231,6 @@ bool mqtt_subscribe(MQTTClient &mqtt, bool start)
       // 3 voies MCBT consigne
       mqtt.subscribe(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/C3/set");
       break;
-
-#ifdef POELE
-#include BOOST_PP_UPDATE_COUNTER()
-    case BOOST_PP_COUNTER:
-      // EEPROM
-      //  V1
-      mqtt.subscribe(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/V1/set");
-#include BOOST_PP_UPDATE_COUNTER()
-    case BOOST_PP_COUNTER:
-      // C7
-      mqtt.subscribe(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/C7/set");
-      break;
-#endif // POELE
 
 #include BOOST_PP_UPDATE_COUNTER()
     case BOOST_PP_COUNTER:
@@ -2620,7 +2769,7 @@ void __attribute__((optimize("O0"))) mqtt_receve(MQTTClient *client, const char 
     {
       DT_Poele_set_mode(DT_POELE_STANDBY);
     }
-  } // identifiers  // EEPROM
+  }
   else if (strcmp(topic, MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/V1/set") == 0) // V1
   {
     if (sscanf_P(buffer, PSTR("%" SCNu8), &u8t_value) == 1)
@@ -2639,7 +2788,66 @@ void __attribute__((optimize("O0"))) mqtt_receve(MQTTClient *client, const char 
       sauvegardeEEPROM();
     }
   }
-#endif // Poele
+#endif // CHAUFFAGE
+#ifdef CHAUFFAGE
+  else if (strcmp(topic, MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/chauffage/mode/set") == 0) // Mode du chauffage
+  {
+    if (strcmp(buffer, "Eté") == 0)
+    {
+      DT_Chauffage_set_mode(DT_CHAUFFAGE_ETE);
+    }
+    else if (strcmp(buffer, "Inter-saison") == 0)
+    {
+      DT_Chauffage_set_mode(DT_CHAUFFAGE_INTERSAISON);
+    }
+    else if (strcmp(buffer, "Hiver") == 0)
+    {
+      DT_Chauffage_set_mode(DT_CHAUFFAGE_HIVER);
+    }
+  }
+  else if (strcmp(topic, MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/chauffage/TAPI/set") == 0) // Temperature arret poele intersaison
+  {
+    str_buffer = buffer;
+    eeprom_config.temperature_arret_poele_intersaison = str_buffer.toFloat();
+    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/chauffage/TAPI/state"), eeprom_config.C_PCBT_MAX);
+    sauvegardeEEPROM();
+  }
+  else if (strcmp(topic, MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/chauffage/TBMa/set") == 0) // temperature_balon_max
+  {
+    str_buffer = buffer;
+    eeprom_config.temperature_balon_max = str_buffer.toFloat();
+    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/chauffage/TBMa/state"), eeprom_config.C_PCBT_MAX);
+    sauvegardeEEPROM();
+  }
+  else if (strcmp(topic, MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/chauffage/TBMi/set") == 0) // temperature_balon_max
+  {
+    str_buffer = buffer;
+    eeprom_config.temperature_balon_min = str_buffer.toFloat();
+    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/chauffage/TBMi/state"), eeprom_config.C_PCBT_MAX);
+    sauvegardeEEPROM();
+  }
+  else if (strcmp(topic, MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/chauffage/TID/set") == 0) // temp_inter_demmarage
+  {
+    str_buffer = buffer;
+    eeprom_config.temp_inter_demmarage = str_buffer.toInt();
+    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/chauffage/TID/state"), eeprom_config.C_PCBT_MAX);
+    sauvegardeEEPROM();
+  }
+  else if (strcmp(topic, MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/chauffage/DRV/set") == 0) // date_retour_vacance
+  {
+    str_buffer = buffer;
+    eeprom_config.temp_inter_demmarage = str_buffer.toInt();
+    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/chauffage/DRV/state"), eeprom_config.C_PCBT_MAX);
+    sauvegardeEEPROM();
+  }
+  else if (strcmp(topic, MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/chauffage/AM/set") == 0) // ha_arret_meteo
+  {
+    if (strcmp(buffer, "ON") == 0)
+      DT_Chauffage_set_arret_meteo(true);
+    else if (strcmp(buffer, "OFF") == 0)
+      DT_Chauffage_set_arret_meteo(false);
+  }
+#endif // CHAUFFAGE
 #ifdef VANNES
   else if (strcmp(topic, MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/mode/set") == 0) // Mode de la vannes 3 voie PCBT
   {
@@ -3190,7 +3398,6 @@ void setup()
   DT_mqtt_set_receve_callback(mqtt_receve);
   DT_mqtt_set_publish_callback(mqtt_publish);
   DT_mqtt_set_connection_lost_callback(mqtt_connection_lost);
-
 #endif // MQTT
 
   Serial.println(F("starting relay"));
@@ -3322,6 +3529,16 @@ void setup()
 #endif // MQTT
 #endif // POELE
 
+#ifdef CHAUFFAGE
+  Serial.println(F("starting Chauffage"));
+  DT_Chauffage_init();
+#ifdef MQTT
+  DT_Chauffage_set_mode_callback(chauffage_mode_callback);
+  DT_Chauffage_set_temperature_arret_poele_hiver_callback(temperature_arret_poele_hiver);  
+  DT_Chauffage_set_arret_meteo_callback(arret_meteo_callback);
+#endif // MQTT
+#endif // CHAUFFAGE
+
 #ifdef VANNES
   Serial.println(F("starting 3 voies"));
   DT_3voies_init();
@@ -3346,10 +3563,10 @@ void setup()
 #endif
 
 #ifdef CLOCK
-    debug_wdt_reset(F(AT));
-    Serial.println(F("starting RTC/NTP"));
-    rtcNtp.begin();
-    rtcNtp.syncOnce();
+  debug_wdt_reset(F(AT));
+  Serial.println(F("starting RTC/NTP"));
+  rtcNtp.begin();
+  rtcNtp.syncOnce();
 #endif
 
   // Serial.print(millis());
@@ -3434,6 +3651,13 @@ void loop()
 #include BOOST_PP_UPDATE_COUNTER()
   case BOOST_PP_COUNTER:
     DT_Poele_loop();
+    break;
+#endif
+
+#ifdef CHAUFFAGE
+#include BOOST_PP_UPDATE_COUNTER()
+  case BOOST_PP_COUNTER:
+    DT_Chauffage_loop();
     break;
 #endif
 

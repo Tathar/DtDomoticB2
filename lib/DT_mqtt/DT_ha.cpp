@@ -670,6 +670,56 @@ bool homeassistant(bool start)
                         break;
 #endif // POELE
 
+#ifdef CHAUFFAGE
+#include BOOST_PP_UPDATE_COUNTER()
+                case BOOST_PP_COUNTER:
+                        // Chauffage mode
+                        DT_mqtt_send(F("homeassistant/select/" BOARD_IDENTIFIER "/chauffage-mode/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/chauffage/mode\",\"uniq_id\":\"" BOARD_IDENTIFIER "-CH-mode\",\"name\":\"" BOARD_IDENTIFIER " mode chauffage\",\"command_topic\":\"~/set\",\"state_topic\":\"~/state\",\"options\":[\"Eté\",\"Inter-saison\",\"Hiver\"],\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
+                        break;
+
+#include BOOST_PP_UPDATE_COUNTER()
+                case BOOST_PP_COUNTER:
+                        // Temperature arret poele hiver
+                        DT_mqtt_send(F("homeassistant/sensor/" BOARD_IDENTIFIER "/chauffage_TAPH/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/chauffage/TAPH\",\"uniq_id\":\"" BOARD_IDENTIFIER "-CH-TAPH\",\"name\":\"" BOARD_IDENTIFIER " temperature arret poele hiver\",\"stat_t\":\"~/state\",\"dev_cla\":\"temperature\",\"unit_of_meas\":\"°C\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
+                        break;
+
+#include BOOST_PP_UPDATE_COUNTER()
+                case BOOST_PP_COUNTER:
+                        // Temperature arret poele intersaison
+                        DT_mqtt_send(F("homeassistant/number/" BOARD_IDENTIFIER "/chauffage_TAPI/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/chauffage/TAPI\",\"uniq_id\":\"" BOARD_IDENTIFIER "-CH-TAPI\",\"name\":\"" BOARD_IDENTIFIER " temperature arret poele inter-saison\",\"stat_t\":\"~/state\",\"command_topic\":\"~/set\",\"min\":0,\"max\":95,\"step\":0.01,\"dev_cla\":\"temperature\",\"unit_of_meas\":\"°C\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
+                        break;
+
+#include BOOST_PP_UPDATE_COUNTER()
+                case BOOST_PP_COUNTER:
+                        // temperature_balon_max
+                        DT_mqtt_send(F("homeassistant/number/" BOARD_IDENTIFIER "/chauffage_TBMa/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/chauffage/TBMa\",\"uniq_id\":\"" BOARD_IDENTIFIER "-CH-TBMa\",\"name\":\"" BOARD_IDENTIFIER " temperature balon max\",\"stat_t\":\"~/state\",\"command_topic\":\"~/set\",\"min\":0,\"max\":95,\"step\":0.01,\"dev_cla\":\"temperature\",\"unit_of_meas\":\"°C\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
+                        break;
+
+#include BOOST_PP_UPDATE_COUNTER()
+                case BOOST_PP_COUNTER:
+                        // temperature_balon_min;
+                        DT_mqtt_send(F("homeassistant/number/" BOARD_IDENTIFIER "/chauffage_TBMi/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/chauffage/TBMi\",\"uniq_id\":\"" BOARD_IDENTIFIER "-CH-TBMi\",\"name\":\"" BOARD_IDENTIFIER " temperature balon min\",\"stat_t\":\"~/state\",\"command_topic\":\"~/set\",\"min\":0,\"max\":95,\"step\":0.01,\"dev_cla\":\"temperature\",\"unit_of_meas\":\"°C\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
+                        break;
+
+#include BOOST_PP_UPDATE_COUNTER()
+                case BOOST_PP_COUNTER:
+                        // temp_inter_demmarage;
+                        DT_mqtt_send(F("homeassistant/number/" BOARD_IDENTIFIER "/chauffage_TID/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/chauffage/TID\",\"uniq_id\":\"" BOARD_IDENTIFIER "-CH-TID\",\"name\":\"" BOARD_IDENTIFIER " temps inter demmarage\",\"stat_t\":\"~/state\",\"command_topic\":\"~/set\",\"min\":0,\"max\":24,\"step\":0,\"unit_of_meas\":\"h\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
+                        break;
+
+
+#include BOOST_PP_UPDATE_COUNTER()
+                case BOOST_PP_COUNTER:
+                        // uint32_t date_retour_vacance;
+                        DT_mqtt_send(F("homeassistant/number/" BOARD_IDENTIFIER "/chauffage_DRV/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/chauffage/DRV\",\"uniq_id\":\"" BOARD_IDENTIFIER "-CH-DRV\",\"name\":\"" BOARD_IDENTIFIER " Date retour vacance (timestamp)\",\"stat_t\":\"~/state\",\"command_topic\":\"~/set\",\"step\":0,\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
+                        break;
+
+#include BOOST_PP_UPDATE_COUNTER()
+                case BOOST_PP_COUNTER:
+                        //ha_arret_meteo
+                        DT_mqtt_send(F("homeassistant/switch/" BOARD_IDENTIFIER "/chauffage_meteo/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/chauffage/AM\",\"uniq_id\":\"" BOARD_IDENTIFIER "-CH-AM\",\"name\":\"" BOARD_IDENTIFIER " Arret Météo\",\"command_topic\":\"~/set\",\"stat_t\":\"~/state\",\"ret\":\"true\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
+#endif // CHAUFFAGE
+
 #ifdef VANNES
 #include BOOST_PP_UPDATE_COUNTER()
                 case BOOST_PP_COUNTER:
@@ -953,7 +1003,7 @@ bool homeassistant(bool start)
                         // 3 voies MCBT mode
                         DT_mqtt_send(F("homeassistant/select/" BOARD_IDENTIFIER "/ecs1/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/ecs1\",\"uniq_id\":\"" BOARD_IDENTIFIER "-ecs1-mode\",\"name\":\"" BOARD_IDENTIFIER " mode ECS1\",\"command_topic\":\"~/set\",\"state_topic\":\"~/state\",\"options\":[\"Marche\",\"Arret\",\"Veille\"],\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
                         break;
-#endif //RELAY_ECS1
+#endif // RELAY_ECS1
 
 #ifdef RELAY_ECS2
 #include BOOST_PP_UPDATE_COUNTER()
@@ -961,7 +1011,7 @@ bool homeassistant(bool start)
                         // 3 voies MCBT mode
                         DT_mqtt_send(F("homeassistant/select/" BOARD_IDENTIFIER "/ecs2/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/ecs2\",\"uniq_id\":\"" BOARD_IDENTIFIER "-ecs2-mode\",\"name\":\"" BOARD_IDENTIFIER " mode ECS2\",\"command_topic\":\"~/set\",\"state_topic\":\"~/state\",\"options\":[\"Marche\",\"Arret\",\"Veille\"],\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
                         break;
-#endif //RELAY_ECS2
+#endif // RELAY_ECS2
 
 #include BOOST_PP_UPDATE_COUNTER()
                 case BOOST_PP_COUNTER:
@@ -971,25 +1021,25 @@ bool homeassistant(bool start)
 
 #include BOOST_PP_UPDATE_COUNTER()
                 case BOOST_PP_COUNTER:
-                        //used memory
+                        // used memory
                         DT_mqtt_send(F("homeassistant/sensor/" BOARD_IDENTIFIER "/used_memory/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/memory\",\"uniq_id\":\"" BOARD_IDENTIFIER "-used-memory\",\"name\":\"" BOARD_IDENTIFIER " Used memory\",\"stat_t\":\"~/used\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
                         break;
 
 #include BOOST_PP_UPDATE_COUNTER()
                 case BOOST_PP_COUNTER:
-                        //free memory
+                        // free memory
                         DT_mqtt_send(F("homeassistant/sensor/" BOARD_IDENTIFIER "/free_memory/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/memory\",\"uniq_id\":\"" BOARD_IDENTIFIER "-free-memory\",\"name\":\"" BOARD_IDENTIFIER " Free memory\",\"stat_t\":\"~/free\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
                         break;
 
 #include BOOST_PP_UPDATE_COUNTER()
                 case BOOST_PP_COUNTER:
-                        //Large free memory
+                        // Large free memory
                         DT_mqtt_send(F("homeassistant/sensor/" BOARD_IDENTIFIER "/large_memory/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/memory\",\"uniq_id\":\"" BOARD_IDENTIFIER "-large-memory\",\"name\":\"" BOARD_IDENTIFIER " Large memory\",\"stat_t\":\"~/large\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
                         break;
 
 #include BOOST_PP_UPDATE_COUNTER()
                 case BOOST_PP_COUNTER:
-                        //memory free list
+                        // memory free list
                         DT_mqtt_send(F("homeassistant/sensor/" BOARD_IDENTIFIER "/memory_free_list/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/memory\",\"uniq_id\":\"" BOARD_IDENTIFIER "-memory-free-list\",\"name\":\"" BOARD_IDENTIFIER " memory free list\",\"stat_t\":\"~/number\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
                         break;
 
@@ -1243,7 +1293,7 @@ void MQTT_data::get(char *topic, int topic_len, char *payload, unsigned int payl
 
         case ha_uint32_t:
                 strncpy_P(topic, reinterpret_cast<const char *>(_topic), topic_len);
-                snprintf_P(payload, payload_len, PSTR("%" PRIu32 ), (uint32_t)_int);
+                snprintf_P(payload, payload_len, PSTR("%" PRIu32), (uint32_t)_int);
                 break;
 
         case ha_flash_cstr_tsprintf:

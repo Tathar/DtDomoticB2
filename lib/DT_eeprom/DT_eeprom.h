@@ -11,6 +11,7 @@
 
 #include "../lib/DT_poele/DT_poele.h"
 #include "../lib/DT_3voies/DT_3voies.h"
+#include "../lib/DT_chauffage/DT_chauffage.h"
 
 #include <QuickPID.h>
 
@@ -63,7 +64,6 @@ enum __attribute__((__packed__)) DT_ECS_mode
     DT_ECS_STANDBY,
 };
 
-
 // declaration de la structure de configuration
 struct Mem_Config
 {
@@ -74,6 +74,10 @@ struct Mem_Config
     bool ha_mqtt_config = false;    // Home Assistant MQTT configuration
     bool ha_mqtt_publish = false;   // Home Assistant MQTT configuration
     bool ha_mqtt_subscribe = false; // Home Assistant MQTT configuration
+
+#ifdef CHAUFFAGE
+    bool ha_arret_meteo = false;
+#endif // CHAUFFAGE
 #if DIMMER_LIGHT_NUM >= 1
     uint8_t Dimmer_old_value[DIMMER_LIGHT_NUM]; // Mise a l echelle
 #endif
@@ -130,10 +134,10 @@ struct Eeprom_Config
 #if DIMMER_LIGHT_NUM >= 1
     uint16_t Dimmer_scale_min[DIMMER_LIGHT_NUM]; // Mise a l echelle
     uint16_t Dimmer_scale_max[DIMMER_LIGHT_NUM]; // Mise a l echelle
-#endif //DIMMER_LIGHT_NUM
+#endif                                           // DIMMER_LIGHT_NUM
 
 #ifdef RELAY_ECS1
-    DT_ECS_mode ecs1_mode; // ecs1 mode 
+    DT_ECS_mode ecs1_mode; // ecs1 mode
 #endif
 
 #if RELAY_ECS2
@@ -151,6 +155,17 @@ struct Eeprom_Config
 #ifdef WATCHDOG_TIME
     char debug_str[64];
 #endif
+
+#ifdef CHAUFFAGE
+    DT_Chauffage_mode chauffage_mode;
+    float temperature_arret_poele_hiver;
+    float temperature_arret_poele_intersaison;
+    float temperature_balon_max;
+    float temperature_balon_min;
+    uint8_t temp_inter_demmarage;
+    uint32_t date_retour_vacance;
+
+#endif // #CHAUFFAGE
 };
 
 // structure de configuration
