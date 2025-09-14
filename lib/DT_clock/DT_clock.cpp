@@ -163,7 +163,7 @@ void RTCNTP::printDateTime(const DateTime &dt)
   snprintf(buf, sizeof(buf), "%04u-%02u-%02u %02u:%02u:%02u",
            dt.year(), dt.month(), dt.day(),
            dt.hour(), dt.minute(), dt.second());
-  Serial.print("RTC regle a: ");
+  // Serial.print("RTC regle a: ");
   Serial.println(buf);
 }
 

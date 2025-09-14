@@ -11,6 +11,8 @@ public:
     void loop();
     DateTime now();
 
+    void printDateTime(const DateTime &dt);
+
 private:
     RTC_DS1307 _rtc;
     // EthernetUDP &_udp;
@@ -18,7 +20,7 @@ private:
     unsigned long _lastSync;
 
     unsigned long getNTPTime();
-    void printDateTime(const DateTime &dt);
+
 };
 
 // void DT_cover_set_callback(void (*callback)(const uint8_t num, const int8_t percent, const cover_state state));

@@ -704,14 +704,14 @@ bool homeassistant(bool start)
 #include BOOST_PP_UPDATE_COUNTER()
                 case BOOST_PP_COUNTER:
                         // temp_inter_demmarage;
-                        DT_mqtt_send(F("homeassistant/number/" BOARD_IDENTIFIER "/chauffage_TID/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/chauffage/TID\",\"uniq_id\":\"" BOARD_IDENTIFIER "-CH-TID\",\"name\":\"" BOARD_IDENTIFIER " temps inter demmarage\",\"stat_t\":\"~/state\",\"command_topic\":\"~/set\",\"min\":0,\"max\":24,\"step\":0,\"unit_of_meas\":\"h\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
+                        DT_mqtt_send(F("homeassistant/number/" BOARD_IDENTIFIER "/chauffage_TID/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/chauffage/TID\",\"uniq_id\":\"" BOARD_IDENTIFIER "-CH-TID\",\"name\":\"" BOARD_IDENTIFIER " temps inter demmarage\",\"stat_t\":\"~/state\",\"command_topic\":\"~/set\",\"min\":0,\"max\":24,\"step\":1,\"unit_of_meas\":\"h\",\"mode\":\"box\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
                         break;
 
 
 #include BOOST_PP_UPDATE_COUNTER()
                 case BOOST_PP_COUNTER:
                         // uint32_t date_retour_vacance;
-                        DT_mqtt_send(F("homeassistant/number/" BOARD_IDENTIFIER "/chauffage_DRV/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/chauffage/DRV\",\"uniq_id\":\"" BOARD_IDENTIFIER "-CH-DRV\",\"name\":\"" BOARD_IDENTIFIER " Date retour vacance (timestamp)\",\"stat_t\":\"~/state\",\"command_topic\":\"~/set\",\"step\":0,\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
+                        DT_mqtt_send(F("homeassistant/number/" BOARD_IDENTIFIER "/chauffage_DRV/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/chauffage/DRV\",\"uniq_id\":\"" BOARD_IDENTIFIER "-CH-DRV\",\"name\":\"" BOARD_IDENTIFIER " Date retour vacance (timestamp)\",\"stat_t\":\"~/state\",\"command_topic\":\"~/set\",\"step\":1,\"mode\":\"box\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
                         break;
 
 #include BOOST_PP_UPDATE_COUNTER()

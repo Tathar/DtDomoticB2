@@ -1767,6 +1767,13 @@ bool mqtt_publish(bool start)
       break;
 #endif // WATCHDOG_TIME
 
+#include BOOST_PP_UPDATE_COUNTER()
+    case BOOST_PP_COUNTER:
+      rtcNtp.printDateTime(rtcNtp.now());
+      
+      // memcpy(eeprom_config.debug_str, "@", 1);
+      break;
+
     default:
       return true;
       break;
@@ -2809,35 +2816,35 @@ void __attribute__((optimize("O0"))) mqtt_receve(MQTTClient *client, const char 
   {
     str_buffer = buffer;
     eeprom_config.temperature_arret_poele_intersaison = str_buffer.toFloat();
-    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/chauffage/TAPI/state"), eeprom_config.C_PCBT_MAX);
+    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/chauffage/TAPI/state"), eeprom_config.temperature_arret_poele_intersaison);
     sauvegardeEEPROM();
   }
   else if (strcmp(topic, MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/chauffage/TBMa/set") == 0) // temperature_balon_max
   {
     str_buffer = buffer;
     eeprom_config.temperature_balon_max = str_buffer.toFloat();
-    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/chauffage/TBMa/state"), eeprom_config.C_PCBT_MAX);
+    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/chauffage/TBMa/state"), eeprom_config.temperature_balon_max);
     sauvegardeEEPROM();
   }
   else if (strcmp(topic, MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/chauffage/TBMi/set") == 0) // temperature_balon_max
   {
     str_buffer = buffer;
     eeprom_config.temperature_balon_min = str_buffer.toFloat();
-    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/chauffage/TBMi/state"), eeprom_config.C_PCBT_MAX);
+    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/chauffage/TBMi/state"), eeprom_config.temperature_balon_min);
     sauvegardeEEPROM();
   }
   else if (strcmp(topic, MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/chauffage/TID/set") == 0) // temp_inter_demmarage
   {
     str_buffer = buffer;
     eeprom_config.temp_inter_demmarage = str_buffer.toInt();
-    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/chauffage/TID/state"), eeprom_config.C_PCBT_MAX);
+    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/chauffage/TID/state"), eeprom_config.temp_inter_demmarage);
     sauvegardeEEPROM();
   }
   else if (strcmp(topic, MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/chauffage/DRV/set") == 0) // date_retour_vacance
   {
     str_buffer = buffer;
     eeprom_config.temp_inter_demmarage = str_buffer.toInt();
-    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/chauffage/DRV/state"), eeprom_config.C_PCBT_MAX);
+    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/chauffage/DRV/state"), eeprom_config.temp_inter_demmarage);
     sauvegardeEEPROM();
   }
   else if (strcmp(topic, MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/chauffage/AM/set") == 0) // ha_arret_meteo
@@ -3378,6 +3385,7 @@ void setup()
 
   TWCR = 0;
   Wire.begin();
+  Wire.setWireTimeout(10000 /* us */, true /* reset_on_timeout */);
   memory(false);
   // Wire.beginTransmission(I2C_MULTIPLEXER_ADDRESS);
   // Wire.write(MCP_CHANNEL); // channel 1
