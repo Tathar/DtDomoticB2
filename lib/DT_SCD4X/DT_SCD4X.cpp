@@ -67,56 +67,60 @@ void DT_SCD4X_loop()
 {
     uint32_t now = millis();
     static uint32_t old = 0;
-    if (now - old >= 10000)
+    static uint8_t num = 0;
+    if (now - old >= 1000)
     {
         old = now;
-        for (uint8_t num = 0; num < SCD4X_NUM; ++num)
+
+        if (scd4x_active[num])
         {
-            if (scd4x_active[num])
+            uint8_t i2c_channel = pgm_read_byte(SCD4X_CHANNEL_ARRAY + num);
+
+            Wire.beginTransmission(I2C_MULTIPLEXER_ADDRESS); // change I2C channel
+            Wire.write(i2c_channel_to_multiplexer(i2c_channel));
+            Wire.endTransmission();
+
+            uint16_t co2;
+            float temperature;
+            float humidity;
+            uint16_t error = scd4x[num].readMeasurement(co2, temperature, humidity);
+            if (error)
             {
-                uint8_t i2c_channel = pgm_read_byte(SCD4X_CHANNEL_ARRAY + num);
-
-                Wire.beginTransmission(I2C_MULTIPLEXER_ADDRESS); // change I2C channel
-                Wire.write(i2c_channel_to_multiplexer(i2c_channel));
-                Wire.endTransmission();
-
-                uint16_t co2;
-                float temperature;
-                float humidity;
-                uint16_t error = scd4x[num].readMeasurement(co2, temperature, humidity);
-                if (error)
+                Serial.print(F("Error trying to execute readMeasurement(): "));
+                // char errorMessage[256];
+                // errorToString(error, errorMessage, 256);
+                Serial.println(error);
+            }
+            else
+            {
+                if (temperature != _temperature[num])
                 {
-                    Serial.print(F("Error trying to execute readMeasurement(): "));
-                    // char errorMessage[256];
-                    // errorToString(error, errorMessage, 256);
-                    Serial.println(error);
+                    _temperature[num] = temperature;
+                    // Serial.print(F("SCD4X temperature = "));
+                    // Serial.println(temperature);
+                    if (scd4x_callback_temperature != nullptr)
+                        scd4x_callback_temperature(num, temperature);
                 }
-                else
+
+                if (co2 != _co2[num])
                 {
-                    if (temperature != _temperature[num])
-                    {
-                        _temperature[num] = temperature;
-                        // Serial.print(F("SCD4X temperature = "));
-                        // Serial.println(temperature);
-                        if (scd4x_callback_temperature != nullptr)
-                            scd4x_callback_temperature(num, temperature);
-                    }
+                    _co2[num] = co2;
+                    if (scd4x_callback_co2 != nullptr)
+                        scd4x_callback_co2(num, co2);
+                }
 
-                    if (co2 != _co2[num])
-                    {
-                        _co2[num] = co2;
-                        if (scd4x_callback_co2 != nullptr)
-                            scd4x_callback_co2(num, co2);
-                    }
-
-                    if (humidity != _humidity[num])
-                    {
-                        _humidity[num] = humidity;
-                        if (scd4x_callback_humidity != nullptr)
-                            scd4x_callback_humidity(num, humidity);
-                    }
+                if (humidity != _humidity[num])
+                {
+                    _humidity[num] = humidity;
+                    if (scd4x_callback_humidity != nullptr)
+                        scd4x_callback_humidity(num, humidity);
                 }
             }
+        }
+
+        if (++num == SCD4X_NUM)
+        {
+            num = 0;
         }
     }
 }

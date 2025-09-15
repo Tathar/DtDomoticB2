@@ -167,4 +167,11 @@ void RTCNTP::printDateTime(const DateTime &dt)
   Serial.println(buf);
 }
 
+void RTCNTP::ToDateTime(const DateTime &dt, char *buf, uint8_t len)
+{
+  snprintf(buf, len, "%04u-%02u-%02u %02u:%02u:%02u",
+           dt.year(), dt.month(), dt.day(),
+           dt.hour(), dt.minute(), dt.second());
+}
+
 RTCNTP rtcNtp;

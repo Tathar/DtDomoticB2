@@ -1758,21 +1758,18 @@ bool mqtt_publish(bool start)
       DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/status"), F("online"));
       break;
 
-#ifdef WATCHDOG_TIME
+// #ifdef WATCHDOG_TIME
 #include BOOST_PP_UPDATE_COUNTER()
     case BOOST_PP_COUNTER:
-      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/debug_str/state"), eeprom_config.debug_str);
-      strncpy(eeprom_config.debug_str, "@", 1);
+      char buf[30];
+      DateTime Now = rtcNtp.now();
+      rtcNtp.ToDateTime(Now, buf, 30);
+      Serial.println(buf);
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/debug_str/state"), buf);
+      // strncpy(eeprom_config.debug_str, "@", 1);
       // memcpy(eeprom_config.debug_str, "@", 1);
       break;
-#endif // WATCHDOG_TIME
-
-#include BOOST_PP_UPDATE_COUNTER()
-    case BOOST_PP_COUNTER:
-      rtcNtp.printDateTime(rtcNtp.now());
-      
-      // memcpy(eeprom_config.debug_str, "@", 1);
-      break;
+      // #endif // WATCHDOG_TIME
 
     default:
       return true;
@@ -3385,7 +3382,7 @@ void setup()
 
   TWCR = 0;
   Wire.begin();
-  Wire.setWireTimeout(10000 /* us */, true /* reset_on_timeout */);
+  Wire.setWireTimeout(100000 /* us */, true /* reset_on_timeout */);
   memory(false);
   // Wire.beginTransmission(I2C_MULTIPLEXER_ADDRESS);
   // Wire.write(MCP_CHANNEL); // channel 1
@@ -3542,7 +3539,7 @@ void setup()
   DT_Chauffage_init();
 #ifdef MQTT
   DT_Chauffage_set_mode_callback(chauffage_mode_callback);
-  DT_Chauffage_set_temperature_arret_poele_hiver_callback(temperature_arret_poele_hiver);  
+  DT_Chauffage_set_temperature_arret_poele_hiver_callback(temperature_arret_poele_hiver);
   DT_Chauffage_set_arret_meteo_callback(arret_meteo_callback);
 #endif // MQTT
 #endif // CHAUFFAGE

@@ -38,34 +38,38 @@ void DT_HDC1080_loop()
 {
     uint16_t now = millis();
     static uint16_t old = 0;
+    static uint8_t num = 0;
+
     if (now - old >= 1000)
     {
         old = now;
-        for (uint8_t num = 0; num < HDC1080_NUM; ++num)
+        uint8_t i2c_channel = pgm_read_byte(HDC1080_CHANNEL_ARRAY + num);
+
+        Wire.beginTransmission(I2C_MULTIPLEXER_ADDRESS); // change I2C channel
+        Wire.write(i2c_channel_to_multiplexer(i2c_channel));
+        Wire.endTransmission();
+
+        HDC1080[num].computeTempHumidityAsync();
+
+        float value = HDC1080[num].getTemp_async();
+        if (value != hdc1080_temperature[num])
         {
-            uint8_t i2c_channel = pgm_read_byte(HDC1080_CHANNEL_ARRAY + num);
+            hdc1080_temperature[num] = value;
+            if (HDC1080_callback_temperature != nullptr)
+                HDC1080_callback_temperature(num, value);
+        }
 
-            Wire.beginTransmission(I2C_MULTIPLEXER_ADDRESS); // change I2C channel
-            Wire.write(i2c_channel_to_multiplexer(i2c_channel));
-            Wire.endTransmission();
+        value = HDC1080[num].getRelativeHumidity_async();
+        if (value != hdc1080_humidity[num])
+        {
+            hdc1080_humidity[num] = value;
+            if (HDC1080_callback_humidity != nullptr)
+                HDC1080_callback_humidity(num, value);
+        }
 
-            HDC1080[num].computeTempHumidityAsync();
-
-            float value = HDC1080[num].getTemp_async();
-            if (value != hdc1080_temperature[num])
-            {
-                hdc1080_temperature[num] = value;
-                if (HDC1080_callback_temperature != nullptr)
-                    HDC1080_callback_temperature(num, value);
-            }
-
-            value = HDC1080[num].getRelativeHumidity_async();
-            if (value != hdc1080_humidity[num])
-            {
-                hdc1080_humidity[num] = value;
-                if (HDC1080_callback_humidity != nullptr)
-                    HDC1080_callback_humidity(num, value);
-            }
+        if (++num == HDC1080_NUM)
+        {
+            num = 0;
         }
     }
 }

@@ -27,7 +27,7 @@ void DT_CCS811_init()
 
         Serial.println(address, HEX);
         Serial.println(i2c_channel);
-        unsigned status = ccs811[num].begin(address,&Wire);
+        unsigned status = ccs811[num].begin(address, &Wire);
 
         if (!status)
         {
@@ -48,50 +48,52 @@ void DT_CCS811_loop()
 {
     uint32_t now = millis();
     static uint32_t old = 0;
+    static uint8_t num = 0;
     if (now - old >= 1000)
     {
         old = now;
-        for (uint8_t num = 0; num < CCS811_NUM; ++num)
+        if (ccs811_active[num])
         {
-            if (ccs811_active[num])
+            uint8_t i2c_channel = pgm_read_byte(CCS811_CHANNEL_ARRAY + num);
+
+            Wire.beginTransmission(I2C_MULTIPLEXER_ADDRESS); // change I2C channel
+            Wire.write(i2c_channel_to_multiplexer(i2c_channel));
+            Wire.endTransmission();
+
+            if (ccs811[num].available())
             {
-                uint8_t i2c_channel = pgm_read_byte(CCS811_CHANNEL_ARRAY + num);
-
-                Wire.beginTransmission(I2C_MULTIPLEXER_ADDRESS); // change I2C channel
-                Wire.write(i2c_channel_to_multiplexer(i2c_channel));
-                Wire.endTransmission();
-
-                if (ccs811[num].available())
+                if (!ccs811[num].readData())
                 {
-                    if (!ccs811[num].readData())
+
+                    float value = ccs811[num].geteCO2();
+                    // Serial.print(F("ccs811 co2 "));
+                    // Serial.println(value);
+                    if (value != ccs811_co2[num])
                     {
-
-                        float value = ccs811[num].geteCO2();
-                        // Serial.print(F("ccs811 co2 "));
-                        // Serial.println(value);
-                        if (value != ccs811_co2[num])
-                        {
-                            ccs811_co2[num] = value;
-                            if (ccs811_callback_co2 != nullptr)
-                                ccs811_callback_co2(num, value);
-                        }
-
-                        value = ccs811[num].getTVOC();
-                        // Serial.print(F("ccs811 tov "));
-                        // Serial.println(value);
-                        if (value != ccs811_cov[num])
-                        {
-                            ccs811_cov[num] = value;
-                            if (ccs811_callback_cov != nullptr)
-                                ccs811_callback_cov(num, value);
-                        }
+                        ccs811_co2[num] = value;
+                        if (ccs811_callback_co2 != nullptr)
+                            ccs811_callback_co2(num, value);
                     }
-                    else
+
+                    value = ccs811[num].getTVOC();
+                    // Serial.print(F("ccs811 tov "));
+                    // Serial.println(value);
+                    if (value != ccs811_cov[num])
                     {
-                        Serial.println(F("ccs811 ERROR!"));
+                        ccs811_cov[num] = value;
+                        if (ccs811_callback_cov != nullptr)
+                            ccs811_callback_cov(num, value);
                     }
                 }
+                else
+                {
+                    Serial.println(F("ccs811 ERROR!"));
+                }
             }
+        }
+        if (++num == CCS811_NUM)
+        {
+            num = 0;
         }
     }
 }
