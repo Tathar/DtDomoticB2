@@ -1,0 +1,82 @@
+Mur chauffant :
+    supresseion mode démmarge
+    supression mode veille
+    renomé mode normal en hiver
+
+    mode intersaison:
+      sur plage hauraire (deux variable HA):
+        circulateur en marche
+        PID actif
+        consigne de temperature variable HA
+        activer relais 10 et 13 (seche serviette et murchauffant)
+
+    mode manu:
+        regulation PID active (comme auto)
+        tous le reste disponible HA
+
+planchée chauffant :
+    supresseion mode démmarge
+    supression mode veille
+    renomé mode normal en hiver
+
+    mode manu:
+        regulation PID active (comme auto)
+        tous le reste disponible HA
+
+ECS :
+    spression mode ECS1 et mode ECS2
+
+    mode manu:
+        les trois relais et le circulateur sont disponible HA
+
+    mode auto:
+        résistances: 
+          demmarage sur horaires (une variable HA) sauf ci circulateur MCBT en marche ou Poele en marche
+          demmarage sur temperature inferieur a variable HA
+          demmarage deux resistance inferieur a deuxieme temperature HA
+          arret sur temperature "ECS" (calcule cientioligique) >= (nombre de personne (variable HA usint ) * coef (variable HA float) ) + temperature fix (variable HA usint)
+          arret le vendredi soir ou samedi matin a 70° (anti legionnel)
+
+          effectué une rotation des resistance afin déquilibré l'usure.
+
+
+poele :
+    supression mode veille
+    renomé mode normal en hiver
+
+    modification mode hiver:
+      TODO
+
+    créé mode maintenance:
+      poele arreté
+
+    créé mode intersaison:
+      demmarage sur horaire (variable HA) 
+      arret sur consigne de température balon bas (variable HA)
+
+
+mode chauffage:
+  - intersaison:
+    -mur chauffant:
+      mur chauffant en mode intersaison
+
+    -planché chauffant : 
+      mode arret
+
+    -poele:
+       poele en mode intersaison
+        
+  - hiver
+    -mur chauffant:
+      mur chauffant en mode hiver
+
+    -planché chauffant : 
+      mode hiver
+
+    -poele:
+       poele en mode hiver
+
+
+
+
+

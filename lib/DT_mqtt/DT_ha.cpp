@@ -711,7 +711,7 @@ bool homeassistant(bool start)
 #include BOOST_PP_UPDATE_COUNTER()
                 case BOOST_PP_COUNTER:
                         // uint32_t date_retour_vacance;
-                        DT_mqtt_send(F("homeassistant/number/" BOARD_IDENTIFIER "/chauffage_DRV/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/chauffage/DRV\",\"uniq_id\":\"" BOARD_IDENTIFIER "-CH-DRV\",\"name\":\"" BOARD_IDENTIFIER " Date retour vacance (timestamp)\",\"stat_t\":\"~/state\",\"command_topic\":\"~/set\",\"step\":1,\"mode\":\"box\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
+                        DT_mqtt_send(F("homeassistant/number/" BOARD_IDENTIFIER "/chauffage_DRV/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/chauffage/DRV\",\"uniq_id\":\"" BOARD_IDENTIFIER "-CH-DRV\",\"name\":\"" BOARD_IDENTIFIER " Date retour vacance (timestamp)\",\"stat_t\":\"~/state\",\"command_topic\":\"~/set\",\"step\":1,\"min\":0,\"max\":4294967295,\"mode\":\"box\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
                         break;
 
 #include BOOST_PP_UPDATE_COUNTER()

@@ -29,6 +29,8 @@
 #include <DT_teleinfo.h>
 #include <DT_clock.h>
 
+#include <RTClib.h>
+
 #include <DT_interaction.h>
 
 #include <avr/wdt.h> //watchdog
@@ -334,9 +336,10 @@ void input_mqtt(const uint8_t num, const Bt_Action action)
   DT_cpt_pulse_input_loop_event(num, action);
 #endif // CPT_PULSE_INPUT > 0 || CPT_PULSE_IF_INPUT > 0
 
+#ifdef MQTT
   if (can_send())
   {
-#ifdef MQTT
+
     // snprintf_P(topic, 56, F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/input-%02d/state"), num);
 #endif
     switch (action)
@@ -447,7 +450,9 @@ void input_mqtt(const uint8_t num, const Bt_Action action)
       // Serial.println(action);
       break;
     }
+#ifdef MQTT
   }
+#endif // MQTT
   memory(false);
   debug(F(AT));
 }
@@ -484,13 +489,13 @@ void bme280_callback_temperature(const uint8_t num, const float temperature)
   debug(F(AT));
   // memory(false);
 
-  static uint32_t refresh = 0;
+  static uint32_t refresh[BME280_NUM];
   uint32_t now = millis();
   if (can_send())
   {
-    if (now - refresh >= MQTT_REFRESH && mem_config.MQTT_online)
+    if (now - refresh[num] >= MQTT_REFRESH && mem_config.MQTT_online)
     {
-      refresh = now;
+      refresh[num] = now;
       DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/bme280-%02d/temp"), num + 1, temperature);
     }
   }
@@ -503,13 +508,13 @@ void bme280_callback_humidity(const uint8_t num, const float humidity)
   debug(F(AT));
   // memory(true);
 
-  static uint32_t refresh = 0;
+  static uint32_t refresh[BME280_NUM];
   uint32_t now = millis();
   if (can_send())
   {
-    if (now - refresh >= MQTT_REFRESH && mem_config.MQTT_online)
+    if (now - refresh[num] >= MQTT_REFRESH && mem_config.MQTT_online)
     {
-      refresh = now;
+      refresh[num] = now;
       DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/bme280-%02d/humidity"), num + 1, humidity);
     }
   }
@@ -522,13 +527,13 @@ void bme280_callback_pressure(const uint8_t num, const float pressure)
   debug(F(AT));
   // memory(true);
 
-  static uint32_t refresh = 0;
+  static uint32_t refresh[BME280_NUM];
   uint32_t now = millis();
   if (can_send())
   {
-    if (now - refresh >= MQTT_REFRESH && mem_config.MQTT_online)
+    if (now - refresh[num] >= MQTT_REFRESH && mem_config.MQTT_online)
     {
-      refresh = now;
+      refresh[num] = now;
       debug(F(AT));
       DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/bme280-%02d/pressure"), num + 1, pressure);
     }
@@ -584,13 +589,13 @@ void scd4x_callback_temperature(const uint8_t num, const float temperature)
   debug(F(AT));
   // memory(false);
 
-  static uint32_t refresh = 0;
+  static uint32_t refresh[SCD4X_NUM];
   uint32_t now = millis();
   if (can_send())
   {
-    if (now - refresh >= MQTT_REFRESH && mem_config.MQTT_online)
+    if (now - refresh[num] >= MQTT_REFRESH && mem_config.MQTT_online)
     {
-      refresh = now;
+      refresh[num] = now;
       DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/scd4x-%02d/temperature"), num + 1, temperature);
     }
   }
@@ -603,13 +608,13 @@ void scd4x_callback_humidity(const uint8_t num, const float humidity)
   debug(F(AT));
   // memory(true);
 
-  static uint32_t refresh = 0;
+  static uint32_t refresh[SCD4X_NUM];
   uint32_t now = millis();
   if (can_send())
   {
-    if (now - refresh >= MQTT_REFRESH && mem_config.MQTT_online)
+    if (now - refresh[num] >= MQTT_REFRESH && mem_config.MQTT_online)
     {
-      refresh = now;
+      refresh[num] = now;
       DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/scd4x-%02d/humidity"), num + 1, humidity);
     }
   }
@@ -622,13 +627,13 @@ void scd4x_callback_co2(const uint8_t num, const float pressure)
   debug(F(AT));
   // memory(true);
 
-  static uint32_t refresh = 0;
+  static uint32_t refresh[SCD4X_NUM];
   uint32_t now = millis();
   if (can_send())
   {
-    if (now - refresh >= MQTT_REFRESH && mem_config.MQTT_online)
+    if (now - refresh[num] >= MQTT_REFRESH && mem_config.MQTT_online)
     {
-      refresh = now;
+      refresh[num] = now;
       DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/scd4x-%02d/co2"), num + 1, pressure);
     }
   }
@@ -643,13 +648,13 @@ void hdc1080_callback_temperature(const uint8_t num, const float temperature)
   debug(F(AT));
   // memory(false);
 
-  static uint32_t refresh = 0;
+  static uint32_t refresh[HDC1080_NUM];
   uint32_t now = millis();
   if (can_send())
   {
-    if (now - refresh >= MQTT_REFRESH && mem_config.MQTT_online)
+    if (now - refresh[num] >= MQTT_REFRESH && mem_config.MQTT_online)
     {
-      refresh = now;
+      refresh[num] = now;
       DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/hdc1080-%02d/temp"), num + 1, temperature);
     }
   }
@@ -661,14 +666,13 @@ void hdc1080_callback_humidity(const uint8_t num, const float humidity)
 {
   debug(F(AT));
   // memory(true);
-
-  static uint32_t refresh = 0;
+  static uint32_t refresh[HDC1080_NUM];
   uint32_t now = millis();
   if (can_send())
   {
-    if (now - refresh >= MQTT_REFRESH && mem_config.MQTT_online)
+    if (now - refresh[num] >= MQTT_REFRESH && mem_config.MQTT_online)
     {
-      refresh = now;
+      refresh[num] = now;
       DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/hdc1080-%02d/humidity"), num + 1, humidity);
     }
   }
@@ -1762,8 +1766,7 @@ bool mqtt_publish(bool start)
 #include BOOST_PP_UPDATE_COUNTER()
     case BOOST_PP_COUNTER:
       char buf[30];
-      DateTime Now = rtcNtp.now();
-      rtcNtp.ToDateTime(Now, buf, 30);
+      rtcNtp.ToDateTime(mem_config.started, buf, 30);
       Serial.println(buf);
       DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/debug_str/state"), buf);
       // strncpy(eeprom_config.debug_str, "@", 1);
@@ -2840,9 +2843,13 @@ void __attribute__((optimize("O0"))) mqtt_receve(MQTTClient *client, const char 
   else if (strcmp(topic, MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/chauffage/DRV/set") == 0) // date_retour_vacance
   {
     str_buffer = buffer;
-    eeprom_config.temp_inter_demmarage = str_buffer.toInt();
-    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/chauffage/DRV/state"), eeprom_config.temp_inter_demmarage);
+    eeprom_config.date_retour_vacance = strtoul(buffer, NULL, 10);
+    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/chauffage/DRV/state"), eeprom_config.date_retour_vacance);
     sauvegardeEEPROM();
+    // DateTime test = DateTime(eeprom_config.date_retour_vacance);
+    DateTime now = rtcNtp.now();
+    Serial.println((eeprom_config.date_retour_vacance - now.unixtime()) / 86400.0);
+    Serial.println(eeprom_config.date_retour_vacance - now.unixtime());
   }
   else if (strcmp(topic, MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/chauffage/AM/set") == 0) // ha_arret_meteo
   {
@@ -3328,40 +3335,41 @@ void __attribute__((optimize("O0"))) mqtt_receve(MQTTClient *client, const char 
   memory(false);
 }
 
-void mqtt_connection_lost()
+void mqtt_connection_lost() // TODO
 {
-#ifdef POELE
-  if (DT_Poele_get_mode() == DT_POELE_STANDBY)
-  {
-    DT_Poele_set_mode(DT_POELE_NORMAL);
-  }
-#endif // POELE
 
-#ifdef VANNES
-  if (DT_3voies_PCBT_get_mode() == DT_3VOIES_STANDBY)
-  {
-    DT_3voies_PCBT_set_mode(DT_3VOIES_NORMAL);
-  }
+  // #ifdef POELE
+  //   if (DT_Poele_get_mode() == DT_POELE_STANDBY)
+  //   {
+  //     DT_Poele_set_mode(DT_POELE_NORMAL);
+  //   }
+  // #endif // POELE
 
-  if (DT_3voies_MCBT_get_mode() == DT_3VOIES_STANDBY)
-  {
-    DT_3voies_MCBT_set_mode(DT_3VOIES_NORMAL);
-  }
-  eeprom_config.in_offset_PCBT = 0;
-  eeprom_config.in_offset_MCBT = 0;
-#endif // VANNES
-#ifdef RELAY_ECS1
-  if (DT_ecs1_get_mode() == DT_ECS_STANDBY)
-  {
-    DT_ecs1_set_mode(DT_ECS_MARCHE);
-  }
-#endif // RELAY_ECS1
-#ifdef RELAY_ECS2
-  if (DT_ecs2_get_mode() == DT_ECS_STANDBY)
-  {
-    DT_ecs2_set_mode(DT_ECS_MARCHE);
-  }
-#endif // RELAY_ECS2
+  // #ifdef VANNES
+  //   if (DT_3voies_PCBT_get_mode() == DT_3VOIES_STANDBY)
+  //   {
+  //     DT_3voies_PCBT_set_mode(DT_3VOIES_NORMAL);
+  //   }
+
+  //   if (DT_3voies_MCBT_get_mode() == DT_3VOIES_STANDBY)
+  //   {
+  //     DT_3voies_MCBT_set_mode(DT_3VOIES_NORMAL);
+  //   }
+  //   eeprom_config.in_offset_PCBT = 0;
+  //   eeprom_config.in_offset_MCBT = 0;
+  // #endif // VANNES
+  // #ifdef RELAY_ECS1
+  //   if (DT_ecs1_get_mode() == DT_ECS_STANDBY)
+  //   {
+  //     DT_ecs1_set_mode(DT_ECS_MARCHE);
+  //   }
+  // #endif // RELAY_ECS1
+  // #ifdef RELAY_ECS2
+  //   if (DT_ecs2_get_mode() == DT_ECS_STANDBY)
+  //   {
+  //     DT_ecs2_set_mode(DT_ECS_MARCHE);
+  //   }
+  // #endif // RELAY_ECS2
 }
 #endif // MQTT
 
@@ -3369,16 +3377,20 @@ void mqtt_connection_lost()
 void setup()
 {
   // wdt_disable();
-  init_wdt();
+  // init_wdt();
   // Serial.begin(9600);
   Serial.begin(57600);
   Serial.println(F("starting board"));
   memory(true);
+
+
   // auto Serial.println("starting board version " BOARD_SW_VERSION_PRINT);
 
   Serial.println(F("Load eeprom"));
   chargeEEPROM();
   memory(false);
+
+
 
   TWCR = 0;
   Wire.begin();
@@ -3388,6 +3400,8 @@ void setup()
   // Wire.write(MCP_CHANNEL); // channel 1
   // Wire.endTransmission();
 #ifdef I2C_Multiplexeur
+
+
   Serial.println(F("init mcp"));
   DT_mcp_init();
 #endif
@@ -3395,6 +3409,8 @@ void setup()
   memory(false);
 
 #ifdef MQTT
+
+
   // Serial.print(millis());
   Serial.println(F("starting mqtt"));
   DT_mqtt_init();
@@ -3405,13 +3421,17 @@ void setup()
   DT_mqtt_set_connection_lost_callback(mqtt_connection_lost);
 #endif // MQTT
 
+
   Serial.println(F("starting relay"));
   DT_relay_init();
+
 #ifdef MQTT
+
   DT_relay_set_callback(relay_callback);
 #endif // MQTT
 
 #if OPT_RELAY_NUM > 0
+
   Serial.println(F("starting opt-relay"));
   DT_opt_relay_init();
 #ifdef MQTT
@@ -3420,6 +3440,7 @@ void setup()
 #endif // OPT_RELAY_NUM > 0
 
 #if DIMMER_LIGHT_NUM + DIMMER_HEAT_NUM > 0
+
   Serial.println(F("starting dimmer"));
   Dimmer_init();
 #endif // DIMMER_LIGHT_NUM + DIMMER_HEAT_NUM > 0
@@ -3430,6 +3451,7 @@ void setup()
 #endif // MQTT
 
 #if COVER_NUM > 0
+
   Serial.println(F("starting cover"));
   DT_cover_init();
 #ifdef MQTT
@@ -3438,6 +3460,7 @@ void setup()
 #endif // COVER_NUM
 
 #if PORTAL_NUM > 0
+
   Serial.println(F("starting portal"));
   DT_portal_init();
 #ifdef MQTT
@@ -3446,6 +3469,7 @@ void setup()
 #endif // PORTAL_NUM
 
 #if RADIATOR_NUM > 0
+
   Serial.println(F("starting radiator"));
   DT_radiator_init();
 #ifdef MQTT
@@ -3453,11 +3477,14 @@ void setup()
 #endif // MQTT
 #endif // VANNE
 
+
+
   Serial.println(F("starting input"));
   DT_input_init();
   DT_input_set_callback(input_callback);
 
 #if PT100_NUM > 0
+
   Serial.println(F("starting PT100"));
   DT_pt100_init();
 #ifdef MQTT
@@ -3466,6 +3493,7 @@ void setup()
 #endif // PT100
 
 #if BME280_NUM > 0
+
 
   Serial.println(F("starting BME280"));
   DT_BME280_init();
@@ -3487,6 +3515,7 @@ void setup()
 
 #if SCD4X_NUM > 0
 
+
   Serial.println(F("starting SCD4X"));
   DT_SCD4X_init();
 #ifdef MQTT
@@ -3498,6 +3527,7 @@ void setup()
 
 #if HDC1080_NUM > 0
 
+
   Serial.println(F("starting HDC1080"));
   DT_HDC1080_init();
 #ifdef MQTT
@@ -3507,6 +3537,7 @@ void setup()
 #endif // HDC1080_NUM
 
 #if CPT_PULSE_INPUT > 0 || CPT_PULSE_INPUT_IF_OUT > 0 || CPT_PULSE_INPUT_IF_IN > 0
+
   Serial.println(F("starting cpt_pulse_input"));
   DT_cpt_pulse_input_init();
 #ifdef MQTT
@@ -3527,6 +3558,7 @@ void setup()
   // DT_fake_ntc_callback(fake_ntc_callback);
 
 #ifdef POELE
+
   Serial.println(F("starting Poele"));
   DT_Poele_init();
 #ifdef MQTT
@@ -3535,6 +3567,7 @@ void setup()
 #endif // POELE
 
 #ifdef CHAUFFAGE
+
   Serial.println(F("starting Chauffage"));
   DT_Chauffage_init();
 #ifdef MQTT
@@ -3545,6 +3578,7 @@ void setup()
 #endif // CHAUFFAGE
 
 #ifdef VANNES
+
   Serial.println(F("starting 3 voies"));
   DT_3voies_init();
 #ifdef MQTT
@@ -3556,6 +3590,7 @@ void setup()
 #endif // VANNE
 
 #ifdef TIC
+
   DT_teleinfo_init();
   DT_teleinfo_set_callback(teleinfo_callback);
 #endif // TIC
@@ -3564,6 +3599,7 @@ void setup()
 
 // wdt_enable(WATCHDOG_TIME);
 #ifdef MQTT
+
   homeassistant(true);
 #endif
 
@@ -3572,15 +3608,19 @@ void setup()
   Serial.println(F("starting RTC/NTP"));
   rtcNtp.begin();
   rtcNtp.syncOnce();
-#endif
+#endif // CLOCK
 
   // Serial.print(millis());
   Serial.println(F("Board started"));
   Serial.print(F("version: "));
   Serial.println(F(BOARD_SW_VERSION_PRINT));
+#ifdef CLOCK
+  mem_config.started = rtcNtp.now();
+#endif // CLOCK
   memory(true);
 
-  // init_wdt();
+  // debug_wdt_reset();
+  init_wdt();
 }
 
 // boucle principale
@@ -3730,24 +3770,10 @@ void loop()
   load();
   memory(false);
 
-  // adjust CCS811
-  // static uint32_t ccs811_environmental = 0;
-  // if (now - ccs811_environmental > 600000) // toute les 10 minutes
-  // {
-  //   ccs811_environmental = now;
-  //   float humidity = DT_BME280_get_humidity(1);
-  //   float temperature = DT_BME280_get_temperature(1);
-  //   DT_CCS811_set_environmental_data(1, humidity, temperature);
-  //   humidity = DT_BME280_get_humidity(2);
-  //   temperature = DT_BME280_get_temperature(2);
-  //   DT_CCS811_set_environmental_data(2, humidity, temperature);
-  // }
-
   static uint32_t old = 0;
   // static bool up = true;
-  if (now - old > 5000)
+  if (now - old > 2000)
   {
     old = now;
-    DT_relay(RELAY_ECS1, !DT_relay_get(RELAY_ECS1));
   }
 }
