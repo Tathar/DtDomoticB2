@@ -17,10 +17,7 @@ void memory(bool print);
 #define SAVE_EEPROM 600000 // sauvegarde des données dans l eeprom toute les x ms
 #define MQTT_REFRESH 10000 // temp de rafrechissement du MQTT
 
-#define BOARD_MANUFACTURER "DOUET Touch Familly"
-#define BOARD_MODEL "DTBoard02"
 #define BOARD_NAME "Chauffage"
-#define BOARD_SW_VERSION "0.2"
 #define BOARD_IDENTIFIER "DTB02-001"
 
 #define MAX_TOPIC 64
@@ -75,7 +72,7 @@ const uint8_t DIMMER_RADIATOR_ARRAY[DIMMER_RADIATOR_NUM] PROGMEM = {}; // define
 #endif
 
 // PT100
-#define PT100_NUM 7 // max 18 //TODO: bug if PT100_NUM != 18  13
+#define PT100_NUM 8 // max 18 //TODO: bug if PT100_NUM != 18  13
 #define PT100_EXT 6 //6
 
 // BME_280
@@ -116,8 +113,12 @@ const uint8_t RELAY_RADIATOR_PT100_ARRAY[RELAY_RADIATOR_NUM] PROGMEM = {};
 #endif // RELAY_RADIATOR_NUM
 
 // watchdog
+// #define WATCHDOG_TIME WDTO_15MS
+// #define WATCHDOG_TIME WDTO_60MS
+// #define WATCHDOG_TIME WDTO_250MS
+#define WATCHDOG_TIME WDTO_500MS
 // #define WATCHDOG_TIME WDTO_1S
-#define WATCHDOG_TIME WDTO_8S
+// #define WATCHDOG_TIME WDTO_8S
 
 #define MQTT
 #ifdef MQTT
@@ -175,7 +176,8 @@ const uint8_t RELAY_RADIATOR_PT100_ARRAY[RELAY_RADIATOR_NUM] PROGMEM = {};
 #ifdef CLOCK
     #define NTP_SERVER "pool.ntp.org"
     #define NTP_LOCAL_PORT 8888
-    #define NTP_SYNC_INTERVAL 24UL * 60UL * 60UL * 1000UL // 24h
+    // #define NTP_SYNC_INTERVAL 24UL * 60UL * 60UL * 1000UL // 24h
+    #define NTP_SYNC_INTERVAL 24UL * 60UL * 1000UL // 1h
 
     #define CLOCK_MONTH_1 3 // 24h
     #define CLOCK_DAY_1 31 // 24h
@@ -215,7 +217,7 @@ const uint8_t RELAY_RADIATOR_PT100_ARRAY[RELAY_RADIATOR_NUM] PROGMEM = {};
 #define RELAY_ECS2 25  //résistance ECS2
 #define RELAY_ECS3 26  //résistance ECS2
 
-#define PT100_ECS 5 //7
+#define PT100_ECS 7 //7
 #define PT100_ECS2 9 //8 //A suprimmé
 
 // #define RELAY_EV1 24 // relay ECS
