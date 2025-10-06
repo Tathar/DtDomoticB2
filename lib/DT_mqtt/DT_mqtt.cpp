@@ -17,11 +17,11 @@ MQTTClient mqtt(512);
 bool as_ethernet = false;
 bool link_status;
 
-bool (*_mqtt_update)(MQTTClient &mqtt, bool start);
-bool (*_mqtt_subscribe)(MQTTClient &mqtt, bool start);
-bool (*_mqtt_publish)(bool start);
-void (*_mqtt_receve)(MQTTClient *client, const char topic[], const char bytes[], const int length);
-void (*_mqtt_connection_lost)();
+bool (*_mqtt_update)(MQTTClient &mqtt, bool start) = nullptr;
+bool (*_mqtt_subscribe)(MQTTClient &mqtt, bool start) = nullptr;
+bool (*_mqtt_publish)(bool start) = nullptr;
+void (*_mqtt_receve)(MQTTClient *client, const char topic[], const char bytes[], const int length) = nullptr;
+void (*_mqtt_connection_lost)() = nullptr;
 
 // DT_buffer<MQTT_data> send_buffer;
 // DT_buffer<MQTT_recv_msg> recv_buffer;
@@ -137,46 +137,22 @@ void DT_mqtt_init()
 
     Serial.println(F("start network"));
     init_ethernet();
-    Ethernet.setRetransmissionCount(1);
-    Ethernet.setRetransmissionTimeout(20);
     ethClient.setConnectionTimeout(20);
     ethClient.setTimeout(20);
     mqtt.setTimeout(20);
     mqtt.begin(server, 1883, ethClient);
-    mqtt.setWill(MQTT_WILL_TOPIC, MQTT_WILL_MESSAGE, MQTT_WILL_RETAIN, MQTT_WILL_QOS);
-    // mqtt.setTimeout(1000);
+
+    // mqtt.setWill(MQTT_WILL_TOPIC, MQTT_WILL_MESSAGE, MQTT_WILL_RETAIN, MQTT_WILL_QOS); TODO
+
 
     mqtt.onMessageAdvanced(DT_receve_callback);
-    //  if (!mqtt.connected())
-    //  {
-    //      if (mqtt.connect("test", "test", "test"))
-    //      {
-    //          Serial.println("MQTT connected");
-    //          mqtt.loop();
-    //      }
-    //      else
-    //      {
-    //          Serial.println("MQTT not connected");
-    //      }
-    //  }
-    //  else
-    //  {
-    //      mqtt.loop();
-    //  }
-    _mqtt_update = nullptr;
-    _mqtt_subscribe = nullptr;
-    _mqtt_publish = nullptr;
-    _mqtt_receve = nullptr;
-    _mqtt_connection_lost = nullptr;
-    //  mqtt.setCallback(&test_mqtt_receve);
-    // send_buffer.reserve(6);
-    // send_buffer.reserve(2);
-    // rcv_topic.reserve(32);
-    // rcv_payload.reserve(16);
-    // send_buffer = nullptr;
-    // send_buffer_len = 0;
-    // send_buffer_read = 0;
-    // send_buffer_write = 0;
+
+    // _mqtt_update = nullptr;
+    // _mqtt_subscribe = nullptr;
+    // _mqtt_publish = nullptr;
+    // _mqtt_receve = nullptr;
+    // _mqtt_connection_lost = nullptr;
+
     memory(false);
 }
 
@@ -258,23 +234,23 @@ void DT_mqtt_loop()
                     // wdt_reset();
                     // debug_wdt_reset();
                     // init_ethernet();
-                    // DT_mqtt_init();
-                    byte mac[] = {MAC1, MAC2, MAC3, MAC4, MAC5, MAC6};
-                    Ethernet.setMACAddress(mac);
-                    IPAddress ip(SOURCE_IP1, SOURCE_IP2, SOURCE_IP3, SOURCE_IP4);
-                    Ethernet.setLocalIP(ip);
-                    IPAddress mask(MASK1, MASK2, MASK3, MASK4);
-                    Ethernet.setSubnetMask(mask);
-                    IPAddress gateway(GW1, GW2, GW3, GW4);
-                    Ethernet.setGatewayIP(gateway);
-                    IPAddress dns(DNS1, DNS2, DNS3, DNS4);
-                    Ethernet.setDnsServerIP(dns);
+                    DT_mqtt_init();
+                    // byte mac[] = {MAC1, MAC2, MAC3, MAC4, MAC5, MAC6};
+                    // Ethernet.setMACAddress(mac);
+                    // IPAddress ip(SOURCE_IP1, SOURCE_IP2, SOURCE_IP3, SOURCE_IP4);
+                    // Ethernet.setLocalIP(ip);
+                    // IPAddress mask(MASK1, MASK2, MASK3, MASK4);
+                    // Ethernet.setSubnetMask(mask);
+                    // IPAddress gateway(GW1, GW2, GW3, GW4);
+                    // Ethernet.setGatewayIP(gateway);
+                    // IPAddress dns(DNS1, DNS2, DNS3, DNS4);
+                    // Ethernet.setDnsServerIP(dns);
 
-                    Ethernet.setRetransmissionCount(1);
-                    Ethernet.setRetransmissionTimeout(20);
-                    ethClient.setConnectionTimeout(20);
-                    ethClient.setTimeout(20);
-                    mqtt.setTimeout(20);
+                    // Ethernet.setRetransmissionCount(1);
+                    // Ethernet.setRetransmissionTimeout(20);
+                    // ethClient.setConnectionTimeout(20);
+                    // ethClient.setTimeout(20);
+                    // mqtt.setTimeout(20);
 
                     reset_time = 0;
                     reset = false;
@@ -393,28 +369,12 @@ void DT_mqtt_loop()
                         Serial.println(len);
                     }
 
-                    // Serial.print(F("send buffer size = "));
-                    // Serial.println(send_buffer.size());
-                    // }
-                    // Serial.print(F("Buffer capacity = "));
-                    // Serial.println(send_buffer.capacity());
-                    // Serial.print(F("Buffer size = "));
-                    // Serial.println(send_buffer.size());
-                    // Serial.print(F("Buffer available = "));
-                    // Serial.println(send_buffer.available());
-                    // if (send_buffer.size() == 0)
-                    // {
-                    // send_buffer.clean(6);
-                    // }
                     debug(F(AT));
                 }
             }
             else if (mem_config.ha_mqtt_config == false)
             {
-                // 220502  debug(F(AT));
-                mem_config.ha_mqtt_config = homeassistant(false);
-                // ret_homeassistant = true;
-                // 220502  debug(F(AT));
+                mem_config.ha_mqtt_config = homeassistant(false); 
             }
             else
             {
@@ -424,17 +384,13 @@ void DT_mqtt_loop()
                 case 0:
                     if (_mqtt_subscribe != nullptr)
                     {
-                        // 220502  debug(F(AT));
                         mem_config.ha_mqtt_subscribe = _mqtt_subscribe(mqtt, false);
-                        // 220502  debug(F(AT));
                     }
                     break;
                 case 1:
                     if (_mqtt_publish != nullptr)
                     {
-                        // 220502  debug(F(AT));
                         mem_config.ha_mqtt_publish = _mqtt_publish(false);
-                        // 220502  debug(F(AT));
                     }
                     break;
                 case 2:
@@ -455,11 +411,19 @@ void DT_mqtt_loop()
                     choix = 0;
             }
         }
-    }else {
-        if (_mqtt_connection_lost != nullptr )
-            {
-                _mqtt_connection_lost();
-            }
+    }
+    else
+    {
+        if (_mqtt_connection_lost != nullptr)
+        {
+            _mqtt_connection_lost();
+        }
+        static uint32_t last = 0;
+        if (now - last > 60UL * 1000UL )
+        {
+            last = now;
+            DT_mqtt_init();
+        }
     }
 
     memory(false);

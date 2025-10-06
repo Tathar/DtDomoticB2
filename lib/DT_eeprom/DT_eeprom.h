@@ -8,10 +8,12 @@
 #endif
 
 #include <config.h>
+#include <RTClib.h>
 
 #include "../lib/DT_poele/DT_poele.h"
 #include "../lib/DT_3voies/DT_3voies.h"
 #include "../lib/DT_chauffage/DT_chauffage.h"
+// #include "../lib/DT_clock/DT_clock.h"
 
 #include <QuickPID.h>
 
@@ -80,6 +82,9 @@ struct Mem_Config
 #endif // CHAUFFAGE
 #if DIMMER_LIGHT_NUM >= 1
     uint8_t Dimmer_old_value[DIMMER_LIGHT_NUM]; // Mise a l echelle
+#endif
+#ifdef CLOCK
+    DateTime started; // date de demmarage
 #endif
 };
 struct Eeprom_Config

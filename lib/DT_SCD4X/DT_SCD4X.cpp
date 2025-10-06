@@ -66,11 +66,11 @@ void DT_SCD4X_init()
 void DT_SCD4X_loop()
 {
     uint32_t now = millis();
-    static uint32_t old = 0;
+    static uint32_t refresh[SCD4X_NUM];
     static uint8_t num = 0;
-    if (now - old >= 1000)
+    if (now - refresh[num] >= 1000)
     {
-        old = now;
+        refresh[num] = now;
 
         if (scd4x_active[num])
         {
@@ -118,11 +118,12 @@ void DT_SCD4X_loop()
             }
         }
 
-        if (++num == SCD4X_NUM)
+        
+    }
+    if (++num == SCD4X_NUM)
         {
             num = 0;
         }
-    }
 }
 
 void DT_SCD4X_set_callback_temperature(void (*callback)(const uint8_t num, const float temperature))

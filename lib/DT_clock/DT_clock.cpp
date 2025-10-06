@@ -10,6 +10,8 @@
 #include "Dns.h"
 #include <Wire.h>
 
+#ifdef CLOCK
+
 RTCNTP::RTCNTP()
     : _lastSync(0) {}
 
@@ -64,6 +66,7 @@ void RTCNTP::loop()
 {
   if (millis() - _lastSync >= NTP_SYNC_INTERVAL)
   {
+    _lastSync = millis();
     syncOnce();
   }
 
@@ -73,7 +76,6 @@ void RTCNTP::loop()
   //   old = millis();
   //   printDateTime(now());
   // }
-
 }
 
 DateTime RTCNTP::now()
@@ -107,7 +109,6 @@ DateTime RTCNTP::now()
   {
     Serial.println("UTC+1");
     return dt + CLOCK_OFSFET_2;
-
   }
 
   // return dt; // TODO: heure hiver/ete
@@ -125,6 +126,10 @@ unsigned long RTCNTP::getNTPTime()
   {
     Serial.println("Impossible de resoudre le serveur NTP");
     ntpIP = IPAddress(172, 232, 44, 156);
+  }
+  else
+  {
+    Serial.println("resolution NTP OK");
   }
 
   memset(packetBuffer, 0, NTP_PACKET_SIZE);
@@ -150,10 +155,12 @@ unsigned long RTCNTP::getNTPTime()
       unsigned long lowWord = word(packetBuffer[42], packetBuffer[43]);
       unsigned long secsSince1900 = (highWord << 16) | lowWord;
       const unsigned long seventyYears = 2208988800UL;
+      _udp.stop();
       return secsSince1900 - seventyYears;
     }
     delay(10);
   }
+  _udp.stop();
   return 0;
 }
 
@@ -175,3 +182,5 @@ void RTCNTP::ToDateTime(const DateTime &dt, char *buf, uint8_t len)
 }
 
 RTCNTP rtcNtp;
+
+#endif

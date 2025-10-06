@@ -63,6 +63,7 @@ void DT_BME280_loop()
 {
     uint16_t now = millis();
     static uint16_t old = 0;
+    // static uint32_t refresh[BME280_NUM];
     if (now - old >= 1000)
     {
         old = now;

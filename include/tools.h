@@ -1,6 +1,12 @@
 #ifndef TOOLS_H
 #define TOOLS_H
 
+
+
+#define BOARD_MANUFACTURER "DOUET Touch Familly"
+#define BOARD_MODEL "DTBoard02"
+#define BOARD_SW_VERSION "1.0"
+
 #ifdef __GIT_HASH__
 #define BOARD_SW_VERSION_PRINT BOARD_SW_VERSION " (" __GIT_HASH__ ")"
 #else

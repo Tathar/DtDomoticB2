@@ -7,7 +7,6 @@
 #define MIN_DEFAULT_PT100 -100 // si la temperature est inferieur, on considere que la PT100 est en default
 #define MAX_DEFAULT_PT100 200  // si la temperature est superieur, on considere que la PT100 est en default
 
-
 #if PT100_NUM > 0
 
 Adafruit_MAX31865 *max31865[PT100_NUM];
@@ -20,39 +19,39 @@ float _temp_get(int num)
     float tmp = max31865[num]->temperature(100, TEMP_RREF);
     uint8_t fault = max31865[num]->readFault();
     if (tmp < MIN_DEFAULT_PT100 || tmp > MAX_DEFAULT_PT100)
-    if (fault)
-    {
-        Serial.print(F("fault PT100 "));
-        Serial.print(num);
-        Serial.print(F(" "));
-        if (fault & MAX31865_FAULT_HIGHTHRESH)
+        if (fault)
         {
-            Serial.println(F("RTD High Threshold"));
-        }
-        if (fault & MAX31865_FAULT_LOWTHRESH)
-        {
-            Serial.println(F("RTD Low Threshold"));
-        }
-        if (fault & MAX31865_FAULT_REFINLOW)
-        {
-            Serial.println(F("REFIN- > 0.85 x Bias"));
-        }
-        if (fault & MAX31865_FAULT_REFINHIGH)
-        {
-            Serial.println(F("REFIN- < 0.85 x Bias - FORCE- open"));
-        }
-        if (fault & MAX31865_FAULT_RTDINLOW)
-        {
-            Serial.println(F("RTDIN- < 0.85 x Bias - FORCE- open"));
-        }
-        if (fault & MAX31865_FAULT_OVUV)
-        {
-            Serial.println(F("Under/Over voltage"));
-        }
-        max31865[num]->clearFault();
+            Serial.print(F("fault PT100 "));
+            Serial.print(num);
+            Serial.print(F(" "));
+            if (fault & MAX31865_FAULT_HIGHTHRESH)
+            {
+                Serial.println(F("RTD High Threshold"));
+            }
+            if (fault & MAX31865_FAULT_LOWTHRESH)
+            {
+                Serial.println(F("RTD Low Threshold"));
+            }
+            if (fault & MAX31865_FAULT_REFINLOW)
+            {
+                Serial.println(F("REFIN- > 0.85 x Bias"));
+            }
+            if (fault & MAX31865_FAULT_REFINHIGH)
+            {
+                Serial.println(F("REFIN- < 0.85 x Bias - FORCE- open"));
+            }
+            if (fault & MAX31865_FAULT_RTDINLOW)
+            {
+                Serial.println(F("RTDIN- < 0.85 x Bias - FORCE- open"));
+            }
+            if (fault & MAX31865_FAULT_OVUV)
+            {
+                Serial.println(F("Under/Over voltage"));
+            }
+            max31865[num]->clearFault();
 
-        return TEMP_DEFAULT_PT100;
-    }
+            return TEMP_DEFAULT_PT100;
+        }
     int32_t digit = tmp * 100;
     return digit / 100.0;
 }
@@ -110,10 +109,13 @@ void DT_pt100_loop()
             static uint8_t num = 0;
             if (num < PT100_NUM)
             {
-                // Serial.print(F("PT100 "));
-                // Serial.print(num);
-                // Serial.print(F(" = "));
-                // Serial.println(old_temp[num]);
+                if (num == 6)
+                {
+                    Serial.print(F("PT100 "));
+                    Serial.print(num);
+                    Serial.print(F(" = "));
+                    Serial.println(old_temp[num]);
+                }
 
                 if (pt100_callback != nullptr)
                     pt100_callback(num, old_temp[num]);

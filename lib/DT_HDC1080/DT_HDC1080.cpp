@@ -37,12 +37,13 @@ void DT_HDC1080_init()
 void DT_HDC1080_loop()
 {
     uint16_t now = millis();
-    static uint16_t old = 0;
+    // static uint16_t old = 0;
     static uint8_t num = 0;
+    static uint32_t refresh[HDC1080_NUM];
 
-    if (now - old >= 1000)
+    if (now - refresh[num] >= 1000)
     {
-        old = now;
+        refresh[num] = now;
         uint8_t i2c_channel = pgm_read_byte(HDC1080_CHANNEL_ARRAY + num);
 
         Wire.beginTransmission(I2C_MULTIPLEXER_ADDRESS); // change I2C channel
@@ -66,11 +67,11 @@ void DT_HDC1080_loop()
             if (HDC1080_callback_humidity != nullptr)
                 HDC1080_callback_humidity(num, value);
         }
+    }
 
-        if (++num == HDC1080_NUM)
-        {
-            num = 0;
-        }
+    if (++num == HDC1080_NUM)
+    {
+        num = 0;
     }
 }
 

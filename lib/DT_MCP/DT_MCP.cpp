@@ -47,6 +47,25 @@ uint8_t DT_mcp_digitalRead(uint8_t num, uint8_t pin, bool fast)
     return mcp[num].digitalRead(pin);
 }
 
+bool DT_mcp_digitalReads(uint8_t num, uint8_t (*data)[8]) // data is unit_t[8]
+{
+    Wire.beginTransmission(I2C_MULTIPLEXER_ADDRESS);
+    Wire.write(MCP_CHANNEL);
+    Wire.endTransmission();
+    uint8_t gpio = mcp[num].readGPIO();
+
+    (*data)[0] = (gpio & _BV(0)) != LOW;
+    (*data)[1] = (gpio & _BV(1)) != LOW;
+    (*data)[2] = (gpio & _BV(2)) != LOW;
+    (*data)[3] = (gpio & _BV(3)) != LOW;
+    (*data)[4] = (gpio & _BV(4)) != LOW;
+    (*data)[6] = (gpio & _BV(5)) != LOW;
+    (*data)[6] = (gpio & _BV(6)) != LOW;
+    (*data)[7] = (gpio & _BV(7)) != LOW;
+
+    return true;
+}
+
 void DT_mcp_digitalWrite(uint8_t num, uint8_t pin, uint8_t value, bool fast)
 {
     if (fast == false)

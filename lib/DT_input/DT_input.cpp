@@ -126,11 +126,13 @@ void DT_input_loop()
     bool as_interrupt = false;
 
 #ifdef INTERNAL_INPUT_I2C
-    if (!digitalRead(MCP_PIN_INTERUPT))
-    {
-        as_interrupt = true;
-        // Serial.println(F("MCP Interrupt"));
-    }
+    // if (!digitalRead(MCP_PIN_INTERUPT))
+    // {
+    //     as_interrupt = true;
+    //     // Serial.println(F("MCP Interrupt"));
+    // }
+
+    uint8_t datas[8] = {LOW, LOW, LOW, LOW, LOW, LOW, LOW, LOW};
 #endif
 
     for (uint8_t num = 0; num < INPUT_NUM; ++num)
@@ -145,41 +147,39 @@ void DT_input_loop()
         if (pin >= 100)
         {
 #ifdef INTERNAL_INPUT_I2C
-            if (as_interrupt) // si interuption (pullup)
-            {
+            // if (as_interrupt) // si interuption (pullup)
+            // {
+            //     uint8_t i2c = pin / 100;
+            //     pin -= i2c * 100;
+            //     i2c -= 1;
+            //     pin_stats = DT_mcp_digitalRead(i2c, pin);
+            // }
 
-                // Serial.println(F("MCP2308 input not implemented"));
-                // Serial.println(pin);
-                uint8_t i2c = pin / 100;
-                pin -= i2c * 100;
-                i2c -= 1;
-                // pin_stats = mcp[i2c].digitalRead(pin);
-                pin_stats = DT_mcp_digitalRead(i2c, pin);
-                // Serial.println(pin);
-                // Serial.println(i2c);
-            }
-            else // si pas d interuption (pullup)
+            if (pin % 100 == 0)
             {
-                pin_stats = revert == false ? old_pin_stats[num] : !old_pin_stats[num];
+                uint8_t i2c = pin / 100;
+                // pin -= i2c * 100;
+                i2c -= 1;
+                // // Serial.println("ici 1");
+                DT_mcp_digitalReads(i2c, &datas); //lecture des 8 entrées
             }
+
+            if (pin % 100 < 8) {
+                // Serial.println("ici 2");
+                pin_stats = datas[pin % 100];
+            }
+
 #endif
         }
         else
         {
             pin_stats = digitalRead(pin);
-            static uint8_t old_pin_state = LOW;
-            if (pin == 64 && pin_stats != old_pin_state)
-            {
-                old_pin_state = pin_stats;
-                // Serial.print(F("pin 11 ="));
-                // Serial.println(pin_stats);
-            }
         }
 
         if (revert)
             pin_stats = !pin_stats;
 
-        if (pin_stats != old_pin_stats[num]) //front
+        if (pin_stats != old_pin_stats[num]) // front
         {
             old_pin_stats[num] = pin_stats;
             debounce_start_time[num] = now;
@@ -199,7 +199,7 @@ void DT_input_loop()
                 }
             }
 
-            else if (pin_stats == LOW ) // Raise DOWN
+            else if (pin_stats == LOW) // Raise DOWN
             {
                 // Serial.println(F("Relese"));
                 debounce_start_time[num] = 0;
@@ -215,7 +215,7 @@ void DT_input_loop()
                 }
             }
         }
-        else if ( debounce_start_time[num] == 0 ) //debounced no change
+        else if (debounce_start_time[num] == 0) // debounced no change
         {
             if (multiple_push_start_time[num] != 0 && now - multiple_push_start_time[num] > MULTIPLE_PUSH_TIME) // multiple push timer raise
             {
