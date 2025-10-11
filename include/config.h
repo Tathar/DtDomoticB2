@@ -135,17 +135,17 @@ const uint8_t RELAY_RADIATOR_PT100_ARRAY[RELAY_RADIATOR_NUM] PROGMEM = {};
 #define SOURCE_IP1 192
 #define SOURCE_IP2 168
 #define SOURCE_IP3 1
-#define SOURCE_IP4 4
+#define SOURCE_IP4 5
 // dns server
 #define DNS1 192
 #define DNS2 168
 #define DNS3 1
-#define DNS4 1
+#define DNS4 254
 // gateway
 #define GW1 192
 #define GW2 168
 #define GW3 1
-#define GW4 1
+#define GW4 254
 // sub net mask
 #define MASK1 255
 #define MASK2 255
@@ -159,7 +159,7 @@ const uint8_t RELAY_RADIATOR_PT100_ARRAY[RELAY_RADIATOR_NUM] PROGMEM = {};
 // MQTT config
 #define MQTT_CLIENT_ID BOARD_IDENTIFIER
 #define MQTT_USER "dtboard"
-#define MQTT_PASSWORD "1MotdePasse"
+#define MQTT_PASSWORD "dtboard357"
 #define MQTT_ROOT_TOPIC "DtBoard"
 #define MQTT_WILL_TOPIC MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/status"
 #define MQTT_WILL_QOS 1
@@ -170,7 +170,7 @@ const uint8_t RELAY_RADIATOR_PT100_ARRAY[RELAY_RADIATOR_NUM] PROGMEM = {};
 #define NETWORK_RESET_TIME 60000 // temp avant reset de la carte reseau en qua d'imposibilité de se connecter (en miliseconde)
 #define MQTT_UPDATE 1000         // in ms
 
-#define CLOCK
+// #define CLOCK
 #ifdef CLOCK
     #define NTP_SERVER "pool.ntp.org"
     #define NTP_LOCAL_PORT 8888
@@ -197,7 +197,7 @@ const uint8_t RELAY_RADIATOR_PT100_ARRAY[RELAY_RADIATOR_NUM] PROGMEM = {};
 #define RADIATOR_HA_MIN_TEMP 15
 
 // Poele
-#define POELE
+// #define POELE
 #ifdef POELE
 #define MIN_T4 0                     // en °C (fake NTC)
 #define POELE_MAX_TEMPERATURE 85     // en °C (consigne temperature Balon)
@@ -228,16 +228,12 @@ const uint8_t RELAY_RADIATOR_PT100_ARRAY[RELAY_RADIATOR_NUM] PROGMEM = {};
 #define DBMAC 0.5           // demi bamnde morte pour l'arret des circulateur (en °C)
 
 // #define PT100_EXT 5
-#define PT100_3_VOIES_PCBT 2 //3
-#define PT100_3_VOIES_MCBT 4
+#define PT100_3_VOIES_C§HAUFFAGE 2
 
-#define CIRCULATEUR_PCBT 17
-#define VANNE_PCBT_HOT 0
-#define VANNE_PCBT_COLD 1
+#define CIRCULATEUR_CHAUFFAGE 17
+#define VANNE_HOT 0
+#define VANNE_COLD 1
 
-#define CIRCULATEUR_MCBT 18
-#define VANNE_MCBT_HOT 2
-#define VANNE_MCBT_COLD 3
 
 // Planchée chauffant
 #define MAX_TMP_PLANCHE 27 // en °C
@@ -264,8 +260,6 @@ const uint8_t RELAY_RADIATOR_PT100_ARRAY[RELAY_RADIATOR_NUM] PROGMEM = {};
 
 #endif // VANNES
 
-// Demmarage Poele
-#define MARCHE_POELE 21
 
 // Interaction
 #define PUSH_1_NUM 0
@@ -303,23 +297,15 @@ const dt_interaction_eeprom_config interaction_input_4_push_config[PUSH_4_NUM] P
     dt_no_action()};
 #endif // PUSH_4_NUM > 0
 
-// jeux de lumière
-#define JEUX_LUMIERE_1 8
-#define JEUX_LUMIERE_2 9
-#define JEUX_LUMIERE_3 10
-#define JEUX_LUMIERE_4 14
-#define JEUX_LUMIERE_5 15
-
-#define ALIM 16
 
 // cpt_pulse_input
-#define CPT_PULSE_INPUT 4 // nombre de compteur d'impulsion
+// #define CPT_PULSE_INPUT 4 // nombre de compteur d'impulsion
 #if CPT_PULSE_INPUT > 0
 const uint8_t CPT_PULSE_INPUT_ARRAY[CPT_PULSE_INPUT] PROGMEM = {6, 3, 4, 5};
 #endif // CPT_PULSE_INPUT > 0
 
 // cpt_pulse_input_if_OUT
-#define CPT_PULSE_INPUT_IF_OUT 1 // nombre de compteur d'impulsion Conditionnel lie a une sortie
+// #define CPT_PULSE_INPUT_IF_OUT 1 // nombre de compteur d'impulsion Conditionnel lie a une sortie
 #if CPT_PULSE_INPUT_IF_OUT > 0
 const uint8_t CPT_PULSE_INPUT_IF_OUT_ARRAY[CPT_PULSE_INPUT_IF_OUT] PROGMEM = {6};
 const uint8_t CPT_PULSE_INPUT_IF_OUT_COND_ARRAY[CPT_PULSE_INPUT_IF_OUT] PROGMEM = {RELAY_EV1};
