@@ -228,7 +228,7 @@ const uint8_t RELAY_RADIATOR_PT100_ARRAY[RELAY_RADIATOR_NUM] PROGMEM = {};
 #define DBMAC 0.5           // demi bamnde morte pour l'arret des circulateur (en °C)
 
 // #define PT100_EXT 5
-#define PT100_3_VOIES_C§HAUFFAGE 2
+#define PT100_3_VOIES_CHAUFFAGE 2 
 
 #define CIRCULATEUR_CHAUFFAGE 17
 #define VANNE_HOT 0
