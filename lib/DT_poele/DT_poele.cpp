@@ -136,7 +136,12 @@ void DT_Poele_loop()
             // arret du poele
             poele = false;
         }
-        else if (DT_pt100_get(PT100_ECS) > POELE_MAX_TEMPERATURE)
+        else if (DT_pt100_get(PT100_ECS1) > POELE_MAX_TEMPERATURE)
+        {
+            // arret du poele
+            poele = false;
+        }
+        else if (DT_pt100_get(PT100_ECS2) > POELE_MAX_TEMPERATURE)
         {
             // arret du poele
             poele = false;
