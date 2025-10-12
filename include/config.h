@@ -20,7 +20,6 @@ void memory(bool print);
 #define BOARD_MANUFACTURER "DOUET Touch Familly"
 #define BOARD_MODEL "DTBoard02"
 #define BOARD_NAME "Chauffage"
-#define BOARD_SW_VERSION "0.2"
 #define BOARD_IDENTIFIER "DTB02-001"
 
 #define MAX_TOPIC 64
