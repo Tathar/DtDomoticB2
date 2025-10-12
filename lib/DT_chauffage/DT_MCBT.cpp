@@ -18,7 +18,7 @@
 
 #define NUM_LISSAGE 5 // en °C
 
-#ifdef VANNES
+#ifdef MCBT
 
 float Input_MCBT, Output_MCBT;
 
@@ -432,4 +432,4 @@ float DT_MCBT_get_C3()
     return mem_config.C3;
 }
 
-#endif // VANNES
+#endif // MCBT

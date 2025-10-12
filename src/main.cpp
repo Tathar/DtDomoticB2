@@ -475,8 +475,10 @@ void pt100_callback(const uint8_t num, const float temp)
   if (can_send())
   {
     DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pt100-%02d"), num + 1, temp);
+#ifdef PT100_EXT
     if (num == PT100_EXT)
       DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/avg-temp/offset-state"), (float)get_temp_ext());
+#endif //PT100_EXT
   }
   memory(false);
 }
