@@ -55,13 +55,13 @@ void memory(bool print);
 const uint8_t DIMMER_COVER_ARRAY[DIMMER_COVER_NUM * 2] PROGMEM = {OPT_13, OPT_14};
 #endif
 
-#define PORTAL_NUM 2
+#define PORTAL_NUM 0
 #if PORTAL_NUM > 0
 const uint16_t PORTAL_OPEN_CLOSE_TIME = 18000; // 18 secondes
 const uint8_t RELAY_PORTAL_ARRAY[PORTAL_NUM * 2] PROGMEM = {1, 2, 3, 4}; //
 #endif
 
-#define OPT_RELAY_NUM 3 // nombre de ralais connecté au dimmer : max (DIMMER_LIGHT_NUM + DIMMER_HEAT_NUM + (DIMMER_COVER_NUM * 2) + DIMMER_RADIATOR_NUM ) = 13
+// #define OPT_RELAY_NUM 3 // nombre de ralais connecté au dimmer : max (DIMMER_LIGHT_NUM + DIMMER_HEAT_NUM + (DIMMER_COVER_NUM * 2) + DIMMER_RADIATOR_NUM ) = 13
 #if OPT_RELAY_NUM > 0
 const uint8_t OPT_RELAY_ARRAY[OPT_RELAY_NUM] PROGMEM = {OPT_1, OPT_2, OPT_3};
 const uint8_t OPT_RELAY_REVERT[OPT_RELAY_NUM] PROGMEM = {false, false, false};
@@ -74,11 +74,11 @@ const uint8_t DIMMER_RADIATOR_ARRAY[DIMMER_RADIATOR_NUM] PROGMEM = {}; // define
 #endif
 
 // PT100
-#define PT100_NUM 13 // max 18 //TODO: bug if PT100_NUM != 18  13
-#define PT100_EXT 6
+#define PT100_NUM 2 // max 18 //TODO: bug if PT100_NUM != 18  13
+#define PT100_EXT 0
 
 // BME_280
-#define BME280_NUM 1 //exterieur
+#define BME280_NUM 0 //exterieur
 #if BME280_NUM > 0
 const uint8_t BME280_ADDRESS_ARRAY[BME280_NUM] PROGMEM = {0x76};
 const uint8_t BME280_CHANNEL_ARRAY[BME280_NUM] PROGMEM = {2};
@@ -92,13 +92,13 @@ const uint8_t CCS811_CHANNEL_ARRAY[CCS811_NUM] PROGMEM = {2};
 #endif
 
 // SCD4X
-#define SCD4X_NUM 3
+#define SCD4X_NUM 0
 #if SCD4X_NUM > 0
 const uint8_t SCD4X_CHANNEL_ARRAY[SCD4X_NUM] PROGMEM = {1,2,3};
 #endif // SCD4X
 
 // HDC1080
-#define HDC1080_NUM 1
+#define HDC1080_NUM 0
 #if HDC1080_NUM > 0
 const uint8_t HDC1080_CHANNEL_ARRAY[HDC1080_NUM] PROGMEM = {1};
 #endif
@@ -221,7 +221,7 @@ const uint8_t RELAY_RADIATOR_PT100_ARRAY[RELAY_RADIATOR_NUM] PROGMEM = {};
 #endif               // POELE
 
 // Vanne 3 Voies
-#define VANNES
+// #define VANNES
 #ifdef VANNES
 #define TMP_EAU_PCBT_MAX 38 // valeur maximum de la consigne de temperature
 #define TMP_EAU_MCBT_MAX 65 // valeur maximum de la consigne de temperature
