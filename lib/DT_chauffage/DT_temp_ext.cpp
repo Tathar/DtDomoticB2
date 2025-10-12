@@ -5,6 +5,8 @@
 #include <DT_eeprom.h>
 #include <config.h>
 
+#ifdef PT100_EXT
+
 CircularBuffer<float, 24> temp_buffer;
 
 void (*_callback_avg_temp)(const float temp);
@@ -68,3 +70,6 @@ void DT_3voies_set_callback_avg_temp(void (*callback_avg_temp)(const float temp)
 {
     _callback_avg_temp = callback_avg_temp;
 }
+
+
+#endif //PT100_EXT
