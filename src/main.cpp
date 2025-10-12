@@ -1764,7 +1764,7 @@ bool mqtt_publish(bool start)
       DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/status"), F("online"));
       break;
 
-// #ifdef WATCHDOG_TIME
+#ifdef CLOCK
 #include BOOST_PP_UPDATE_COUNTER()
     case BOOST_PP_COUNTER:
       char buf[30];
@@ -1774,7 +1774,7 @@ bool mqtt_publish(bool start)
       // strncpy(eeprom_config.debug_str, "@", 1);
       // memcpy(eeprom_config.debug_str, "@", 1);
       break;
-      // #endif // WATCHDOG_TIME
+#endif //CLOCK
 
     default:
       return true;
