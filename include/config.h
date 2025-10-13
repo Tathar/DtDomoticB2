@@ -75,7 +75,8 @@ const uint8_t DIMMER_RADIATOR_ARRAY[DIMMER_RADIATOR_NUM] PROGMEM = {}; // define
 
 // PT100
 #define PT100_NUM 2 // max 18 //TODO: bug if PT100_NUM != 18  13
-#define PT100_EXT 0
+
+#define DT_PT100_EXT 0
 
 // BME_280
 #define BME280_NUM 0 //exterieur
@@ -129,8 +130,11 @@ const uint8_t RELAY_RADIATOR_PT100_ARRAY[RELAY_RADIATOR_NUM] PROGMEM = {};
 #define MAC3 0xBA
 #define MAC4 0xFE
 #define MAC5 0xFE
-#define MAC6 0xED
+#define MAC6 0xEF
+
 //#define DHCP
+
+#ifndef DHCP
 // ip address
 #define SOURCE_IP1 192
 #define SOURCE_IP2 168
@@ -151,11 +155,13 @@ const uint8_t RELAY_RADIATOR_PT100_ARRAY[RELAY_RADIATOR_NUM] PROGMEM = {};
 #define MASK2 255
 #define MASK3 255
 #define MASK4 0
+#endif //DHCP
+
 // MQTT Server
 #define MQTT_IP1 192
 #define MQTT_IP2 168
 #define MQTT_IP3 1
-#define MQTT_IP4 2
+#define MQTT_IP4 1
 // MQTT config
 #define MQTT_CLIENT_ID BOARD_IDENTIFIER
 #define MQTT_USER "dtboard"
@@ -259,6 +265,20 @@ const uint8_t RELAY_RADIATOR_PT100_ARRAY[RELAY_RADIATOR_NUM] PROGMEM = {};
 // const uint8_t RELAI_PLANCHE[NUM_PLANCHE] PROGMEM = {RELAIS_PLANCHE_SALON, RELAIS_PLANCHE_CH_1, RELAIS_PLANCHE_CH_2, RELAIS_PLANCHE_SDB};
 
 #endif // VANNES
+
+#define DT_3VOIES_1_NATH //3 voies Nath
+#ifdef DT_3VOIES_1_NATH
+#define DT_3VOIES_1_NATH_MAX 65 // valeur maximum de la consigne de temperature
+#define DT_3VOIES_1_NATH_MIN 10 // valeur maximum de la consigne de temperature
+// #define DBMAC 0.5           // demi bamnde morte pour l'arret des circulateur (en °C)
+
+#define DT_3VOIES_1_NATH_CHAUFFAGE_PT100 1
+
+#define DT_3VOIES_1_NATH_HOT 2
+#define DT_3VOIES_1_NATH_COLD 1
+#define DT_3VOIES_1_NATH_CIRCULATEUR 3
+
+#endif // DT_3VOIES_1_NATH
 
 
 // Interaction
