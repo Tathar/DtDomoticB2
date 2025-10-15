@@ -73,10 +73,11 @@ const uint8_t DIMMER_RADIATOR_ARRAY[DIMMER_RADIATOR_NUM] PROGMEM = {}; // define
 
 // PT100
 #define PT100_NUM 8 // max 18 //TODO: bug if PT100_NUM != 18  13
-#define PT100_EXT 6 //6
+
+#define DT_PT100_EXT 6 //6
 
 // BME_280
-#define BME280_NUM 1 //exterieur
+#define BME280_NUM 0 //exterieur
 #if BME280_NUM > 0
 const uint8_t BME280_ADDRESS_ARRAY[BME280_NUM] PROGMEM = {0x76};
 const uint8_t BME280_CHANNEL_ARRAY[BME280_NUM] PROGMEM = {2};
@@ -131,37 +132,42 @@ const uint8_t RELAY_RADIATOR_PT100_ARRAY[RELAY_RADIATOR_NUM] PROGMEM = {};
 #define MAC3 0xBA
 #define MAC4 0xFE
 #define MAC5 0xFE
-#define MAC6 0xED
+#define MAC6 0xEF
+
 //#define DHCP
+
+#ifndef DHCP
 // ip address
 #define SOURCE_IP1 192
 #define SOURCE_IP2 168
 #define SOURCE_IP3 1
-#define SOURCE_IP4 4
+#define SOURCE_IP4 5
 // dns server
 #define DNS1 192
 #define DNS2 168
 #define DNS3 1
-#define DNS4 1
+#define DNS4 254
 // gateway
 #define GW1 192
 #define GW2 168
 #define GW3 1
-#define GW4 1
+#define GW4 254
 // sub net mask
 #define MASK1 255
 #define MASK2 255
 #define MASK3 255
 #define MASK4 0
+#endif //DHCP
+
 // MQTT Server
 #define MQTT_IP1 192
 #define MQTT_IP2 168
 #define MQTT_IP3 1
-#define MQTT_IP4 2
+#define MQTT_IP4 1
 // MQTT config
 #define MQTT_CLIENT_ID BOARD_IDENTIFIER
 #define MQTT_USER "dtboard"
-#define MQTT_PASSWORD "1MotdePasse"
+#define MQTT_PASSWORD "dtboard357"
 #define MQTT_ROOT_TOPIC "DtBoard"
 #define MQTT_WILL_TOPIC MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/status"
 #define MQTT_WILL_QOS 1
@@ -176,9 +182,7 @@ const uint8_t RELAY_RADIATOR_PT100_ARRAY[RELAY_RADIATOR_NUM] PROGMEM = {};
 #ifdef CLOCK
     #define NTP_SERVER "pool.ntp.org"
     #define NTP_LOCAL_PORT 8888
-    // #define NTP_SYNC_INTERVAL 24UL * 60UL * 60UL * 1000UL // 24h
-    #define NTP_SYNC_INTERVAL 24UL * 60UL * 1000UL // 1h
-
+    #define NTP_SYNC_INTERVAL 24UL * 60UL * 60UL * 1000UL // 24h
     #define CLOCK_MONTH_1 3 // 24h
     #define CLOCK_DAY_1 31 // 24h
     #define CLOCK_HOUR_1 1 // 24h
@@ -187,7 +191,6 @@ const uint8_t RELAY_RADIATOR_PT100_ARRAY[RELAY_RADIATOR_NUM] PROGMEM = {};
     #define CLOCK_DAY_2 31 // 24h
     #define CLOCK_HOUR_2 1 // 24h
     #define CLOCK_DAY_OF_WEEK_2 0 // sunday
-
     #define CLOCK_OFSFET_1 2UL * 60UL * 60UL// 2h
     #define CLOCK_OFSFET_2 1UL * 60UL * 60UL// 1h
 #endif
@@ -200,7 +203,7 @@ const uint8_t RELAY_RADIATOR_PT100_ARRAY[RELAY_RADIATOR_NUM] PROGMEM = {};
 #define RADIATOR_HA_MIN_TEMP 15
 
 // Poele
-#define POELE
+// #define POELE
 #ifdef POELE
 #define MIN_T4 0                     // en °C (fake NTC)
 #define POELE_MAX_TEMPERATURE 85     // en °C (consigne temperature Balon)
@@ -224,7 +227,7 @@ const uint8_t RELAY_RADIATOR_PT100_ARRAY[RELAY_RADIATOR_NUM] PROGMEM = {};
 #endif               // POELE
 
 // Vanne 3 Voies
-#define VANNES
+// #define VANNES
 #ifdef VANNES
 #define TMP_EAU_PCBT_MAX 38 // valeur maximum de la consigne de temperature
 #define TMP_EAU_MCBT_MAX 65 // valeur maximum de la consigne de temperature
@@ -272,6 +275,19 @@ const uint8_t RELAY_RADIATOR_PT100_ARRAY[RELAY_RADIATOR_NUM] PROGMEM = {};
 
 // Demmarage Poele
 #define MARCHE_POELE 8 //21
+
+//#define DT_3VOIES_1_NATH //3 voies Nath
+#ifdef DT_3VOIES_1_NATH
+#define DT_3VOIES_1_NATH_MAX 65 // valeur maximum de la consigne de temperature
+#define DT_3VOIES_1_NATH_MIN 10 // valeur maximum de la consigne de temperature
+// #define DBMAC 0.5           // demi bamnde morte pour l'arret des circulateur (en °C)
+#define DT_3VOIES_1_NATH_CHAUFFAGE_PT100 1
+#define DT_3VOIES_1_NATH_HOT 2
+#define DT_3VOIES_1_NATH_COLD 1
+#define DT_3VOIES_1_NATH_CIRCULATEUR 3
+
+#endif // DT_3VOIES_1_NATH
+
 
 // Interaction
 #define PUSH_1_NUM 0

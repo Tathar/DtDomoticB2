@@ -38,17 +38,21 @@ void chargeEEPROM()
                 need_save = true;
                 Serial.println(F("EEPROM version < 1"));
                 eeprom_config.struct_version = 1;
+#ifdef POELE
                 eeprom_config.poele_mode = DT_POELE_ARRET;
+#endif
+
+#ifdef VANNES
                 eeprom_config.mode_3voies_PCBT = DT_3VOIES_OFF;
                 eeprom_config.mode_3voies_MCBT = DT_3VOIES_OFF;
 
                 eeprom_config.V1 = 60; // consigne poêle en mode force (70°C)
-                eeprom_config.V2 = 2; // Variable Reserve chaleur Ballon (20°C)
+                eeprom_config.V2 = 2;  // Variable Reserve chaleur Ballon (20°C)
                 eeprom_config.V3 = 0;  // Variable Temp Demi plage Morte
                 eeprom_config.C4 = 60; // consigne Jacuzzi
                 eeprom_config.C5 = 55; // consigne ECS1 & ECS2
                 eeprom_config.C7 = 90; // Valeur renvoyer au poele pour le mode silance (Fake NTC) //TODO: plus utilisée ?
-#ifdef VANNES
+
                 eeprom_config.C8 = 29;                       // consigne Temp PCBT a -10°C
                 eeprom_config.C9 = 21;                       // consigne Temp PCBT a +10°C
                 eeprom_config.C10 = 48;                      // consigne Temp MCBT a -10°C
@@ -67,6 +71,8 @@ void chargeEEPROM()
                 Serial.println(F("EEPROM version < 2"));
                 eeprom_config.struct_version = 2;
 
+#ifdef VANNES        
+
                 eeprom_config.pid_pcbt.KP = 1300;
                 eeprom_config.pid_pcbt.KI = 0;
                 eeprom_config.pid_pcbt.KD = 100000;
@@ -84,6 +90,7 @@ void chargeEEPROM()
                 eeprom_config.pid_mcbt.pmode = QuickPID::pMode::pOnError;
                 eeprom_config.pid_mcbt.dmode = QuickPID::dMode::dOnMeas;
                 eeprom_config.pid_mcbt.iawmode = QuickPID::iAwMode::iAwCondition;
+#endif
         }
 
         // Valeurs par défaut struct_version == 3
@@ -93,8 +100,10 @@ void chargeEEPROM()
                 Serial.println(F("EEPROM version < 3"));
                 eeprom_config.struct_version = 3;
 
+#ifdef VANNES
                 eeprom_config.ratio_PCBT = 1;
                 eeprom_config.ratio_MCBT = 1;
+#endif
         }
 
         // Valeurs par défaut struct_version == 4
@@ -104,8 +113,10 @@ void chargeEEPROM()
                 Serial.println(F("EEPROM version < 4"));
                 eeprom_config.struct_version = 4;
 
+#ifdef VANNES
                 eeprom_config.out_inhib_PCBT = 400;
                 eeprom_config.out_inhib_MCBT = 400;
+#endif
         }
 
         // Valeurs par défaut struct_version == 5
@@ -115,8 +126,10 @@ void chargeEEPROM()
                 Serial.println(F("EEPROM version < 5"));
                 eeprom_config.struct_version = 5;
 
+#ifdef VANNES
                 eeprom_config.in_offset_PCBT = 0;
                 eeprom_config.in_offset_MCBT = 0;
+#endif
         }
 
         // Valeurs par défaut struct_version == 6
@@ -132,7 +145,7 @@ void chargeEEPROM()
                         if (num < 12)
                         {
                                 eeprom_config.Dimmer_scale_min[num] = 17000; // Mise a l echelle
-                                eeprom_config.Dimmer_scale_max[num] = 7000; // Mise a l echelle
+                                eeprom_config.Dimmer_scale_max[num] = 7000;  // Mise a l echelle
                         }
                         else
                         {
@@ -160,18 +173,18 @@ void chargeEEPROM()
                 }
 #endif
         }
-         if (eeprom_config.struct_version < 7 || erreur)
+        if (eeprom_config.struct_version < 7 || erreur)
         {
                 need_save = true;
                 Serial.println(F("EEPROM version < 7"));
                 eeprom_config.struct_version = 7;
-                
-                #ifdef RELAY_ECS1
+
+#ifdef RELAY_ECS1
                 eeprom_config.ecs1_mode = DT_ECS_MARCHE;
-                #endif
-                #ifdef RELAY_ECS2
+#endif
+#ifdef RELAY_ECS2
                 eeprom_config.ecs2_mode = DT_ECS_MARCHE;
-                #endif
+#endif
         }
 
         // Sauvegarde les nouvelles données

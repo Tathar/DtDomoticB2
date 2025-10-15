@@ -11,6 +11,7 @@
 #include <RTClib.h>
 
 #include "../lib/DT_poele/DT_poele.h"
+#include "../lib/DT_chauffage/DT_3voies_nath.h"
 #include "../lib/DT_3voies/DT_3voies.h"
 #include "../lib/DT_chauffage/DT_chauffage.h"
 // #include "../lib/DT_clock/DT_clock.h"
@@ -92,7 +93,10 @@ struct Eeprom_Config
     uint8_t magic;
     uint8_t struct_version;
 
+    #ifdef POELE
     DT_Poele_mode poele_mode;
+    #endif
+    #ifdef VANNES
     DT_3voies_mode mode_3voies_PCBT;
     DT_3voies_mode mode_3voies_MCBT;
 
@@ -133,8 +137,25 @@ struct Eeprom_Config
     float in_offset_PCBT;   // en °c
     float in_offset_MCBT;   // en °c
     // uint8_t in_offset_avg_temp; // en °C //fourchette pour la quelle on utilise la temperature exterieur reel (non moyené)
+    #endif //VANNE
+
+#ifdef DT_PT100_EXT
     uint8_t in_offset_avg_temp_sup; // en °C //fourchette pour la quelle on utilise la temperature exterieur reel (non moyené)
     uint8_t in_offset_avg_temp_inf; // en °C //fourchette pour la quelle on utilise la temperature exterieur reel (non moyené)
+#endif
+
+#ifdef DT_3VOIES_1_NATH
+    float SetPoint_manual_3voies_1_nath;
+    DT_3voies_1_nath_mode mode_3voies_1_nath;
+    float SetPoint_auto_1_3voies_1_nath;        // consigne Temp a -10°C
+    float SetPoint_auto_2_3voies_1_nath;        // consigne Temp a +10°C
+    float SetPoint_3voies_1_nath_min; // consigne Temp minimum
+    float SetPoint_3voies_1_nath_max; // consigne Temp maximum
+    Pid pid_3voies_1_nath;
+    float ratio_3voies_1_nath;
+    float in_offset_3voies_1_nath;   // en °c
+    int16_t out_inhib_3voies_1_nath; // en ms
+#endif // DT_3VOIES_1_NATH
 
 #if DIMMER_LIGHT_NUM >= 1
     uint16_t Dimmer_scale_min[DIMMER_LIGHT_NUM]; // Mise a l echelle

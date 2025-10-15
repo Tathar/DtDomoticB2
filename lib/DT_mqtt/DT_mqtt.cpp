@@ -121,11 +121,16 @@ void init_ethernet()
     else if (as_ethernet && Ethernet.linkStatus() == LinkON)
     {
         Serial.println(F("Link status: On"));
+        IPAddress address = Ethernet.localIP();
+        Serial.print(F("IP address :"));
+        Serial.println(address);
     }
     else if (as_ethernet && Ethernet.linkStatus() == LinkOFF)
     {
         Serial.println(F("Link status: Off"));
     }
+
+    
 }
 
 void DT_mqtt_init()

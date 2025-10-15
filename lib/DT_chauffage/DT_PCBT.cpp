@@ -20,7 +20,7 @@
 
 #define NUM_LISSAGE 5 // en °C
 
-#ifdef VANNES
+#ifdef PCBT
 
 float Input_PCBT, Output_PCBT;
 
@@ -472,4 +472,4 @@ float DT_3voies_get_C2()
     return mem_config.C2;
 }
 
-#endif // VANNES
+#endif // PCBT

@@ -251,7 +251,6 @@ void DT_3voies_init()
         DT_relay(CIRCULATEUR_PCBT, true);
         Output_PCBT = 0;
         pid_pcbt.SetMode(QuickPID::Control::automatic);
-        pid_pcbt.Initialize();
     }
 
     // turn the PID on
@@ -267,7 +266,6 @@ void DT_3voies_init()
         DT_relay(CIRCULATEUR_MCBT, true);
         Output_MCBT = 0;
         pid_mcbt.SetMode(QuickPID::Control::automatic);
-        pid_pcbt.Initialize();
     }
 
     Output_PCBT = 0;
