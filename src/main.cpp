@@ -148,6 +148,23 @@ inline bool can_send()
   return false;
 }
 
+
+
+#ifdef DT_PT100_EXT
+// retour des valeurs de la temperature moyenné
+void dt3voies_callback_avg_temp()
+{
+  memory(false);
+  if (can_send())
+  {
+    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/avg-temp/state"), DT_get_temp_moyen());
+    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/avg-temp/offset-state"), (float)get_temp_ext());
+  }
+  memory(false);
+}
+#endif // DT_PT100_EXT
+
+
 // Relay Callback
 // envoie de donnée MQTT quand un relais est activé / désactivé
 void relay_callback(const uint8_t num, const bool action)
@@ -477,10 +494,10 @@ void pt100_callback(const uint8_t num, const float temp)
   if (can_send())
   {
     DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pt100-%02d"), num + 1, temp);
-#ifdef PT100_EXT
-    if (num == PT100_EXT)
-      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/avg-temp/offset-state"), (float)get_temp_ext());
-#endif //PT100_EXT
+#ifdef DT_PT100_EXT
+    if (num == DT_PT100_EXT)
+      dt3voies_callback_avg_temp();
+#endif // PT100_EXT
   }
   memory(false);
 }
@@ -922,7 +939,6 @@ void dt3voies_callback_avg_temp(const float temp)
 }
 #endif // VANNES
 
-
 // envoi de donné MQTT quand la variable C2 ou C3 change
 #ifdef DT_3VOIES_1_NATH
 void dt3voies_1_nath_callback(const float setpoint)
@@ -946,7 +962,7 @@ void dt3voies_1_nath_callback(const float setpoint)
 }
 
 // retour des valleur du PID PCBT
-void dt3voies_1_nath_callback_pid(const float P, const float I, const float D, const float OUT)
+void dt3voies_1_nath_callback_pid(const float setpoint, const float P, const float I, const float D, const float OUT)
 {
   memory(false);
   static uint32_t refresh = 0;
@@ -959,7 +975,9 @@ void dt3voies_1_nath_callback_pid(const float P, const float I, const float D, c
       // 220502  debug(F(AT));
       // send_buffer.reserve(4);
 
-      int32_t digit = P * 100;
+      int32_t digit = setpoint * 100;
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/v1n/CON"), (float)(digit / 100.0));
+      digit = P * 100;
       DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/v1n/P"), (float)(digit / 100.0));
       digit = I * 100;
       DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/v1n/I"), (float)(digit / 100.0));
@@ -971,18 +989,6 @@ void dt3voies_1_nath_callback_pid(const float P, const float I, const float D, c
       memory(false);
     }
   }
-}
-
-// retour des valeurs de la temperature moyenné
-void dt3voies_callback_avg_temp(const float temp)
-{
-  memory(false);
-  if (can_send())
-  {
-    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/avg-temp/state"), (float)temp);
-    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/avg-temp/offset-state"), (float)get_temp_ext());
-  }
-  memory(false);
 }
 #endif // DT_3VOIES_1_NATH
 
@@ -1832,8 +1838,8 @@ bool mqtt_publish(bool start)
 
 #include BOOST_PP_UPDATE_COUNTER()
     case BOOST_PP_COUNTER:
-      // consigne vanne 3 voies PCBT & MCBT
-      dt3voies_1_nath_callback(DT_3voies_1_nath_get_setpoint());
+      // consigne manuel vanne 3 voies 1 NATH
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/v1n/C/state"), DT_3voies_1_nath_get_manual_setpoint());
       break;
 
 #include BOOST_PP_UPDATE_COUNTER()
@@ -1966,7 +1972,7 @@ bool mqtt_publish(bool start)
       // OFFSET_MCBT
       DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/v1n/offset-in/state"), eeprom_config.in_offset_3voies_1_nath);
       break;
-#endif //DT_3VOIES_1_NATH
+#endif // DT_3VOIES_1_NATH
 
 #ifdef DT_PT100_EXT
 #include BOOST_PP_UPDATE_COUNTER()
@@ -1992,7 +1998,7 @@ bool mqtt_publish(bool start)
       DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/avg-temp/offset-inf/state"), eeprom_config.in_offset_avg_temp_inf);
       break;
 
-#endif //DT_PT100_EXT
+#endif // DT_PT100_EXT
 
 #ifdef RELAY_ECS1
 #include BOOST_PP_UPDATE_COUNTER()
@@ -2030,7 +2036,7 @@ bool mqtt_publish(bool start)
       // strncpy(eeprom_config.debug_str, "@", 1);
       // memcpy(eeprom_config.debug_str, "@", 1);
       break;
-#endif //CLOCK
+#endif // CLOCK
 
     default:
       return true;
@@ -2698,7 +2704,7 @@ bool mqtt_subscribe(MQTTClient &mqtt, bool start)
     case BOOST_PP_COUNTER:
       mqtt.subscribe(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/offset-in/set");
       break;
-#endif //VANNEES
+#endif // VANNEES
 
 #ifdef DT_3VOIES_1_NATH
 #include BOOST_PP_UPDATE_COUNTER()
@@ -2801,7 +2807,7 @@ bool mqtt_subscribe(MQTTClient &mqtt, bool start)
     case BOOST_PP_COUNTER:
       mqtt.subscribe(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/v1n/offset-in/set");
       break;
-#endif //DT_3VOIES_1_NATH
+#endif // DT_3VOIES_1_NATH
 
 #ifdef RELAY_ECS1
 #include BOOST_PP_UPDATE_COUNTER()
@@ -2818,7 +2824,6 @@ bool mqtt_subscribe(MQTTClient &mqtt, bool start)
       mqtt.subscribe(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/ecs2/set");
       break;
 #endif // RELAY_ECS1
-
 
 #ifdef DT_PT100_EXT
 #include BOOST_PP_UPDATE_COUNTER()
@@ -3669,10 +3674,11 @@ void __attribute__((optimize("O0"))) mqtt_receve(MQTTClient *client, const char 
       DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/v1n/mode/state"), F("Veille"));
     }
   }
-  else if (strcmp(topic, MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/v1n/C/set") == 0) //consigne de la vannes 3 voie v1n
+  else if (strcmp(topic, MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/v1n/C/set") == 0) // consigne de la vannes 3 voie v1n
   {
     str_buffer = buffer;
-    DT_3voies_1_nath_set_setpoint(str_buffer.toFloat());
+    DT_3voies_1_nath_set_manual_setpoint(str_buffer.toFloat());
+    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/v1n/C/state"), DT_3voies_1_nath_get_manual_setpoint());
   }
   else if (strcmp(topic, MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/v1n/m10/set") == 0) // C10
   {
@@ -3940,14 +3946,11 @@ void setup()
   Serial.println(F("starting board"));
   memory(true);
 
-
   // auto Serial.println("starting board version " BOARD_SW_VERSION_PRINT);
 
   Serial.println(F("Load eeprom"));
   chargeEEPROM();
   memory(false);
-
-
 
   TWCR = 0;
   Wire.begin();
@@ -3958,7 +3961,6 @@ void setup()
   // Wire.endTransmission();
 #ifdef I2C_Multiplexeur
 
-
   Serial.println(F("init mcp"));
   DT_mcp_init();
 #endif
@@ -3966,7 +3968,6 @@ void setup()
   memory(false);
 
 #ifdef MQTT
-
 
   // Serial.print(millis());
   Serial.println(F("starting mqtt"));
@@ -3977,7 +3978,6 @@ void setup()
   DT_mqtt_set_publish_callback(mqtt_publish);
   DT_mqtt_set_connection_lost_callback(mqtt_connection_lost);
 #endif // MQTT
-
 
   Serial.println(F("starting relay"));
   DT_relay_init();
@@ -4034,8 +4034,6 @@ void setup()
 #endif // MQTT
 #endif // VANNE
 
-
-
   Serial.println(F("starting input"));
   DT_input_init();
   DT_input_set_callback(input_callback);
@@ -4050,7 +4048,6 @@ void setup()
 #endif // PT100
 
 #if BME280_NUM > 0
-
 
   Serial.println(F("starting BME280"));
   DT_BME280_init();
@@ -4072,7 +4069,6 @@ void setup()
 
 #if SCD4X_NUM > 0
 
-
   Serial.println(F("starting SCD4X"));
   DT_SCD4X_init();
 #ifdef MQTT
@@ -4083,7 +4079,6 @@ void setup()
 #endif // SCD4X_NUM
 
 #if HDC1080_NUM > 0
-
 
   Serial.println(F("starting HDC1080"));
   DT_HDC1080_init();

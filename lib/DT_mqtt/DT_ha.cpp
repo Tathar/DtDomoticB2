@@ -1087,25 +1087,31 @@ bool homeassistant(bool start)
 #include BOOST_PP_UPDATE_COUNTER()
                 case BOOST_PP_COUNTER:
                         // PID v1n P
-                        DT_mqtt_send(F("homeassistant/sensor/" BOARD_IDENTIFIER "/v1n-pid-p/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/v1n\",\"uniq_id\":\"" BOARD_IDENTIFIER "-v1n-P\",\"name\":\"" BOARD_IDENTIFIER " v1n P\",\"stat_t\":\"~/P\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
+                        DT_mqtt_send(F("homeassistant/sensor/" BOARD_IDENTIFIER "/v1n-pid-p/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/v1n\",\"uniq_id\":\"" BOARD_IDENTIFIER "-v1n-P\",\"name\":\"" BOARD_IDENTIFIER " v1n P\",\"stat_t\":\"~/P\",\"dev_cla\":\"duration\",\"unit_of_meas\":\"ms\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
                         break;
 
 #include BOOST_PP_UPDATE_COUNTER()
                 case BOOST_PP_COUNTER:
                         // PID v1n I
-                        DT_mqtt_send(F("homeassistant/sensor/" BOARD_IDENTIFIER "/v1n-pid-i/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/v1n\",\"uniq_id\":\"" BOARD_IDENTIFIER "-v1n-I\",\"name\":\"" BOARD_IDENTIFIER " v1n I\",\"stat_t\":\"~/I\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
+                        DT_mqtt_send(F("homeassistant/sensor/" BOARD_IDENTIFIER "/v1n-pid-i/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/v1n\",\"uniq_id\":\"" BOARD_IDENTIFIER "-v1n-I\",\"name\":\"" BOARD_IDENTIFIER " v1n I\",\"stat_t\":\"~/I\",\"dev_cla\":\"duration\",\"unit_of_meas\":\"ms\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
                         break;
 
 #include BOOST_PP_UPDATE_COUNTER()
                 case BOOST_PP_COUNTER:
                         // PID v1n D
-                        DT_mqtt_send(F("homeassistant/sensor/" BOARD_IDENTIFIER "/v1n-pid-d/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/v1n\",\"uniq_id\":\"" BOARD_IDENTIFIER "-v1n-D\",\"name\":\"" BOARD_IDENTIFIER " v1n D\",\"stat_t\":\"~/D\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
+                        DT_mqtt_send(F("homeassistant/sensor/" BOARD_IDENTIFIER "/v1n-pid-d/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/v1n\",\"uniq_id\":\"" BOARD_IDENTIFIER "-v1n-D\",\"name\":\"" BOARD_IDENTIFIER " v1n D\",\"stat_t\":\"~/D\",\"dev_cla\":\"duration\",\"unit_of_meas\":\"ms\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
                         break;
 
 #include BOOST_PP_UPDATE_COUNTER()
                 case BOOST_PP_COUNTER:
                         // PID v1n OUT
-                        DT_mqtt_send(F("homeassistant/sensor/" BOARD_IDENTIFIER "/v1n-pid-out/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/v1n\",\"uniq_id\":\"" BOARD_IDENTIFIER "-v1n-out\",\"name\":\"" BOARD_IDENTIFIER " v1n out\",\"stat_t\":\"~/OUT\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
+                        DT_mqtt_send(F("homeassistant/sensor/" BOARD_IDENTIFIER "/v1n-pid-out/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/v1n\",\"uniq_id\":\"" BOARD_IDENTIFIER "-v1n-out\",\"name\":\"" BOARD_IDENTIFIER " v1n out\",\"stat_t\":\"~/OUT\",\"dev_cla\":\"duration\",\"unit_of_meas\":\"ms\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
+                        break;
+
+#include BOOST_PP_UPDATE_COUNTER()
+                case BOOST_PP_COUNTER:
+                        // PID v1n OUT
+                        DT_mqtt_send(F("homeassistant/sensor/" BOARD_IDENTIFIER "/v1n-consigne/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/v1n\",\"uniq_id\":\"" BOARD_IDENTIFIER "-v1n-consigne\",\"name\":\"" BOARD_IDENTIFIER " v1n consigne\",\"stat_t\":\"~/CON\",\"dev_cla\":\"temperature\",\"unit_of_meas\":\"°C\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
                         break;
 
 #include BOOST_PP_UPDATE_COUNTER()

@@ -9,7 +9,7 @@
 
 CircularBuffer<float, 24> temp_buffer;
 
-void (*_callback_avg_temp)(const float temp);
+void (*_callback_avg_temp)();
 
 // initialisation temp_ext
 void DT_get_avg_temp_init()
@@ -61,12 +61,12 @@ void DT_get_avg_temp_loop()
         temp_buffer.push(DT_pt100_get(DT_PT100_EXT));
         if (_callback_avg_temp != nullptr)
         {
-            _callback_avg_temp(DT_get_temp_moyen());
+            _callback_avg_temp();
         }
     }
 };
 
-void DT_3voies_set_callback_avg_temp(void (*callback_avg_temp)(const float temp))
+void DT_3voies_set_callback_avg_temp(void (*callback_avg_temp)())
 {
     _callback_avg_temp = callback_avg_temp;
 }

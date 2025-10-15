@@ -27,13 +27,13 @@ void DT_3voies_1_nath_set_KP(float kp);
 void DT_3voies_1_nath_set_KI(float ki);
 void DT_3voies_1_nath_set_KD(float kd);
 void DT_3voies_1_nath_set_KT(uint32_t kt);
-void DT_3voies_1_nath_set_setpoint(float c3); // set consigne temp MCBT
+void DT_3voies_1_nath_set_manual_setpoint(float setpoint); // set consigne temp MCBT
 
 float DT_3voies_1_nath_get_KP();
 float DT_3voies_1_nath_get_KI();
 float DT_3voies_1_nath_get_KD();
 uint32_t DT_3voies_1_nath_get_KT();
-float DT_3voies_1_nath_get_setpoint(); // get consigne temp MCBT
+float DT_3voies_1_nath_get_manual_setpoint(); // get consigne temp MCBT
 float DT_3voies_1_nath_get_temp_moyen();
 
 
@@ -46,5 +46,5 @@ void DT_3voies_1_nath_set_iawmode(QuickPID::iAwMode iAwMode);
 
 void DT_3voies_1_nath_set_callback(void (*callback)(const float Consigne));
 
-void DT_3voies_1_nath_set_callback_pid(void (*callback_mcbt_pid)(const float P, const float I, const float D, const float Out));
+void DT_3voies_1_nath_set_callback_pid(void (*callback_mcbt_pid)(const float setpoint, const float P, const float I, const float D, const float Out));
 #endif

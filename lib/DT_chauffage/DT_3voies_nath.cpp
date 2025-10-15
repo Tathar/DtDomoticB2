@@ -34,7 +34,7 @@ uint8_t temperature_etape_mcbt = 0;
 uint32_t temp_lecture_temp_mcbt = 0;
 
 void (*_callback_3_voies)(const float consigne);
-void (*_callback_mcbt_pid)(const float P, const float I, const float D, const float Out);
+void (*_callback_mcbt_pid)(const float setpoint, const float P, const float I, const float D, const float Out);
 bool async_call_mcbt_pid;
 
 // mise a l'échelle
@@ -61,10 +61,15 @@ void DT_3voies_1_nath_init()
     {
         SetPoint_3voies_1 = 0;
     }
-    else
+    else if (eeprom_config.mode_3voies_1_nath == DT_3voies_1_nath_NORMAL)
     {
         // SetPoint_3voies_1 = scale(DT_pt100_get(DT_PT100_EXT), -10, 10, eeprom_config.SetPoint_auto_1_3voies_1_nath, eeprom_config.SetPoint_auto_2_3voies_1_nath);
         SetPoint_3voies_1 = scale(get_temp_ext(), -10, 10, eeprom_config.SetPoint_auto_1_3voies_1_nath, eeprom_config.SetPoint_auto_2_3voies_1_nath);
+    }
+    else if (eeprom_config.mode_3voies_1_nath == DT_3voies_1_nath_MANUAL)
+    {
+        // SetPoint_3voies_1 = scale(DT_pt100_get(DT_PT100_EXT), -10, 10, eeprom_config.SetPoint_auto_1_3voies_1_nath, eeprom_config.SetPoint_auto_2_3voies_1_nath);
+        SetPoint_3voies_1 = eeprom_config.SetPoint_manual_3voies_1_nath;
     }
 
     // KP, KI, KD
@@ -130,7 +135,7 @@ void DT_3voies_1_nath_loop()
     uint32_t now = millis();
     // static uint8_t first_run = 0;
     static uint32_t old_now = 0;
-    static float old_C3 = 0;
+    static float old_SetPoint_3voies_1 = 0;
     // calcule des consignes de temperature
 
     if (eeprom_config.mode_3voies_1_nath == DT_3voies_1_nath_OFF || eeprom_config.mode_3voies_1_nath == DT_3voies_1_nath_STANDBY)
@@ -145,6 +150,10 @@ void DT_3voies_1_nath_loop()
         {
             SetPoint_3voies_1 += eeprom_config.in_offset_3voies_1_nath; // ajout du decalage de la consigne (mode eco)
         }
+    }
+    else if (eeprom_config.mode_3voies_1_nath == DT_3voies_1_nath_MANUAL)
+    {
+        SetPoint_3voies_1 = eeprom_config.SetPoint_manual_3voies_1_nath; // calcul de la consigne en fonction de la temperature exterieur
     }
 
     // protection sur temperature
@@ -233,14 +242,14 @@ void DT_3voies_1_nath_loop()
         // 220502  debug(F(AT));
         old_now = now;
 
-        if ((_callback_3_voies != nullptr) && (old_C3 != SetPoint_3voies_1))
+        if ((_callback_3_voies != nullptr) && (old_SetPoint_3voies_1 != SetPoint_3voies_1))
         {
             _callback_3_voies(SetPoint_3voies_1);
-            old_C3 = SetPoint_3voies_1;
+            old_SetPoint_3voies_1 = SetPoint_3voies_1;
         }
         else
         {
-            _callback_mcbt_pid(pid_3voies_1_nath.GetPterm(), pid_3voies_1_nath.GetIterm(), pid_3voies_1_nath.GetDterm(), Output_3voies_1_nath);
+            _callback_mcbt_pid(SetPoint_3voies_1, pid_3voies_1_nath.GetPterm(), pid_3voies_1_nath.GetIterm(), pid_3voies_1_nath.GetDterm(), Output_3voies_1_nath);
         }
     }
 }
@@ -257,15 +266,19 @@ void DT_3voies_1_nath_set_mode(DT_3voies_1_nath_mode mode)
         Output_3voies_1_nath = 0;
         async_call_mcbt_pid = true;
     }
-    else
+    else if (eeprom_config.mode_3voies_1_nath == DT_3voies_1_nath_NORMAL)
     {
         DT_relay(DT_3VOIES_1_NATH_CIRCULATEUR, true);
         Output_3voies_1_nath = 0;
         pid_3voies_1_nath.SetMode(QuickPID::Control::automatic);
+        SetPoint_3voies_1 = scale(get_temp_ext(), -10, 10, eeprom_config.SetPoint_auto_1_3voies_1_nath, eeprom_config.SetPoint_auto_2_3voies_1_nath);
     }
-
-    SetPoint_3voies_1 = scale(get_temp_ext(), -10, 10, eeprom_config.SetPoint_auto_1_3voies_1_nath, eeprom_config.SetPoint_auto_2_3voies_1_nath);
-
+    else if (eeprom_config.mode_3voies_1_nath == DT_3voies_1_nath_MANUAL)
+    {
+        Output_3voies_1_nath = 0;
+        pid_3voies_1_nath.SetMode(QuickPID::Control::automatic);
+        SetPoint_3voies_1 = eeprom_config.SetPoint_manual_3voies_1_nath;
+    }
     sauvegardeEEPROM();
 }
 
@@ -344,9 +357,11 @@ void DT_3voies_1_nath_set_iawmode(QuickPID::iAwMode iAwMode)
 }
 
 // set consigne temp MCBT
-void DT_3voies_1_nath_set_setpoint(float setpoint)
+void DT_3voies_1_nath_set_manual_setpoint(float setpoint)
 {
+    eeprom_config.SetPoint_manual_3voies_1_nath = setpoint;
     SetPoint_3voies_1 = setpoint;
+    sauvegardeEEPROM();
 }
 
 float DT_3voies_1_nath_get_KP()
@@ -373,15 +388,15 @@ void DT_3voies_1_nath_set_callback(void (*callback)(const float Consigne))
     _callback_3_voies = callback;
 }
 
-void DT_3voies_1_nath_set_callback_pid(void (*callback_mcbt_pid)(const float P, const float I, const float D, const float Out))
+void DT_3voies_1_nath_set_callback_pid(void (*callback_mcbt_pid)(const float setpoint, const float P, const float I, const float D, const float Out))
 {
     _callback_mcbt_pid = callback_mcbt_pid;
 }
 
 // get consigne temp MCBT
-float DT_3voies_1_nath_get_setpoint()
+float DT_3voies_1_nath_get_manual_setpoint()
 {
-    return SetPoint_3voies_1;
+    return eeprom_config.SetPoint_manual_3voies_1_nath;
 }
 
 #endif // DT_3voies_1_nath
