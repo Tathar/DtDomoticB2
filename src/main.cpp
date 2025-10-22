@@ -845,33 +845,10 @@ void arret_meteo_callback(const bool action)
 }
 #endif // CHAUFFAGE
 
-// envoi de donné MQTT quand la variable C2 ou C3 change
-#ifdef VANNES
-void dt3voies_callback(const float C2, const float C3)
-{
-  debug(F(AT));
-  memory(false);
-  static uint32_t refresh = 0;
-  uint32_t now = millis();
-  if (can_send())
-  {
-    if (now - refresh >= MQTT_REFRESH && mem_config.MQTT_online)
-    {
-      refresh = now;
-      // 220502  debug(F(AT));
-      // send_buffer.reserve(2);
-      int32_t digit = C2 * 100;
-      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/C2/state"), (float)(digit / 100.0));
-
-      digit = C3 * 100;
-      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/C3/state"), (float)(digit / 100.0));
-    }
-  }
-  memory(false);
-}
-
+// envoi de donné MQTT quand la consigne change
+#ifdef DT_3VOIES_MCBT
 // retour des valleur du PID PCBT
-void dt3voies_callback_pid_pcbt(const float P, const float I, const float D, const float OUT)
+void dt3voies_1_pcbt_callback_pid(const float setpoint, const float P, const float I, const float D, const float OUT)
 {
   memory(false);
   static uint32_t refresh = 0;
@@ -884,7 +861,9 @@ void dt3voies_callback_pid_pcbt(const float P, const float I, const float D, con
       // 220502  debug(F(AT));
       // send_buffer.reserve(4);
 
-      int32_t digit = P * 100;
+      int32_t digit = setpoint * 100;
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/CON"), (float)(digit / 100.0));
+      digit = P * 100;
       DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/P"), (float)(digit / 100.0));
       digit = I * 100;
       DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/I"), (float)(digit / 100.0));
@@ -897,9 +876,12 @@ void dt3voies_callback_pid_pcbt(const float P, const float I, const float D, con
     }
   }
 }
+#endif // DT_3VOIES_MCBT
 
-// retour des valleur du PID MCBT
-void dt3voies_callback_pid_mcbt(const float P, const float I, const float D, const float OUT)
+// envoi de donné MQTT quand la consigne change
+#ifdef DT_3VOIES_MCBT
+// retour des valleur du PID PCBT
+void dt3voies_1_mcbt_callback_pid(const float setpoint, const float P, const float I, const float D, const float OUT)
 {
   memory(false);
   static uint32_t refresh = 0;
@@ -908,11 +890,13 @@ void dt3voies_callback_pid_mcbt(const float P, const float I, const float D, con
   {
     if (now - refresh >= MQTT_REFRESH && mem_config.MQTT_online)
     {
-      // 220502  debug(F(AT));
       refresh = now;
+      // 220502  debug(F(AT));
       // send_buffer.reserve(4);
 
-      int32_t digit = P * 100;
+      int32_t digit = setpoint * 100;
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/CON"), (float)(digit / 100.0));
+      digit = P * 100;
       DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/P"), (float)(digit / 100.0));
       digit = I * 100;
       DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/I"), (float)(digit / 100.0));
@@ -921,25 +905,13 @@ void dt3voies_callback_pid_mcbt(const float P, const float I, const float D, con
       digit = OUT * 100;
       DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/OUT"), (float)(digit / 100.0));
       // 220502  debug(F(AT));
+      memory(false);
     }
   }
-  memory(false);
 }
+#endif // DT_3VOIES_MCBT
 
-// retour des valeurs de la temperature moyenné
-void dt3voies_callback_avg_temp(const float temp)
-{
-  memory(false);
-  if (can_send())
-  {
-    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/avg-temp/state"), (float)temp);
-    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/avg-temp/offset-state"), (float)get_temp_ext());
-  }
-  memory(false);
-}
-#endif // VANNES
-
-// envoi de donné MQTT quand la variable C2 ou C3 change
+// envoi de donné MQTT quand la consignechange
 #ifdef DT_3VOIES_1_NATH
 void dt3voies_1_nath_callback(const float setpoint)
 {
@@ -1437,7 +1409,7 @@ bool mqtt_publish(bool start)
 
 #endif // CHAUFFAGE
 
-#ifdef VANNES
+#ifdef DT_3VOIES_MCBT
 #include BOOST_PP_UPDATE_COUNTER()
     case BOOST_PP_COUNTER:
       // 3 voies PCBT mode
@@ -1467,34 +1439,7 @@ bool mqtt_publish(bool start)
       DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/mode/state"), payload);
       break;
 
-#include BOOST_PP_UPDATE_COUNTER()
-    case BOOST_PP_COUNTER:
-      // 3 voies MCBT mode
-      switch (DT_3voies_MCBT_get_mode())
-      {
-      case DT_3VOIES_DEMMARAGE:
-        payload = F("Demmarage");
-        break;
-      case DT_3VOIES_NORMAL:
-        payload = F("Normal");
-        break;
-      case DT_3VOIES_MANUAL:
-        payload = F("Manuel");
-        break;
-      case DT_3VOIES_OFF:
-        payload = F("Arret");
-        break;
-      case DT_3VOIES_STANDBY:
-        payload = F("Veille");
-        break;
-      }
-      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/mode/state"), payload);
-      break;
-
-#include BOOST_PP_UPDATE_COUNTER()
-    case BOOST_PP_COUNTER:
-      // consigne vanne 3 voies PCBT & MCBT
-      dt3voies_callback(DT_3voies_get_C2(), DT_3voies_get_C3());
+   dt3voies_callback(DT_3voies_get_C2(), DT_3voies_get_C3());
 
       break;
 #include BOOST_PP_UPDATE_COUNTER()
@@ -1535,18 +1480,6 @@ bool mqtt_publish(bool start)
 
 #include BOOST_PP_UPDATE_COUNTER()
     case BOOST_PP_COUNTER:
-      // C10
-      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/C10/state"), eeprom_config.C10);
-      break;
-
-#include BOOST_PP_UPDATE_COUNTER()
-    case BOOST_PP_COUNTER:
-      // C11
-      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/C11/state"), eeprom_config.C11);
-      break;
-
-#include BOOST_PP_UPDATE_COUNTER()
-    case BOOST_PP_COUNTER:
       DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/min_temp/state"), eeprom_config.C_PCBT_MIN);
       break;
 
@@ -1554,18 +1487,6 @@ bool mqtt_publish(bool start)
     case BOOST_PP_COUNTER:
       // C_PCBT_MAX
       DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/max_temp/state"), eeprom_config.C_PCBT_MAX);
-      break;
-
-#include BOOST_PP_UPDATE_COUNTER()
-    case BOOST_PP_COUNTER:
-      // C_MCBT_MIN
-      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/min_temp/state"), eeprom_config.C_MCBT_MIN);
-      break;
-
-#include BOOST_PP_UPDATE_COUNTER()
-    case BOOST_PP_COUNTER:
-      // C_MCBT_MAX
-      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/max_temp/state"), eeprom_config.C_MCBT_MAX);
       break;
 
 #include BOOST_PP_UPDATE_COUNTER()
@@ -1591,29 +1512,6 @@ bool mqtt_publish(bool start)
       // KT_PCBT
       DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/KT/state"), DT_3voies_PCBT_get_KT());
 
-      break;
-#include BOOST_PP_UPDATE_COUNTER()
-    case BOOST_PP_COUNTER:
-      // KP_MCBT
-      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/KP/state"), DT_3voies_MCBT_get_KP());
-      break;
-
-#include BOOST_PP_UPDATE_COUNTER()
-    case BOOST_PP_COUNTER:
-      // KI_MCBT
-      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/KI/state"), DT_3voies_MCBT_get_KI());
-      break;
-
-#include BOOST_PP_UPDATE_COUNTER()
-    case BOOST_PP_COUNTER:
-      // KD_MCBT
-      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/KD/state"), DT_3voies_MCBT_get_KD());
-      break;
-
-#include BOOST_PP_UPDATE_COUNTER()
-    case BOOST_PP_COUNTER:
-      // KT_MCBT
-      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/KT/state"), DT_3voies_MCBT_get_KT());
       break;
 
 #include BOOST_PP_UPDATE_COUNTER()
@@ -1684,6 +1582,100 @@ bool mqtt_publish(bool start)
 
 #include BOOST_PP_UPDATE_COUNTER()
     case BOOST_PP_COUNTER:
+      // RATIO PCBT
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/ratio/state"), eeprom_config.ratio_PCBT);
+      break;
+
+#include BOOST_PP_UPDATE_COUNTER()
+    case BOOST_PP_COUNTER:
+      // OFFSET_PCBT
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/inhib-out/state"), eeprom_config.out_inhib_PCBT);
+      break;
+
+#include BOOST_PP_UPDATE_COUNTER()
+    case BOOST_PP_COUNTER:
+      // OFFSET_PCBT
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/offset-in/state"), eeprom_config.in_offset_PCBT);
+      break;
+#endif // DT_3VOIES_PCBT
+
+
+#ifdef DT_3VOIES_MCBT
+
+#include BOOST_PP_UPDATE_COUNTER()
+    case BOOST_PP_COUNTER:
+      // 3 voies MCBT mode
+      switch (DT_3voies_MCBT_get_mode())
+      {
+      case DT_3VOIES_DEMMARAGE:
+        payload = F("Demmarage");
+        break;
+      case DT_3VOIES_NORMAL:
+        payload = F("Normal");
+        break;
+      case DT_3VOIES_MANUAL:
+        payload = F("Manuel");
+        break;
+      case DT_3VOIES_OFF:
+        payload = F("Arret");
+        break;
+      case DT_3VOIES_STANDBY:
+        payload = F("Veille");
+        break;
+      }
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/mode/state"), payload);
+      break;
+
+#include BOOST_PP_UPDATE_COUNTER()
+    case BOOST_PP_COUNTER:
+      // C10
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/C10/state"), eeprom_config.C10);
+      break;
+
+#include BOOST_PP_UPDATE_COUNTER()
+    case BOOST_PP_COUNTER:
+      // C11
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/C11/state"), eeprom_config.C11);
+      break;
+
+#include BOOST_PP_UPDATE_COUNTER()
+    case BOOST_PP_COUNTER:
+      // C_MCBT_MIN
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/min_temp/state"), eeprom_config.C_MCBT_MIN);
+      break;
+
+#include BOOST_PP_UPDATE_COUNTER()
+    case BOOST_PP_COUNTER:
+      // C_MCBT_MAX
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/max_temp/state"), eeprom_config.C_MCBT_MAX);
+      break;
+
+#include BOOST_PP_UPDATE_COUNTER()
+    case BOOST_PP_COUNTER:
+      // KP_MCBT
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/KP/state"), DT_3voies_MCBT_get_KP());
+      break;
+
+#include BOOST_PP_UPDATE_COUNTER()
+    case BOOST_PP_COUNTER:
+      // KI_MCBT
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/KI/state"), DT_3voies_MCBT_get_KI());
+      break;
+
+#include BOOST_PP_UPDATE_COUNTER()
+    case BOOST_PP_COUNTER:
+      // KD_MCBT
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/KD/state"), DT_3voies_MCBT_get_KD());
+      break;
+
+#include BOOST_PP_UPDATE_COUNTER()
+    case BOOST_PP_COUNTER:
+      // KT_MCBT
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/KT/state"), DT_3voies_MCBT_get_KT());
+      break;
+
+#include BOOST_PP_UPDATE_COUNTER()
+    case BOOST_PP_COUNTER:
       // PID MCBT Action
       switch (eeprom_config.pid_mcbt.action)
       {
@@ -1750,20 +1742,8 @@ bool mqtt_publish(bool start)
 
 #include BOOST_PP_UPDATE_COUNTER()
     case BOOST_PP_COUNTER:
-      // RATIO PCBT
-      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/ratio/state"), eeprom_config.ratio_PCBT);
-      break;
-
-#include BOOST_PP_UPDATE_COUNTER()
-    case BOOST_PP_COUNTER:
       // RATIO MCBT
       DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/ratio/state"), eeprom_config.ratio_MCBT);
-      break;
-
-#include BOOST_PP_UPDATE_COUNTER()
-    case BOOST_PP_COUNTER:
-      // OFFSET_PCBT
-      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/inhib-out/state"), eeprom_config.out_inhib_PCBT);
       break;
 
 #include BOOST_PP_UPDATE_COUNTER()
@@ -1774,41 +1754,10 @@ bool mqtt_publish(bool start)
 
 #include BOOST_PP_UPDATE_COUNTER()
     case BOOST_PP_COUNTER:
-      // OFFSET_PCBT
-      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/offset-in/state"), eeprom_config.in_offset_PCBT);
-      break;
-
-#include BOOST_PP_UPDATE_COUNTER()
-    case BOOST_PP_COUNTER:
       // OFFSET_MCBT
       DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/offset-in/state"), eeprom_config.in_offset_MCBT);
       break;
-
-#include BOOST_PP_UPDATE_COUNTER()
-    case BOOST_PP_COUNTER:
-      // TEMPERATURE MOYENNE
-      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/avg-temp/state"), DT_3voies_get_temp_moyen());
-      break;
-
-#include BOOST_PP_UPDATE_COUNTER()
-    case BOOST_PP_COUNTER:
-      // TEMPERATURE MOYENNE DECALEE
-      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/avg-temp/offset-state"), (float)get_temp_ext());
-      break;
-
-#include BOOST_PP_UPDATE_COUNTER()
-    case BOOST_PP_COUNTER:
-      // TEMPERATURE MOYENNE
-      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/avg-temp/offset-sup/state"), eeprom_config.in_offset_avg_temp_sup);
-      break;
-
-#include BOOST_PP_UPDATE_COUNTER()
-    case BOOST_PP_COUNTER:
-      // TEMPERATURE MOYENNE
-      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/avg-temp/offset-inf/state"), eeprom_config.in_offset_avg_temp_inf);
-      break;
-
-#endif // vanne
+#endif //DT_3VOIES_MCBT
 
 #ifdef DT_3VOIES_1_NATH
 #include BOOST_PP_UPDATE_COUNTER()
@@ -1952,12 +1901,6 @@ bool mqtt_publish(bool start)
         break;
       }
       DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/v1n/pid_iawmode/state"), payload);
-      break;
-
-#include BOOST_PP_UPDATE_COUNTER()
-    case BOOST_PP_COUNTER:
-      // RATIO MCBT
-      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/v1n/ratio/state"), eeprom_config.ratio_3voies_1_nath);
       break;
 
 #include BOOST_PP_UPDATE_COUNTER()
@@ -2485,21 +2428,12 @@ bool mqtt_subscribe(MQTTClient &mqtt, bool start)
       mqtt.subscribe(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/chauffage/AM/set");
       break;
 #endif // CHAUFFAGE
-#ifdef VANNES
+
+#ifdef DT_3VOIES_PCBT
 #include BOOST_PP_UPDATE_COUNTER()
     case BOOST_PP_COUNTER:
       // 3 voies PCBT consigne
       mqtt.subscribe(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/C2/set");
-
-#include BOOST_PP_UPDATE_COUNTER()
-    case BOOST_PP_COUNTER:
-      // 3 voies MCBT mode
-      mqtt.subscribe(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/mode/set");
-
-#include BOOST_PP_UPDATE_COUNTER()
-    case BOOST_PP_COUNTER:
-      // 3 voies MCBT consigne
-      mqtt.subscribe(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/C3/set");
       break;
 
 #include BOOST_PP_UPDATE_COUNTER()
@@ -2546,18 +2480,6 @@ bool mqtt_subscribe(MQTTClient &mqtt, bool start)
 
 #include BOOST_PP_UPDATE_COUNTER()
     case BOOST_PP_COUNTER:
-      // C10
-      mqtt.subscribe(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/C10/set");
-      break;
-
-#include BOOST_PP_UPDATE_COUNTER()
-    case BOOST_PP_COUNTER:
-      // C11
-      mqtt.subscribe(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/C11/set");
-      break;
-
-#include BOOST_PP_UPDATE_COUNTER()
-    case BOOST_PP_COUNTER:
       // C_PCBT_MIN
       mqtt.subscribe(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/min_temp/set");
       break;
@@ -2566,18 +2488,6 @@ bool mqtt_subscribe(MQTTClient &mqtt, bool start)
     case BOOST_PP_COUNTER:
       // C_PCBT_MAX
       mqtt.subscribe(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/max_temp/set");
-      break;
-
-#include BOOST_PP_UPDATE_COUNTER()
-    case BOOST_PP_COUNTER:
-      // C_MCBT_MIN
-      mqtt.subscribe(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/min_temp/set");
-      break;
-
-#include BOOST_PP_UPDATE_COUNTER()
-    case BOOST_PP_COUNTER:
-      // C_MCBT_MAX
-      mqtt.subscribe(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/max_temp/set");
       break;
 
 #include BOOST_PP_UPDATE_COUNTER()
@@ -2606,6 +2516,84 @@ bool mqtt_subscribe(MQTTClient &mqtt, bool start)
 
 #include BOOST_PP_UPDATE_COUNTER()
     case BOOST_PP_COUNTER:
+      // PID PCBT
+      mqtt.subscribe(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/pid_action/set");
+      break;
+
+#include BOOST_PP_UPDATE_COUNTER()
+    case BOOST_PP_COUNTER:
+      mqtt.subscribe(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/pid_pmode/set");
+      break;
+
+#include BOOST_PP_UPDATE_COUNTER()
+    case BOOST_PP_COUNTER:
+      mqtt.subscribe(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/pid_dmode/set");
+      break;
+
+#include BOOST_PP_UPDATE_COUNTER()
+    case BOOST_PP_COUNTER:
+      mqtt.subscribe(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/pid_iawmode/set");
+      break;
+
+#include BOOST_PP_UPDATE_COUNTER()
+    case BOOST_PP_COUNTER:
+      // RATIO
+      mqtt.subscribe(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/ratio/set");
+      break;
+
+#include BOOST_PP_UPDATE_COUNTER()
+    case BOOST_PP_COUNTER:
+      // OFFSET OUT
+      mqtt.subscribe(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/inhib-out/set");
+      break;
+
+#include BOOST_PP_UPDATE_COUNTER()
+    case BOOST_PP_COUNTER:
+      // OFFSET IN
+      mqtt.subscribe(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/offset-in/set");
+      break;
+#endif // DT_3VOIES_PCBT
+
+#ifdef DT_3VOIES_MCBT
+
+#include BOOST_PP_UPDATE_COUNTER()
+    case BOOST_PP_COUNTER:
+      // 3 voies MCBT mode
+      mqtt.subscribe(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/mode/set");
+      break;
+
+#include BOOST_PP_UPDATE_COUNTER()
+    case BOOST_PP_COUNTER:
+      // 3 voies MCBT consigne
+      mqtt.subscribe(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/C3/set");
+      break;
+
+#include BOOST_PP_UPDATE_COUNTER()
+    case BOOST_PP_COUNTER:
+      // C10
+      mqtt.subscribe(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/C10/set");
+      break;
+
+#include BOOST_PP_UPDATE_COUNTER()
+    case BOOST_PP_COUNTER:
+      // C11
+      mqtt.subscribe(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/C11/set");
+      break;
+
+#include BOOST_PP_UPDATE_COUNTER()
+    case BOOST_PP_COUNTER:
+      // C_MCBT_MIN
+      mqtt.subscribe(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/min_temp/set");
+      break;
+
+#include BOOST_PP_UPDATE_COUNTER()
+    case BOOST_PP_COUNTER:
+      // C_MCBT_MAX
+      mqtt.subscribe(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/max_temp/set");
+      break;
+
+#include BOOST_PP_UPDATE_COUNTER()
+    case BOOST_PP_COUNTER:
       // KP_MCBT
       mqtt.subscribe(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/KP/set");
       break;
@@ -2626,27 +2614,6 @@ bool mqtt_subscribe(MQTTClient &mqtt, bool start)
     case BOOST_PP_COUNTER:
       // KT_MCBT
       mqtt.subscribe(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/KT/set");
-      break;
-
-#include BOOST_PP_UPDATE_COUNTER()
-    case BOOST_PP_COUNTER:
-      // PID PCBT
-      mqtt.subscribe(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/pid_action/set");
-      break;
-
-#include BOOST_PP_UPDATE_COUNTER()
-    case BOOST_PP_COUNTER:
-      mqtt.subscribe(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/pid_pmode/set");
-      break;
-
-#include BOOST_PP_UPDATE_COUNTER()
-    case BOOST_PP_COUNTER:
-      mqtt.subscribe(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/pid_dmode/set");
-      break;
-
-#include BOOST_PP_UPDATE_COUNTER()
-    case BOOST_PP_COUNTER:
-      mqtt.subscribe(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/pid_iawmode/set");
       break;
 
 #include BOOST_PP_UPDATE_COUNTER()
@@ -2672,19 +2639,7 @@ bool mqtt_subscribe(MQTTClient &mqtt, bool start)
 
 #include BOOST_PP_UPDATE_COUNTER()
     case BOOST_PP_COUNTER:
-      // RATIO
-      mqtt.subscribe(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/ratio/set");
-      break;
-
-#include BOOST_PP_UPDATE_COUNTER()
-    case BOOST_PP_COUNTER:
       mqtt.subscribe(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/ratio/set");
-      break;
-
-#include BOOST_PP_UPDATE_COUNTER()
-    case BOOST_PP_COUNTER:
-      // OFFSET OUT
-      mqtt.subscribe(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/inhib-out/set");
       break;
 
 #include BOOST_PP_UPDATE_COUNTER()
@@ -2694,15 +2649,9 @@ bool mqtt_subscribe(MQTTClient &mqtt, bool start)
 
 #include BOOST_PP_UPDATE_COUNTER()
     case BOOST_PP_COUNTER:
-      // OFFSET IN
-      mqtt.subscribe(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/offset-in/set");
-      break;
-
-#include BOOST_PP_UPDATE_COUNTER()
-    case BOOST_PP_COUNTER:
       mqtt.subscribe(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/offset-in/set");
       break;
-#endif // VANNEES
+#endif // DT_3VOIES_MCBT
 
 #ifdef DT_3VOIES_1_NATH
 #include BOOST_PP_UPDATE_COUNTER()
@@ -3228,7 +3177,7 @@ void __attribute__((optimize("O0"))) mqtt_receve(MQTTClient *client, const char 
       DT_Chauffage_set_arret_meteo(false);
   }
 #endif // CHAUFFAGE
-#ifdef VANNES
+#ifdef DT_3VOIES_PCBT
   else if (strcmp(topic, MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/mode/set") == 0) // Mode de la vannes 3 voie PCBT
   {
 
@@ -3263,39 +3212,6 @@ void __attribute__((optimize("O0"))) mqtt_receve(MQTTClient *client, const char 
     str_buffer = buffer;
     DT_3voies_set_C2(str_buffer.toFloat());
     DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/C2/state"), DT_3voies_get_C2());
-  }
-  else if (strcmp(topic, MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/mode/set") == 0) // Mode de la vannes 3 voie MCBT
-  {
-    if (strcmp(buffer, "Normal") == 0)
-    {
-      DT_3voies_MCBT_set_mode(DT_3VOIES_NORMAL);
-      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/mode/state"), F("Normal"));
-    }
-    else if (strcmp(buffer, "Demmarage") == 0)
-    {
-      DT_3voies_MCBT_set_mode(DT_3VOIES_DEMMARAGE);
-      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/mode/state"), F("Demmarage"));
-    }
-    else if (strcmp(buffer, "Manuel") == 0)
-    {
-      DT_3voies_MCBT_set_mode(DT_3VOIES_MANUAL);
-      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/mode/state"), F("Manuel"));
-    }
-    else if (strcmp(buffer, "Arret") == 0)
-    {
-      DT_3voies_MCBT_set_mode(DT_3VOIES_OFF);
-      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/mode/state"), F("Arret"));
-    }
-    else if (strcmp(buffer, "Veille") == 0)
-    {
-      DT_3voies_MCBT_set_mode(DT_3VOIES_STANDBY);
-      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/mode/state"), F("Veille"));
-    }
-  }
-  else if (strcmp(topic, MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/C3/set") == 0) // Mode de la vannes 3 voie MCBT
-  {
-    str_buffer = buffer;
-    DT_3voies_set_C3(str_buffer.toFloat());
   }
   else if (strcmp_P(topic, PSTR(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/V3/set")) == 0) // V3
   {
@@ -3358,25 +3274,6 @@ void __attribute__((optimize("O0"))) mqtt_receve(MQTTClient *client, const char 
     DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/C9/state"), eeprom_config.C9);
     sauvegardeEEPROM();
   }
-  else if (strcmp(topic, MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/C10/set") == 0) // C10
-  {
-    str_buffer = buffer;
-    eeprom_config.C10 = str_buffer.toFloat();
-    // Serial.print("C10 = ");
-    // Serial.println(eeprom_config.C10);
-    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/C10/state"), eeprom_config.C10);
-    sauvegardeEEPROM();
-  }
-
-  else if (strcmp(topic, MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/C11/set") == 0) // C11
-  {
-    str_buffer = buffer;
-    eeprom_config.C11 = str_buffer.toFloat();
-    // Serial.print("C11 = ");
-    // Serial.println(eeprom_config.C11);
-    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/C11/state"), eeprom_config.C11);
-    sauvegardeEEPROM();
-  }
 
   else if (strcmp(topic, MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/min_temp/set") == 0) // C_PCBT_MIN
   {
@@ -3390,20 +3287,6 @@ void __attribute__((optimize("O0"))) mqtt_receve(MQTTClient *client, const char 
     str_buffer = buffer;
     eeprom_config.C_PCBT_MAX = str_buffer.toFloat();
     DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/max_temp/state"), eeprom_config.C_PCBT_MAX);
-    sauvegardeEEPROM();
-  }
-  else if (strcmp(topic, MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/min_temp/set") == 0) // C_MCBT_MIN
-  {
-    str_buffer = buffer;
-    eeprom_config.C_MCBT_MIN = str_buffer.toFloat();
-    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/min_temp/state"), eeprom_config.C_MCBT_MIN);
-    sauvegardeEEPROM();
-  }
-  else if (strcmp(topic, MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/max_temp/set") == 0) // C_MCBT_MAX
-  {
-    str_buffer = buffer;
-    eeprom_config.C_MCBT_MAX = str_buffer.toFloat();
-    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/max_temp/state"), eeprom_config.C_MCBT_MAX);
     sauvegardeEEPROM();
   }
   else if (strcmp(topic, MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/KP/set") == 0) // KP_PCBT
@@ -3432,33 +3315,6 @@ void __attribute__((optimize("O0"))) mqtt_receve(MQTTClient *client, const char 
     DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/KT/state"), DT_3voies_PCBT_get_KT());
   }
 
-  else if (strcmp(topic, MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/KP/set") == 0) // KP_MCBT
-  {
-    str_buffer = buffer;
-    DT_3voies_MCBT_set_KP(str_buffer.toFloat());
-    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/KP/state"), DT_3voies_MCBT_get_KP());
-  }
-  else if (strcmp(topic, MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/KI/set") == 0) // KI_MCBT
-  {
-    str_buffer = buffer;
-
-    DT_3voies_MCBT_set_KI(str_buffer.toFloat());
-    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/KI/state"), DT_3voies_MCBT_get_KI());
-  }
-
-  else if (strcmp(topic, MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/KD/set") == 0) // KD_MCBT
-  {
-    str_buffer = buffer;
-    DT_3voies_MCBT_set_KD(str_buffer.toFloat());
-    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/KD/state"), DT_3voies_MCBT_get_KD());
-  }
-
-  else if (strcmp(topic, MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/KT/set") == 0) // KT_MCBT
-  {
-    str_buffer = buffer;
-    DT_3voies_MCBT_set_KT(str_buffer.toInt());
-    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/KT/state"), DT_3voies_MCBT_get_KT());
-  }
 
   else if (strcmp(topic, MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/pid_action/set") == 0) // PCBT Action
   {
@@ -3522,6 +3378,125 @@ void __attribute__((optimize("O0"))) mqtt_receve(MQTTClient *client, const char 
       DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/pid_iawmode/state"), F("iAwOff"));
     }
   }
+  else if (strcmp(topic, MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/ratio/set") == 0) // RATIO_PCBT
+  {
+    str_buffer = buffer;
+    eeprom_config.ratio_PCBT = str_buffer.toFloat();
+    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/ratio/state"), eeprom_config.ratio_PCBT);
+    sauvegardeEEPROM();
+  }
+
+  else if (strcmp(topic, MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/inhib-out/set") == 0) // OFFSET_PCBT_OUT
+  {
+    str_buffer = buffer;
+    eeprom_config.out_inhib_PCBT = str_buffer.toInt();
+    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/inhib-out/state"), eeprom_config.out_inhib_PCBT);
+    sauvegardeEEPROM();
+  }
+
+  else if (strcmp(topic, MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/offset-in/set") == 0) // OFFSET_PCBT_IN
+  {
+    str_buffer = buffer;
+    eeprom_config.in_offset_PCBT = str_buffer.toInt();
+    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/offset-in/state"), eeprom_config.in_offset_PCBT);
+    sauvegardeEEPROM();
+  }
+#endif //DT_3VOIES_PCBT
+#ifdef DT_3VOIES_MCBT
+
+  else if (strcmp(topic, MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/mode/set") == 0) // Mode de la vannes 3 voie MCBT
+  {
+    if (strcmp(buffer, "Normal") == 0)
+    {
+      DT_3voies_MCBT_set_mode(DT_3VOIES_NORMAL);
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/mode/state"), F("Normal"));
+    }
+    else if (strcmp(buffer, "Demmarage") == 0)
+    {
+      DT_3voies_MCBT_set_mode(DT_3VOIES_DEMMARAGE);
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/mode/state"), F("Demmarage"));
+    }
+    else if (strcmp(buffer, "Manuel") == 0)
+    {
+      DT_3voies_MCBT_set_mode(DT_3VOIES_MANUAL);
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/mode/state"), F("Manuel"));
+    }
+    else if (strcmp(buffer, "Arret") == 0)
+    {
+      DT_3voies_MCBT_set_mode(DT_3VOIES_OFF);
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/mode/state"), F("Arret"));
+    }
+    else if (strcmp(buffer, "Veille") == 0)
+    {
+      DT_3voies_MCBT_set_mode(DT_3VOIES_STANDBY);
+      DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/mode/state"), F("Veille"));
+    }
+  }
+  else if (strcmp(topic, MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/C3/set") == 0) // Mode de la vannes 3 voie MCBT
+  {
+    str_buffer = buffer;
+    DT_3voies_set_C3(str_buffer.toFloat());
+  }
+  else if (strcmp(topic, MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/C10/set") == 0) // C10
+  {
+    str_buffer = buffer;
+    eeprom_config.C10 = str_buffer.toFloat();
+    // Serial.print("C10 = ");
+    // Serial.println(eeprom_config.C10);
+    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/C10/state"), eeprom_config.C10);
+    sauvegardeEEPROM();
+  }
+
+  else if (strcmp(topic, MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/C11/set") == 0) // C11
+  {
+    str_buffer = buffer;
+    eeprom_config.C11 = str_buffer.toFloat();
+    // Serial.print("C11 = ");
+    // Serial.println(eeprom_config.C11);
+    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/C11/state"), eeprom_config.C11);
+    sauvegardeEEPROM();
+  }
+  else if (strcmp(topic, MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/min_temp/set") == 0) // C_MCBT_MIN
+  {
+    str_buffer = buffer;
+    eeprom_config.C_MCBT_MIN = str_buffer.toFloat();
+    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/min_temp/state"), eeprom_config.C_MCBT_MIN);
+    sauvegardeEEPROM();
+  }
+  else if (strcmp(topic, MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/max_temp/set") == 0) // C_MCBT_MAX
+  {
+    str_buffer = buffer;
+    eeprom_config.C_MCBT_MAX = str_buffer.toFloat();
+    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/max_temp/state"), eeprom_config.C_MCBT_MAX);
+    sauvegardeEEPROM();
+  }
+  else if (strcmp(topic, MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/KP/set") == 0) // KP_MCBT
+  {
+    str_buffer = buffer;
+    DT_3voies_MCBT_set_KP(str_buffer.toFloat());
+    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/KP/state"), DT_3voies_MCBT_get_KP());
+  }
+  else if (strcmp(topic, MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/KI/set") == 0) // KI_MCBT
+  {
+    str_buffer = buffer;
+
+    DT_3voies_MCBT_set_KI(str_buffer.toFloat());
+    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/KI/state"), DT_3voies_MCBT_get_KI());
+  }
+
+  else if (strcmp(topic, MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/KD/set") == 0) // KD_MCBT
+  {
+    str_buffer = buffer;
+    DT_3voies_MCBT_set_KD(str_buffer.toFloat());
+    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/KD/state"), DT_3voies_MCBT_get_KD());
+  }
+
+  else if (strcmp(topic, MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/KT/set") == 0) // KT_MCBT
+  {
+    str_buffer = buffer;
+    DT_3voies_MCBT_set_KT(str_buffer.toInt());
+    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/KT/state"), DT_3voies_MCBT_get_KT());
+  }
   else if (strcmp(topic, MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/pid_action/set") == 0) // MCBT Action
   {
     if (strcmp(buffer, "direct") == 0)
@@ -3584,14 +3559,6 @@ void __attribute__((optimize("O0"))) mqtt_receve(MQTTClient *client, const char 
       DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/pid_iawmode/state"), F("iAwOff"));
     }
   }
-  else if (strcmp(topic, MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/ratio/set") == 0) // RATIO_PCBT
-  {
-    str_buffer = buffer;
-    eeprom_config.ratio_PCBT = str_buffer.toFloat();
-    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/ratio/state"), eeprom_config.ratio_PCBT);
-    sauvegardeEEPROM();
-  }
-
   else if (strcmp(topic, MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/ratio/set") == 0) // RATIO_PCBT
   {
     str_buffer = buffer;
@@ -3599,15 +3566,6 @@ void __attribute__((optimize("O0"))) mqtt_receve(MQTTClient *client, const char 
     DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/ratio/state"), eeprom_config.ratio_MCBT);
     sauvegardeEEPROM();
   }
-
-  else if (strcmp(topic, MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/inhib-out/set") == 0) // OFFSET_PCBT_OUT
-  {
-    str_buffer = buffer;
-    eeprom_config.out_inhib_PCBT = str_buffer.toInt();
-    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/inhib-out/state"), eeprom_config.out_inhib_PCBT);
-    sauvegardeEEPROM();
-  }
-
   else if (strcmp(topic, MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/inhib-out/set") == 0) // OFFSET_MCBT_OUT
   {
     str_buffer = buffer;
@@ -3615,15 +3573,6 @@ void __attribute__((optimize("O0"))) mqtt_receve(MQTTClient *client, const char 
     DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/inhib-out/state"), eeprom_config.out_inhib_MCBT);
     sauvegardeEEPROM();
   }
-
-  else if (strcmp(topic, MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/offset-in/set") == 0) // OFFSET_PCBT_IN
-  {
-    str_buffer = buffer;
-    eeprom_config.in_offset_PCBT = str_buffer.toInt();
-    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/pcbt/offset-in/state"), eeprom_config.in_offset_PCBT);
-    sauvegardeEEPROM();
-  }
-
   else if (strcmp(topic, MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/offset-in/set") == 0) // OFFSET_MCBT_IN
   {
     str_buffer = buffer;
@@ -3631,23 +3580,7 @@ void __attribute__((optimize("O0"))) mqtt_receve(MQTTClient *client, const char 
     DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/mcbt/offset-in/state"), eeprom_config.in_offset_MCBT);
     sauvegardeEEPROM();
   }
-  else if (strcmp(topic, MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/avg-temp/offset-sup/set") == 0) // OFFSET_AVG_TEMP_MAX
-  {
-    str_buffer = buffer;
-    eeprom_config.in_offset_avg_temp_sup = str_buffer.toInt();
-    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/avg-temp/offset-sup/state"), eeprom_config.in_offset_avg_temp_sup);
-    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/avg-temp/offset-state"), (float)get_temp_ext());
-    sauvegardeEEPROM();
-  }
-  else if (strcmp(topic, MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/avg-temp/offset-inf/set") == 0) // OFFSET_AVG_TEMP_MIN
-  {
-    str_buffer = buffer;
-    eeprom_config.in_offset_avg_temp_inf = str_buffer.toInt();
-    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/avg-temp/offset-inf/state"), eeprom_config.in_offset_avg_temp_inf);
-    DT_mqtt_send(F(MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/avg-temp/offset-state"), (float)get_temp_ext());
-    sauvegardeEEPROM();
-  }
-#endif // VANNES
+#endif //DT_3VOIES_MCBT
 #ifdef DT_3VOIES_1_NATH
   else if (strcmp(topic, MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/v1n/mode/set") == 0) // Mode de la vannes 3 voie v1n
   {
@@ -4132,21 +4065,30 @@ void setup()
 #endif // MQTT
 #endif // CHAUFFAGE
 
-#ifdef VANNES
+#ifdef DT_3VOIES_PCBT
 
-  Serial.println(F("starting 3 voies"));
-  DT_3voies_init();
+  Serial.println(F("starting 3 voies PCBT"));
+  DT_3voies_pcbt_init();
 #ifdef MQTT
-  DT_3voies_set_callback(dt3voies_callback);
-  DT_3voies_pcbt_set_callback_pid(dt3voies_callback_pid_pcbt);
-  DT_3voies_mcbt_set_callback_pid(dt3voies_callback_pid_mcbt);
-  DT_3voies_set_callback_avg_temp(dt3voies_callback_avg_temp);
+  DT_3voies_pcbt_set_callback(dt3voies_1_nath_callback);
+  DT_3voies_pcbt_set_callback_pid(dt3voies_1_nath_callback_pid);
 #endif // MQTT
-#endif // VANNE
+#endif // DT_3VOIES_PCBT
+
+
+#ifdef DT_3VOIES_MCBT
+
+  Serial.println(F("starting 3 voies MCBT"));
+  DT_3voies_mcbt_init();
+#ifdef MQTT
+  DT_3voies_mcbt_set_callback(dt3voies_1_nath_callback);
+  DT_3voies_mcbt_set_callback_pid(dt3voies_1_nath_callback_pid);
+#endif // MQTT
+#endif // DT_3VOIES_MCBT
 
 #ifdef DT_3VOIES_1_NATH
 
-  Serial.println(F("starting 3 voies"));
+  Serial.println(F("starting 3 voies NAYH"));
   DT_3voies_1_nath_init();
 #ifdef MQTT
   DT_3voies_1_nath_set_callback(dt3voies_1_nath_callback);
@@ -4282,6 +4224,20 @@ void loop()
     break;
 #endif
 
+#ifdef DT_3VOIES_PCBT
+#include BOOST_PP_UPDATE_COUNTER()
+  case BOOST_PP_COUNTER:
+    DT_3voies_pcbt_loop();
+    break;
+#endif
+
+#ifdef DT_3VOIES_MCBT
+#include BOOST_PP_UPDATE_COUNTER()
+  case BOOST_PP_COUNTER:
+    DT_3voies_mcbt_loop();
+    break;
+#endif
+
 #ifdef DT_3VOIES_1_NATH
 #include BOOST_PP_UPDATE_COUNTER()
   case BOOST_PP_COUNTER:
@@ -4293,13 +4249,6 @@ void loop()
 #include BOOST_PP_UPDATE_COUNTER()
   case BOOST_PP_COUNTER:
     DT_get_avg_temp_loop();
-    break;
-#endif
-
-#ifdef VANNES
-#include BOOST_PP_UPDATE_COUNTER()
-  case BOOST_PP_COUNTER:
-    DT_3voies_loop();
     break;
 #endif
 

@@ -1,4 +1,6 @@
-#include <DT_MCBT.h>
+
+#ifdef MCBT
+#include <DT_mcbt.h>
 #include <DT_input.h>
 #include <DT_PT100.h>
 #include <DT_relay.h>
@@ -18,7 +20,6 @@
 
 #define NUM_LISSAGE 5 // en °C
 
-#ifdef MCBT
 
 float Input_MCBT, Output_MCBT;
 

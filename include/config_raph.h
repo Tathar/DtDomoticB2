@@ -17,8 +17,6 @@ void memory(bool print);
 #define SAVE_EEPROM 600000 // sauvegarde des données dans l eeprom toute les x ms
 #define MQTT_REFRESH 10000 // temp de rafrechissement du MQTT
 
-#define BOARD_MANUFACTURER "DOUET Touch Familly"
-#define BOARD_MODEL "DTBoard02"
 #define BOARD_NAME "Chauffage"
 #define BOARD_IDENTIFIER "DTB02-001"
 
@@ -38,7 +36,7 @@ void memory(bool print);
 
 // Dimmer
 
-#define DIMMER_LIGHT_NUM 0        // max 13
+#define DIMMER_LIGHT_NUM 0        // max 13#
 #define DIMMER_ON_OFF_SPEED 250   // en miliseconde
 #define DIMMER_SETTING_SPEED 5000 // en miliseconde pour 100%
 #define DIMMER_SETTING_MIN 25     // valeur minimum du dimmer
@@ -61,7 +59,7 @@ const uint16_t PORTAL_OPEN_CLOSE_TIME = 18000; // 18 secondes
 const uint8_t RELAY_PORTAL_ARRAY[PORTAL_NUM * 2] PROGMEM = {1, 2, 3, 4}; //
 #endif
 
-// #define OPT_RELAY_NUM 3 // nombre de ralais connecté au dimmer : max (DIMMER_LIGHT_NUM + DIMMER_HEAT_NUM + (DIMMER_COVER_NUM * 2) + DIMMER_RADIATOR_NUM ) = 13
+#define OPT_RELAY_NUM 0 // nombre de ralais connecté au dimmer : max (DIMMER_LIGHT_NUM + DIMMER_HEAT_NUM + (DIMMER_COVER_NUM * 2) + DIMMER_RADIATOR_NUM ) = 13
 #if OPT_RELAY_NUM > 0
 const uint8_t OPT_RELAY_ARRAY[OPT_RELAY_NUM] PROGMEM = {OPT_1, OPT_2, OPT_3};
 const uint8_t OPT_RELAY_REVERT[OPT_RELAY_NUM] PROGMEM = {false, false, false};
@@ -74,12 +72,11 @@ const uint8_t DIMMER_RADIATOR_ARRAY[DIMMER_RADIATOR_NUM] PROGMEM = {}; // define
 #endif
 
 // PT100
-#define PT100_NUM 2 // max 18 //TODO: bug if PT100_NUM != 18  13
-
-#define DT_PT100_EXT 0
+#define PT100_NUM 8 // max 18 //TODO: bug if PT100_NUM != 18  13
+#define PT100_EXT 6 //6
 
 // BME_280
-#define BME280_NUM 0 //exterieur
+#define BME280_NUM 1 //exterieur
 #if BME280_NUM > 0
 const uint8_t BME280_ADDRESS_ARRAY[BME280_NUM] PROGMEM = {0x76};
 const uint8_t BME280_CHANNEL_ARRAY[BME280_NUM] PROGMEM = {2};
@@ -93,15 +90,15 @@ const uint8_t CCS811_CHANNEL_ARRAY[CCS811_NUM] PROGMEM = {2};
 #endif
 
 // SCD4X
-#define SCD4X_NUM 0
+#define SCD4X_NUM 4
 #if SCD4X_NUM > 0
-const uint8_t SCD4X_CHANNEL_ARRAY[SCD4X_NUM] PROGMEM = {1,2,3};
+const uint8_t SCD4X_CHANNEL_ARRAY[SCD4X_NUM] PROGMEM = {1,2,3,4};
 #endif // SCD4X
 
 // HDC1080
-#define HDC1080_NUM 0
+#define HDC1080_NUM 4
 #if HDC1080_NUM > 0
-const uint8_t HDC1080_CHANNEL_ARRAY[HDC1080_NUM] PROGMEM = {1};
+const uint8_t HDC1080_CHANNEL_ARRAY[HDC1080_NUM] PROGMEM = {1,2,3,4};
 #endif
 
 // TIC
@@ -116,8 +113,12 @@ const uint8_t RELAY_RADIATOR_PT100_ARRAY[RELAY_RADIATOR_NUM] PROGMEM = {};
 #endif // RELAY_RADIATOR_NUM
 
 // watchdog
-// #define WATCHDOG_TIME WDTO_1S
-#define WATCHDOG_TIME WDTO_8S
+// #define WATCHDOG_TIME WDTO_15MS
+// #define WATCHDOG_TIME WDTO_60MS
+// #define WATCHDOG_TIME WDTO_250MS
+// #define WATCHDOG_TIME WDTO_500MS
+#define WATCHDOG_TIME WDTO_1S
+// #define WATCHDOG_TIME WDTO_8S
 
 #define MQTT
 #ifdef MQTT
@@ -130,42 +131,37 @@ const uint8_t RELAY_RADIATOR_PT100_ARRAY[RELAY_RADIATOR_NUM] PROGMEM = {};
 #define MAC3 0xBA
 #define MAC4 0xFE
 #define MAC5 0xFE
-#define MAC6 0xEF
-
+#define MAC6 0xED
 //#define DHCP
-
-#ifndef DHCP
 // ip address
 #define SOURCE_IP1 192
 #define SOURCE_IP2 168
 #define SOURCE_IP3 1
-#define SOURCE_IP4 5
+#define SOURCE_IP4 4
 // dns server
 #define DNS1 192
 #define DNS2 168
 #define DNS3 1
-#define DNS4 254
+#define DNS4 1
 // gateway
 #define GW1 192
 #define GW2 168
 #define GW3 1
-#define GW4 254
+#define GW4 1
 // sub net mask
 #define MASK1 255
 #define MASK2 255
 #define MASK3 255
 #define MASK4 0
-#endif //DHCP
-
 // MQTT Server
 #define MQTT_IP1 192
 #define MQTT_IP2 168
 #define MQTT_IP3 1
-#define MQTT_IP4 1
+#define MQTT_IP4 2
 // MQTT config
 #define MQTT_CLIENT_ID BOARD_IDENTIFIER
 #define MQTT_USER "dtboard"
-#define MQTT_PASSWORD "dtboard357"
+#define MQTT_PASSWORD "1MotdePasse"
 #define MQTT_ROOT_TOPIC "DtBoard"
 #define MQTT_WILL_TOPIC MQTT_ROOT_TOPIC "/" BOARD_IDENTIFIER "/status"
 #define MQTT_WILL_QOS 1
@@ -176,11 +172,12 @@ const uint8_t RELAY_RADIATOR_PT100_ARRAY[RELAY_RADIATOR_NUM] PROGMEM = {};
 #define NETWORK_RESET_TIME 60000 // temp avant reset de la carte reseau en qua d'imposibilité de se connecter (en miliseconde)
 #define MQTT_UPDATE 1000         // in ms
 
-// #define CLOCK
+#define CLOCK
 #ifdef CLOCK
     #define NTP_SERVER "pool.ntp.org"
     #define NTP_LOCAL_PORT 8888
-    #define NTP_SYNC_INTERVAL 24UL * 60UL * 60UL * 1000UL // 24h
+    // #define NTP_SYNC_INTERVAL 24UL * 60UL * 60UL * 1000UL // 24h
+    #define NTP_SYNC_INTERVAL 24UL * 60UL * 1000UL // 1h
 
     #define CLOCK_MONTH_1 3 // 24h
     #define CLOCK_DAY_1 31 // 24h
@@ -203,7 +200,7 @@ const uint8_t RELAY_RADIATOR_PT100_ARRAY[RELAY_RADIATOR_NUM] PROGMEM = {};
 #define RADIATOR_HA_MIN_TEMP 15
 
 // Poele
-// #define POELE
+#define POELE
 #ifdef POELE
 #define MIN_T4 0                     // en °C (fake NTC)
 #define POELE_MAX_TEMPERATURE 85     // en °C (consigne temperature Balon)
@@ -214,72 +211,67 @@ const uint8_t RELAY_RADIATOR_PT100_ARRAY[RELAY_RADIATOR_NUM] PROGMEM = {};
 
 #define PT100_H_BALON 0
 #define PT100_M_BALON 1
-#define PT100_B_BALON 3 //2
+#define PT100_B_BALON 2
 
 #define RELAY_ECS1 24  //résistance ECS1 
 #define RELAY_ECS2 25  //résistance ECS2
 #define RELAY_ECS3 26  //résistance ECS2
 
-#define PT100_ECS1 7
-#define PT100_ECS2 8
+#define PT100_ECS 7 //7
+#define PT100_ECS2 9 //8 //A suprimmé
 
-#define RELAY_EV1 24 // relay ECS
+// #define RELAY_EV1 24 // relay ECS
 #endif               // POELE
 
 // Vanne 3 Voies
-// #define VANNES
+#define VANNES
 #ifdef VANNES
 #define TMP_EAU_PCBT_MAX 38 // valeur maximum de la consigne de temperature
 #define TMP_EAU_MCBT_MAX 65 // valeur maximum de la consigne de temperature
 #define DBMAC 0.5           // demi bamnde morte pour l'arret des circulateur (en °C)
 
 // #define PT100_EXT 5
-#define PT100_3_VOIES_CHAUFFAGE 2 
+#define PT100_3_VOIES_PCBT 3 //3
+#define PT100_3_VOIES_MCBT 4
 
-#define CIRCULATEUR_CHAUFFAGE 17
-#define VANNE_HOT 0
-#define VANNE_COLD 1
+#define CIRCULATEUR_PCBT 5 //Sortie
+#define VANNE_PCBT_HOT 0 //Sortie
+#define VANNE_PCBT_COLD 1 //Sortie
 
+#define CIRCULATEUR_MCBT 6 //Sortie
+#define VANNE_MCBT_HOT 2 //Sortie
+#define VANNE_MCBT_COLD 3 //Sortie
+
+// Circulateur boucle d eau chaude
+#define CIRCULATEUR_ECS 4 //Sortie
 
 // Planchée chauffant
 #define MAX_TMP_PLANCHE 27 // en °C
 #define NUM_PLANCHE 4
-#define PT100_PLANCHE_SALON 8
+// #define PT100_PLANCHE_SALON 8
 // #define RELAIS_PLANCHE_SALON
-#define PT100_PLANCHE_CH_1 9
+// #define PT100_PLANCHE_CH_1 9
 // #define RELAIS_PLANCHE_CH_1
-#define PT100_PLANCHE_CH_2 10
+// #define PT100_PLANCHE_CH_2 10
 // #define RELAIS_PLANCHE_CH_2
-#define PT100_PLANCHE_SDB 11
+// #define PT100_PLANCHE_SDB 11
 // #define RELAIS_PLANCHE_SDB
-#define PT100_PLANCHE_CELIER 14
+// #define PT100_PLANCHE_CELIER 14
 // #define RELAIS_PLANCHE_CELIER
-#define PT100_MUR_CHAUFANT 15
+// #define PT100_MUR_CHAUFANT 15
 // #define RELAIS_MUR_CHAUFANT
 
-#define PT100_SALON 13
-#define PT100_CH1 14
-#define PT100_SDB 15
+// #define PT100_SALON 13
+// #define PT100_CH1 14
+// #define PT100_SDB 15
 
 // const float PT100_PLANCHEE[NUM_PLANCHE] PROGMEM = {PT100_PLANCHE_SALON, PT100_PLANCHE_CH_1, PT100_PLANCHE_CH_2, PT100_PLANCHE_SDB};
 // const uint8_t RELAI_PLANCHE[NUM_PLANCHE] PROGMEM = {RELAIS_PLANCHE_SALON, RELAIS_PLANCHE_CH_1, RELAIS_PLANCHE_CH_2, RELAIS_PLANCHE_SDB};
 
 #endif // VANNES
 
-#define DT_3VOIES_1_NATH //3 voies Nath
-#ifdef DT_3VOIES_1_NATH
-#define DT_3VOIES_1_NATH_MAX 65 // valeur maximum de la consigne de temperature
-#define DT_3VOIES_1_NATH_MIN 10 // valeur maximum de la consigne de temperature
-// #define DBMAC 0.5           // demi bamnde morte pour l'arret des circulateur (en °C)
-
-#define DT_3VOIES_1_NATH_CHAUFFAGE_PT100 1
-
-#define DT_3VOIES_1_NATH_HOT 2
-#define DT_3VOIES_1_NATH_COLD 1
-#define DT_3VOIES_1_NATH_CIRCULATEUR 3
-
-#endif // DT_3VOIES_1_NATH
-
+// Demmarage Poele
+#define MARCHE_POELE 8 //21
 
 // Interaction
 #define PUSH_1_NUM 0
@@ -317,15 +309,23 @@ const dt_interaction_eeprom_config interaction_input_4_push_config[PUSH_4_NUM] P
     dt_no_action()};
 #endif // PUSH_4_NUM > 0
 
+// jeux de lumière
+// #define JEUX_LUMIERE_1 27
+// #define JEUX_LUMIERE_2 28
+// #define JEUX_LUMIERE_3 30
+// #define JEUX_LUMIERE_4 31
+// #define JEUX_LUMIERE_5 32
+
+#define ALIM 16
 
 // cpt_pulse_input
-// #define CPT_PULSE_INPUT 4 // nombre de compteur d'impulsion
+#define CPT_PULSE_INPUT 8 // nombre de compteur d'impulsion
 #if CPT_PULSE_INPUT > 0
-const uint8_t CPT_PULSE_INPUT_ARRAY[CPT_PULSE_INPUT] PROGMEM = {6, 3, 4, 5};
+const uint8_t CPT_PULSE_INPUT_ARRAY[CPT_PULSE_INPUT] PROGMEM = {0,1,2,3,4,5,6,7};
 #endif // CPT_PULSE_INPUT > 0
 
 // cpt_pulse_input_if_OUT
-// #define CPT_PULSE_INPUT_IF_OUT 1 // nombre de compteur d'impulsion Conditionnel lie a une sortie
+#define CPT_PULSE_INPUT_IF_OUT 0 // nombre de compteur d'impulsion Conditionnel lie a une sortie
 #if CPT_PULSE_INPUT_IF_OUT > 0
 const uint8_t CPT_PULSE_INPUT_IF_OUT_ARRAY[CPT_PULSE_INPUT_IF_OUT] PROGMEM = {6};
 const uint8_t CPT_PULSE_INPUT_IF_OUT_COND_ARRAY[CPT_PULSE_INPUT_IF_OUT] PROGMEM = {RELAY_EV1};
