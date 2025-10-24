@@ -735,25 +735,25 @@ bool homeassistant(bool start)
 
 #include BOOST_PP_UPDATE_COUNTER()
                 case BOOST_PP_COUNTER:
-                        // C8
+                        //SetPoint_auto_1_3voies_PCBT_raph // C8
                         DT_mqtt_send(F("homeassistant/number/" BOARD_IDENTIFIER "/C8/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/pcbt/C8\",\"uniq_id\":\"" BOARD_IDENTIFIER "-C8\",\"name\":\"" BOARD_IDENTIFIER " consigne Temp PCBT a -10°C (C8)\",\"stat_t\":\"~/state\",\"command_topic\":\"~/set\",\"step\":0.01,\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
                         break;
 
 #include BOOST_PP_UPDATE_COUNTER()
                 case BOOST_PP_COUNTER:
-                        // C9
+                        //SetPoint_auto_2_3voies_PCBT_raph // C9
                         DT_mqtt_send(F("homeassistant/number/" BOARD_IDENTIFIER "/C9/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/pcbt/C9\",\"uniq_id\":\"" BOARD_IDENTIFIER "-C9\",\"name\":\"" BOARD_IDENTIFIER " consigne Temp PCBT a +10°C (C9)\",\"stat_t\":\"~/state\",\"command_topic\":\"~/set\",\"step\":0.01,\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
                         break;
 
 #include BOOST_PP_UPDATE_COUNTER()
                 case BOOST_PP_COUNTER:
-                        // C_PCBT_MIN
+                        // SetPoint_3voies_min_PCBT_raph
                         DT_mqtt_send(F("homeassistant/number/" BOARD_IDENTIFIER "/C_PCBT_MIN/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/pcbt/min_temp\",\"uniq_id\":\"" BOARD_IDENTIFIER "-C_PCBT_MIN\",\"name\":\"consigne Temp PCBT minimum T° ext. (C_PCBT_MIN)\",\"stat_t\":\"~/state\",\"command_topic\":\"~/set\",\"mode\":\"box\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
                         break;
 
 #include BOOST_PP_UPDATE_COUNTER()
                 case BOOST_PP_COUNTER:
-                        // C_PCBT_MAX
+                        // SetPoint_3voies_max_PCBT_raph
                         DT_mqtt_send(F("homeassistant/number/" BOARD_IDENTIFIER "/C_PCBT_MAX/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/pcbt/max_temp\",\"uniq_id\":\"" BOARD_IDENTIFIER "-C_PCBT_MAX\",\"name\":\"" BOARD_IDENTIFIER " consigne Temp PCBT maximum (C_PCBT_MAX)\",\"stat_t\":\"~/state\",\"command_topic\":\"~/set\",\"mode\":\"box\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
                         break;
 

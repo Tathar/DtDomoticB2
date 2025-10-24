@@ -20,7 +20,7 @@ float scale(float in, float in_min, float in_max, float out_min, float out_max)
     return ((((in - in_min) / (in_max - in_min)) * (out_max - out_min)) + out_min);
 }
 
-DT3voies::DT3voies() : pid(&Input, &Output, &SetPoint){};
+DT3voies::DT3voies() : pid(&Input, &Output, &SetPoint) {};
 
 // initialisation des vanne 3 voies
 void DT3voies::init(float KP, float KI, float KD, uint32_t KT, QuickPID::Action action, QuickPID::pMode pMode, QuickPID::dMode dMode, QuickPID::iAwMode iAwMode, uint8_t relay_hot, uint8_t relay_cold, uint8_t relay_circulateur, mode mode)
@@ -223,4 +223,9 @@ DT3voies::mode DT3voies::get_mode()
 float DT3voies::get_ouput()
 {
     return Output;
+}
+
+float DT3voies::get_setpoint()
+{
+    return SetPoint;
 }

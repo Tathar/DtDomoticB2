@@ -52,6 +52,7 @@ public:
     void set_iawmode(QuickPID::iAwMode iAwMode);
 
     float get_ouput();
+    float get_setpoint();
 
     QuickPID pid;
 
