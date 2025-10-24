@@ -48,7 +48,7 @@ void DT_3voies_1_nath_init()
         mode = DT3voies::mode::ON;
     }
 
-    vannes.init(eeprom_config.pid_3voies_1_nath.KP, eeprom_config.pid_3voies_1_nath.KI, eeprom_config.pid_3voies_1_nath.KD, eeprom_config.pid_3voies_1_nath.KT, eeprom_config.pid_3voies_1_nath.action, eeprom_config.pid_3voies_1_nath.pmode, eeprom_config.pid_3voies_1_nath.dmode, eeprom_config.pid_3voies_1_nath.iawmode, DT_3VOIES_1_NATH_HOT, DT_3VOIES_1_NATH_HOT, DT_3VOIES_1_NATH_CIRCULATEUR, mode);
+    vannes.init(eeprom_config.pid_3voies_1_nath.KP, eeprom_config.pid_3voies_1_nath.KI, eeprom_config.pid_3voies_1_nath.KD, eeprom_config.pid_3voies_1_nath.KT, eeprom_config.pid_3voies_1_nath.action, eeprom_config.pid_3voies_1_nath.pmode, eeprom_config.pid_3voies_1_nath.dmode, eeprom_config.pid_3voies_1_nath.iawmode, DT_3VOIES_1_NATH_HOT, DT_3VOIES_1_NATH_COLD, DT_3VOIES_1_NATH_CIRCULATEUR, mode);
 
     // turn the PID on
     if (eeprom_config.mode_3voies_1_nath == DT_3voies_1_nath_OFF || eeprom_config.mode_3voies_1_nath == DT_3voies_1_nath_STANDBY)
