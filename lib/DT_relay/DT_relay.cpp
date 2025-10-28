@@ -47,7 +47,7 @@ void DT_relay(uint8_t num, bool state)
     uint8_t pin = pgm_read_byte(RELAY_ARRAY + num);
     bool revert = pgm_read_byte(RELAY_REVERT + num);
 
-#ifdef VANNES
+#ifdef DT_3VOIES_PCBT_RAPH
     // interverouillage
     if (num == VANNE_PCBT_HOT && state == true && DT_relay_get(VANNE_PCBT_COLD) == true)
     {
@@ -57,6 +57,10 @@ void DT_relay(uint8_t num, bool state)
     {
         return;
     }
+#endif
+
+#ifdef DT_3VOIES_MCBT_RAPH
+    // interverouillage
     if (num == VANNE_MCBT_HOT && state == true && DT_relay_get(VANNE_MCBT_COLD) == true)
     {
         return;
@@ -65,7 +69,19 @@ void DT_relay(uint8_t num, bool state)
     {
         return;
     }
-#endif // VANNES
+#endif
+
+#ifdef DT_3VOIES_1_NATH
+    // interverouillage
+    if (num == DT_3VOIES_1_NATH_RELAY_HOT && state == true && DT_relay_get(DT_3VOIES_1_NATH_RELAY_COLD) == true)
+    {
+        return;
+    }
+    else if (num == DT_3VOIES_1_NATH_RELAY_COLD && state == true && DT_relay_get(DT_3VOIES_1_NATH_RELAY_HOT) == true)
+    {
+        return;
+    }
+#endif
 
 #if RELAY_COVER_NUM > 0
     // interverouillage

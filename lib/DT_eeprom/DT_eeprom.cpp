@@ -38,30 +38,6 @@ void chargeEEPROM()
                 need_save = true;
                 Serial.println(F("EEPROM version < 1"));
                 eeprom_config.struct_version = 1;
-#ifdef POELE
-                eeprom_config.poele_mode = DT_POELE_ARRET;
-#endif
-
-#ifdef VANNES
-                eeprom_config.mode_3voies_PCBT_raph = DT_3VOIES_OFF;
-                eeprom_config.mode_3voies_MCBT = DT_3VOIES_OFF;
-
-                eeprom_config.V1 = 60; // consigne poêle en mode force (70°C)
-                eeprom_config.V2 = 2;  // Variable Reserve chaleur Ballon (20°C)
-                eeprom_config.V3 = 0;  // Variable Temp Demi plage Morte
-                eeprom_config.C4 = 60; // consigne Jacuzzi
-                eeprom_config.C5 = 55; // consigne ECS1 & ECS2
-                eeprom_config.C7 = 90; // Valeur renvoyer au poele pour le mode silance (Fake NTC) //TODO: plus utilisée ?
-
-                eeprom_config.SetPoint_auto_1_3voies_PCBT_raph = 29;                       // consigne Temp PCBT a -10°C
-                eeprom_config.SetPoint_auto_2_3voies_PCBT_raph = 21;                       // consigne Temp PCBT a +10°C
-                eeprom_config.C10 = 48;                      // consigne Temp MCBT a -10°C
-                eeprom_config.C11 = 32;                      // consigne Temp MCBT a +10°C
-                eeprom_config.SetPoint_3voies_min_PCBT_raph = 17;               // consigne Temp PCBT minimum
-                eeprom_config.SetPoint_3voies_max_PCBT_raph = TMP_EAU_PCBT_MAX; // consigne Temp PCBT maximum
-                eeprom_config.C_MCBT_MIN = 18;               // consigne Temp MCBT minimum
-                eeprom_config.C_MCBT_MAX = TMP_EAU_MCBT_MAX; // consigne Temp MCBT maximum
-#endif                                                       // VANNES
         }
 
         // Valeurs par défaut struct_version == 2
@@ -71,26 +47,6 @@ void chargeEEPROM()
                 Serial.println(F("EEPROM version < 2"));
                 eeprom_config.struct_version = 2;
 
-#ifdef VANNES        
-
-                eeprom_config.pid_3voies_PCBT_raph.KP = 1300;
-                eeprom_config.pid_3voies_PCBT_raph.KI = 0;
-                eeprom_config.pid_3voies_PCBT_raph.KD = 100000;
-                eeprom_config.pid_3voies_PCBT_raph.KT = 20000;
-                eeprom_config.pid_3voies_PCBT_raph.action = QuickPID::Action::direct;
-                eeprom_config.pid_3voies_PCBT_raph.pmode = QuickPID::pMode::pOnError;
-                eeprom_config.pid_3voies_PCBT_raph.dmode = QuickPID::dMode::dOnMeas;
-                eeprom_config.pid_3voies_PCBT_raph.iawmode = QuickPID::iAwMode::iAwCondition;
-
-                eeprom_config.pid_mcbt.KP = 500;
-                eeprom_config.pid_mcbt.KI = 0;
-                eeprom_config.pid_mcbt.KD = 100000;
-                eeprom_config.pid_mcbt.KT = 20000;
-                eeprom_config.pid_mcbt.action = QuickPID::Action::direct;
-                eeprom_config.pid_mcbt.pmode = QuickPID::pMode::pOnError;
-                eeprom_config.pid_mcbt.dmode = QuickPID::dMode::dOnMeas;
-                eeprom_config.pid_mcbt.iawmode = QuickPID::iAwMode::iAwCondition;
-#endif
         }
 
         // Valeurs par défaut struct_version == 3
@@ -99,11 +55,6 @@ void chargeEEPROM()
                 need_save = true;
                 Serial.println(F("EEPROM version < 3"));
                 eeprom_config.struct_version = 3;
-
-#ifdef VANNES
-                eeprom_config.ratio_PCBT = 1;
-                eeprom_config.ratio_MCBT = 1;
-#endif
         }
 
         // Valeurs par défaut struct_version == 4
@@ -112,11 +63,6 @@ void chargeEEPROM()
                 need_save = true;
                 Serial.println(F("EEPROM version < 4"));
                 eeprom_config.struct_version = 4;
-
-#ifdef VANNES
-                eeprom_config.pid_3voies_PCBT_raph = 400;
-                eeprom_config.out_inhib_MCBT = 400;
-#endif
         }
 
         // Valeurs par défaut struct_version == 5
@@ -125,11 +71,6 @@ void chargeEEPROM()
                 need_save = true;
                 Serial.println(F("EEPROM version < 5"));
                 eeprom_config.struct_version = 5;
-
-#ifdef VANNES
-                eeprom_config.in_offset_3voies_PCBT_raph = 0;
-                eeprom_config.in_offset_MCBT = 0;
-#endif
         }
 
         // Valeurs par défaut struct_version == 6
@@ -184,6 +125,76 @@ void chargeEEPROM()
 #endif
 #ifdef RELAY_ECS2
                 eeprom_config.ecs2_mode = DT_ECS_MARCHE;
+#endif
+        }
+        if (eeprom_config.struct_version < 8 || erreur)
+        {
+                need_save = true;
+                Serial.println(F("EEPROM version < 8"));
+                eeprom_config.struct_version = 8;
+
+#ifdef DT_3VOIES_PCBT_RAPH
+                eeprom_config.SetPoint_manual_3voies_PCBT_raph = 0;
+                eeprom_config.SetPoint_auto_1_3voies_PCBT_raph = 29;            // consigne Temp PCBT a -10°C
+                eeprom_config.SetPoint_auto_2_3voies_PCBT_raph = 21;            // consigne Temp PCBT a +10°C
+                eeprom_config.SetPoint_3voies_min_PCBT_raph = 40;               // consigne Temp PCBT minimum
+                eeprom_config.SetPoint_3voies_max_PCBT_raph = TMP_EAU_PCBT_MAX; // consigne Temp PCBT maximum
+                eeprom_config.pid_3voies_PCBT_raph.KP = 1300;
+                eeprom_config.pid_3voies_PCBT_raph.KI = 0;
+                eeprom_config.pid_3voies_PCBT_raph.KD = 100000;
+                eeprom_config.pid_3voies_PCBT_raph.KT = 20000;
+                eeprom_config.pid_3voies_PCBT_raph.action = QuickPID::Action::direct;
+                eeprom_config.pid_3voies_PCBT_raph.pmode = QuickPID::pMode::pOnError;
+                eeprom_config.pid_3voies_PCBT_raph.dmode = QuickPID::dMode::dOnMeas;
+                eeprom_config.pid_3voies_PCBT_raph.iawmode = QuickPID::iAwMode::iAwCondition;
+                eeprom_config.in_offset_3voies_PCBT_raph = 0;
+                eeprom_config.out_inhib_3voies_PCBT_raph = 400;
+                eeprom_config.mode_3voies_PCBT_raph = DT_3voies_PCBT_raph_OFF;
+#endif
+#ifdef DT_3VOIES_MCBT_RAPH
+                eeprom_config.SetPoint_manual_3voies_MCBT_raph = 0;
+                eeprom_config.SetPoint_auto_1_3voies_MCBT_raph = 48;            // consigne Temp MCBT a -10°C
+                eeprom_config.SetPoint_auto_2_3voies_MCBT_raph = 32;            // consigne Temp MCBT a +10°C
+                eeprom_config.SetPoint_3voies_min_MCBT_raph = 22;               // consigne Temp MCBT minimum
+                eeprom_config.SetPoint_3voies_max_MCBT_raph = TMP_EAU_MCBT_MAX; // consigne Temp MCBT maximum
+                eeprom_config.pid_3voies_MCBT_raph.KP = 500;
+                eeprom_config.pid_3voies_MCBT_raph.KI = 0;
+                eeprom_config.pid_3voies_MCBT_raph.KD = 0;
+                eeprom_config.pid_3voies_MCBT_raph.KT = 60000;
+                eeprom_config.pid_3voies_MCBT_raph.action = QuickPID::Action::direct;
+                eeprom_config.pid_3voies_MCBT_raph.pmode = QuickPID::pMode::pOnError;
+                eeprom_config.pid_3voies_MCBT_raph.dmode = QuickPID::dMode::dOnMeas;
+                eeprom_config.pid_3voies_MCBT_raph.iawmode = QuickPID::iAwMode::iAwCondition;
+                eeprom_config.out_inhib_3voies_MCBT_raph = 400;
+                eeprom_config.in_offset_3voies_MCBT_raph = 0;
+                eeprom_config.mode_3voies_MCBT_raph = DT_3voies_MCBT_raph_OFF;
+#endif
+#ifdef POELE
+                eeprom_config.poele_mode = DT_POELE_ARRET;
+                eeprom_config.V1 = 60; // consigne poêle en mode force (70°C)
+                eeprom_config.V2 = 2;  // Variable Reserve chaleur Ballon (20°C)
+                eeprom_config.V3 = 0;  // Variable Temp Demi plage Morte
+                eeprom_config.C4 = 48; // consigne Jacuzzi
+                eeprom_config.C5 = 60; // consigne ECS1 & ECS2
+                eeprom_config.C7 = 90; // Reserve arret poele
+#endif
+#ifdef DT_3VOIES_1_NATH
+                eeprom_config.SetPoint_manual_3voies_1_nath = 25;
+                eeprom_config.SetPoint_auto_1_3voies_1_nath = 60;            // consigne Temp MCBT a -10°C
+                eeprom_config.SetPoint_auto_2_3voies_1_nath = 35;            // consigne Temp MCBT a +10°C
+                eeprom_config.SetPoint_3voies_min_1_nath = 20;               // consigne Temp MCBT minimum
+                eeprom_config.SetPoint_3voies_max_1_nath = DT_3VOIES_1_NATH_MAX_TMP_EAU; // consigne Temp MCBT maximum
+                eeprom_config.pid_3voies_1_nath.KP = 600;
+                eeprom_config.pid_3voies_1_nath.KI = 0;
+                eeprom_config.pid_3voies_1_nath.KD = 0;
+                eeprom_config.pid_3voies_1_nath.KT = 400000;
+                eeprom_config.pid_3voies_1_nath.action = QuickPID::Action::direct;
+                eeprom_config.pid_3voies_1_nath.pmode = QuickPID::pMode::pOnError;
+                eeprom_config.pid_3voies_1_nath.dmode = QuickPID::dMode::dOnMeas;
+                eeprom_config.pid_3voies_1_nath.iawmode = QuickPID::iAwMode::iAwCondition;
+                eeprom_config.out_inhib_3voies_1_nath = 400;
+                eeprom_config.in_offset_3voies_1_nath = 0;
+                eeprom_config.mode_3voies_1_nath = DT_3voies_1_nath_OFF;
 #endif
         }
 

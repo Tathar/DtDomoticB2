@@ -14,7 +14,6 @@
 #include "../lib/DT_chauffage/DT_3voies_nath.h"
 #include "../lib/DT_chauffage/DT_PCBT_raph.h"
 #include "../lib/DT_chauffage/DT_MCBT_raph.h"
-#include "../lib/DT_3voies/DT_3voies.h"
 #include "../lib/DT_chauffage/DT_chauffage.h"
 // #include "../lib/DT_clock/DT_clock.h"
 
@@ -73,7 +72,7 @@ enum __attribute__((__packed__)) DT_ECS_mode
 struct Mem_Config
 {
     // float C2;                       // consigne Temp PCBT
-    float C3;                       // consigne MCBT
+    // float C3;                       // consigne MCBT
     bool MQTT_online = false;       // connecte au broker MQTT
     bool HA_online = false;         // Home Assistant
     bool ha_mqtt_config = false;    // Home Assistant MQTT configuration
@@ -97,30 +96,6 @@ struct Eeprom_Config
 
 #ifdef POELE
     DT_Poele_mode poele_mode;
-#endif
-#ifdef DT_3voies_PCBT_raph
-    DT_3voies_PCBT_raph_mode mode_3voies_PCBT_raph;
-    float SetPoint_manual_3voies_PCBT_raph;
-    float SetPoint_auto_1_3voies_PCBT_raph; // consigne Temp PCBT a -10°C //C8
-    float SetPoint_auto_2_3voies_PCBT_raph; // consigne Temp PCBT a +10°C //C9
-    float SetPoint_3voies_max_PCBT_raph;    // consigne Temp PCBT minimum
-    float SetPoint_3voies_min_PCBT_raph;    // consigne Temp PCBT maximum
-    Pid pid_3voies_PCBT_raph;
-    float in_offset_3voies_PCBT_raph; // en °c
-#endif
-
-#ifdef DT_3voies_MCBT_raph
-    DT_3voies_mode mode_3voies_MCBT_raph;
-    float C10; // consigne Temp MCBT a -10°C
-    float C11; // consigne Temp MCBT a +10°C
-    float C_MCBT_MIN; // consigne Temp MCBT minimum
-    float C_MCBT_MAX; // consigne Temp MCBT maximum
-    Pid pid_mcbt;
-    float ratio_MCBT;
-    int16_t out_inhib_MCBT; // en ms
-    float in_offset_MCBT; // en °c
-#endif
-
     uint8_t V1; // consigne poêle mode force (70°C)
     uint8_t V2; // Variable Reserve chaleur Ballon (20°C)
     float V3;   // Variable Temp Demi plage Morte
@@ -130,6 +105,31 @@ struct Eeprom_Config
     uint8_t C5; // consigne ECS1 & ECS2
     uint8_t C6; // consigne mode boost
     int8_t C7;  // Bande Morte Poele
+#endif
+
+#ifdef DT_3VOIES_PCBT_RAPH
+    DT_3voies_PCBT_raph_mode mode_3voies_PCBT_raph;
+    float SetPoint_manual_3voies_PCBT_raph;
+    float SetPoint_auto_1_3voies_PCBT_raph; // consigne Temp PCBT a -10°C //C8
+    float SetPoint_auto_2_3voies_PCBT_raph; // consigne Temp PCBT a +10°C //C9
+    float SetPoint_3voies_min_PCBT_raph;    // consigne Temp PCBT maximum
+    float SetPoint_3voies_max_PCBT_raph;    // consigne Temp PCBT minimum
+    Pid pid_3voies_PCBT_raph;
+    float in_offset_3voies_PCBT_raph; // en °c
+    int16_t out_inhib_3voies_PCBT_raph; // en ms //TODO : à verifier
+#endif
+
+#ifdef DT_3VOIES_MCBT_RAPH
+    DT_3voies_MCBT_raph_mode mode_3voies_MCBT_raph;
+    float SetPoint_manual_3voies_MCBT_raph;
+    float SetPoint_auto_1_3voies_MCBT_raph; // consigne Temp MCBT a -10°C //C10
+    float SetPoint_auto_2_3voies_MCBT_raph; // consigne Temp MCBT a +10°C //C11
+    float SetPoint_3voies_min_MCBT_raph; // consigne Temp MCBT minimum
+    float SetPoint_3voies_max_MCBT_raph; // consigne Temp MCBT maximum
+    Pid pid_3voies_MCBT_raph;
+    float in_offset_3voies_MCBT_raph; // en °c
+    int16_t out_inhib_3voies_MCBT_raph; // en ms
+#endif
 
 #ifdef DT_PT100_EXT
     uint8_t in_offset_avg_temp_sup; // en °C //fourchette pour la quelle on utilise la temperature exterieur reel (non moyené)
@@ -141,10 +141,9 @@ struct Eeprom_Config
     DT_3voies_1_nath_mode mode_3voies_1_nath;
     float SetPoint_auto_1_3voies_1_nath; // consigne Temp a -10°C
     float SetPoint_auto_2_3voies_1_nath; // consigne Temp a +10°C
-    float SetPoint_3voies_1_nath_min;    // consigne Temp minimum
-    float SetPoint_3voies_1_nath_max;    // consigne Temp maximum
+    float SetPoint_3voies_min_1_nath;    // consigne Temp minimum
+    float SetPoint_3voies_max_1_nath;    // consigne Temp maximum
     Pid pid_3voies_1_nath;
-    float ratio_3voies_1_nath;
     float in_offset_3voies_1_nath;   // en °c
     int16_t out_inhib_3voies_1_nath; // en ms
 #endif                               // DT_3VOIES_1_NATH

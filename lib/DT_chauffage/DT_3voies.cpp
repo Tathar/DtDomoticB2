@@ -23,7 +23,7 @@ float scale(float in, float in_min, float in_max, float out_min, float out_max)
 DT3voies::DT3voies() : pid(&Input, &Output, &SetPoint) {};
 
 // initialisation des vanne 3 voies
-void DT3voies::init(float KP, float KI, float KD, uint32_t KT, QuickPID::Action action, QuickPID::pMode pMode, QuickPID::dMode dMode, QuickPID::iAwMode iAwMode, uint8_t relay_hot, uint8_t relay_cold, uint8_t relay_circulateur, mode mode)
+void DT3voies::init(float KP, float KI, float KD, uint32_t KT, QuickPID::Action action, QuickPID::pMode pMode, QuickPID::dMode dMode, QuickPID::iAwMode iAwMode, uint8_t relay_hot, uint8_t relay_cold, uint8_t relay_circulateur, float inhibit_time, mode mode)
 {
 
     pid = QuickPID(&Input, &Output, &SetPoint);
@@ -57,6 +57,7 @@ void DT3voies::init(float KP, float KI, float KD, uint32_t KT, QuickPID::Action 
     Relay_hot = relay_hot;
     Relay_cold = relay_cold;
     Relay_circulateur = relay_circulateur;
+    Inhibit_time = inhibit_time;
 }
 
 // boucle principale des vanne 3 voie
@@ -107,7 +108,7 @@ bool DT3voies::loop(float input, float setpoint)
         {
             if (Output > 0)
             {
-                if (Output > inhibit_time)
+                if (Output > Inhibit_time)
                 {
                     DT_relay(Relay_hot, (uint32_t)(Output)); // activation de la vanne
                 }
@@ -115,7 +116,7 @@ bool DT3voies::loop(float input, float setpoint)
             else
             {
 
-                if (Output > (inhibit_time * -1))
+                if (Output > (Inhibit_time * -1))
                 {
                     DT_relay(Relay_cold, (uint32_t)(Output * -1)); // activation de la vanne
                 }
@@ -213,6 +214,11 @@ void DT3voies::set_iawmode(QuickPID::iAwMode iAwMode)
 void DT3voies::set_mode(DT3voies::mode mode)
 {
     Mode = mode;
+}
+
+void DT3voies::set_inhibit_time(float inhibit_time)
+{
+    Inhibit_time = inhibit_time;
 }
 
 DT3voies::mode DT3voies::get_mode()

@@ -33,7 +33,7 @@ float DT_get_temp_moyen()
 };
 
 // fournie la temperature exterieur moyenné en fonction du decalage choisie
-float get_temp_ext()
+float DT_get_temp_ext()
 {
     if (DT_pt100_get(DT_PT100_EXT) > DT_get_temp_moyen() + eeprom_config.in_offset_avg_temp_sup)
     {

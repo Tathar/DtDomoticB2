@@ -35,7 +35,7 @@ public:
 
     DT3voies();
 
-    void init(float KP, float KI, float KD, uint32_t KT, QuickPID::Action action, QuickPID::pMode pMode, QuickPID::dMode dMode, QuickPID::iAwMode iAwMode, uint8_t relay_hot, uint8_t relay_cold, uint8_t relay_circulateur, mode mode);
+    void init(float KP, float KI, float KD, uint32_t KT, QuickPID::Action action, QuickPID::pMode pMode, QuickPID::dMode dMode, QuickPID::iAwMode iAwMode, uint8_t relay_hot, uint8_t relay_cold, uint8_t relay_circulateur, float inhibit_time, mode mode);
     bool loop(float input, float setpoint);
 
     void set_mode(mode mode);
@@ -45,6 +45,7 @@ public:
     void set_KI(float ki);
     void set_KD(float kd);
     void set_KT(uint32_t kt);
+    void set_inhibit_time(float inhibit_time);
 
     void set_action(QuickPID::Action action);
     void set_pmode(QuickPID::pMode pMode);
@@ -63,7 +64,7 @@ private:
     float lissage_temp[NUM_LISSAGE];
     mode Mode;
     uint8_t position_lissage;
-    uint32_t inhibit_time;
+    uint32_t Inhibit_time;
     uint8_t Relay_hot;
     uint8_t Relay_cold;
     uint8_t Relay_circulateur;

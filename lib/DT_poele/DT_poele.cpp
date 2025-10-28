@@ -32,15 +32,19 @@ void DT_Poele_init()
 // decision de mise en service du poele en fonction des temperature
 bool marche_poele_ballon_normal(bool actuel, uint32_t now)
 {
+
+#ifdef DT_3VOIES_MCBT_RAPH
     // mise en marche du poele en fonction de la consigne MCBT
     if (DT_pt100_get(PT100_H_BALON) > 0)
     {
-        if (DT_pt100_get(PT100_H_BALON) < (mem_config.C3 + eeprom_config.V2)) // temp haut balon  < consigne MCBT + reserve temp
+        if (DT_pt100_get(PT100_H_BALON) < (DT_3voies_MCBT_raph_get_setpoint() + eeprom_config.V2)) // temp haut balon  < consigne MCBT + reserve temp
         {
             actuel = true;
         }
     }
+#endif //DT_3VOIES_MCBT_RAPH
 
+#ifdef DT_3VOIES_PCBT_RAPH
     // mise en marche du poele en fonction de la consigne PCBT
     if (DT_pt100_get(PT100_M_BALON) > 0)
     {
@@ -49,11 +53,12 @@ bool marche_poele_ballon_normal(bool actuel, uint32_t now)
             actuel = true;
         }
     }
+#endif //DT_3VOIES_PCBT_RAPH
 
     // arret du poele en fonction de la temperature
     if (DT_pt100_get(PT100_B_BALON) > 0)
     {
-        if (DT_pt100_get(PT100_B_BALON) > (max(DT_3voies_PCBT_raph_get_setpoint(), mem_config.C3) + eeprom_config.C7)) // temp bas balon > maximum consigne PCBT ou consigne MCBT  + bande morte Poele
+        if (DT_pt100_get(PT100_B_BALON) > (max(DT_3voies_PCBT_raph_get_setpoint(), DT_3voies_MCBT_raph_get_setpoint()) + eeprom_config.C7)) // temp bas balon > maximum consigne PCBT ou consigne MCBT  + bande morte Poele
         {
             actuel = false;
         }
@@ -162,7 +167,7 @@ void DT_Poele_set_mode(DT_Poele_mode mode)
         eeprom_config.poele_mode = mode;
         async_call_poele_mode = true;
     }
-        sauvegardeEEPROM();
+    sauvegardeEEPROM();
 }
 
 DT_Poele_mode DT_Poele_get_mode(void)

@@ -6,7 +6,8 @@ void DT_get_avg_temp_init();
 void DT_get_avg_temp_loop();
 
 void DT_3voies_set_callback_avg_temp(void (*callback_avg_temp)());
-float DT_get_temp_moyen();
+float DT_get_temp_moyen(); // fournie la temperature exterieur moyenné
+float DT_get_temp_ext(); // fournie la temperature exterieur moyenné en fonction du decalage choisie
 
 
 #endif //DT_TEMP_EXT
