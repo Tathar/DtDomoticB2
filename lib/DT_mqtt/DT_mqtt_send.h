@@ -79,3 +79,12 @@ inline void DT_mqtt_send(const __FlashStringHelper *topic, uint8_t num_t, T payl
     memory(false);
     debug(F(AT));
 }
+
+inline bool DT_mqtt_can_send()
+{
+  if (mem_config.MQTT_online)
+  {
+    return true;
+  }
+  return false;
+}

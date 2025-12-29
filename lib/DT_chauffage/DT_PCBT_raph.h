@@ -13,7 +13,7 @@
 enum __attribute__((__packed__)) DT_3voies_PCBT_raph_mode
 {
     DT_3voies_PCBT_raph_OFF,
-    DT_3voies_PCBT_raph_NORMAL,
+    DT_3voies_PCBT_raph_WINTER,
     DT_3voies_PCBT_raph_MANUAL,
 };
 

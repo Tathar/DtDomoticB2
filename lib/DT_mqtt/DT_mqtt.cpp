@@ -379,41 +379,23 @@ void DT_mqtt_loop()
             }
             else if (mem_config.ha_mqtt_config == false)
             {
-                mem_config.ha_mqtt_config = homeassistant(false); 
+                mem_config.ha_mqtt_config = homeassistant(false);
             }
-            else
+            else if (mem_config.ha_mqtt_subscribe == false)
             {
-                static uint8_t choix = 0;
-                switch (choix++)
-                {
-                case 0:
-                    if (_mqtt_subscribe != nullptr)
-                    {
-                        mem_config.ha_mqtt_subscribe = _mqtt_subscribe(mqtt, false);
-                    }
-                    break;
-                case 1:
-                    if (_mqtt_publish != nullptr)
-                    {
-                        mem_config.ha_mqtt_publish = _mqtt_publish(false);
-                    }
-                    break;
-                case 2:
-                    if (now - time >= MQTT_UPDATE)
-                    {
-                        time = now;
-                        // 220502  debug(F(AT));
-                        if (_mqtt_update != nullptr)
-                            _mqtt_update(mqtt, false);
-                        // 220502  debug(F(AT));
-                    }
-                    break;
-
-                default:
-                    break;
-                }
-                if (choix == 3)
-                    choix = 0;
+                mem_config.ha_mqtt_subscribe = _mqtt_subscribe(mqtt, false);
+            }
+            else if (mem_config.ha_mqtt_publish == false)
+            {
+                mem_config.ha_mqtt_publish = _mqtt_publish(false);
+            }
+            else if (now - time >= MQTT_UPDATE)
+            {
+                time = now;
+                // 220502  debug(F(AT));
+                if (_mqtt_update != nullptr)
+                    _mqtt_update(mqtt, false);
+                // 220502  debug(F(AT));
             }
         }
     }

@@ -8,16 +8,31 @@
 #endif
 
 #include <config.h>
-#include <RTClib.h>
+#include <DT_poele.h>
+#include <DT_3voies_nath.h>
+#include <DT_PCBT_raph.h>
+#include <DT_MCBT_raph.h>
+#include <DT_chauffage.h>
+#include <DT_chauffage.h>
 
-#include "../lib/DT_poele/DT_poele.h"
-#include "../lib/DT_chauffage/DT_3voies_nath.h"
-#include "../lib/DT_chauffage/DT_PCBT_raph.h"
-#include "../lib/DT_chauffage/DT_MCBT_raph.h"
-#include "../lib/DT_chauffage/DT_chauffage.h"
+// #include "../lib/DT_poele/DT_poele.h"
+// #include "../lib/DT_chauffage/DT_3voies_nath.h"
+// #include "../lib/DT_chauffage/DT_PCBT_raph.h"
+// #include "../lib/DT_chauffage/DT_MCBT_raph.h"
+// #include "../lib/DT_chauffage/DT_chauffage.h"
+// #include "../lib/DT_chauffage/DT_chauffage.h"
+
 // #include "../lib/DT_clock/DT_clock.h"
 
 #include <QuickPID.h>
+
+enum __attribute__((__packed__)) DT_ECS_RAPH_mode
+{
+    DT_ECS_MANUAL,
+    DT_ECS_BETWEEN,
+    DT_ECS_WINTER,
+    DT_ECS_ETE,
+};
 
 static const uint8_t STRUCT_MAGIC = 9;
 static const uint8_t STRUCT_VERSION = 1;
@@ -61,13 +76,6 @@ struct Radiator
     uint32_t cycle;     //  temp de cycle en ms
 };
 
-enum __attribute__((__packed__)) DT_ECS_mode
-{
-    DT_ECS_ARRET,
-    DT_ECS_MARCHE,
-    DT_ECS_STANDBY,
-};
-
 // declaration de la structure de configuration
 struct Mem_Config
 {
@@ -85,9 +93,6 @@ struct Mem_Config
 #if DIMMER_LIGHT_NUM >= 1
     uint8_t Dimmer_old_value[DIMMER_LIGHT_NUM]; // Mise a l echelle
 #endif
-#ifdef CLOCK
-    DateTime started; // date de demmarage
-#endif
 };
 struct Eeprom_Config
 {
@@ -102,7 +107,6 @@ struct Eeprom_Config
     // float C2;   // consigne Temp PCBT
     // float C3;   // consigne MCBT
     float C4;   // consigne Jacuzzi
-    uint8_t C5; // consigne ECS1 & ECS2
     uint8_t C6; // consigne mode boost
     int8_t C7;  // Bande Morte Poele
 #endif
@@ -115,7 +119,7 @@ struct Eeprom_Config
     float SetPoint_3voies_min_PCBT_raph;    // consigne Temp PCBT maximum
     float SetPoint_3voies_max_PCBT_raph;    // consigne Temp PCBT minimum
     Pid pid_3voies_PCBT_raph;
-    float in_offset_3voies_PCBT_raph; // en °c
+    float in_offset_3voies_PCBT_raph;   // en °c
     int16_t out_inhib_3voies_PCBT_raph; // en ms //TODO : à verifier
 #endif
 
@@ -124,11 +128,12 @@ struct Eeprom_Config
     float SetPoint_manual_3voies_MCBT_raph;
     float SetPoint_auto_1_3voies_MCBT_raph; // consigne Temp MCBT a -10°C //C10
     float SetPoint_auto_2_3voies_MCBT_raph; // consigne Temp MCBT a +10°C //C11
-    float SetPoint_3voies_min_MCBT_raph; // consigne Temp MCBT minimum
-    float SetPoint_3voies_max_MCBT_raph; // consigne Temp MCBT maximum
+    float SetPoint_3voies_min_MCBT_raph;    // consigne Temp MCBT minimum
+    float SetPoint_3voies_max_MCBT_raph;    // consigne Temp MCBT maximum
     Pid pid_3voies_MCBT_raph;
-    float in_offset_3voies_MCBT_raph; // en °c
+    float in_offset_3voies_MCBT_raph;   // en °c
     int16_t out_inhib_3voies_MCBT_raph; // en ms
+    float between_setpoint_3voies_MCBT_raph; // en °c
 #endif
 
 #ifdef DT_PT100_EXT
@@ -153,13 +158,13 @@ struct Eeprom_Config
     uint16_t Dimmer_scale_max[DIMMER_LIGHT_NUM]; // Mise a l echelle
 #endif                                           // DIMMER_LIGHT_NUM
 
-#ifdef RELAY_ECS1
-    DT_ECS_mode ecs1_mode; // ecs1 mode
-#endif
-
-#if RELAY_ECS2
-    DT_ECS_mode ecs2_mode; // ecs2 mode
-#endif
+#ifdef ECS_RAPH
+    DT_ECS_RAPH_mode ecs_raph_mode; //  mode de fonctionnement de l'ECS RAPH
+    float ecs_raph_init_consigne;   // consigne initiale de l'ECS RAPH
+    uint8_t ecs_raph_nb_personne;   // nombre de personne pour le calcul de la consigne
+    float ecs_raph_coef;            // coeficient pour le calcul de la consigne
+    float ecs_raph_secours;         // temperature de secours ECS (démmarge forcée)
+#endif                              // ECS_RAPH
 
 #if COVER_NUM >= 1
     Cover cover[COVER_NUM];
@@ -181,9 +186,9 @@ struct Eeprom_Config
     float temperature_balon_min;
     uint8_t temp_inter_demmarage;
     uint32_t date_retour_vacance;
+    uint32_t heure_debut_cycle;
 
 #endif // #CHAUFFAGE
-
 };
 
 // structure de configuration

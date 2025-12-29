@@ -120,12 +120,6 @@ void chargeEEPROM()
                 Serial.println(F("EEPROM version < 7"));
                 eeprom_config.struct_version = 7;
 
-#ifdef RELAY_ECS1
-                eeprom_config.ecs1_mode = DT_ECS_MARCHE;
-#endif
-#ifdef RELAY_ECS2
-                eeprom_config.ecs2_mode = DT_ECS_MARCHE;
-#endif
         }
         if (eeprom_config.struct_version < 8 || erreur)
         {
@@ -170,12 +164,11 @@ void chargeEEPROM()
                 eeprom_config.mode_3voies_MCBT_raph = DT_3voies_MCBT_raph_OFF;
 #endif
 #ifdef POELE
-                eeprom_config.poele_mode = DT_POELE_ARRET;
+                eeprom_config.poele_mode = DT_POELE_OFF;
                 eeprom_config.V1 = 60; // consigne poêle en mode force (70°C)
                 eeprom_config.V2 = 2;  // Variable Reserve chaleur Ballon (20°C)
                 eeprom_config.V3 = 0;  // Variable Temp Demi plage Morte
                 eeprom_config.C4 = 48; // consigne Jacuzzi
-                eeprom_config.C5 = 60; // consigne ECS1 & ECS2
                 eeprom_config.C7 = 90; // Reserve arret poele
 #endif
 #ifdef DT_3VOIES_1_NATH

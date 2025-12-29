@@ -1,7 +1,9 @@
 #include <config.h>
 #include <tools.h>
 #include <avr/wdt.h> //watchdog
-#include <DT_eeprom.h>
+// #include <DT_eeprom.h>
+
+#include <RTClib.h>
 
 void init_wdt()
 {

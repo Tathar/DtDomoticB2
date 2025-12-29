@@ -15,8 +15,9 @@
 enum __attribute__((__packed__)) DT_3voies_MCBT_raph_mode
 {
     DT_3voies_MCBT_raph_OFF,
-    DT_3voies_MCBT_raph_NORMAL,
+    DT_3voies_MCBT_raph_WINTER,
     DT_3voies_MCBT_raph_MANUAL,
+    DT_3voies_MCBT_raph_BETWEEN,
 };
 
 void DT_3voies_MCBT_raph_init();
@@ -48,6 +49,8 @@ void DT_3voies_MCBT_raph_set_dmode(QuickPID::dMode dMode);
 void DT_3voies_MCBT_raph_set_iawmode(QuickPID::iAwMode iAwMode);
 
 void DT_3voies_MCBT_raph_set_callback_pid(void (*callback_mcbt_pid)(const float setpoint, const float P, const float I, const float D, const float Out));
+
+
 #endif //_DT_3VOIES_MCBT_RAPH
 
 #endif //DT_3voies_MCBT_raph

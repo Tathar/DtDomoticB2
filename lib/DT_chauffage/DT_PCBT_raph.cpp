@@ -33,7 +33,7 @@ void DT_3voies_PCBT_raph_init()
         // SetPoint_3voies_1 = 0;
         mode = DT3voies::mode::OFF;
     }
-    else if (eeprom_config.mode_3voies_PCBT_raph == DT_3voies_PCBT_raph_NORMAL)
+    else if (eeprom_config.mode_3voies_PCBT_raph == DT_3voies_PCBT_raph_WINTER)
     {
         // SetPoint_3voies_1 = scale(DT_pt100_get(DT_PT100_EXT), -10, 10, eeprom_config.SetPoint_auto_1_3voies_PCBT_raph, eeprom_config.SetPoint_auto_2_3voies_PCBT_raph);
         // SetPoint_3voies_1 = scale(DT_get_temp_ext(), -10, 10, eeprom_config.SetPoint_auto_1_3voies_PCBT_raph, eeprom_config.SetPoint_auto_2_3voies_PCBT_raph);
@@ -65,7 +65,7 @@ void DT_3voies_PCBT_raph_loop()
     uint32_t now = millis();
     float setpoint = 0;
 
-    if (eeprom_config.mode_3voies_PCBT_raph == DT_3voies_PCBT_raph_NORMAL)
+    if (eeprom_config.mode_3voies_PCBT_raph == DT_3voies_PCBT_raph_WINTER)
     {
         setpoint = scale(DT_get_temp_ext(), -10, 10, eeprom_config.SetPoint_auto_1_3voies_PCBT_raph, eeprom_config.SetPoint_auto_2_3voies_PCBT_raph); // calcul de la consigne en fonction de la temperature exterieur
         if (mem_config.MQTT_online)                                                                                                                // si la carte est connecte au serveur MQTT
@@ -86,7 +86,7 @@ void DT_3voies_PCBT_raph_loop()
     if (setpoint > TMP_EAU_PCBT_MAX)
         setpoint = TMP_EAU_PCBT_MAX;
 
-    if (eeprom_config.mode_3voies_PCBT_raph == DT_3voies_PCBT_raph_NORMAL)
+    if (eeprom_config.mode_3voies_PCBT_raph == DT_3voies_PCBT_raph_WINTER)
     {
         if (vanne_PCBT_raph.get_mode() == DT3voies::mode::ON && (DT_pt100_get(DT_PT100_EXT) < eeprom_config.SetPoint_3voies_min_PCBT_raph))
         {
@@ -115,7 +115,7 @@ void DT_3voies_PCBT_raph_set_mode(DT_3voies_PCBT_raph_mode mode)
     {
         vanne_PCBT_raph.set_mode(DT3voies::mode::OFF);
     }
-    else if (eeprom_config.mode_3voies_PCBT_raph == DT_3voies_PCBT_raph_NORMAL)
+    else if (eeprom_config.mode_3voies_PCBT_raph == DT_3voies_PCBT_raph_WINTER)
     {
         vanne_PCBT_raph.set_mode(DT3voies::mode::ON);
     }

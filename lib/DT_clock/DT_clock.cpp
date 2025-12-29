@@ -24,12 +24,18 @@ bool RTCNTP::begin()
   if (!_rtc.begin())
   {
     Serial.println("RTC DS1307 non detectee");
+    rtc_ok = false;
     return false;
   }
+
   if (!_rtc.isrunning())
   {
     Serial.println("RTC DS1307 n'est pas en cours d'execution (verifier pile)");
+    rtc_ok = false;
+    return false;
   }
+
+  rtc_ok = true;
   return true;
 }
 
@@ -46,6 +52,9 @@ bool RTCNTP::syncOnce()
     }
 
     DateTime dt((uint32_t)epoch);
+    
+    old_date_time_millis = millis();
+    old_date_time = dt;
 
     Wire.beginTransmission(I2C_MULTIPLEXER_ADDRESS); // change I2C channel
     Wire.write(i2c_channel_to_multiplexer(1));
@@ -80,11 +89,34 @@ void RTCNTP::loop()
 
 DateTime RTCNTP::now()
 {
-  Wire.beginTransmission(I2C_MULTIPLEXER_ADDRESS); // change I2C channel
-  Wire.write(i2c_channel_to_multiplexer(1));
-  Wire.endTransmission();
-  DateTime dt = _rtc.now();
+  DateTime dt;
   DateTime ret;
+
+  if (rtc_ok && (millis() - old_date_time_millis) > 1000)
+  {
+    Wire.beginTransmission(I2C_MULTIPLEXER_ADDRESS); // change I2C channel
+    Wire.write(i2c_channel_to_multiplexer(1));
+    Wire.endTransmission();
+    dt = _rtc.now();
+    old_date_time_millis = millis();
+    old_date_time = dt;
+  }
+  else if (!rtc_ok && as_ethernet && (millis() - old_date_time_millis) > 60 * 60 * 1000)
+  {
+    unsigned long epoch = getNTPTime();
+    if (epoch == 0)
+    {
+      Serial.println("Echec recup NTP");
+      dt = old_date_time + (millis() - old_date_time_millis);
+    }
+    dt = DateTime((uint32_t)epoch);
+    old_date_time_millis = millis();
+    old_date_time = dt;
+  }
+  else
+  {
+    dt = old_date_time + (millis() - old_date_time_millis);
+  }
 
   DateTime d1 = DateTime(dt.year(), CLOCK_MONTH_1, CLOCK_DAY_1, CLOCK_HOUR_1, 0);
   int day = d1.dayOfTheWeek();
@@ -110,8 +142,6 @@ DateTime RTCNTP::now()
     Serial.println("UTC+1");
     return dt + CLOCK_OFSFET_2;
   }
-
-  // return dt; // TODO: heure hiver/ete
 }
 
 unsigned long RTCNTP::getNTPTime()

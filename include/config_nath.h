@@ -268,11 +268,11 @@ const uint8_t RELAY_RADIATOR_PT100_ARRAY[RELAY_RADIATOR_NUM] PROGMEM = {};
 
 #define DT_3VOIES_1_NATH //3 voies Nath
 #ifdef DT_3VOIES_1_NATH
-#define DT_3VOIES_1_NATH_MAX 65 // valeur maximum de la consigne de temperature
+#define DT_3VOIES_1_NATH_MAX_TMP_EAU 65 // valeur maximum de la consigne de temperature
 #define DT_3VOIES_1_NATH_MIN 10 // valeur maximum de la consigne de temperature
 // #define DBMAC 0.5           // demi bamnde morte pour l'arret des circulateur (en °C)
 
-#define DT_3VOIES_1_NATH_CHAUFFAGE_PT100 1
+#define DT_3VOIES_1_NATH_PT100 1
 
 #define DT_3VOIES_1_NATH_HOT 2
 #define DT_3VOIES_1_NATH_COLD 1

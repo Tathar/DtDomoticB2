@@ -1,43 +1,57 @@
 Mur chauffant :
-    supresseion mode démmarge
-    supression mode veille
-    renomé mode normal en hiver
+    supresseion mode démmarge                 OK
+    supression mode veille                    OK  
+    renomé mode normal en hiver               OK
 
     mode intersaison:
       sur plage hauraire (deux variable HA):
-        circulateur en marche
-        PID actif
-        consigne de temperature variable HA
-        activer relais 10 et 13 (seche serviette et murchauffant)
+        demmarrage a heure ECS si (Tmp salon ou SDB 1 ou SDB 2 < variable consigne demmarage mur chauffant intersaison)
+            circulateur en marche
+            PID actif
+            consigne de temperature (intersaison) variable HA
+            activer relais 10 et 13 (seche serviette et murchauffant)
+        
+        arret sur temperature ballon haut <= consigne ECS
 
     mode manu:
-        regulation PID active (comme auto)
-        tous le reste disponible HA
+        regulation PID active (comme auto)    OK
+        tous le reste disponible HA           OK
 
 planchée chauffant :
-    supresseion mode démmarge
-    supression mode veille
-    renomé mode normal en hiver
+    supresseion mode démmarge                 OK 
+    supression mode veille                    OK  
+    renomé mode normal en hiver               OK
 
     mode manu:
-        regulation PID active (comme auto)
-        tous le reste disponible HA
+        regulation PID active (comme auto)    OK
+        tous le reste disponible HA           OK
 
-ECS :
-    spression mode ECS1 et mode ECS2
+ECS (electique):
+    supression mode ECS1 et mode ECS2
 
     mode manu:
         les trois relais et le circulateur sont disponible HA
 
-    mode auto:
-        résistances: 
-          demmarage sur horaires (une variable HA) sauf ci circulateur MCBT en marche ou Poele en marche
-          demmarage sur temperature inferieur a variable HA
-          demmarage deux resistance inferieur a deuxieme temperature HA
-          arret sur temperature "ECS" (calcule cientioligique) >= (nombre de personne (variable HA usint ) * coef (variable HA float) ) + temperature fix (variable HA usint)
-          arret le vendredi soir ou samedi matin a 70° (anti legionnel)
+    mode intersaison:
+        demmarage sur horaire ECS (variable HA) si poele arreté
 
-          effectué une rotation des resistance afin déquilibré l'usure.
+    mode Hiver:
+        arret electrique
+
+    mode été:
+        demmarage a heure ECS (variable HA) et arret a temperature arret ECS (variable HA)
+
+    variable HA a créer:
+        consigne Initial
+        nombre personne présente
+        coef par personne
+        (nombre de personne (variable HA usint ) * coef (variable HA float) ) + temperature Initial (variable HA usint) = consigne ECS
+
+        heure demmarage ECS           //TODO:
+  
+    arret le vendredi soir ou samedi matin a 70° (anti legionnel)
+    effectué une rotation des resistance afin déquilibré l'usure.
+    mode secours ci temperature ECS < consigne HA mode secours
 
 
 poele :
@@ -46,13 +60,22 @@ poele :
 
     modification mode hiver:
       TODO
+      demmarage comme avant + consigne ECS mode secours + 5°C
+      arret calculé pour demmarage tous les 8 heures
 
     créé mode maintenance:
       poele arreté
 
     créé mode intersaison:
-      demmarage sur horaire (variable HA) 
-      arret sur consigne de température balon bas (variable HA)
+      demmarage sur horaire ECS
+      arret sur consigne de température balon bas (variable HA consigne arret poele intersaison)
+
+  gestion defaut poele:
+    ci demande de marche et pas impultion vis pandant 10 minute
+    reinitialisation du defaut a la demande de marche suivante ou premiere impulsion vis detecté
+    envoi defaut HA
+    arret circulateur en cas de defaut poele
+
 
 
 mode chauffage:

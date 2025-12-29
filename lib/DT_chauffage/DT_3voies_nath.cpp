@@ -1,5 +1,13 @@
 
+#include <config.h>
+
+// T1 = Temp Ballon		T2 = Temp ECS			    T3 = Temp ECS2
+// T5 = Temp Extérieur	T6 = Temp Vanne 3V PCBT	    T7 = Temp Vanne 3V MCBT	    T8 = Temp Vanne 3V Jacuzzi
+
+#ifdef DT_3VOIES_1_NATH
+
 #include "../lib/DT_chauffage/DT_3voies_nath.h"
+
 #include <DT_input.h>
 #include <DT_PT100.h>
 #include <DT_relay.h>
@@ -7,13 +15,6 @@
 #include <./DT_3voies.h>
 
 #include <DT_eeprom.h>
-
-#include <config.h>
-
-// T1 = Temp Ballon		T2 = Temp ECS			    T3 = Temp ECS2
-// T5 = Temp Extérieur	T6 = Temp Vanne 3V PCBT	    T7 = Temp Vanne 3V MCBT	    T8 = Temp Vanne 3V Jacuzzi
-
-#ifdef DT_3VOIES_1_NATH
 
 DT3voies vanne_1_nath;
 

@@ -10,6 +10,8 @@
 
 #include <QuickPID.h>
 
+// class QuickPID;
+
 enum __attribute__((__packed__)) DT_3voies_1_nath_mode
 {
     DT_3voies_1_nath_OFF,

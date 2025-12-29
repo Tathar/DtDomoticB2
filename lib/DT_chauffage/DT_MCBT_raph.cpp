@@ -7,6 +7,8 @@
 #include <./DT_3voies.h>
 
 #include <DT_eeprom.h>
+#include <DT_poele.h>
+#include <DT_ecs_raph.h>
 
 #include <config.h>
 
@@ -32,7 +34,7 @@ void DT_3voies_MCBT_raph_init()
         // SetPoint_3voies_1 = 0;
         mode = DT3voies::mode::OFF;
     }
-    else if (eeprom_config.mode_3voies_MCBT_raph == DT_3voies_MCBT_raph_NORMAL)
+    else if (eeprom_config.mode_3voies_MCBT_raph == DT_3voies_MCBT_raph_WINTER)
     {
         // SetPoint_3voies_1 = scale(DT_pt100_get(DT_PT100_EXT), -10, 10, eeprom_config.SetPoint_auto_1_3voies_MCBT_raph, eeprom_config.SetPoint_auto_2_3voies_MCBT_raph);
         // SetPoint_3voies_1 = scale(DT_get_temp_ext(), -10, 10, eeprom_config.SetPoint_auto_1_3voies_MCBT_raph, eeprom_config.SetPoint_auto_2_3voies_MCBT_raph);
@@ -64,13 +66,17 @@ void DT_3voies_MCBT_raph_loop()
     uint32_t now = millis();
     float setpoint = 0;
 
-    if (eeprom_config.mode_3voies_MCBT_raph == DT_3voies_MCBT_raph_NORMAL)
+    if (eeprom_config.mode_3voies_MCBT_raph == DT_3voies_MCBT_raph_WINTER)
     {
         setpoint = scale(DT_get_temp_ext(), -10, 10, eeprom_config.SetPoint_auto_1_3voies_MCBT_raph, eeprom_config.SetPoint_auto_2_3voies_MCBT_raph); // calcul de la consigne en fonction de la temperature exterieur
         if (mem_config.MQTT_online)                                                                                                                // si la carte est connecte au serveur MQTT
         {
             setpoint += eeprom_config.in_offset_3voies_MCBT_raph; // ajout du decalage de la consigne (mode eco)
         }
+    }
+    else if (eeprom_config.mode_3voies_MCBT_raph == DT_3voies_MCBT_raph_BETWEEN)
+    {
+        setpoint = eeprom_config.between_setpoint_3voies_MCBT_raph; // consigne intersaision
     }
     else if (eeprom_config.mode_3voies_MCBT_raph == DT_3voies_MCBT_raph_MANUAL)
     {
@@ -85,7 +91,7 @@ void DT_3voies_MCBT_raph_loop()
     if (setpoint > TMP_EAU_MCBT_MAX)
         setpoint = TMP_EAU_MCBT_MAX;
 
-    if (eeprom_config.mode_3voies_MCBT_raph == DT_3voies_MCBT_raph_NORMAL)
+    if (eeprom_config.mode_3voies_MCBT_raph == DT_3voies_MCBT_raph_WINTER)
     {
         if (vanne_MCBT_raph.get_mode() == DT3voies::mode::ON && (DT_pt100_get(DT_PT100_EXT) < eeprom_config.SetPoint_3voies_min_MCBT_raph))
         {
@@ -94,6 +100,27 @@ void DT_3voies_MCBT_raph_loop()
         else if (vanne_MCBT_raph.get_mode() == DT3voies::mode::OFF && (DT_pt100_get(DT_PT100_EXT) >= eeprom_config.SetPoint_3voies_min_MCBT_raph))
         {
             vanne_MCBT_raph.set_mode(DT3voies::mode::ON);
+        }
+    }else if (eeprom_config.mode_3voies_MCBT_raph == DT_3voies_MCBT_raph_BETWEEN)
+    {
+        if (DT_Poele_started() || DT_pt100_get(PT100_H_BALON) > DT_ECS_RAPH_get_consigne()) {
+            vanne_MCBT_raph.set_mode(DT3voies::mode::ON);
+            if (!DT_relay_get(VANNE_SECHE_SERVIETTE))
+            {
+                DT_relay(VANNE_SECHE_SERVIETTE, true);
+            }
+            if (!DT_relay_get(VANNE_MCBT)){
+                DT_relay(VANNE_MCBT, true);
+            }
+        }else {
+            vanne_MCBT_raph.set_mode(DT3voies::mode::OFF);
+            if (DT_relay_get(VANNE_SECHE_SERVIETTE))
+            {
+                DT_relay(VANNE_SECHE_SERVIETTE, false);
+            }
+            if (DT_relay_get(VANNE_MCBT)){
+                DT_relay(VANNE_MCBT, false);
+            }
         }
     }
 
@@ -114,7 +141,7 @@ void DT_3voies_MCBT_raph_set_mode(DT_3voies_MCBT_raph_mode mode)
     {
         vanne_MCBT_raph.set_mode(DT3voies::mode::OFF);
     }
-    else if (eeprom_config.mode_3voies_MCBT_raph == DT_3voies_MCBT_raph_NORMAL)
+    else if (eeprom_config.mode_3voies_MCBT_raph == DT_3voies_MCBT_raph_WINTER)
     {
         vanne_MCBT_raph.set_mode(DT3voies::mode::ON);
     }

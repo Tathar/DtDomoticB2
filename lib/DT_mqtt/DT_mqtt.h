@@ -1,5 +1,5 @@
-#ifndef DT_MQTT
-#define DT_MQTT
+#ifndef _DT_MQTT
+#define _DT_MQTT
 
 #include <SPI.h>
 #include <Ethernet.h>

@@ -1,5 +1,5 @@
 #include <DT_ha.h>
-#include <DT_eeprom.h>
+// #include <DT_eeprom.h>
 
 #include <DT_mqtt_send.h>
 
@@ -621,7 +621,7 @@ bool homeassistant(bool start)
 #include BOOST_PP_UPDATE_COUNTER()
                 case BOOST_PP_COUNTER:
                         // Poele mode
-                        DT_mqtt_send(F("homeassistant/select/" BOARD_IDENTIFIER "/poele-mode/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/poele/mode\",\"uniq_id\":\"" BOARD_IDENTIFIER "-poele-mode\",\"name\":\"" BOARD_IDENTIFIER " mode poele\",\"command_topic\":\"~/set\",\"state_topic\":\"~/state\",\"options\":[\"Arret\",\"Normal\",\"Forcé\",\"Veille\"],\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
+                        DT_mqtt_send(F("homeassistant/select/" BOARD_IDENTIFIER "/poele-mode/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/poele/mode\",\"uniq_id\":\"" BOARD_IDENTIFIER "-poele-mode\",\"name\":\"" BOARD_IDENTIFIER " mode poele\",\"command_topic\":\"~/set\",\"state_topic\":\"~/state\",\"options\":[\"Arret\",\"Hiver\",\"Maintenance\",\"Inter-saison\"],\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
                         break;
 
 #include BOOST_PP_UPDATE_COUNTER()
@@ -645,13 +645,6 @@ bool homeassistant(bool start)
                         // #ifdef COMMENT
 #include BOOST_PP_UPDATE_COUNTER()
                 case BOOST_PP_COUNTER:
-                        // C5
-                        DT_mqtt_send(F("homeassistant/number/" BOARD_IDENTIFIER "/C5/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/C5\",\"uniq_id\":\"" BOARD_IDENTIFIER "-C5\",\"name\":\"" BOARD_IDENTIFIER " consigne ECS (C5)\",\"stat_t\":\"~/state\",\"command_topic\":\"~/set\",\"mode\":\"box\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
-                        break;
-
-                        // #ifdef COMMENT
-#include BOOST_PP_UPDATE_COUNTER()
-                case BOOST_PP_COUNTER:
                         // C6
                         DT_mqtt_send(F("homeassistant/number/" BOARD_IDENTIFIER "/C6/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/C6\",\"uniq_id\":\"" BOARD_IDENTIFIER "-C6\",\"name\":\"" BOARD_IDENTIFIER " consigne mode boost (C6)\",\"stat_t\":\"~/state\",\"command_topic\":\"~/set\",\"mode\":\"box\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
                         break;
@@ -666,7 +659,12 @@ bool homeassistant(bool start)
                 case BOOST_PP_COUNTER:
                         // V3
                         DT_mqtt_send(F("homeassistant/number/" BOARD_IDENTIFIER "/V3/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/V3\",\"uniq_id\":\"" BOARD_IDENTIFIER "-V3\",\"name\":\"" BOARD_IDENTIFIER " Temp Demi plage Morte (V3)\",\"stat_t\":\"~/state\",\"command_topic\":\"~/set\",\"min\":0,\"max\":100,\"step\":0.01,\"dev_cla\":\"temperature\",\"unit_of_meas\":\"°C\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
+                        break;
 
+#include BOOST_PP_UPDATE_COUNTER()
+                case BOOST_PP_COUNTER:
+                        // V3
+                        DT_mqtt_send(F("homeassistant/binary_sensor/" BOARD_IDENTIFIER "/default_poele/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/poele/default\",\"uniq_id\":\"" BOARD_IDENTIFIER "-default_poele\",\"name\":\"" BOARD_IDENTIFIER " Default poele\",\"stat_t\":\"~/state\",\"dev_cla\":\"problem\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
                         break;
 #endif // POELE
 
@@ -710,21 +708,28 @@ bool homeassistant(bool start)
 
 #include BOOST_PP_UPDATE_COUNTER()
                 case BOOST_PP_COUNTER:
-                        // uint32_t date_retour_vacance;
+                        // uint32_t timestamp_date_retour_vacance;
                         DT_mqtt_send(F("homeassistant/number/" BOARD_IDENTIFIER "/chauffage_DRV/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/chauffage/DRV\",\"uniq_id\":\"" BOARD_IDENTIFIER "-CH-DRV\",\"name\":\"" BOARD_IDENTIFIER " Date retour vacance (timestamp)\",\"stat_t\":\"~/state\",\"command_topic\":\"~/set\",\"step\":1,\"min\":0,\"max\":4294967295,\"mode\":\"box\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
+                        break;
+
+
+#include BOOST_PP_UPDATE_COUNTER()
+                case BOOST_PP_COUNTER:
+                        // uint32_t timestamp_heure_debut_cycle_chauffage;
+                        DT_mqtt_send(F("homeassistant/number/" BOARD_IDENTIFIER "/chauffage_EDC/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/chauffage/EDC\",\"uniq_id\":\"" BOARD_IDENTIFIER "-CH-cycle\",\"name\":\"" BOARD_IDENTIFIER " heure debut de cycle (timestamp)\",\"stat_t\":\"~/state\",\"command_topic\":\"~/set\",\"step\":1,\"min\":0,\"max\":4294967295,\"mode\":\"box\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
                         break;
 
 #include BOOST_PP_UPDATE_COUNTER()
                 case BOOST_PP_COUNTER:
                         //ha_arret_meteo
-                        DT_mqtt_send(F("homeassistant/switch/" BOARD_IDENTIFIER "/chauffage_meteo/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/chauffage/AM\",\"uniq_id\":\"" BOARD_IDENTIFIER "-CH-AM\",\"name\":\"" BOARD_IDENTIFIER " Arret Météo\",\"command_topic\":\"~/set\",\"stat_t\":\"~/state\",\"ret\":\"true\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
+                        DT_mqtt_send(F("homeassistant/switch/" BOARD_IDENTIFIER "/chauffage_AM/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/chauffage/AM\",\"uniq_id\":\"" BOARD_IDENTIFIER "-CH-AM\",\"name\":\"" BOARD_IDENTIFIER " Arret Météo\",\"command_topic\":\"~/set\",\"stat_t\":\"~/state\",\"ret\":\"true\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
 #endif // CHAUFFAGE
 
 #ifdef DT_3VOIES_PCBT_RAPH
 #include BOOST_PP_UPDATE_COUNTER()
                 case BOOST_PP_COUNTER:
                         // 3 voies PCBT mode
-                        DT_mqtt_send(F("homeassistant/select/" BOARD_IDENTIFIER "/pcbt-mode/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/pcbt/mode\",\"uniq_id\":\"" BOARD_IDENTIFIER "-pcbt-mode\",\"name\":\"" BOARD_IDENTIFIER " mode pcbt\",\"command_topic\":\"~/set\",\"state_topic\":\"~/state\",\"options\":[\"Normal\",\"Manuel\",\"Arret\"],\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
+                        DT_mqtt_send(F("homeassistant/select/" BOARD_IDENTIFIER "/pcbt-mode/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/pcbt/mode\",\"uniq_id\":\"" BOARD_IDENTIFIER "-pcbt-mode\",\"name\":\"" BOARD_IDENTIFIER " mode pcbt\",\"command_topic\":\"~/set\",\"state_topic\":\"~/state\",\"options\":[\"Hiver\",\"Manuel\",\"Arret\"],\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
                         break;
 
 #include BOOST_PP_UPDATE_COUNTER()
@@ -854,7 +859,7 @@ bool homeassistant(bool start)
 #include BOOST_PP_UPDATE_COUNTER()
                 case BOOST_PP_COUNTER:
                         // 3 voies MCBT mode
-                        DT_mqtt_send(F("homeassistant/select/" BOARD_IDENTIFIER "/mcbt-mode/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/mcbt/mode\",\"uniq_id\":\"" BOARD_IDENTIFIER "-mcbt-mode\",\"name\":\"" BOARD_IDENTIFIER " mode mcbt\",\"command_topic\":\"~/set\",\"state_topic\":\"~/state\",\"options\":[\"Normal\",\"Manuel\",\"Arret\"],\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
+                        DT_mqtt_send(F("homeassistant/select/" BOARD_IDENTIFIER "/mcbt-mode/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/mcbt/mode\",\"uniq_id\":\"" BOARD_IDENTIFIER "-mcbt-mode\",\"name\":\"" BOARD_IDENTIFIER " mode mcbt\",\"command_topic\":\"~/set\",\"state_topic\":\"~/state\",\"options\":[\"Hiver\",\"Intersaison\",\"Manuel\",\"Arret\"],\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
                         break;
 
 #include BOOST_PP_UPDATE_COUNTER()
@@ -975,6 +980,13 @@ bool homeassistant(bool start)
                 case BOOST_PP_COUNTER:
                         // Offset MCBT IN
                         DT_mqtt_send(F("homeassistant/number/" BOARD_IDENTIFIER "/offset-mcbt-in/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/mcbt/offset-in\",\"uniq_id\":\"" BOARD_IDENTIFIER "-offset-mcbt-in\",\"name\":\"" BOARD_IDENTIFIER " Decalage consigne MCBT\",\"stat_t\":\"~/state\",\"command_topic\":\"~/set\",\"min\":-100,\"max\":100,\"step\":0.01,\"dev_cla\":\"temperature\",\"unit_of_meas\":\"°C\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
+                        break;
+
+
+#include BOOST_PP_UPDATE_COUNTER()
+                case BOOST_PP_COUNTER:
+                        // consigne intersaison MCBT
+                        DT_mqtt_send(F("homeassistant/number/" BOARD_IDENTIFIER "/between-setpoint-mcbt/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/mcbt/between-setpoint\",\"uniq_id\":\"" BOARD_IDENTIFIER "-offset-mcbt-in\",\"name\":\"" BOARD_IDENTIFIER "consigne intersaison MCBT\",\"stat_t\":\"~/state\",\"command_topic\":\"~/set\",\"min\":0,\"max\":100,\"step\":0.01,\"dev_cla\":\"temperature\",\"unit_of_meas\":\"°C\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
                         break;
 
 
@@ -1138,21 +1150,44 @@ bool homeassistant(bool start)
 
 #endif //DT_PT100_EXT
 
-#ifdef RELAY_ECS1
-#include BOOST_PP_UPDATE_COUNTER()
-                case BOOST_PP_COUNTER:
-                        // 3 voies MCBT mode
-                        DT_mqtt_send(F("homeassistant/select/" BOARD_IDENTIFIER "/ecs1/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/ecs1\",\"uniq_id\":\"" BOARD_IDENTIFIER "-ecs1-mode\",\"name\":\"" BOARD_IDENTIFIER " mode ECS1\",\"command_topic\":\"~/set\",\"state_topic\":\"~/state\",\"options\":[\"Marche\",\"Arret\",\"Veille\"],\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
-                        break;
-#endif // RELAY_ECS1
+#ifdef ECS_RAPH
 
-#ifdef RELAY_ECS2
 #include BOOST_PP_UPDATE_COUNTER()
                 case BOOST_PP_COUNTER:
-                        // 3 voies MCBT mode
-                        DT_mqtt_send(F("homeassistant/select/" BOARD_IDENTIFIER "/ecs2/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/ecs2\",\"uniq_id\":\"" BOARD_IDENTIFIER "-ecs2-mode\",\"name\":\"" BOARD_IDENTIFIER " mode ECS2\",\"command_topic\":\"~/set\",\"state_topic\":\"~/state\",\"options\":[\"Marche\",\"Arret\",\"Veille\"],\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
+                        // Mode ECS
+                        DT_mqtt_send(F("homeassistant/select/" BOARD_IDENTIFIER "/ecs-mode/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/ecs/mode\",\"uniq_id\":\"" BOARD_IDENTIFIER "-ecs-mode\",\"name\":\"" BOARD_IDENTIFIER " mode ECS\",\"command_topic\":\"~/set\",\"state_topic\":\"~/state\",\"options\":[\"Manuel\",\"Intersaison\",\"Hiver\",\"Ete\"],\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
                         break;
-#endif // RELAY_ECS2
+
+#include BOOST_PP_UPDATE_COUNTER()
+                case BOOST_PP_COUNTER:
+                        // temperature Initial ECS
+                        DT_mqtt_send(F("homeassistant/number/" BOARD_IDENTIFIER "/ecs-init_cons/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/ecs/init_cons\",\"uniq_id\":\"" BOARD_IDENTIFIER "ecs--init_cons\",\"name\":\"" BOARD_IDENTIFIER " consigne initial ECS\",\"stat_t\":\"~/state\",\"command_topic\":\"~/set\",\"mode\":\"box\",\"dev_cla\":\"temperature\",\"unit_of_meas\":\"°C\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
+                        break;
+
+#include BOOST_PP_UPDATE_COUNTER()
+                case BOOST_PP_COUNTER:
+                        // nombre personne ECS
+                        DT_mqtt_send(F("homeassistant/number/" BOARD_IDENTIFIER "/ecs-nb_pers/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/ecs/nb_pers\",\"uniq_id\":\"" BOARD_IDENTIFIER "ecs--nb_pers\",\"name\":\"" BOARD_IDENTIFIER " Nombre personnes ECS\",\"stat_t\":\"~/state\",\"command_topic\":\"~/set\",\"mode\":\"box\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
+                        break;
+
+#include BOOST_PP_UPDATE_COUNTER()
+                case BOOST_PP_COUNTER:
+                        // coef ECS
+                        DT_mqtt_send(F("homeassistant/number/" BOARD_IDENTIFIER "/ecs-coef/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/ecs/coef\",\"uniq_id\":\"" BOARD_IDENTIFIER "-ecs-coef\",\"name\":\"" BOARD_IDENTIFIER " Coef ECS\",\"stat_t\":\"~/state\",\"command_topic\":\"~/set\",\"step\":0.01,\"mode\":\"box\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
+                        break;
+
+#include BOOST_PP_UPDATE_COUNTER()
+                case BOOST_PP_COUNTER:
+                        // coef ECS
+                        DT_mqtt_send(F("homeassistant/number/" BOARD_IDENTIFIER "/ecs-secours/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/ecs/secours\",\"uniq_id\":\"" BOARD_IDENTIFIER "-ecs-secours\",\"name\":\"" BOARD_IDENTIFIER " temperature secours ECS\",\"stat_t\":\"~/state\",\"command_topic\":\"~/set\",\"step\":0.01,\"mode\":\"box\",\"dev_cla\":\"temperature\",\"unit_of_meas\":\"°C\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
+                        break;
+
+#include BOOST_PP_UPDATE_COUNTER()
+                case BOOST_PP_COUNTER:
+                        // consigne ECS
+                        DT_mqtt_send(F("homeassistant/sensor/" BOARD_IDENTIFIER "/ecs-cons/config"), F("{\"~\":\"DtBoard/" BOARD_IDENTIFIER "/ecs/cons\",\"uniq_id\":\"" BOARD_IDENTIFIER "-ecs-cons\",\"name\":\"" BOARD_IDENTIFIER " Consigne ECS\",\"stat_t\":\"~/state\",\"dev_cla\":\"temperature\",\"unit_of_meas\":\"°C\",\"dev\":{\"ids\":\"" BOARD_IDENTIFIER "\"}}"));
+                        break;
+#endif // ECS_RAPH
 
 #include BOOST_PP_UPDATE_COUNTER()
                 case BOOST_PP_COUNTER:
@@ -1202,7 +1237,7 @@ bool homeassistant(bool start)
                 }
                 memory(false);
                 sequance += 1;
-                Serial.print(F("sequance = "));
+                Serial.print(F("HA config = "));
                 Serial.println(sequance - 1);
                 memory(false);
         }
